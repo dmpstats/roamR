@@ -1,12 +1,16 @@
 Package: birdRoamR
-Title: What the Package Does (One Line, Title Case)
+Title: Seabird IBM For Non-Breeding Season
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Carl", "Donovan", , "carl@dmpstats.co.uk", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-1465-5193"))
+    person("Bruno", "Caneco", , "bruno@dmpstats.co.uk", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0009-0124-7156"))
+Description: A package for an Individual Based Model (IBM) for simulating seabirds in the non-breeding season in particular. This is in support of the DisNBS project, funded by the Carbon Trust and the Offshore Renewables Joint Industry Partnership (ORJIP)
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
