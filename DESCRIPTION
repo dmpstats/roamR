@@ -1,4 +1,4 @@
-Package: birdRoamR
+Package: roamR
 Title: Seabird IBM For Non-Breeding Season
 Version: 0.0.0.9000
 Authors@R: 
@@ -15,6 +15,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
+    cli,
     methods,
     sf,
     units

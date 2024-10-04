@@ -1,16 +1,16 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# birdRoamR
+# roamR
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of birdRoamR is to …
+The goal of roamR is to …
 
 ## Installation
 
-You can install the development version of birdRoamR like so:
+You can install the development version of roamR like so:
 
 ``` r
 # FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
@@ -21,7 +21,7 @@ You can install the development version of birdRoamR like so:
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(birdRoamR)
+library(roamR)
 ## basic example code
 ```
 

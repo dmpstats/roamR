@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(birdRoamR)
+library(roamR)
 
-test_check("birdRoamR")
+test_check("roamR")
