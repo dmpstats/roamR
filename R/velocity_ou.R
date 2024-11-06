@@ -8,7 +8,7 @@
 #'
 #' @return A 2D numeric (velocity) vector
 #' @export
-#' @importFrom
+
 #' @examples
 #' # drift to the NE of approx 1m/s, high correlation,
 #' # current velocity SW of approx 1m/s, 10s step, 2.5m/s std dev

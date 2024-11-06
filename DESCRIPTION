@@ -21,6 +21,7 @@ Imports:
     units
 Collate: 
     'class-species.R'
+    'class-AgentState.R'
     'class-agent.R'
     'class-development.R'
     'class-terrain.R'
