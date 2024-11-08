@@ -6,7 +6,7 @@
 \title{\verb{<AgentState>}}
 \description{
 \code{AgentState} is an S4 class for specifying an agent's current state in terms
-of spatio-temporal location and physiological condition at the end of the
+of spatio-temporal activity and physiological condition at the end of the
 current simulation \code{time_step} (e.g. end of day). It stores information such
 as body mass, activity budgets, energy expenditure metrics, survival status,
 etc
@@ -14,31 +14,33 @@ etc
 \section{Slots}{
 
 \describe{
-\item{\code{location}}{object of class \code{XY}, specifying the agent's current spatial
-coordinates (units/projection: TBD).}
+\item{\code{location}}{object of class \code{XY}, specifying the agent's current location
+(units/projection: TBD).}
 
 \item{\code{grid_cell}}{object of class \code{XY}, indicating the spatial coordinates of
 the grid-cell occupied by the agent}
 
 \item{\code{time_step}}{integer, the current simulation time-step}
 
-\item{\code{body_mass}}{numeric, the agent's current body mass (grams)}
+\item{\code{date}}{\code{Date} object, the calendar date of the current simulation time-step}
+
+\item{\code{mass}}{numeric, the agent's current body mass (units: g)}
 
 \item{\code{activity_budget}}{list, defining the agent's time-in-activity budget in
 the current time-step. Each list element represents an activity and the
-time the agent spends on it during this time-step (hours/time-step).}
+time the agent spends on it during this time-step (units: hours/time-step).}
 
 \item{\code{activity_costs}}{list, specifying the energy costs associated with each
-activity in argument \code{activity_budget} (KJ/hour/g)}
+activity in argument \code{activity_budget} (units: KJ/hour/g)}
 
 \item{\code{energy_expenditure}}{numeric, total energy spent on all activities by the
-end of the current time-step (KJ/g)}
+end of the current time-step (units: KJ/g)}
 
 \item{\code{foraging_success}}{numeric, the mass of prey consumed per time-step
-(g/time-step)}
+(units: g/time-step)}
 
 \item{\code{mass_change_value}}{numeric, specifying the change in the agent’s mass
-over the time-step (grams)}
+over the time-step (units: g)}
 
 \item{\code{mortality_prob}}{numeric, the probability of the agent dying within the
 the current time-step}
