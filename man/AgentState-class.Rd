@@ -20,17 +20,17 @@ etc
 \item{\code{grid_cell}}{object of class \code{XY}, indicating the spatial coordinates of
 the grid-cell occupied by the agent}
 
-\item{\code{time_step}}{integer, the current simulation time-step}
+\item{\code{timestep}}{integer, the index of current simulation time-step}
 
 \item{\code{date}}{\code{Date} object, the calendar date of the current simulation time-step}
 
 \item{\code{mass}}{numeric, the agent's current body mass (units: g)}
 
-\item{\code{activity_budget}}{list, defining the agent's time-in-activity budget in
+\item{\code{activity_budget}}{named list, defining the agent's time-in-activity budget in
 the current time-step. Each list element represents an activity and the
 time the agent spends on it during this time-step (units: hours/time-step).}
 
-\item{\code{activity_costs}}{list, specifying the energy costs associated with each
+\item{\code{activity_costs}}{named list, specifying the energy costs associated with each
 activity in argument \code{activity_budget} (units: KJ/hour/g)}
 
 \item{\code{energy_expenditure}}{numeric, total energy spent on all activities by the
@@ -45,8 +45,8 @@ over the time-step (units: g)}
 \item{\code{mortality_prob}}{numeric, the probability of the agent dying within the
 the current time-step}
 
-\item{\code{alive}}{integer, binary indicator of the agent's survival status (\code{1} if
-alive, \code{0} if dead)}
+\item{\code{alive}}{logical, indicating the agent's survival status (\code{TRUE} if
+alive, \code{FALSE} if dead)}
 
 \item{\code{track}}{object of class \code{sf}, containing time-location points that
 represent the agent's movement in the current time-step}

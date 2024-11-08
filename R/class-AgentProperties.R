@@ -13,7 +13,7 @@
 #' @param age numeric, the age of the agent at the start of the simulation
 #' @param sex character, the sex of the agent, where `"f"`denotes female and
 #'   `"m"` denotes male
-#' @param speed list, defining the travel speed properties for the agent. Each
+#' @param speed named list, defining the travel speed properties for the agent. Each
 #'   element specifies the distribution of speeds, in terms of mean and
 #'   coefficient of variation (cv), for a given movement type  (e.g. flight
 #'   speed and swim speed).
@@ -21,12 +21,12 @@
 #'   agent at the start and end of the simulation, respectively
 #' @param mortality_tresh numeric, the threshold body mass below which the agent
 #'   is assumed to die (units: g)
-#' @param disturbance_efects list, indicating how anthropogenic disturbances
+#' @param disturbance_efects named list, indicating how anthropogenic disturbances
 #'   impact key properties of the agent. Each list element specifies
 #'   the direction and magnitude of the effect on an affected property#'
-#' @param redistributed integer, binary indicator of the agent's susceptibility
-#'   to change its expected spatial distribution in response to man-made
-#'   structures (`1` if susceptible, `0` if not)
+#' @param redistributed logical, indicating the agent's susceptibility to change
+#'   its expected spatial distribution in response to man-made structures (`TRUE`
+#'   if susceptible, `FALSE` if not)
 #'
 #' @export
 #'
@@ -41,7 +41,7 @@ methods::setClass(
     end_location = "XY",
     mortality_tresh = "numeric",
     disturbance = "list",
-    redistributed = "integer",
+    redistributed = "logical",
     age = "numeric",
     sex = "character"
   ),
@@ -61,7 +61,7 @@ methods::setClass(
       diving = list(dir = NA_character_, pctg = NA_real_),
       foraging_success = list(dir = NA_character_, pctg = NA_real_)
     ),
-    redistributed = NA_integer_,
+    redistributed = NA,
     age = NA_real_,
     sex = NA_character_
   )

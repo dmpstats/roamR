@@ -17,7 +17,7 @@ simulation (g)}
 \item{sex}{character, the sex of the agent, where \code{"f"}denotes female and
 \code{"m"} denotes male}
 
-\item{speed}{list, defining the travel speed properties for the agent. Each
+\item{speed}{named list, defining the travel speed properties for the agent. Each
 element specifies the distribution of speeds, in terms of mean and
 coefficient of variation (cv), for a given movement type  (e.g. flight
 speed and swim speed).}
@@ -28,13 +28,13 @@ agent at the start and end of the simulation, respectively}
 \item{mortality_tresh}{numeric, the threshold body mass below which the agent
 is assumed to die (units: g)}
 
-\item{disturbance_efects}{list, indicating how anthropogenic disturbances
+\item{disturbance_efects}{named list, indicating how anthropogenic disturbances
 impact key properties of the agent. Each list element specifies
 the direction and magnitude of the effect on an affected property#'}
 
-\item{redistributed}{integer, binary indicator of the agent's susceptibility
-to change its expected spatial distribution in response to man-made
-structures (\code{1} if susceptible, \code{0} if not)}
+\item{redistributed}{logical, indicating the agent's susceptibility to change
+its expected spatial distribution in response to man-made structures (\code{TRUE}
+if susceptible, \code{FALSE} if not)}
 }
 \description{
 \verb{<AgentProperties>} is an S4 class specifying the individual-level properties
