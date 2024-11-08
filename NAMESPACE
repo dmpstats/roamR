@@ -3,6 +3,7 @@
 export(velocity_ou)
 exportClasses(Agent)
 exportClasses(Development)
+exportClasses(AgentProperties)
 exportClasses(AgentState)
 exportClasses(Species)
 exportClasses(Terrain)

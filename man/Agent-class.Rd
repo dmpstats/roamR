@@ -3,34 +3,25 @@
 \docType{class}
 \name{Agent-class}
 \alias{Agent-class}
-\title{Class \code{'Agent'}}
+\title{\verb{<Agent>}}
 \description{
-\code{'Agent'} is an S4 class specifying properties of the individual agent being
-traced in the simulation model. It subsumes the underlying specifics of the
-species as well as general features such as current location, time,
-condition. In addition, the class allows for the storage of historical data
-(movement and other properties of interest)
+\verb{<Agent>} is an S4 class representing the biological properties and dynamic
+state of an individual agent within the simulation model. It inherits from S4
+classes <\linkS4class{AgentProperties}> and <\linkS4class{AgentState}>, collating a
+historical record of the agent's movement and state properties generated
+throughout the simulation.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{currentLocation}}{object of class \code{XY}, specifying the current location of
-the agent in terms of (x,y) coordinates}
+\item{\code{state}}{object of class <\linkS4class{AgentState}>, describing the agent's
+state for the current simulation time-step.}
 
-\item{\code{currentTime}}{object of class \code{POSIXlt}, providing the timestamp at the current
-location}
+\item{\code{properties}}{object of class <\linkS4class{AgentProperties}>, defining the
+individual-level properties of the agent}
 
-\item{\code{type}}{character string, the name of the class representing the type of agent.
-Defaults to the S4 class \linkS4class{Species}}
-
-\item{\code{condition}}{a \code{list} object containing the current condition of the agent.
-Currently is support the following named elements:
-\itemize{
-\item bodyWt: numeric value, the current body weight of the agent (units: kg)
-\item alive: binary, specifying whether the agent is dead (\code{0}) or alive (\code{1})
-}}
-
-\item{\code{history}}{object of class \code{sf}, to store historical data of the agent
-throughout the simulation}
+\item{\code{history}}{object of class \code{sf}, storing historical data comprising the
+agent's state and spatio-temporal activity for each time-step of the
+simulation.}
 }}
 
