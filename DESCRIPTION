@@ -20,9 +20,9 @@ Imports:
     sf,
     units
 Collate: 
-    'class-species.R'
     'class-AgentProperties.R'
     'class-AgentState.R'
+    'class-Species.R'
     'class-agent.R'
     'class-development.R'
     'class-terrain.R'
