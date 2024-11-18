@@ -18,10 +18,12 @@ Imports:
     cli,
     methods,
     sf,
+    stars,
     units
 Collate: 
     'class-AgentProperties.R'
     'class-AgentState.R'
+    'class-ModelConfig.R'
     'class-Species.R'
     'class-agent.R'
     'class-development.R'
