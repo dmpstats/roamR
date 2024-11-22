@@ -2,10 +2,12 @@
 
 export(Species)
 export(ModelConfig)
+export(Structure)
 export(velocity_ou)
 exportClasses(Agent)
 exportClasses(Development)
 exportClasses(AgentProperties)
 exportClasses(AgentState)
 exportClasses(Species)
+exportClasses(Structure)
 exportClasses(Terrain)

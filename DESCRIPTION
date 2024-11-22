@@ -23,9 +23,10 @@ Imports:
 Collate: 
     'class-AgentProperties.R'
     'class-AgentState.R'
-    'class-ModelConfig.R'
     'class-Species.R'
     'class-agent.R'
     'class-development.R'
     'class-terrain.R'
+    'class-ModelConfig.R'
+    'class-Structure.R'
     'velocity_ou.R'
