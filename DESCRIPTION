@@ -26,7 +26,6 @@ Collate:
     'class-Agent.R'
     'class-Environment.R'
     'class-Species.R'
-    'class-development.R'
     'class-ModelConfig.R'
     'class-Structure.R'
     'velocity_ou.R'
