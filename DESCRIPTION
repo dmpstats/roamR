@@ -28,4 +28,5 @@ Collate:
     'class-Environment.R'
     'class-ModelConfig.R'
     'class-Structure.R'
+    'class-IBM.R'
     'velocity_ou.R'
