@@ -8,7 +8,6 @@
 #' @include class-Species.R class-Environment.R class-Structure.R class-ModelConfig.R
 #'
 #' @export
-
 methods::setClass(
   Class = "IBM",
   slots = list(
@@ -28,3 +27,29 @@ methods::setClass(
     config = ModelConfig()
   )
 )
+
+
+
+
+#' Create a `<IBM>` object
+#'
+#' Helper function to construct instances of <[`IBM-class`]> objects
+#'
+#' @export
+IBM <- function(agents = list(),
+                species = new("Species"),
+                environment = Environment(),
+                structures = list(owf = Structure(type = "OWF")),
+                config = ModelConfig()){
+
+
+  methods::new(
+    "IBM",
+    agents = agents,
+    species = species,
+    environment = environment,
+    structures = structures,
+    config = config
+  )
+
+}
