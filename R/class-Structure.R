@@ -21,7 +21,6 @@ setOldClass("units")
 #' @slot buffers numeric vector, defines buffer distances from the structure's
 #'   boundary to be considered in the simulation (unit: meters)
 #'
-#'
 #' @export
 
 methods::setClass(
@@ -58,19 +57,26 @@ methods::setClass(
 #'   from the structure's boundary to be considered in the simulation (unit:
 #'   meters)
 #'
+#'
 #' TODO: examples
+#''
 #'
 #' @export
 
-Structure <- function(boundary,
-                      height,
-                      id = "S1",
-                      type = "OWF",
-                      buffers = c(250, 500)){
+Structure <- function(boundary = sf::st_polygon(),
+                      height = NA_real_,
+                      id = NA_character_,
+                      type = NA_character_,
+                      buffers = NA_real_){
 
   # units as expected
-  height <- units::set_units(height, "m")
-  buffers <- units::set_units(buffers, "m")
+  if(is.numeric(height)){
+    height <- units::set_units(height, "m")
+  }
+
+  if(is.numeric(buffers)){
+    buffers <- units::set_units(buffers, "m")
+  }
 
   # construct a new instance of <ModelConfig>
   methods::new(
@@ -86,13 +92,13 @@ Structure <- function(boundary,
 
 
 
+
 #' `<Structure>`'s slot getters
 setGeneric("height", function(x) standardGeneric("height"))
 setMethod("height", "Structure", function(x) x@height)
 
 setGeneric("boundary", function(x) standardGeneric("boundary"))
 setMethod("boundary", "Structure", function(x) x@boundary)
-
 
 
 

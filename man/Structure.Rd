@@ -4,7 +4,13 @@
 \alias{Structure}
 \title{Create a \verb{<Structure>} object}
 \usage{
-Structure(boundary, height, id = "S1", type = "OWF", buffers = c(250, 500))
+Structure(
+  boundary = sf::st_polygon(),
+  height = NA_real_,
+  id = NA_character_,
+  type = NA_character_,
+  buffers = NA_real_
+)
 }
 \arguments{
 \item{boundary}{object of class \code{"XY"}, representing the polygon that defines
@@ -21,7 +27,8 @@ structure above sea level (unit: meters)}
 from the structure's boundary to be considered in the simulation (unit:
 meters)
 
-TODO: examples}
+TODO: examples
+'}
 }
 \description{
 Helper function to construct instances of <\code{\linkS4class{Structure}}> objects
