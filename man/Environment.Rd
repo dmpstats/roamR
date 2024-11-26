@@ -4,7 +4,7 @@
 \alias{Environment}
 \title{Create a \verb{<Environment>} object}
 \usage{
-Environment(terrain, bathymetry = NA, prey = NA, sst = NA, salinity = NA)
+Environment(terrain = NA, bathymetry = NA, prey = NA, sst = NA, salinity = NA)
 }
 \arguments{
 \item{terrain}{object of class \verb{<XY>} or \verb{<POLYGON>}, representing land
