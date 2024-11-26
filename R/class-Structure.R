@@ -93,7 +93,7 @@ Structure <- function(boundary = sf::st_polygon(),
 
 
 
-#' `<Structure>`'s slot getters
+
 setGeneric("height", function(x) standardGeneric("height"))
 setMethod("height", "Structure", function(x) x@height)
 
