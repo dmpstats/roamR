@@ -44,11 +44,10 @@ methods::setClass(
 
 
 
-
 #' Create a `<ModelConfig>` object
 #'
-#' `ModelConfig()` is a helper function to define the model configuration of the
-#' IMB. It constructs instances of <[ModelConfig-class]> objects
+#' Helper function to define the model configuration of the IMB. It constructs
+#' instances of <[`ModelConfig-class`]> objects
 #'
 #' @param n_agent integer, the number of agents to track within the simulation.
 #' @param ref_sys object of class <`crs`>, specifies the Coordinate Reference
@@ -75,9 +74,9 @@ ModelConfig <- function(n_agents = 100,
                         aoc_bbx = c(0, 100, 0, 100),
                         delta_x = 10,
                         delta_y = 10,
-                        time_step,
-                        start_date,
-                        end_date){
+                        time_step = "1 day",
+                        start_date = Sys.Date() - 5,
+                        end_date = Sys.Date()){
 
 
   if(!inherits(ref_sys, "crs")){
@@ -102,13 +101,12 @@ ModelConfig <- function(n_agents = 100,
       names = c("xmin", "ymin", "xmax", "ymax"),
       class = "bbox",
       crs = ref_sys)
+
+  } else if(sf::st_crs(aoc_bbx) != ref_sys) {
+
+    cli::cli_abort("{.arg aoc_bbx} and {.arg ref_sys} must refer to the same CRS")
+
   }
-
-
-  if(sf::st_crs(aoc_bbx) != ref_sys) {
-      cli::cli_abort("{.arg aoc_bbx} and {.arg ref_sys} must refer to the same CRS")
-  }
-
 
 
   # construct a new instance of <ModelConfig>

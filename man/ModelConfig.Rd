@@ -10,9 +10,9 @@ ModelConfig(
   aoc_bbx = c(0, 100, 0, 100),
   delta_x = 10,
   delta_y = 10,
-  time_step,
-  start_date,
-  end_date
+  time_step = "1 day",
+  start_date = Sys.Date() - 5,
+  end_date = Sys.Date()
 )
 }
 \arguments{
@@ -42,6 +42,6 @@ an object of class <\linkS4class{ModelConfig}>
 TODO: (i) examples; (ii) unit-tests
 }
 \description{
-\code{ModelConfig()} is a helper function to define the model configuration of the
-IMB. It constructs instances of <\linkS4class{ModelConfig}> objects
+Helper function to define the model configuration of the IMB. It constructs
+instances of <\code{\linkS4class{ModelConfig}}> objects
 }
