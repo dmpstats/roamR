@@ -24,6 +24,7 @@ Collate:
     'class-AgentProperties.R'
     'class-AgentState.R'
     'class-Agent.R'
+    'class-VarDistr.R'
     'class-Species.R'
     'class-Habitat.R'
     'class-ModelConfig.R'
