@@ -7,7 +7,7 @@
 IBM(
   agents = list(),
   species = new("Species"),
-  environment = Environment(),
+  habitat = Habitat(),
   structures = list(owf = Structure(type = "OWF")),
   config = ModelConfig()
 )

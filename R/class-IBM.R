@@ -5,7 +5,7 @@
 #'
 #' TODO: Flesh out description
 #'
-#' @include class-Species.R class-Environment.R class-Structure.R class-ModelConfig.R
+#' @include class-Species.R class-Habitat.R class-Structure.R class-ModelConfig.R
 #'
 #' @export
 methods::setClass(
@@ -13,14 +13,14 @@ methods::setClass(
   slots = list(
     agents = "list",
     species = "Species",
-    environment = "Environment",
+    habitat = "Habitat",
     structures = "list",
     config = "ModelConfig"
   ),
   prototype = list(
     agents = list(),
     species = new("Species"),
-    environment = Environment(),
+    habitat = Habitat(),
     structures = list(
       owf = Structure()
     ),
@@ -38,7 +38,7 @@ methods::setClass(
 #' @export
 IBM <- function(agents = list(),
                 species = new("Species"),
-                environment = Environment(),
+                habitat = Habitat(),
                 structures = list(owf = Structure(type = "OWF")),
                 config = ModelConfig()){
 
@@ -47,7 +47,7 @@ IBM <- function(agents = list(),
     "IBM",
     agents = agents,
     species = species,
-    environment = environment,
+    habitat = habitat,
     structures = structures,
     config = config
   )

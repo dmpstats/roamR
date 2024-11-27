@@ -1,8 +1,8 @@
 #setClassUnion("SpeciesOrNull", c("Species", "NULL"))
 
-#' Class `<Environment>`
+#' Class `<Habitat>`
 #'
-#' `<Environment>` is an S4 class that encapsulates the environment-level features of
+#' `<Habitat>` is an S4 class that encapsulates the Habitat-level features of
 #' the geographical area within the IBM's area of calculation (AOC). These
 #' features are designed to interact with simulated Agents, influencing
 #' their spatial movement, distribution, behaviour and physiological condition
@@ -24,7 +24,7 @@
 #' @export
 #'
 methods::setClass(
-  Class = "Environment",
+  Class = "Habitat",
   slots = list(
     terrain = "XY",
     bathymetry = "stars",
@@ -45,9 +45,9 @@ methods::setClass(
 
 
 
-#' Create a `<Environment>` object
+#' Create a `<Habitat>` object
 #'
-#' Helper function to construct instances of <[`Environment-class`]> objects
+#' Helper function to construct instances of <[`Habitat-class`]> objects
 #'
 #' @param terrain object of class `<XY>` or `<POLYGON>`, representing land
 #'   boundaries (e.g. mainland and/or islands) within the AOC
@@ -60,7 +60,7 @@ methods::setClass(
 #' @param salinity object of class `<stars>`, containing sea salinity maps
 #'   within the AOC, at discrete time points throughout the simulated period
 #'
-Environment <- function(terrain = NA,
+Habitat <- function(terrain = NA,
                         bathymetry = NA,
                         prey = NA,
                         sst = NA,
@@ -73,7 +73,7 @@ Environment <- function(terrain = NA,
   if(is.na(salinity)) salinity <- stars::st_as_stars(matrix(NA))
 
   new(
-    "Environment",
+    "Habitat",
     terrain = terrain,
     bathymetry = bathymetry,
     prey = prey,
@@ -84,10 +84,10 @@ Environment <- function(terrain = NA,
 
 
 
-# # #' `show` method for `<Environment>`
+# # #' `show` method for `<Habitat>`
 # methods::setMethod(
 #   "show",
-#   "Environment",
+#   "Habitat",
 #                    )
 #
 

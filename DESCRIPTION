@@ -25,7 +25,7 @@ Collate:
     'class-AgentState.R'
     'class-Agent.R'
     'class-Species.R'
-    'class-Environment.R'
+    'class-Habitat.R'
     'class-ModelConfig.R'
     'class-Structure.R'
     'class-IBM.R'
