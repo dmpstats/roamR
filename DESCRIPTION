@@ -17,6 +17,7 @@ Config/testthat/edition: 3
 Imports: 
     cli,
     methods,
+    rlang,
     sf,
     stars,
     units
@@ -31,4 +32,5 @@ Collate:
     'class-ModelConfig.R'
     'class-Structure.R'
     'class-IBM.R'
+    's4_utils.R'
     'velocity_ou.R'
