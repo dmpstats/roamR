@@ -3,6 +3,7 @@
 export(IBM)
 export(ModelConfig)
 export(Structure)
+export(rmr_initiate)
 export(velocity_ou)
 exportClasses(Agent)
 exportClasses(AgentProperties)

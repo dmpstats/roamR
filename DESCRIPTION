@@ -32,5 +32,6 @@ Collate:
     'class-ModelConfig.R'
     'class-Structure.R'
     'class-IBM.R'
+    'rmr_initiate.R'
     's4_utils.R'
     'velocity_ou.R'
