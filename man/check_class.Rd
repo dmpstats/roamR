@@ -35,7 +35,7 @@ mentioned in error messages as the source of the error. See the
 \code{call} argument of \code{\link[rlang:abort]{abort()}} for more information.}
 }
 \description{
-A utility function to validate whether an input object belongs to the
+A internal input checker function to validate whether an object belongs to the
 expected class, providing clear and informative \code{{cli}}-style error messages.
 }
 \details{

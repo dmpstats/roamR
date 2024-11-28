@@ -1,6 +1,6 @@
 #' Validate Object Class
 #'
-#' A utility function to validate whether an input object belongs to the
+#' A internal input checker function to validate whether an object belongs to the
 #' expected class, providing clear and informative `{cli}`-style error messages.
 #'
 #' @param x the target object to validate. If a `list`, each element will be
@@ -69,7 +69,11 @@ check_class <- function(x,
 
   if(!is.null(msg)){
     if(!is.null(class_fn)){
-      msg <- c(msg, "Use {.fun {class_fn}} to construct {.cls {class}} objects")
+      if(inlist){
+        msg <- c(msg, "i" = "Combine {.fun base::list} and {.fun {class_fn}} to construct a {.cls list} of {.cls {class}} objects")
+      }else{
+        msg <- c(msg, "i" = "Use {.fun {class_fn}} to construct {.cls {class}} objects")
+      }
     }
 
     cli::cli_abort(msg, class = "err-wrong-class", call = call)
