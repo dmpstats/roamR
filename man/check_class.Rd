@@ -7,6 +7,7 @@
 check_class(
   x,
   class,
+  inlist = FALSE,
   class_fn = NULL,
   arg = rlang::caller_arg(x),
   call = rlang::caller_env()
@@ -17,6 +18,9 @@ check_class(
 checked against the expected class}
 
 \item{class}{character string, the name of the expected class of \code{x}.}
+
+\item{inlist}{logical, whether to take \code{x} as a list containing objects of the
+expected \code{class}}
 
 \item{class_fn}{character string, indicating the function to create objects
 of the expected \code{class}, in the form of "packagename::functionname".}
@@ -35,9 +39,9 @@ A utility function to validate whether an input object belongs to the
 expected class, providing clear and informative \code{{cli}}-style error messages.
 }
 \details{
-This is an input checker function, i.e. it is exclusively intended for
-internal use within other functions to check their inputs - it acts on behalf
-of other functions as their input validator.
+This is an input checker function, i.e. it is intended for internal
+use within other functions to check their inputs - it acts on behalf of other
+functions as their input validator.
 
 If \code{x} is a \code{list}, the function checks each element individually, throwing
 an error if any element does not belong to the expected \code{class}.
