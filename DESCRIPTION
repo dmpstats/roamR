@@ -16,6 +16,7 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     cli,
+    distributional,
     methods,
     rlang,
     sf,
@@ -25,7 +26,10 @@ Collate:
     'class-AgentProperties.R'
     'class-AgentState.R'
     'class-Agent.R'
-    'class-VarDistr.R'
+    'utils.R'
+    's4_utils.R'
+    's4_management.R'
+    'class-VarDist.R'
     'class-BehaviourSpec.R'
     'class-Species.R'
     'class-Habitat.R'
@@ -33,5 +37,4 @@ Collate:
     'class-Structure.R'
     'class-IBM.R'
     'rmr_initiate.R'
-    's4_utils.R'
     'velocity_ou.R'

@@ -76,7 +76,7 @@ check_class <- function(x,
       }
     }
 
-    cli::cli_abort(msg, class = "err-wrong-class", call = call)
+    cli::cli_abort(msg, class = "err_class_unexpected", call = call)
   }
 
   invisible()
