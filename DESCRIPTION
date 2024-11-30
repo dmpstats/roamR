@@ -1,11 +1,12 @@
 Package: roamR
 Title: Seabird IBM For Non-Breeding Season
 Version: 0.0.0.9000
-Authors@R: 
-    person("Carl", "Donovan", , "carl@dmpstats.co.uk", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-1465-5193"))
-    person("Bruno", "Caneco", , "bruno@dmpstats.co.uk", role = c("aut", "cre"),
+Authors@R: c(
+    person("Carl", "Donovan", email = "carl@dmpstats.co.uk", role = c("aut"),
+           comment = c(ORCID = "0000-0002-1465-5193")),
+    person("Bruno", "Caneco", email = "bruno@dmpstats.co.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0009-0124-7156"))
+           )
 Description: A package for an Individual Based Model (IBM) for simulating seabirds in the non-breeding season in particular. This is in support of the DisNBS project, funded by the Carbon Trust and the Offshore Renewables Joint Industry Partnership (ORJIP)
 License: MIT + file LICENSE
 Encoding: UTF-8
