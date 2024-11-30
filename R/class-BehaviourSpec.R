@@ -1,25 +1,43 @@
 #' Class `<BehaviourSpec>`
 #'
 #' An S4 class containing the specifications for a single animal behaviour. The
-#' intention is to insert objects of this type into a list of behaviours pf
-#' interest, making the IBM more flexible generalizable.
+#' intention is to insert objects of this type into a list of behaviours of
+#' interest, making the IBM more flexible and generalizable.
 #'
-#' @include class-VarDistr.R
+#' @include class-VarDist.R s4_management.R s4_utils.R utils.R
 #'
 #' @export
 
 methods::setClass(
   Class = "BehaviourSpec",
   slots = list(
-    id = "character",
-    energy_cost = "VarDistr",
-    time_budget = "VarDistr",
-    speed = "VarDistr"
+    behav = "character",
+    energy_cost = "VarDist",
+    time_budget = "VarDist",
+    speed = "VarDist"
   ),
   prototype = list(
-    id = NA_character_,
-    energy_cost = VarDistr(NA_real_, NA_real_),
-    time_budget = VarDistr(NA_real_, NA_real_),
-    speed = VarDistr(NA_real_, NA_real_)
+    behav = NA_character_,
+    energy_cost = VarDist(),
+    time_budget = VarDist(),
+    speed = VarDist()
   )
 )
+
+
+
+# BehaviourSpec <- function(behav = NA_character_,
+#                           energy_cost = VarDist(),
+#                           time_budget = dist_missing(),
+#                           speed = dist_missing()){
+#
+#
+#   new(
+#     "BehaviourSpec",
+#     behav = behav,
+#     energy_cost = energy_cost,
+#     time_budget = time_budget,
+#     speed = speed
+#   )
+#
+# }

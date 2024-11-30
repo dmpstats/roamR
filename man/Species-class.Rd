@@ -4,39 +4,54 @@
 \name{Species-class}
 \alias{Species-class}
 \title{\verb{<Species>}}
-\arguments{
-\item{mortality_thresh}{numeric}
-}
 \description{
 \verb{<Species>} is an S4 class specifying species-level properties of the
-simulated agents e.g. the properties that will influence the agents movements
-(e.g. speed), condition (e.g. initial body-weight), behavioural properties
-(e.g. diving, day-light), parameters for condition changes etc.
+simulated agents e.g. the properties that will dictate agent-level attributes
+and movement features
 }
 \section{Slots}{
 
 \describe{
+\item{\code{species_id}}{character string, the identifier code for the species}
+
 \item{\code{common_name}}{character string, the common name of the species}
 
 \item{\code{scientific_name}}{character string, the scientific name of the species}
 
-\item{\code{type}}{character string, designating the type of agent (e.g. \code{'bird'},
-\code{'fish'}, \code{'seal'})}
+\item{\code{role}}{character string, defining the role of the species in the IBM (one
+of "agent", "prey", "competitor")}
 
-\item{\code{speedDist}}{list object, defining the probability distribution of flight
-speed. List comprises the following named elements:
-\itemize{
-\item \code{dist}: character string, the name of the probability distribution
-\item \code{par1}: numeric, distribution parameter 1
-\item \code{par2}: numeric, distribution parameter 2
-}}
+\item{\code{speed_distr}}{named list, defining the species-level travel speed attributes.
+Each element specifies the distribution of speeds for a given movement type
+(e.g. flight speed and swim speed) in terms of in terms of mean (\code{m}) and
+coefficient of variation (\code{cv}).}
 
-\item{\code{sizeDist}}{list, defining the probability distribution of body-weight.
-List comprises the following named elements:
-\itemize{
-\item \code{dist}: character string, the name of the probability distribution
-\item \code{par1}: numeric, distribution parameter 1
-\item \code{par2}: numeric, distribution parameter 2
-}}
+\item{\code{mass_distr}}{named list, defining the species' distribution of body mass
+in terms of mean (\code{m}) and CV \code{cv}}
+
+\item{\code{spatial_distr}}{a \code{stars} array, comprising a time-series of grid-type
+density surfaces of the species covering the area of interest. First 2
+dimensions are expected to provide the spatial properties of the density
+surfaces. The 3rd dimension contains specifies the temporal resolution of
+the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
+of the density surfaces}
+
+\item{\code{activity_budget_distr}}{named list, defining the distribution of
+activity budgets of the species. TODO: expand}
+
+\item{\code{energy_cost_distr}}{named list, defining the distribution of
+energy costs of the species. TODO: expand}
+
+\item{\code{mortality_thresh_distr}}{named list, specifying the range of possible
+values of agent's condition (e.g. body mass), below which the agent is
+assumed to have died}
+
+\item{\code{redistribution_type}}{a function}
+
+\item{\code{redistr_prob}}{a list}
+
+\item{\code{disturb_prob}}{a list
+
+#' @include class-VarDistr.R}
 }}
 

@@ -6,6 +6,6 @@
 \title{Class \verb{<BehaviourSpec>}}
 \description{
 An S4 class containing the specifications for a single animal behaviour. The
-intention is to insert objects of this type into a list of behaviours pf
-interest, making the IBM more flexible generalizable.
+intention is to insert objects of this type into a list of behaviours of
+interest, making the IBM more flexible and generalizable.
 }

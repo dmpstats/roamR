@@ -7,12 +7,14 @@
 #' @slot species_id character string, the identifier code for the species
 #' @slot common_name character string, the common name of the species
 #' @slot scientific_name character string, the scientific name of the species
+#' @slot role character string, defining the role of the species in the IBM (one
+#'   of "agent", "prey", "competitor")
 #' @slot speed_distr named list, defining the species-level travel speed attributes.
 #'   Each element specifies the distribution of speeds for a given movement type
-#'   (e.g. flight speed and swim speed) in terms of in terms of mean and
-#'   coefficient of variation (cv).
+#'   (e.g. flight speed and swim speed) in terms of in terms of mean (`m`) and
+#'   coefficient of variation (`cv`).
 #' @slot mass_distr named list, defining the species' distribution of body mass
-#'   in terms of `mean` and `cv`
+#'   in terms of mean (`m`) and CV `cv`
 #' @slot spatial_distr a `stars` array, comprising a time-series of grid-type
 #'   density surfaces of the species covering the area of interest. First 2
 #'   dimensions are expected to provide the spatial properties of the density
@@ -30,72 +32,107 @@
 #' @slot redistr_prob a list
 #' @slot disturb_prob a list
 #'
+#' #' @include class-VarDistr.R
 #'
 #' @export
 
 methods::setClass(
   "Species",
   slots = list(
-    species_id = "character",
+    id = "character",
+    role = "character",
     common_name = "character",
     scientific_name = "character",
-    speed_distr = "list",
-    mass_distr = "list",
     spatial_distr = "stars",
-    activity_budget_distr = "list",
-    energy_cost_distr = "list",
+    mass_distr = "VarDist",
+    behaviour_profile = "list",
+    # speed_distr = "list",
+    # activity_budget_distr = "list",
+    # energy_cost_distr = "list",
     mortality_thresh_distr = "list",
     redistribution_type = "function",
     redistr_prob = "list",
     disturb_prob = "list"
   ),
   prototype = list(
-    species_id = NA_character_,
+    id = NA_character_,
+    role = NA_character_,
     common_name = NA_character_,
     scientific_name = NA_character_,
-    speed_distr = list(
-      flight = list(mean = NA_real_, cv = NA_real_),
-      swim = list(mean = NA_real_, cv = NA_real_)
-    ),
-    mass_distr = list(mean = NA_real_, cv = NA_real_),
+    mass_distr = VarDist(),
     spatial_distr = stars::st_as_stars(matrix(NA)),
-    activity_budget_distr = list(
-      flight = list(mean = NA_real_, cv = NA_real_),
-      sea_active = list(mean = NA_real_, cv = NA_real_),
-      sea_resting = list(mean = NA_real_, cv = NA_real_),
-      nest_resting = list(mean = NA_real_, cv = NA_real_),
-      diving = list(mean = NA_real_, cv = NA_real_),
-      other = list(mean = NA_real_, cv = NA_real_)
+    behaviour_profile = list(
+      flying = new(
+        "BehaviourSpec",
+        behav = "flight",
+        speed = VarDist(),
+        energy_cost = VarDist(),
+        time_budget = VarDist()
+      ),
+      swimming = new(
+        "BehaviourSpec",
+        behav = "swim",
+        speed = VarDist(),
+        energy_cost = VarDist(),
+        time_budget =  VarDist()
+      )
     ),
-    energy_cost_distr = list(
-      flight = list(mean = NA_real_, cv = NA_real_),
-      sea_active = list(mean = NA_real_, cv = NA_real_),
-      sea_resting = list(mean = NA_real_, cv = NA_real_),
-      nest_resting = list(mean = NA_real_, cv = NA_real_),
-      diving = list(mean = NA_real_, cv = NA_real_),
-      other = list(mean = NA_real_, cv = NA_real_)
-    ),
-    mortality_thresh_distr = list(mean = NA_real_, cv = NA_real_),
+    # speed_distr = list(
+    #   flight = list(m = NA_real_, cv = NA_real_),
+    #   swim = list(m = NA_real_, cv = NA_real_)
+    # ),
+    # activity_budget_distr = list(
+    #   flight = list(m = NA_real_, cv = NA_real_),
+    #   sea_active = list(m = NA_real_, cv = NA_real_),
+    #   sea_resting = list(m = NA_real_, cv = NA_real_),
+    #   nest_resting = list(m = NA_real_, cv = NA_real_),
+    #   diving = list(m = NA_real_, cv = NA_real_),
+    #   other = list(m = NA_real_, cv = NA_real_)
+    # ),
+    # energy_cost_distr = list(
+    #   flight = list(m = NA_real_, cv = NA_real_),
+    #   sea_active = list(m = NA_real_, cv = NA_real_),
+    #   sea_resting = list(m = NA_real_, cv = NA_real_),
+    #   nest_resting = list(m = NA_real_, cv = NA_real_),
+    #   diving = list(m = NA_real_, cv = NA_real_),
+    #   other = list(m = NA_real_, cv = NA_real_)
+    # ),
+    mortality_thresh_distr = list(m = NA_real_, cv = NA_real_),
     redistribution_type = function(){},
     redistr_prob = list(
-      footprint = list(mean = NA_real_, cv = NA_real_),
-      buffer = list(mean = NA_real_, cv = NA_real_)
+      footprint = list(m = NA_real_, cv = NA_real_),
+      buffer = list(m = NA_real_, cv = NA_real_)
     ),
     disturb_prob = list(
-      footprint = list(mean = NA_real_, cv = NA_real_),
-      buffer = list(mean = NA_real_, cv = NA_real_)
+      footprint = list(m = NA_real_, cv = NA_real_),
+      buffer = list(m = NA_real_, cv = NA_real_)
     )
   )
 )
-
-
-
 
 
 #' #' Create `<Species>` objects
 #' #'
 #' #' Helper function to construct instances of `<Species>` S4 objects
 #' #'
+#' Species <- function(id ,
+#'                     role,
+#'                     common_name = "character",
+#'                     scientific_name = "character",
+#'                     spatial_distr = "stars",
+#'                     mass_distr = "VarDistr",
+#'                     behaviour_profile = "list",
+#'                     mortality_thresh_distr = "list",
+#'                     redistribution_type = "function",
+#'                     redistr_prob = "list",
+#'                     disturb_prob = "list"){
+#'
+#' }
+
+
+
+
+
 #' #' @param common_name character string, the common name of the species
 #' #' @param scientific_name character string, the scientific name of the species
 #' #' @param type character string, designating the type of agent (e.g. `'bird'`,
