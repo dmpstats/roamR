@@ -5,7 +5,35 @@
 \alias{BehaviourSpec-class}
 \title{Class \verb{<BehaviourSpec>}}
 \description{
-An S4 class containing the specifications for a single animal behaviour. The
-intention is to insert objects of this type into a list of behaviours of
-interest, making the IBM more flexible and generalizable.
+An S4 class containing properties associated with a specific animal behaviour
+or activity, such as energy expenditure, time allocation and movement speed,
+at the individual level. \verb{<BehaviourSpec>} is designed to be a sub-class of
+<\code{\linkS4class{Species}}>, where the behaviour profile of a species is defined as
+a list of \verb{<BehaviourSpec>} objects. This design allows for flexible and
+detailed behaviour specification for species of interest.
+}
+\details{
+Currently, only three behaviour properties are supported: energy cost, time
+budget, and movement speed. However, the class design allows for the addition
+of new properties in the future
+}
+\section{Slots}{
+
+\describe{
+\item{\code{behav}}{character string, the name of the behaviour or activity (e.g.
+"flying", "swimming", "feeding")}
+
+\item{\code{energy_cost}}{an object of class <\code{\linkS4class{VarDist}}>, representing the
+energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.}
+
+\item{\code{time_budget}}{an object of class <\code{\linkS4class{VarDist}}>, defining the
+typical time-activity budget (e.g. hours/day) for the behaviour or activity.}
+
+\item{\code{speed}}{an object of class <\code{\linkS4class{VarDist}}>, specifying the speed
+(e.g. m/s) associated with the behaviour or activity, particuarly for
+movement-type activities}
+}}
+
+\seealso{
+\code{\link[=VarDist]{VarDist()}} for defining <\code{\linkS4class{VarDist}}> objects
 }

@@ -106,6 +106,7 @@ VarDist <- function(dist = NA, units = NA){
   # handle variable with fixed values (i.e. non-random)
   if(is.numeric(dist) & length(dist) == 1) dist <- distributional::dist_degenerate(dist)
 
+  # construct a new instance of <VarDist>
   new("VarDist", dist = dist, units = units)
 }
 
