@@ -6,15 +6,14 @@
 \title{Class \verb{<Structure>}}
 \description{
 \verb{<Structure>} is an S4 class for describing man-made structures, such as
-offshore windfarms, oil platforms, etc. It contains information about the
-type of structure, its spatial delimitation (e.g. a footprint, buffer area,
-etc), and its height.
+offshore windfarms, oil platforms, and other installations. It contains
+information about the structure's type, spatial boundary (e.g. a footprint,
+buffer area), and height.
 }
 \details{
-This class will work in tandem with the \linkS4class{Species} class to define
-species-level responses to interactions between the specified structure and
-the traced agents, e.g. through a movement modification or impact in a given
-behaviour.
+This class interacts with the \linkS4class{Species} class to define species-level
+responses of traced agents to the structure, e.g. through a movement
+modification or impact on specific behaviour.
 }
 \section{Slots}{
 

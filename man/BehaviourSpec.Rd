@@ -5,15 +5,16 @@
 \title{Create a \verb{<BehaviourSpec>} object}
 \usage{
 BehaviourSpec(
-  behav = c("flying", "swimming", "diving", "resting_in_water", "feeding", "at_colony"),
+  behav = c("flying", "swimming", "diving", "foraging", "water_resting", "nest_resting",
+    "other"),
   energy_cost = VarDist(),
   time_budget = VarDist(),
   speed = VarDist()
 )
 }
 \arguments{
-\item{behav}{character string, the name of the behaviour or activity (e.g.
-"flying", "swimming", "feeding")}
+\item{behav}{character string, the name of the behaviour or activity
+(see'Usage' section for available options).}
 
 \item{energy_cost}{an object of class <\code{\linkS4class{VarDist}}>, representing the
 energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.}

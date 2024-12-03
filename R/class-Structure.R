@@ -1,18 +1,18 @@
-# registering S3 class `<units>`
-setOldClass("units")
 
 #setClassUnion("numericORunits", c("numeric", "units"))
 
-
 #' Class `<Structure>`
 #'
-#' `<Structure>` is an S4 class for describing man-made structures - primarly
-#' windfarms, though it can be applicable to other types of structures. It
-#' contains information about the type of structure, its spatial footprint, and
-#' its height. This class will interact with the [Agent-class] class, via a
-#' movement modification.
+#' `<Structure>` is an S4 class for describing man-made structures, such as
+#' offshore windfarms, oil platforms, and other installations. It contains
+#' information about the structure's type, spatial boundary (e.g. a footprint,
+#' buffer area), and height.
 #'
-#' @slot id character string, a unique identifier or name for the structure
+#' This class interacts with the [Species-class] class to define species-level
+#' responses of traced agents to the structure, e.g. through a movement
+#' modification or impact on specific behaviour.
+#'
+#' @slot id character string, a unique identifier of the structure.
 #' @slot type character string, the type of man-made structure (e.g: `"OWF"`)
 #' @slot boundary object of class `"XY"`, representing the polygon that defines
 #'   the spatial footprint of the development structure
@@ -21,6 +21,8 @@ setOldClass("units")
 #' @slot buffers numeric vector, defines buffer distances from the structure's
 #'   boundary to be considered in the simulation (unit: meters)
 #'
+#' @include s4_management.R
+
 #' @export
 
 methods::setClass(

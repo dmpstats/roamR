@@ -11,8 +11,8 @@
 #' budget, and movement speed. However, the class design allows for the addition
 #' of new properties in the future
 #
-#' @slot behav character string, the name of the behaviour or activity (e.g.
-#'   "flying", "swimming", "feeding")
+#' @slot behav character string, the name of the behaviour or activity
+#'   (see'Usage' section for available options)
 #' @slot energy_cost an object of class <[`VarDist-class`]>, representing the
 #'   energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.
 #' @slot time_budget an object of class <[`VarDist-class`]>, defining the
@@ -53,8 +53,8 @@ methods::setClass(
 #' or activity, such as energy expenditure, time allocation and movement speed,
 #' at the individual level
 #'
-#' @param behav character string, the name of the behaviour or activity (e.g.
-#'   "flying", "swimming", "feeding")
+#' @param behav character string, the name of the behaviour or activity
+#'   (see'Usage' section for available options).
 #' @param energy_cost an object of class <[`VarDist-class`]>, representing the
 #'   energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.
 #' @param time_budget an object of class <[`VarDist-class`]>, defining the
@@ -75,8 +75,8 @@ methods::setClass(
 #' options in the 'Usage' section).
 #'
 #' @export
-BehaviourSpec <- function(behav = c("flying", "swimming", "diving",
-                                    "resting_in_water", "feeding", "at_colony"),
+BehaviourSpec <- function(behav = c("flying", "swimming", "diving", "foraging",
+                                    "water_resting", "nest_resting", "other"),
                           energy_cost = VarDist(),
                           time_budget = VarDist(),
                           speed = VarDist()){

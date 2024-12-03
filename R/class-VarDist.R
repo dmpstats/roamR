@@ -34,7 +34,7 @@ methods::setClass(
 #' Create a `<VarDist>` object
 #'
 #' Helper function to construct instances of <[`VarDist-class`]> objects,
-#' enabling the definition of variables in terms of their probability
+#' enabling the definition of variables of interest in terms of their probability
 #' distributions, sampling distributions, percentile distributions or fixed
 #' point estimates.
 #'
