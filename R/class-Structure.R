@@ -18,8 +18,6 @@
 #'   the spatial footprint of the development structure
 #' @slot height numeric, the maximum height of the structure above sea
 #'   level (unit: meters)
-#' @slot buffers numeric vector, defines buffer distances from the structure's
-#'   boundary to be considered in the simulation (unit: meters)
 #'
 #' @include s4_management.R
 
@@ -31,15 +29,15 @@ methods::setClass(
     id = "character",
     type = "character",
     boundary = "XY",
-    height = "units",
-    buffers = "units"
+    height = "units"
+    # buffers = "units"
   ),
   prototype = list(
     id = NA_character_,
     type = NA_character_,
     boundary = sf::st_polygon(),
-    height = NA_real_,
-    buffers = NA_real_
+    height = NA_real_#,
+    # buffers = NA_real_
   )
 )
 
@@ -55,39 +53,36 @@ methods::setClass(
 #'   the spatial footprint of the development structure
 #' @param height numeric or object of class `<units>`, the maximum height of the
 #'   structure above sea level (unit: meters)
-#' @param buffers numeric or object of class `<units>`, defines buffer distances
-#'   from the structure's boundary to be considered in the simulation (unit:
-#'   meters)
-#'
 #'
 #' TODO: examples
 #''
 #'
 #' @export
 
-Structure <- function(boundary = sf::st_polygon(),
-                      height = NA_real_,
-                      id = NA_character_,
+Structure <- function(id = NA_character_,
                       type = NA_character_,
-                      buffers = NA_real_){
+                      boundary = sf::st_polygon(),
+                      height = NA_real_#,
+                      #buffers = NA_real_
+                      ){
 
   # units as expected
   if(is.numeric(height)){
     height <- units::set_units(height, "m")
   }
 
-  if(is.numeric(buffers)){
-    buffers <- units::set_units(buffers, "m")
-  }
+  # if(is.numeric(buffers)){
+  #   buffers <- units::set_units(buffers, "m")
+  # }
 
   # construct a new instance of <ModelConfig>
   methods::new(
     "Structure",
-    boundary = boundary,
-    height = height,
     id = id,
     type = type,
-    buffers = buffers
+    boundary = boundary,
+    height = height#,
+    #buffers = buffers
   )
 }
 
