@@ -5,27 +5,22 @@
 \title{Create a \verb{<Structure>} object}
 \usage{
 Structure(
-  boundary = sf::st_polygon(),
-  height = NA_real_,
   id = NA_character_,
   type = NA_character_,
-  buffers = NA_real_
+  boundary = sf::st_polygon(),
+  height = NA_real_
 )
 }
 \arguments{
-\item{boundary}{object of class \code{"XY"}, representing the polygon that defines
-the spatial footprint of the development structure}
-
-\item{height}{numeric or object of class \verb{<units>}, the maximum height of the
-structure above sea level (unit: meters)}
-
 \item{id}{character string, a unique identifier or name for the structure}
 
 \item{type}{character string, the type of man-made structure (e.g: \code{"OWF"})}
 
-\item{buffers}{numeric or object of class \verb{<units>}, defines buffer distances
-from the structure's boundary to be considered in the simulation (unit:
-meters)
+\item{boundary}{object of class \code{"XY"}, representing the polygon that defines
+the spatial footprint of the development structure}
+
+\item{height}{numeric or object of class \verb{<units>}, the maximum height of the
+structure above sea level (unit: meters)
 
 TODO: examples
 '}

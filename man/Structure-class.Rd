@@ -5,16 +5,21 @@
 \alias{Structure-class}
 \title{Class \verb{<Structure>}}
 \description{
-\verb{<Structure>} is an S4 class for describing man-made structures - primarly
-windfarms, though it can be applicable to other types of structures. It
-contains information about the type of structure, its spatial footprint, and
-its height. This class will interact with the \linkS4class{Agent} class, via a
-movement modification.
+\verb{<Structure>} is an S4 class for describing man-made structures, such as
+offshore windfarms, oil platforms, etc. It contains information about the
+type of structure, its spatial delimitation (e.g. a footprint, buffer area,
+etc), and its height.
+}
+\details{
+This class will work in tandem with the \linkS4class{Species} class to define
+species-level responses to interactions between the specified structure and
+the traced agents, e.g. through a movement modification or impact in a given
+behaviour.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{id}}{character string, a unique identifier or name for the structure}
+\item{\code{id}}{character string, a unique identifier of the structure.}
 
 \item{\code{type}}{character string, the type of man-made structure (e.g: \code{"OWF"})}
 
@@ -23,8 +28,5 @@ the spatial footprint of the development structure}
 
 \item{\code{height}}{numeric, the maximum height of the structure above sea
 level (unit: meters)}
-
-\item{\code{buffers}}{numeric vector, defines buffer distances from the structure's
-boundary to be considered in the simulation (unit: meters)}
 }}
 
