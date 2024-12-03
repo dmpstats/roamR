@@ -37,5 +37,6 @@ Collate:
     'class-ModelConfig.R'
     'class-Structure.R'
     'class-IBM.R'
+    'class-ImpactResponse.R'
     'rmr_initiate.R'
     'velocity_ou.R'
