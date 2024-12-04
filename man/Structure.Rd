@@ -20,10 +20,13 @@ Structure(
 the spatial footprint of the development structure}
 
 \item{height}{numeric or object of class \verb{<units>}, the maximum height of the
-structure above sea level (unit: meters)
+structure above sea level (unit: meters)}
+}
+\value{
+a \verb{<Structure>} S4 object
 
 TODO: examples
-'}
+'
 }
 \description{
 Helper function to construct instances of <\code{\linkS4class{Structure}}> objects

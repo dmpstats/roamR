@@ -23,3 +23,6 @@ variable.  Must be either a name (e.g. \code{"grams"}) or a symbol (e.g.
 \code{\link[units:valid_udunits]{units::valid_udunits()}})}
 }}
 
+\seealso{
+Helper function \code{\link[=VarDist]{VarDist()}} to construct \verb{<varDist>} objects
+}

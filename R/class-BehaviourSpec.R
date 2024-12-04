@@ -12,16 +12,18 @@
 #' of new properties in the future
 #
 #' @slot behav character string, the name of the behaviour or activity
-#'   (see'Usage' section for available options)
+#'   (see 'Usage' section for available options)
 #' @slot energy_cost an object of class <[`VarDist-class`]>, representing the
 #'   energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.
 #' @slot time_budget an object of class <[`VarDist-class`]>, defining the
 #'   typical time-activity budget (e.g. hours/day) for the behaviour or activity.
-#' @slot speed an object of class <[`VarDist-class`]>, specifying the speed
-#'   (e.g. m/s) associated with the behaviour or activity, particuarly for
+#' @slot speed an object of class <[`VarDist-class`]>, specifying the travel speed
+#'   (e.g. m/s) associated with the behaviour or activity, particularly for
 #'   movement-type activities
 #'
-#' @seealso [VarDist()] for defining <[`VarDist-class`]> objects
+#' @seealso
+#'  * [VarDist()] for defining <[`VarDist-class`]> objects
+#'  * Helper function [BehaviourSpec()] to construct `<BehaviourSpec>` objects
 #'
 #' @include class-VarDist.R s4_management.R s4_utils.R utils.R
 #'
@@ -54,16 +56,16 @@ methods::setClass(
 #' at the individual level
 #'
 #' @param behav character string, the name of the behaviour or activity
-#'   (see'Usage' section for available options).
-#' @param energy_cost an object of class <[`VarDist-class`]>, representing the
+#'   (see 'Usage' section for available options).
+#' @param energy_cost an object of class [VarDist-class], representing the
 #'   energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.
-#' @param time_budget an object of class <[`VarDist-class`]>, defining the
+#' @param time_budget an object of class [VarDist-class], defining the
 #'   typical time-activity budget (e.g. hours/day) for the behaviour or activity.
-#' @param speed an object of class <[`VarDist-class`]>, specifying the speed
+#' @param speed an object of class [VarDist-class], specifying the speed
 #'   (e.g. m/s) associated with the behaviour or activity, particuarly for
 #'   movement-type activities
 #'
-#' @seealso [VarDist()] for defining <[`VarDist-class`]> objects
+#' @seealso [VarDist()] for defining `<VarDist>` objects
 #'
 #' @details
 #' * Currently, only three behaviour properties are supported: energy cost, time
@@ -74,9 +76,12 @@ methods::setClass(
 #' `behav` is confined to a fixed set of behaviours or activities (see available
 #' options in the 'Usage' section).
 #'
+#'
+#' @return a `<BehaviourSpec>` S4 object
+#'
 #' @export
 BehaviourSpec <- function(behav = c("flying", "swimming", "diving", "foraging",
-                                    "water_resting", "nest_resting", "other"),
+                                    "water_resting", "nest_attending", "other"),
                           energy_cost = VarDist(),
                           time_budget = VarDist(),
                           speed = VarDist()){

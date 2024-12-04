@@ -14,6 +14,9 @@
 #'   `"m/s"`) that is currently recognized by the udunits database (see
 #'   [units::valid_udunits()])
 #'
+#'
+#' @seealso Helper function [VarDist()] to construct `<varDist>` objects
+#'
 #' @include s4_utils.R
 
 methods::setClass(

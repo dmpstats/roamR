@@ -5,8 +5,8 @@
 \title{Create a \verb{<BehaviourSpec>} object}
 \usage{
 BehaviourSpec(
-  behav = c("flying", "swimming", "diving", "foraging", "water_resting", "nest_resting",
-    "other"),
+  behav = c("flying", "swimming", "diving", "foraging", "water_resting",
+    "nest_attending", "other"),
   energy_cost = VarDist(),
   time_budget = VarDist(),
   speed = VarDist()
@@ -14,17 +14,20 @@ BehaviourSpec(
 }
 \arguments{
 \item{behav}{character string, the name of the behaviour or activity
-(see'Usage' section for available options).}
+(see 'Usage' section for available options).}
 
-\item{energy_cost}{an object of class <\code{\linkS4class{VarDist}}>, representing the
+\item{energy_cost}{an object of class \linkS4class{VarDist}, representing the
 energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.}
 
-\item{time_budget}{an object of class <\code{\linkS4class{VarDist}}>, defining the
+\item{time_budget}{an object of class \linkS4class{VarDist}, defining the
 typical time-activity budget (e.g. hours/day) for the behaviour or activity.}
 
-\item{speed}{an object of class <\code{\linkS4class{VarDist}}>, specifying the speed
+\item{speed}{an object of class \linkS4class{VarDist}, specifying the speed
 (e.g. m/s) associated with the behaviour or activity, particuarly for
 movement-type activities}
+}
+\value{
+a \verb{<BehaviourSpec>} S4 object
 }
 \description{
 Helper function to construct instances of <\code{\linkS4class{BehaviourSpec}}> objects,
@@ -43,5 +46,5 @@ options in the 'Usage' section).
 }
 }
 \seealso{
-\code{\link[=VarDist]{VarDist()}} for defining <\code{\linkS4class{VarDist}}> objects
+\code{\link[=VarDist]{VarDist()}} for defining \verb{<VarDist>} objects
 }

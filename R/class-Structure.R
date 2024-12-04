@@ -54,6 +54,8 @@ methods::setClass(
 #' @param height numeric or object of class `<units>`, the maximum height of the
 #'   structure above sea level (unit: meters)
 #'
+#' @return a `<Structure>` S4 object
+#'
 #' TODO: examples
 #''
 #'

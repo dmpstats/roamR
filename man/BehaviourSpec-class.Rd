@@ -21,7 +21,7 @@ of new properties in the future
 
 \describe{
 \item{\code{behav}}{character string, the name of the behaviour or activity
-(see'Usage' section for available options)}
+(see 'Usage' section for available options)}
 
 \item{\code{energy_cost}}{an object of class <\code{\linkS4class{VarDist}}>, representing the
 energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.}
@@ -29,11 +29,14 @@ energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.}
 \item{\code{time_budget}}{an object of class <\code{\linkS4class{VarDist}}>, defining the
 typical time-activity budget (e.g. hours/day) for the behaviour or activity.}
 
-\item{\code{speed}}{an object of class <\code{\linkS4class{VarDist}}>, specifying the speed
-(e.g. m/s) associated with the behaviour or activity, particuarly for
+\item{\code{speed}}{an object of class <\code{\linkS4class{VarDist}}>, specifying the travel speed
+(e.g. m/s) associated with the behaviour or activity, particularly for
 movement-type activities}
 }}
 
 \seealso{
-\code{\link[=VarDist]{VarDist()}} for defining <\code{\linkS4class{VarDist}}> objects
+\itemize{
+\item \code{\link[=VarDist]{VarDist()}} for defining <\code{\linkS4class{VarDist}}> objects
+\item Helper function \code{\link[=BehaviourSpec]{BehaviourSpec()}} to construct \verb{<BehaviourSpec>} objects
+}
 }

@@ -19,7 +19,7 @@ an object of class \verb{<VarDist>}
 }
 \description{
 Helper function to construct instances of <\code{\linkS4class{VarDist}}> objects,
-enabling the definition of variables in terms of their probability
+enabling the definition of variables of interest in terms of their probability
 distributions, sampling distributions, percentile distributions or fixed
 point estimates.
 }
