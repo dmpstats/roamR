@@ -21,7 +21,6 @@
 
 methods::setClass(
   Class = "Agent",
-  #contains = c("AgentProperties", "AgentState"),
   slots = list(
     state = "AgentState",
     properties = "AgentProperties",
