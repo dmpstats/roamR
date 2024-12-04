@@ -53,6 +53,59 @@ attributes that dictate individual agents' biological features, movement
 patterns, behavioural decisions, and responses to anthropogenic and other
 non-environmental impacts.
 }
+\examples{
+
+library(distributional)
+
+# 1. Start by setting the behaviour profile
+behav <- list(
+ flight = BehaviourSpec(
+    behav = "flying",
+    energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
+    time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
+    speed = VarDist(dist_uniform(10, 20), "m/s")
+    ),
+ dive = BehaviourSpec(
+    behav = "flying",
+    energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
+    time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
+    speed = VarDist(dist_uniform(10, 20), "m/s")
+  )
+)
+
+# 2. the list of impact responses
+imp_resp <- list(
+  owf_footprint = ImpactResponse(
+    impact_id = "owf_foot",
+    displace_prob = VarDist(dist_beta(2, 8)),
+    displace_fn = function(x, y){ x/y},
+    disturb_prob = VarDist(dist_beta(1, 5)),
+    disturb_behav = "flying",
+    # extra hours/day of flight due to impact
+    disturb_extent = VarDist(dist_lognormal(2, 1), "hr/day")
+  )
+)
+
+# 3. `stars` array eith 10 samples of monthly density distribution
+dens <- data.frame(
+           expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
+           counts = rlnorm(5*5*3*10)) |>
+        st_as_stars(dims = c("x", "y", "month", "iter"))
+
+# 4. specify <Species>
+guill <- Species(
+     id = "guill",
+     role = "agent",
+     common_name = "guillemot",
+     scientific_name = "Uria Aalge",
+     mass_distr = VarDist(dist_uniform(850, 1130), "g"),
+     mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
+     spatial_distr = dens,
+     behaviour_profile = behav,
+     impact_responses = imp_resp
+   )
+
+}
 \seealso{
 \itemize{
 \item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=ImpactResponse]{ImpactResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}}
