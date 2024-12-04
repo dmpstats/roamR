@@ -173,6 +173,11 @@ Species <- function(id = NA_character_,
                     behaviour_profile = list(),
                     impact_responses = list()){
 
+  # allow for unlisted objects assigned to `behaviour_profile` and `impact_responses`, if of the correct class
+  if(is(behaviour_profile, "BehaviourSpec")) behaviour_profile <- list(behaviour_profile)
+  if(is(impact_responses, "ImpactResponse")) impact_responses <- list(impact_responses)
+
+
   # input validation
   role <- rlang::arg_match(role)
 
