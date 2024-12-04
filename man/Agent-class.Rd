@@ -5,8 +5,8 @@
 \alias{Agent-class}
 \title{\verb{<Agent>}}
 \description{
-\verb{<Agent>} is an S4 class representing the biological properties and dynamic
-state of an individual agent within the simulation model. It inherits from S4
+\verb{<Agent>} is an S4 class representing the biological properties and
+historical state of an individual agent within the simulation model. It uses
 classes <\linkS4class{AgentProperties}> and <\linkS4class{AgentState}>, collating a
 historical record of the agent's movement and state properties generated
 throughout the simulation.
@@ -25,3 +25,9 @@ agent's state and spatio-temporal activity for each time-step of the
 simulation.}
 }}
 
+\seealso{
+\itemize{
+\item Helper function \code{\link[=Agent]{Agent()}} to construct \verb{<Agent>} objects
+\item Helper functions \code{\link[=AgentState]{AgentState()}} and \code{\link[=AgentProperties]{AgentProperties()}}
+}
+}
