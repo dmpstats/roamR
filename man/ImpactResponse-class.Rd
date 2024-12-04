@@ -24,8 +24,9 @@ likelihood of an agent being redistributed from/to the location of the
 impact.}
 
 \item{\code{displace_fn}}{function (provisional), defining the relationship between
-agent displacement and proximity to the impact source (e.g., the intensity of
-avoidance movements as a function of distance from the impact centroid).}
+agent displacement and proximity to the impact source (e.g., the intensity
+of repulsion movements as a function of distance from the edge of a
+structure's footprint).}
 
 \item{\code{disturb_prob}}{an object of class \verb{<Vardist>}, defining the probability
 of agent disturbance associated with \code{impact_id}, representing the likelihood of

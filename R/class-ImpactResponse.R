@@ -14,8 +14,9 @@
 #'   likelihood of an agent being redistributed from/to the location of the
 #'   impact.
 #' @slot displace_fn function (provisional), defining the relationship between
-#'   agent displacement and proximity to the impact source (e.g., the intensity of
-#'   avoidance movements as a function of distance from the impact centroid).
+#'   agent displacement and proximity to the impact source (e.g., the intensity
+#'   of repulsion movements as a function of distance from the edge of a
+#'   structure's footprint).
 #' @slot disturb_prob an object of class `<Vardist>`, defining the probability
 #'   of agent disturbance associated with `impact_id`, representing the likelihood of
 #'   an agent experiencing disturbance due to the impact.
@@ -101,7 +102,7 @@ ImpactResponse <- function(impact_id = NA_character_,
     disturb_prob = disturb_prob,
     disturb_behav = disturb_behav,
     disturb_extent = disturb_extent
-    )
+  )
 
 
 }
