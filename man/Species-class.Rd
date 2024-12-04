@@ -5,14 +5,15 @@
 \alias{Species-class}
 \title{\verb{<Species>}}
 \description{
-\verb{<Species>} is an S4 class specifying species-level properties of the
-simulated agents e.g. the properties that will dictate agent-level attributes
-and movement features
+\verb{<Species>} is an S4 class that comprises species-level properties of the
+simulated agents. It includes attributes that dictate individual agents'
+biological features, movement patterns, behavioural decisions, and responses
+to anthropogenic and other non-environmental impacts.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{species_id}}{character string, the identifier code for the species}
+\item{\code{id}}{character string, the identifier code for the species}
 
 \item{\code{common_name}}{character string, the common name of the species}
 
@@ -21,37 +22,31 @@ and movement features
 \item{\code{role}}{character string, defining the role of the species in the IBM (one
 of "agent", "prey", "competitor")}
 
-\item{\code{speed_distr}}{named list, defining the species-level travel speed attributes.
-Each element specifies the distribution of speeds for a given movement type
-(e.g. flight speed and swim speed) in terms of in terms of mean (\code{m}) and
-coefficient of variation (\code{cv}).}
+\item{\code{mass_distr}}{an object of class \linkS4class{VarDist}, defining the species'
+distribution of body mass}
 
-\item{\code{mass_distr}}{named list, defining the species' distribution of body mass
-in terms of mean (\code{m}) and CV \code{cv}}
-
-\item{\code{spatial_distr}}{a \code{stars} array, comprising a time-series of grid-type
-density surfaces of the species covering the area of interest. First 2
-dimensions are expected to provide the spatial properties of the density
-surfaces. The 3rd dimension contains specifies the temporal resolution of
+\item{\code{spatial_distr}}{a \verb{<stars>} array, comprising a time-series of
+raster-type density surfaces of the species covering the area of interest.
+First 2 dimensions are expected to provide the spatial properties of the
+density surfaces. The 3rd dimension specifies the temporal resolution of
 the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
 of the density surfaces}
 
-\item{\code{activity_budget_distr}}{named list, defining the distribution of
-activity budgets of the species. TODO: expand}
+\item{\code{behaviour_profile}}{a list comprising objects of class
+\linkS4class{BehaviourSpec}, defining the behavioural profile of the species.}
 
-\item{\code{energy_cost_distr}}{named list, defining the distribution of
-energy costs of the species. TODO: expand}
+\item{\code{impact_responses}}{a list containing objects of class
+\linkS4class{ImpactResponse}, specifying per-agent responses to impact factors.}
 
-\item{\code{mortality_thresh_distr}}{named list, specifying the range of possible
-values of agent's condition (e.g. body mass), below which the agent is
+\item{\code{mortality_thresh_distr}}{an object of class \linkS4class{VarDist}, specifying
+the values of agent's condition (e.g. body mass), below which the agent is
 assumed to have died}
-
-\item{\code{redistribution_type}}{a function}
-
-\item{\code{redistr_prob}}{a list}
-
-\item{\code{disturb_prob}}{a list
-
-#' @include class-VarDistr.R}
 }}
 
+\seealso{
+\itemize{
+\item Helper function \code{\link[=Species]{Species()}} to define \verb{<Species>} objects
+\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=ImpactResponse]{ImpactResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}} for constructing
+objects of the dependency classes
+}
+}

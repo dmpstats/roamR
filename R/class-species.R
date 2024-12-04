@@ -1,38 +1,38 @@
 #' `<Species>`
 #'
-#' `<Species>` is an S4 class specifying species-level properties of the
-#' simulated agents e.g. the properties that will dictate agent-level attributes
-#' and movement features
+#' `<Species>` is an S4 class that comprises species-level properties of the
+#' simulated agents. It includes attributes that dictate individual agents'
+#' biological features, movement patterns, behavioural decisions, and responses
+#' to anthropogenic and other non-environmental impacts.
 #'
-#' @slot species_id character string, the identifier code for the species
+#'
+#' @slot id character string, the identifier code for the species
 #' @slot common_name character string, the common name of the species
 #' @slot scientific_name character string, the scientific name of the species
 #' @slot role character string, defining the role of the species in the IBM (one
 #'   of "agent", "prey", "competitor")
-#' @slot speed_distr named list, defining the species-level travel speed attributes.
-#'   Each element specifies the distribution of speeds for a given movement type
-#'   (e.g. flight speed and swim speed) in terms of in terms of mean (`m`) and
-#'   coefficient of variation (`cv`).
-#' @slot mass_distr named list, defining the species' distribution of body mass
-#'   in terms of mean (`m`) and CV `cv`
-#' @slot spatial_distr a `stars` array, comprising a time-series of grid-type
-#'   density surfaces of the species covering the area of interest. First 2
-#'   dimensions are expected to provide the spatial properties of the density
-#'   surfaces. The 3rd dimension contains specifies the temporal resolution of
+#' @slot mass_distr an object of class [VarDist-class], defining the species'
+#'   distribution of body mass
+#' @slot spatial_distr a `<stars>` array, comprising a time-series of
+#'   raster-type density surfaces of the species covering the area of interest.
+#'   First 2 dimensions are expected to provide the spatial properties of the
+#'   density surfaces. The 3rd dimension specifies the temporal resolution of
 #'   the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
 #'   of the density surfaces
-#' @slot activity_budget_distr named list, defining the distribution of
-#'   activity budgets of the species. TODO: expand
-#' @slot energy_cost_distr named list, defining the distribution of
-#'   energy costs of the species. TODO: expand
-#' @slot mortality_thresh_distr named list, specifying the range of possible
-#'   values of agent's condition (e.g. body mass), below which the agent is
+#' @slot behaviour_profile a list comprising objects of class
+#'   [BehaviourSpec-class], defining the behavioural profile of the species.
+#' @slot impact_responses a list containing objects of class
+#'   [ImpactResponse-class], specifying per-agent responses to impact factors.
+#' @slot mortality_thresh_distr an object of class [VarDist-class], specifying
+#'   the values of agent's condition (e.g. body mass), below which the agent is
 #'   assumed to have died
-#' @slot redistribution_type a function
-#' @slot redistr_prob a list
-#' @slot disturb_prob a list
 #'
-#' #' @include class-VarDistr.R
+#' @include class-VarDist.R class-ImpactResponse.R
+#'
+#' @seealso
+#'  * Helper function [Species()] to define `<Species>` objects
+#'  * Helper functions [VarDist()], [ImpactResponse()] and [BehaviourSpec()] for constructing
+#'   objects of the dependency classes
 #'
 #' @export
 
@@ -43,164 +43,112 @@ methods::setClass(
     role = "character",
     common_name = "character",
     scientific_name = "character",
-    spatial_distr = "stars",
     mass_distr = "VarDist",
+    spatial_distr = "stars",
     behaviour_profile = "list",
-    # speed_distr = "list",
-    # activity_budget_distr = "list",
-    # energy_cost_distr = "list",
-    mortality_thresh_distr = "list",
-    redistribution_type = "function",
-    redistr_prob = "list",
-    disturb_prob = "list"
+    impact_responses = "list",
+    mortality_thresh_distr = "VarDist"
   ),
   prototype = list(
     id = NA_character_,
     role = NA_character_,
     common_name = NA_character_,
     scientific_name = NA_character_,
-    mass_distr = VarDist(),
     spatial_distr = stars::st_as_stars(matrix(NA)),
+    mass_distr = VarDist(),
+    mortality_thresh_distr = VarDist(),
     behaviour_profile = list(
-      flying = new(
-        "BehaviourSpec",
-        behav = "flight",
-        speed = VarDist(),
-        energy_cost = VarDist(),
-        time_budget = VarDist()
-      ),
-      swimming = new(
-        "BehaviourSpec",
-        behav = "swim",
-        speed = VarDist(),
-        energy_cost = VarDist(),
-        time_budget =  VarDist()
-      )
+      flying = BehaviourSpec(behav = "flying"),
+      swimming = BehaviourSpec(behav = "swimming"),
+      diving = BehaviourSpec(behav = "diving"),
+      foraging =  BehaviourSpec(behav = "foraging"),
+      water_resting = BehaviourSpec(behav = "water_resting"),
+      nest_attending = BehaviourSpec(behav = "nest_attending"),
+      other = BehaviourSpec(behav = "other")
     ),
-    # speed_distr = list(
-    #   flight = list(m = NA_real_, cv = NA_real_),
-    #   swim = list(m = NA_real_, cv = NA_real_)
-    # ),
-    # activity_budget_distr = list(
-    #   flight = list(m = NA_real_, cv = NA_real_),
-    #   sea_active = list(m = NA_real_, cv = NA_real_),
-    #   sea_resting = list(m = NA_real_, cv = NA_real_),
-    #   nest_resting = list(m = NA_real_, cv = NA_real_),
-    #   diving = list(m = NA_real_, cv = NA_real_),
-    #   other = list(m = NA_real_, cv = NA_real_)
-    # ),
-    # energy_cost_distr = list(
-    #   flight = list(m = NA_real_, cv = NA_real_),
-    #   sea_active = list(m = NA_real_, cv = NA_real_),
-    #   sea_resting = list(m = NA_real_, cv = NA_real_),
-    #   nest_resting = list(m = NA_real_, cv = NA_real_),
-    #   diving = list(m = NA_real_, cv = NA_real_),
-    #   other = list(m = NA_real_, cv = NA_real_)
-    # ),
-    mortality_thresh_distr = list(m = NA_real_, cv = NA_real_),
-    redistribution_type = function(){},
-    redistr_prob = list(
-      footprint = list(m = NA_real_, cv = NA_real_),
-      buffer = list(m = NA_real_, cv = NA_real_)
-    ),
-    disturb_prob = list(
-      footprint = list(m = NA_real_, cv = NA_real_),
-      buffer = list(m = NA_real_, cv = NA_real_)
+    impact_responses = list(
+      impact_1 = ImpactResponse(impact_id = "owf_footprint"),
+      impact_2 = ImpactResponse(impact_id = "owf_buffer")
     )
   )
 )
 
 
-#' #' Create `<Species>` objects
-#' #'
-#' #' Helper function to construct instances of `<Species>` S4 objects
-#' #'
-#' Species <- function(id ,
-#'                     role,
-#'                     common_name = "character",
-#'                     scientific_name = "character",
-#'                     spatial_distr = "stars",
-#'                     mass_distr = "VarDistr",
-#'                     behaviour_profile = "list",
-#'                     mortality_thresh_distr = "list",
-#'                     redistribution_type = "function",
-#'                     redistr_prob = "list",
-#'                     disturb_prob = "list"){
+
+
+#' Create `<Species>` objects
 #'
-#' }
+#' Helper function to construct instances of [Species-class] objects, which
+#' comprise species-level properties of the simulated agents. It includes
+#' attributes that dictate individual agents' biological features, movement
+#' patterns, behavioural decisions, and responses to anthropogenic and other
+#' non-environmental impacts.
+#'
+#'
+#' @param id character string, the identifier code for the species
+#' @param common_name character string, the common name of the species
+#' @param scientific_name character string, the scientific name of the species
+#' @param role character string, defining the role of the species in the IBM (one
+#'   of "agent", "prey", "competitor")
+#' @param mass_distr an object of class [VarDist-class], defining the species'
+#'   distribution of body mass
+#' @param spatial_distr a `<stars>` array, comprising a time-series of
+#'   raster-type density surfaces of the species covering the area of interest.
+#'   First 2 dimensions are expected to provide the spatial properties of the
+#'   density surfaces. The 3rd dimension specifies the temporal resolution of
+#'   the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
+#'   of the density surfaces
+#' @param behaviour_profile a list comprising objects of class
+#'   [BehaviourSpec-class], defining the behavioural profile of the species.
+#' @param impact_responses a list containing objects of class
+#'   [ImpactResponse-class], specifying per-agent responses to impact factors.
+#' @param mortality_thresh_distr an object of class [VarDist-class], specifying
+#'   the values of agent's condition (e.g. body mass), below which the agent is
+#'   assumed to have died
+#'
+#' @seealso
+#'  * Helper functions [VarDist()], [ImpactResponse()] and [BehaviourSpec()]
+#'  * [stars::st_as_stars()] for generating `<stars>` arrays
+#'
+#'
+Species <- function(id = NA_character_,
+                    role = c("agent", "prey", "competitor"),
+                    common_name = NA_character_,
+                    scientific_name = NA_character_,
+                    mass_distr = VarDist(),
+                    mortality_thresh_distr = VarDist(),
+                    spatial_distr = stars::st_as_stars(matrix(NA)),
+                    behaviour_profile = list(),
+                    impact_responses = list()){
+
+  # input validation
+  role <- rlang::arg_match(role)
+
+  check_class(id, "character")
+  check_class(role, "character")
+  check_class(common_name, "character")
+  check_class(mass_distr, "VarDist")
+  check_class(mortality_thresh_distr, "VarDist")
+  check_class(spatial_distr, "stars")
+  if(length(behaviour_profile) > 0) check_class(behaviour_profile, "BehaviourSpec", inlist = TRUE)
+  if(length(impact_responses) > 0) check_class(impact_responses, "ImpactResponse", inlist = TRUE)
+
+
+  # construct a new instance of <Species>
+  new(
+    "Species",
+    role = role,
+    common_name = common_name,
+    scientific_name = scientific_name,
+    mass_distr = mass_distr,
+    mortality_thresh_distr = mortality_thresh_distr,
+    spatial_distr = spatial_distr,
+    behaviour_profile = behaviour_profile,
+    impact_responses = impact_responses
+  )
+
+
+}
 
 
 
-
-
-#' #' @param common_name character string, the common name of the species
-#' #' @param scientific_name character string, the scientific name of the species
-#' #' @param type character string, designating the type of agent (e.g. `'bird'`,
-#' #'   `'fish'`, `'dragon'`)
-#' #' @param speed_dist list defining the probability distribution of flight
-#' #'   speed, comprising the following elements:
-#' #'    - `dist`: character string, the name of the probability distribution
-#' #'    - `par1`: numeric, distribution parameter 1
-#' #'    - `par2`: numeric, distribution parameter 2
-#' #' @slot size_dist list defining the probability distribution of body-weight,
-#' #'   comprising the following elements:
-#' #'    - `dist`: character string, the name of the probability distribution
-#' #'    - `par1`: numeric, distribution parameter 1
-#' #'    - `par2`: numeric, distribution parameter 2
-#' #'
-#' #'
-#' #' @export
-#' Species <- function(common_name,
-#'                     scientific_name = NA,
-#'                     speed_dist = list(dist = NA, par1 = NA, par2 = NA),
-#'                     size_dist = list(dist = NA, par1 = NA, par2 = NA)){
-#'
-#'
-#'   # ensuring correct type
-#'   common_name <- as.character(common_name)
-#'
-#'   # handling NA inputs
-#'   if(is.na(scientific_name)) scientific_name <- NA_character_
-#'
-#'
-#'   # construct a new instance of <Species> ----------
-#'   methods::new(
-#'     "Species",
-#'     common_name = common_name,
-#'     scientific_name = scientific_name,
-#'     speed_dist = speed_dist,
-#'     size_dist = size_dist
-#'   )
-#'
-#' }
-
-
-
-
-
-#' #' Validator for <Species>
-#' #'
-#' setValidity("Species", function(object){
-#'
-#'   errors <- character()
-#'
-#'   # @speedDist
-#'
-#'   dst_le <- c("dist", "par1", "par2")
-#'
-#'   #missing_elements <- union()
-#'
-#'   if("dist" %notin% names(object@speedDist)){
-#'     msg <- "The list underpinning slot @speedDist must contain element 'dist'"
-#'
-#'     errors <- c(errors, msg)
-#'   }
-#'
-#'
-#'   if(length(errors) == 0){
-#'     TRUE
-#'   } else {
-#'     errors
-#'   }
-#'
-#' })
