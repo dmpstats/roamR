@@ -20,7 +20,7 @@
 #'   level (unit: meters)
 #'
 #' @include s4_management.R
-
+#'
 #' @export
 
 methods::setClass(
@@ -36,7 +36,7 @@ methods::setClass(
     id = NA_character_,
     type = NA_character_,
     boundary = sf::st_polygon(),
-    height = NA_real_#,
+    height = units::set_units(NA, "m") #NA_real_#,
     # buffers = NA_real_
   )
 )

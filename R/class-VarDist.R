@@ -17,7 +17,7 @@
 #'
 #' @seealso Helper function [VarDist()] to construct `<varDist>` objects
 #'
-#' @include s4_utils.R
+#' @include s4_management.R
 
 methods::setClass(
   Class = "VarDist",
@@ -30,8 +30,6 @@ methods::setClass(
     units = NA_character_
   )
 )
-
-
 
 
 #' Create a `<VarDist>` object

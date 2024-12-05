@@ -4,42 +4,47 @@
 \name{AgentProperties-class}
 \alias{AgentProperties-class}
 \title{\verb{<AgentProperties>}}
-\arguments{
-\item{species_id}{character, the identifier code for the agent's species}
-
-\item{initial_mass}{numeric, the agent's body mass at the start of the
-simulation (g)}
-
-\item{wingspan}{numeric, the agent's maximum extent across its wings (units: cm)}
-
-\item{age}{numeric, the age of the agent at the start of the simulation}
-
-\item{sex}{character, the sex of the agent, where \code{"f"}denotes female and
-\code{"m"} denotes male}
-
-\item{speed}{named list, defining the travel speed properties for the agent. Each
-element specifies the distribution of speeds, in terms of mean and
-coefficient of variation (cv), for a given movement type  (e.g. flight
-speed and swim speed).}
-
-\item{start_location, end_location}{objects of class \code{XY}, the location of the
-agent at the start and end of the simulation, respectively}
-
-\item{mortality_tresh}{numeric, the threshold body mass below which the agent
-is assumed to die (units: g)}
-
-\item{disturbance_efects}{named list, indicating how anthropogenic disturbances
-impact key properties of the agent. Each list element specifies
-the direction and magnitude of the effect on an affected property#'}
-
-\item{redistributed}{logical, indicating the agent's susceptibility to change
-its expected spatial distribution in response to man-made structures (\code{TRUE}
-if susceptible, \code{FALSE} if not)}
-}
 \description{
 \verb{<AgentProperties>} is an S4 class specifying the individual-level properties
 of a given agent being traced in the simulation model. It subsumes features
 that remain constant throughout simulation run, including biological and
 physical traits, movement properties, initialization and and final states,
 susceptibility to impact effects,
+
+Currently this is an "internal" class, i.e. it is not meant to be user-facing
 }
+\section{Slots}{
+
+\describe{
+\item{\code{species_id}}{character, the identifier code for the agent's species}
+
+\item{\code{initial_mass}}{numeric, the agent's body mass at the start of the
+simulation (g)}
+
+\item{\code{wingspan}}{numeric, the agent's maximum extent across its wings (units: cm)}
+
+\item{\code{age}}{numeric, the age of the agent at the start of the simulation}
+
+\item{\code{sex}}{character, the sex of the agent, where \code{"f"}denotes female and
+\code{"m"} denotes male}
+
+\item{\code{speed}}{named list, defining the travel speed properties for the agent. Each
+element specifies the distribution of speeds, in terms of mean and
+coefficient of variation (cv), for a given movement type  (e.g. flight
+speed and swim speed).}
+
+\item{\code{start_location,end_location}}{objects of class \code{XY}, the location of the
+agent at the start and end of the simulation, respectively}
+
+\item{\code{mortality_tresh}}{numeric, the threshold body mass below which the agent
+is assumed to die (units: g)}
+
+\item{\code{disturbance_efects}}{named list, indicating how anthropogenic disturbances
+impact key properties of the agent. Each list element specifies
+the direction and magnitude of the effect on an affected property#'}
+
+\item{\code{redistributed}}{logical, indicating the agent's susceptibility to change
+its expected spatial distribution in response to man-made structures (\code{TRUE}
+if susceptible, \code{FALSE} if not)}
+}}
+

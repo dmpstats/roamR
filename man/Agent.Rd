@@ -7,7 +7,7 @@
 Agent(
   state = new("AgentState"),
   properties = new("AgentProperties"),
-  history = sf::st_sf(timestamp = as.POSIXct(NA), location = sf::st_sfc(sf::st_point()),
+  history = sf::st_sf(timestamp = as.POSIXct(NA), geom = sf::st_sfc(sf::st_point()),
     body_mass = NA, foraging = NA, energy = NA, alive = NA)
 )
 }

@@ -10,6 +10,8 @@ of spatio-temporal activity and physiological condition at the end of the
 current simulation \code{time_step} (e.g. end of day). It stores information such
 as body mass, activity budgets, energy expenditure metrics, survival status,
 etc
+
+Currently this is an "internal" class, i.e. it is not meant to be user-facing
 }
 \section{Slots}{
 
@@ -22,22 +24,25 @@ the grid-cell occupied by the agent}
 
 \item{\code{timestep}}{integer, the index of current simulation time-step}
 
-\item{\code{date}}{\code{Date} object, the calendar date of the current simulation time-step}
+\item{\code{timestamp}}{a \code{POSIXct} object, the date-time at the end of the current
+simulation time-step}
 
-\item{\code{mass}}{numeric, the agent's current body mass (units: g)}
+\item{\code{body_mass}}{an object of class \code{units}, the agent's current body mass}
 
-\item{\code{activity_budget}}{named list, defining the agent's time-in-activity budget in
-the current time-step. Each list element represents an activity and the
-time the agent spends on it during this time-step (units: hours/time-step).}
+\item{\code{activity_budget}}{named list, defining the agent's time-in-activity
+budget in the current time-step. Each list element (of class \code{units})
+represents an activity and the time the agent spends on it during this
+time-step (units: hours/time-step).}
 
-\item{\code{activity_costs}}{named list, specifying the energy costs associated with each
-activity in argument \code{activity_budget} (units: KJ/hour/g)}
+\item{\code{activity_costs}}{named list, specifying the energy costs (e.g. KJ/hr/g)
+associated with each activity in argument \code{activity_budget}. List elements
+should be of type \code{units}}
 
-\item{\code{energy_expenditure}}{numeric, total energy spent on all activities by the
-end of the current time-step (units: KJ/g)}
+\item{\code{energy_expenditure}}{a \code{units} object, total energy (e.g. KJ/g) spent on
+all activities by the end of the current time-step}
 
-\item{\code{foraging_success}}{numeric, the mass of prey consumed per time-step
-(units: g/time-step)}
+\item{\code{foraging_success}}{a \code{units} object, the mass of prey consumed per
+time-step (units: g/time-step)}
 
 \item{\code{mass_change_value}}{numeric, specifying the change in the agent’s mass
 over the time-step (units: g)}

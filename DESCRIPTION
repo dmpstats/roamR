@@ -24,13 +24,13 @@ Imports:
     stars,
     units
 Collate: 
-    'class-AgentProperties.R'
-    'class-AgentState.R'
-    'class-Agent.R'
     'utils.R'
     's4_utils.R'
     's4_management.R'
     'class-VarDist.R'
+    'class-AgentProperties.R'
+    'class-AgentState.R'
+    'class-Agent.R'
     'class-BehaviourSpec.R'
     'class-ImpactResponse.R'
     'class-Species.R'
