@@ -9,7 +9,7 @@ Species(
   role = c("agent", "prey", "competitor"),
   common_name = NA_character_,
   scientific_name = NA_character_,
-  mass_distr = VarDist(),
+  body_mass_distr = VarDist(),
   mortality_thresh_distr = VarDist(),
   spatial_distr = stars::st_as_stars(matrix(NA)),
   behaviour_profile = list(),
@@ -26,7 +26,7 @@ of "agent", "prey", "competitor")}
 
 \item{scientific_name}{character string, the scientific name of the species}
 
-\item{mass_distr}{an object of class \linkS4class{VarDist}, defining the species'
+\item{body_mass_distr}{an object of class \linkS4class{VarDist}, defining the species'
 distribution of body mass}
 
 \item{mortality_thresh_distr}{an object of class \linkS4class{VarDist}, specifying
@@ -98,7 +98,7 @@ guill <- Species(
      role = "agent",
      common_name = "guillemot",
      scientific_name = "Uria Aalge",
-     mass_distr = VarDist(dist_uniform(850, 1130), "g"),
+     body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
      mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
      spatial_distr = dens,
      behaviour_profile = behav,

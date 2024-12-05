@@ -11,7 +11,7 @@
 #' @slot scientific_name character string, the scientific name of the species
 #' @slot role character string, defining the role of the species in the IBM (one
 #'   of "agent", "prey", "competitor")
-#' @slot mass_distr an object of class [VarDist-class], defining the species'
+#' @slot body_mass_distr an object of class [VarDist-class], defining the species'
 #'   distribution of body mass
 #' @slot spatial_distr a `<stars>` array, comprising a time-series of
 #'   raster-type density surfaces of the species covering the area of interest.
@@ -43,7 +43,7 @@ methods::setClass(
     role = "character",
     common_name = "character",
     scientific_name = "character",
-    mass_distr = "VarDist",
+    body_mass_distr = "VarDist",
     spatial_distr = "stars",
     behaviour_profile = "list",
     impact_responses = "list",
@@ -55,7 +55,7 @@ methods::setClass(
     common_name = NA_character_,
     scientific_name = NA_character_,
     spatial_distr = stars::st_as_stars(matrix(NA)),
-    mass_distr = VarDist(),
+    body_mass_distr = VarDist(),
     mortality_thresh_distr = VarDist(),
     behaviour_profile = list(
       flying = BehaviourSpec(behav = "flying"),
@@ -90,7 +90,7 @@ methods::setClass(
 #' @param scientific_name character string, the scientific name of the species
 #' @param role character string, defining the role of the species in the IBM (one
 #'   of "agent", "prey", "competitor")
-#' @param mass_distr an object of class [VarDist-class], defining the species'
+#' @param body_mass_distr an object of class [VarDist-class], defining the species'
 #'   distribution of body mass
 #' @param spatial_distr a `<stars>` array, comprising a time-series of
 #'   raster-type density surfaces of the species covering the area of interest.
@@ -155,19 +155,18 @@ methods::setClass(
 #'      role = "agent",
 #'      common_name = "guillemot",
 #'      scientific_name = "Uria Aalge",
-#'      mass_distr = VarDist(dist_uniform(850, 1130), "g"),
+#'      body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
 #'      mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
 #'      spatial_distr = dens,
 #'      behaviour_profile = behav,
 #'      impact_responses = imp_resp
 #'    )
 #'
-
 Species <- function(id = NA_character_,
                     role = c("agent", "prey", "competitor"),
                     common_name = NA_character_,
                     scientific_name = NA_character_,
-                    mass_distr = VarDist(),
+                    body_mass_distr = VarDist(),
                     mortality_thresh_distr = VarDist(),
                     spatial_distr = stars::st_as_stars(matrix(NA)),
                     behaviour_profile = list(),
@@ -177,18 +176,21 @@ Species <- function(id = NA_character_,
   if(is(behaviour_profile, "BehaviourSpec")) behaviour_profile <- list(behaviour_profile)
   if(is(impact_responses, "ImpactResponse")) impact_responses <- list(impact_responses)
 
-
-  # input validation
+  # input validation ---------------
   role <- rlang::arg_match(role)
 
   check_class(id, "character")
   check_class(role, "character")
   check_class(common_name, "character")
-  check_class(mass_distr, "VarDist")
+  check_class(body_mass_distr, "VarDist")
   check_class(mortality_thresh_distr, "VarDist")
   check_class(spatial_distr, "stars")
   if(length(behaviour_profile) > 0) check_class(behaviour_profile, "BehaviourSpec", inlist = TRUE)
   if(length(impact_responses) > 0) check_class(impact_responses, "ImpactResponse", inlist = TRUE)
+
+
+  # TODO: sense check on chosen distributions and parameters given the nature of
+  # the variable. Implied args: body_mass_distr, mortality_thresh_distr
 
 
   # construct a new instance of <Species>
@@ -197,14 +199,12 @@ Species <- function(id = NA_character_,
     role = role,
     common_name = common_name,
     scientific_name = scientific_name,
-    mass_distr = mass_distr,
+    body_mass_distr = body_mass_distr,
     mortality_thresh_distr = mortality_thresh_distr,
     spatial_distr = spatial_distr,
     behaviour_profile = behaviour_profile,
     impact_responses = impact_responses
   )
-
-
 }
 
 
