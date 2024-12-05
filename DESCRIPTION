@@ -39,4 +39,5 @@ Collate:
     'class-Structure.R'
     'class-IBM.R'
     'rmr_initiate.R'
+    'rmr_run.R'
     'velocity_ou.R'

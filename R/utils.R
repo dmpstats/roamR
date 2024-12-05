@@ -45,3 +45,5 @@ check_units <- function(units_chr,
 }
 
 
+# the imverse of `%in%`
+`%notin%` <- Negate(`%in%`)
