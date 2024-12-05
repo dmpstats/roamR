@@ -81,7 +81,8 @@ methods::setClass(
 #'
 #' @export
 BehaviourSpec <- function(behav = c("flying", "swimming", "diving", "foraging",
-                                    "water_resting", "nest_attending", "other"),
+                                    "water_resting", "nest_attending",
+                                    "travelling", "other"),
                           energy_cost = VarDist(),
                           time_budget = VarDist(),
                           speed = VarDist()){
