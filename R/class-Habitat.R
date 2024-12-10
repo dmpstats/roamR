@@ -21,6 +21,8 @@
 #'
 #' @include class-Species.R
 #'
+#' @seealso Helper function [Habitat()] to create `<Habitat>` objects
+#'
 #' @export
 #'
 methods::setClass(
@@ -35,7 +37,7 @@ methods::setClass(
   prototype = list(
     terrain = sf::st_polygon(),
     bathymetry = stars::st_as_stars(matrix(NA)),
-    prey = new("Species"),
+    prey = Species(),
     sst = stars::st_as_stars(matrix(NA)),
     salinity = stars::st_as_stars(matrix(NA))
   )
@@ -68,7 +70,7 @@ Habitat <- function(terrain = NA,
 
   if(is.na(terrain)) terrain <- sf::st_polygon()
   if(is.na(bathymetry)) bathymetry <- stars::st_as_stars(matrix(NA))
-  if(is.na(prey)) prey <- new("Species")
+  if(is.na(prey)) prey <- Species()
   if(is.na(sst)) sst <- stars::st_as_stars(matrix(NA))
   if(is.na(salinity)) salinity <- stars::st_as_stars(matrix(NA))
 

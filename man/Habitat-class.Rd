@@ -30,3 +30,6 @@ within the AOC, at discrete time points  throughout the simulated period}
 the AOC, at discrete time points throughout the simulated period}
 }}
 
+\seealso{
+Helper function \code{\link[=Habitat]{Habitat()}} to create \verb{<Habitat>} objects
+}
