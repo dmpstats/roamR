@@ -83,6 +83,7 @@ ImpactResponse <- function(impact_id = NA_character_,
                            disturb_behav = c("flying", "swimming", "diving",
                                              "foraging", "water_resting",
                                              "travelling","nest_resting",
+                                             "commuting",
                                              "other"),
                            disturb_extent = VarDist()
                            ){
