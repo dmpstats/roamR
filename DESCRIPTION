@@ -38,6 +38,8 @@ Collate:
     'class-ModelConfig.R'
     'class-Structure.R'
     'class-IBM.R'
+    'data.R'
     'rmr_initiate.R'
     'rmr_run.R'
+    'roamR-package.R'
     'velocity_ou.R'
