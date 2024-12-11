@@ -18,6 +18,9 @@
 #'   within the AOC, at discrete time points  throughout the simulated period
 #' @slot salinity object of class `<stars>`, containing sea salinity maps within
 #'   the AOC, at discrete time points throughout the simulated period
+#' @slot wind object of class `<stars>`, containing rasters of wind speed and
+#'   direction within the AOC, at discrete time points throughout the simulated
+#'   period
 #'
 #' @include class-Species.R
 #'
@@ -32,14 +35,16 @@ methods::setClass(
     bathymetry = "stars",
     prey = "Species",
     sst = "stars",
-    salinity = "stars"
+    salinity = "stars",
+    wind = "stars"
   ),
   prototype = list(
     terrain = sf::st_polygon(),
     bathymetry = stars::st_as_stars(matrix(NA)),
     prey = Species(),
     sst = stars::st_as_stars(matrix(NA)),
-    salinity = stars::st_as_stars(matrix(NA))
+    salinity = stars::st_as_stars(matrix(NA)),
+    wind = stars::st_as_stars(matrix(NA))
   )
 )
 
@@ -61,18 +66,31 @@ methods::setClass(
 #'   within the AOC, at discrete time points  throughout the simulated period
 #' @param salinity object of class `<stars>`, containing sea salinity maps
 #'   within the AOC, at discrete time points throughout the simulated period
+#' @param wind object of class `<stars>`, containing rasters of wind speed and
+#'   direction within the AOC, at discrete time points throughout the simulated
+#'   period
 #'
-Habitat <- function(terrain = NA,
-                        bathymetry = NA,
-                        prey = NA,
-                        sst = NA,
-                        salinity = NA){
+Habitat <- function(terrain = NULL,
+                    bathymetry = NULL,
+                    prey = NULL,
+                    sst = NULL,
+                    salinity = NULL,
+                    wind = NULL){
 
-  if(is.na(terrain)) terrain <- sf::st_polygon()
-  if(is.na(bathymetry)) bathymetry <- stars::st_as_stars(matrix(NA))
-  if(is.na(prey)) prey <- Species()
-  if(is.na(sst)) sst <- stars::st_as_stars(matrix(NA))
-  if(is.na(salinity)) salinity <- stars::st_as_stars(matrix(NA))
+  # Null imput handling
+  if(is.null(terrain)) terrain <- sf::st_polygon()
+  if(is.null(bathymetry)) bathymetry <- stars::st_as_stars(matrix(NA))
+  if(is.null(prey)) prey <- Species()
+  if(is.null(sst)) sst <- stars::st_as_stars(matrix(NA))
+  if(is.null(salinity)) salinity <- stars::st_as_stars(matrix(NA))
+  if(is.null(wind)) wind <- stars::st_as_stars(matrix(NA))
+
+  check_class(bathymetry, class = "stars")
+  check_class(prey, class = "Species")
+  check_class(sst, class = "stars")
+  check_class(salinity, class = "stars")
+  check_class(wind, class = "stars")
+
 
   new(
     "Habitat",
@@ -80,7 +98,8 @@ Habitat <- function(terrain = NA,
     bathymetry = bathymetry,
     prey = prey,
     sst = sst,
-    salinity = salinity
+    salinity = salinity,
+    wind = wind
   )
 }
 
