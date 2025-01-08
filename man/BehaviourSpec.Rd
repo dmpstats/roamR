@@ -6,7 +6,7 @@
 \usage{
 BehaviourSpec(
   behav = c("flying", "swimming", "diving", "foraging", "water_resting",
-    "nest_attending", "travelling", "other"),
+    "nest_attending", "travelling", "commuting", "other"),
   energy_cost = VarDist(),
   time_budget = VarDist(),
   speed = VarDist()

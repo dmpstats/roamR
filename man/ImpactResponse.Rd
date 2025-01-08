@@ -10,7 +10,7 @@ ImpactResponse(
   displace_fn = function(x) x,
   disturb_prob = VarDist(),
   disturb_behav = c("flying", "swimming", "diving", "foraging", "water_resting",
-    "travelling", "nest_resting", "other"),
+    "travelling", "nest_resting", "commuting", "other"),
   disturb_extent = VarDist()
 )
 }

@@ -4,7 +4,14 @@
 \alias{Habitat}
 \title{Create a \verb{<Habitat>} object}
 \usage{
-Habitat(terrain = NA, bathymetry = NA, prey = NA, sst = NA, salinity = NA)
+Habitat(
+  terrain = NULL,
+  bathymetry = NULL,
+  prey = NULL,
+  sst = NULL,
+  salinity = NULL,
+  wind = NULL
+)
 }
 \arguments{
 \item{terrain}{object of class \verb{<XY>} or \verb{<POLYGON>}, representing land
@@ -21,6 +28,10 @@ within the AOC, at discrete time points  throughout the simulated period}
 
 \item{salinity}{object of class \verb{<stars>}, containing sea salinity maps
 within the AOC, at discrete time points throughout the simulated period}
+
+\item{wind}{object of class \verb{<stars>}, containing rasters of wind speed and
+direction within the AOC, at discrete time points throughout the simulated
+period}
 }
 \description{
 Helper function to construct instances of <\code{\linkS4class{Habitat}}> objects
