@@ -6,15 +6,15 @@
 \usage{
 Structure(
   id = NA_character_,
-  type = NA_character_,
-  boundary = sf::st_polygon(),
+  type = c("owf", "traffic", "fishing"),
+  boundary = NULL,
   height = NA_real_
 )
 }
 \arguments{
 \item{id}{character string, a unique identifier or name for the structure}
 
-\item{type}{character string, the type of man-made structure (e.g: \code{"OWF"})}
+\item{type}{character string, the type of man-made structure or influence (e.g: \code{"OWF"})}
 
 \item{boundary}{object of class \code{"XY"}, representing the polygon that defines
 the spatial footprint of the development structure}
@@ -26,7 +26,6 @@ structure above sea level (unit: meters)}
 a \verb{<Structure>} S4 object
 
 TODO: examples
-'
 }
 \description{
 Helper function to construct instances of <\code{\linkS4class{Structure}}> objects
