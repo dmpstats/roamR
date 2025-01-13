@@ -9,13 +9,13 @@ Habitat(
   bathymetry = NULL,
   prey = NULL,
   sst = NULL,
-  salinity = NULL,
+  sss = NULL,
   wind = NULL
 )
 }
 \arguments{
-\item{terrain}{object of class \verb{<XY>} or \verb{<POLYGON>}, representing land
-boundaries (e.g. mainland and/or islands) within the AOC}
+\item{terrain}{object of class \code{sf} or \code{sfc}, \code{sfc_POLYGON}, containing
+coastline polygon(s) within the AOC.}
 
 \item{bathymetry}{object of class \verb{<stars>}, specifying the bathymetric data
 within the AOC}
@@ -26,7 +26,7 @@ AOC, at discrete time points throughout the simulated period}
 \item{sst}{object of class \verb{<stars>}, containing sea surface temperature maps
 within the AOC, at discrete time points  throughout the simulated period}
 
-\item{salinity}{object of class \verb{<stars>}, containing sea salinity maps
+\item{sss}{object of class \verb{<stars>}, containing sea salinity maps
 within the AOC, at discrete time points throughout the simulated period}
 
 \item{wind}{object of class \verb{<stars>}, containing rasters of wind speed and
