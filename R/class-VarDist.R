@@ -2,10 +2,10 @@
 #'
 #'
 #' `<VarDist>` is an S4 class that encapsulates the distributional properties of
-#' a variable of interest. It defines the variable in terms of its probability
-#' distribution its mean and coefficient of variation (CV). Intended to provide
-#' a structured way to specify input values and quantify the uncertainty
-#' associated with their estimates.
+#' a variable of interest. Variables can be speified in terms of their
+#' probability distribution, sampling distribution, percentile distribution or a
+#' fixed value. Intended to provide a structured way to specify input values and
+#' quantify the uncertainty associated with their estimates.
 #'
 #' @slot dist an object of class `<distribution>` (from package
 #'   `{distributional}`), specifying the distribution of values of the variable
