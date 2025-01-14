@@ -7,15 +7,15 @@
 \description{
 \verb{<Habitat>} is an S4 class that encapsulates the Habitat-level features of
 the geographical area within the IBM's area of calculation (AOC). These
-features are designed to interact with simulated Agents, influencing
-their spatial movement, distribution, behaviour and physiological condition
-over time
+features are designed to interact with simulated Agents, influencing their
+spatial movement, distribution, behaviour and physiological condition over
+time
 }
 \section{Slots}{
 
 \describe{
-\item{\code{terrain}}{object of class \verb{<XY>} or \verb{<POLYGON>}, representing land
-boundaries (e.g. mainland and/or islands) within the AOC}
+\item{\code{terrain}}{object of class \code{sf} or \code{sfc}, \code{sfc_POLYGON}, containing
+coastline polygon(s) within the AOC}
 
 \item{\code{bathymetry}}{object of class \verb{<stars>}, specifying the bathymetric data
 within the AOC}
@@ -26,8 +26,12 @@ AOC, at discrete time points throughout the simulated period}
 \item{\code{sst}}{object of class \verb{<stars>}, containing sea surface temperature maps
 within the AOC, at discrete time points  throughout the simulated period}
 
-\item{\code{salinity}}{object of class \verb{<stars>}, containing sea salinity maps within
+\item{\code{sss}}{object of class \verb{<stars>}, containing sea surface salinity maps within
 the AOC, at discrete time points throughout the simulated period}
+
+\item{\code{wind}}{object of class \verb{<stars>}, containing rasters of wind speed and
+direction within the AOC, at discrete time points throughout the simulated
+period}
 }}
 
 \seealso{
