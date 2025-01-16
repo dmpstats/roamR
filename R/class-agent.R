@@ -97,7 +97,6 @@ Agent <- function(state = new("AgentState"),
   )
 
 
-
   # if(!is(species, "Species")){
   #   cli::cli_abort(c(
   #     "{.arg species} must be an object of class {.cls Species}",

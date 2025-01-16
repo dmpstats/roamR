@@ -35,7 +35,8 @@ check_units <- function(units_chr,
           call = call,
           arg = arg,
           parent = NA,
-          error = cnd, class = "err_units_string_misspec"
+          error = cnd,
+          class = "err_units_string_misspec"
         )
       }}
   )

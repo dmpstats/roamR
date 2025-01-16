@@ -31,7 +31,6 @@ rmr_initiate <- function(species, habitat, structures, config){
 
   ## initialize Agents
 
-
   IBM(
     agents = list(),
     species = species,
