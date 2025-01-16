@@ -49,7 +49,7 @@ methods::setClass(
 #' Create a `<ImpactResponse>` object
 #'
 #' Helper function to construct instances of <[`ImpactResponse-class`]> objects,
-#' describing pecies-level responses to man-made structures or (eventually!)
+#' describing species-level responses to man-made structures or (eventually!)
 #' other non-environmental factors. It's intended to be a sub-class of
 #' [Species-class], and currently interacts with [Structure-class] objects to
 #' influence simulated aspects of the traced agents such as movement and

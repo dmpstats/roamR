@@ -56,12 +56,10 @@ check_class <- function(x,
   }else{
 
     if(!is(x, class)){
-
       msg <- c(
           "Argument {.arg {arg}} must be an object of class {.cls {class}}",
           "x" = "You've provided an object of class {.cls {class(x)}}"
         )
-
     }
 
     # if(!is.list(x)){

@@ -11,8 +11,8 @@
 #'
 #' @slot id character string, a unique identifier of the structure.
 #' @slot type character string, the type of man-made structure (e.g: `"OWF"`)
-#' @slot boundary object of class `"XY"`, representing the polygon that defines
-#'   the spatial footprint of the development structure
+#' @slot boundary object of class `sf` or `sfc`, `sfc_POLYGON`, representing the
+#'   polygon that defines the spatial footprint of the development structure
 #' @slot height numeric, the maximum height of the structure above sea
 #'   level (unit: meters)
 #'
@@ -27,7 +27,6 @@ methods::setClass(
     type = "character",
     boundary = "sfc",
     height = "units"
-    # buffers = "units"
   ),
   prototype = list(
     id = NA_character_,
@@ -46,8 +45,8 @@ methods::setClass(
 #' @param id character string, a unique identifier or name for the structure
 #' @param type character string, the type of man-made structure or influence
 #'   (see 'Usage' section for available options).
-#' @param boundary object of class `"XY"`, representing the polygon that defines
-#'   the spatial footprint of the development structure
+#' @param boundary object of class `sf` or `sfc`, `sfc_POLYGON`, representing the
+#'   polygon that defines the spatial footprint of the development structure
 #' @param height numeric or object of class `<units>`, the maximum height of the
 #'   structure above sea level (unit: meters)
 #'

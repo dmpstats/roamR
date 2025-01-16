@@ -464,6 +464,7 @@ list(
 
 
 
+
 ModelConfig(
   n_agents = 1000,
   ref_sys = st_crs(4326),

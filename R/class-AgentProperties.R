@@ -24,9 +24,9 @@
 #'   agent at the start and end of the simulation, respectively
 #' @slot mortality_tresh numeric, the threshold body mass below which the agent
 #'   is assumed to die (units: g)
-#' @slot disturbance_efects named list, indicating how anthropogenic disturbances
+#' @slot disturbance_effects named list, indicating how anthropogenic disturbances
 #'   impact key properties of the agent. Each list element specifies
-#'   the direction and magnitude of the effect on an affected property#'
+#'   the direction and magnitude of the effect on an affected behaviour or activity
 #' @slot redistributed logical, indicating the agent's susceptibility to change
 #'   its expected spatial distribution in response to man-made structures (`TRUE`
 #'   if susceptible, `FALSE` if not)

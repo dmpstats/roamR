@@ -12,7 +12,6 @@
 #' of new properties in the future
 #
 #' @slot behav character string, the name of the behaviour or activity
-#'   (see 'Usage' section for available options)
 #' @slot energy_cost an object of class <[`VarDist-class`]>, representing the
 #'   energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.
 #' @slot time_budget an object of class <[`VarDist-class`]>, defining the

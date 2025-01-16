@@ -22,7 +22,7 @@
 #'   direction within the AOC, at discrete time points throughout the simulated
 #'   period
 #'
-#' @include class-Species.R
+#' @include class-Species.R s4_utils.R
 #'
 #' @seealso Helper function [Habitat()] to create `<Habitat>` objects
 #'

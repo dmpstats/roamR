@@ -123,7 +123,7 @@ methods::setClass(
 #'     speed = VarDist(dist_uniform(10, 20), "m/s")
 #'     ),
 #'  dive = BehaviourSpec(
-#'     behav = "flying",
+#'     behav = "dive",
 #'     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
 #'     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
 #'     speed = VarDist(dist_uniform(10, 20), "m/s")
@@ -189,8 +189,10 @@ Species <- function(id = NA_character_,
   if(length(impact_responses) > 0) check_class(impact_responses, "ImpactResponse", inlist = TRUE)
 
 
-  # TODO: sense check on chosen distributions and parameters given the nature of
-  # the variable. Implied args: body_mass_distr, mortality_thresh_distr
+  # TODO:
+  #   (i) sense check on chosen distributions and parameters given the nature of
+  #       the variable. Implied args: body_mass_distr, mortality_thresh_distr
+  #   (ii) ensure behaviours are nor duplicated
 
 
   # construct a new instance of <Species>
