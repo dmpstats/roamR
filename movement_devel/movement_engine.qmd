@@ -318,8 +318,8 @@ system.time({
 state_df <- list(A = c(0.1, 0.1), B = c(2, 1), C = c(4, 2))
   
 trans_mat <- matrix(runif(9), ncol = 3)
-trans_row_sum <- apply(test, 1, sum)
-trans_mat <- test/test_row
+trans_row_sum <- apply(trans_mat, 1, sum)
+trans_mat <- trans_mat/trans_row_sum
 
 
 set.seed(7657)
