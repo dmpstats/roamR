@@ -1,0 +1,41 @@
+---
+title: "IBM initiatization Walk-through"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{IBM initiatization Walk-through}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(roamR)
+```
+
+This article is provides a step-by-step guide on how to initiate the
+Individual-Based Model (IBM) underpinning the `{roamR}` package. The
+initialization function `rmr_initiate()` requires the following objects:
+
+- `<Species>`, containing the species-level properties of the agents
+
+- `<Habitat>`, comprising the geographical and environmental features 
+of the simulated area, from here on referred to as the Area of Calculation (AOC)
+
+- a list of `<Structure>` objects, listing existent or future man-made physical 
+structures that influence the simulated history of the agents
+
+- `<ModelConfig>`, the main simulation settings
+
+
+
+
+
+## Create the `<Species>` object
+
+Arguments required 
