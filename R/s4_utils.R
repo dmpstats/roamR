@@ -94,6 +94,13 @@ check_class <- function(x,
 
 
 
+
+# Generics -------------------------------------------------------------------
+methods::setGeneric("is_empty", function(object) standardGeneric("is_empty"))
+
+
+
+
 #' # Input checkers for S4 objects
 #'
 #'
