@@ -36,6 +36,7 @@ Collate:
     'class-Agent.R'
     'class-BehaviourSpec.R'
     'class-Driver.R'
+    'class-DriverResponse.R'
     'class-ImpactResponse.R'
     'class-Species.R'
     'class-Habitat.R'
