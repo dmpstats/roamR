@@ -14,7 +14,6 @@
 #'   `"m/s"`) that is currently recognized by the udunits database (see
 #'   [units::valid_udunits()])
 #'
-#'
 #' @seealso Helper function [VarDist()] to construct `<varDist>` objects
 #'
 #' @include s4_management.R
@@ -26,10 +25,11 @@ methods::setClass(
     units = "character"
   ),
   prototype = list(
-    dist = dist_missing(),
+    dist = distributional::dist_missing(),
     units = NA_character_
   )
 )
+
 
 
 #' Create a `<VarDist>` object
@@ -88,7 +88,7 @@ VarDist <- function(dist = NA, units = NA){
 
   # NA handling
   if(is.na(units)) units <- ""
-  if(is.na(dist)) dist <- dist_missing()
+  if(is.na(dist)) dist <- distributional::dist_missing()
 
   # validate classes
   check_class(units, "character")
@@ -110,4 +110,12 @@ VarDist <- function(dist = NA, units = NA){
   # construct a new instance of <VarDist>
   new("VarDist", dist = dist, units = units)
 }
+
+
+
+
+#' @include s4_utils.R
+methods::setMethod("is_empty", "VarDist", function(object){
+  is.na(object@dist)
+})
 
