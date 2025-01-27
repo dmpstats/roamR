@@ -18,7 +18,7 @@
 #'  - `"model"` - refers to influencers specified for model operational purposes
 #'  (e.g. AOC bounding box to confine simulated movements)
 #'
-#' This class was designed to accommodate two types of spatial-based data formats
+#' This class is designed to accommodate two types of spatial-based data formats
 #' (simple features and multidimensional datacubes) providing a flexible
 #' framework to specify driver characteristics.
 #'
@@ -151,7 +151,7 @@ Driver <- function(id = NA_character_,
 
 
 
-
+# Validator -----------------------------------------------------
 methods::setValidity("Driver", function(object) {
 
   if(length(object@id) > 1){
@@ -167,7 +167,7 @@ methods::setValidity("Driver", function(object) {
 
 
 
-# Accessors
+# Accessors -----------------------------------------------------
 
 ## @stars_obj
 ### getter
