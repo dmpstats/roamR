@@ -2,6 +2,7 @@
 
 export(Agent)
 export(BehaviourSpec)
+export(Driver)
 export(IBM)
 export(ImpactResponse)
 export(ModelConfig)
