@@ -13,7 +13,8 @@ Species(
   mortality_thresh_distr = VarDist(),
   spatial_distr = stars::st_as_stars(matrix(NA)),
   behaviour_profile = list(),
-  impact_responses = list()
+  impact_responses = list(),
+  driver_responses = list()
 )
 }
 \arguments{
@@ -66,7 +67,7 @@ behav <- list(
     speed = VarDist(dist_uniform(10, 20), "m/s")
     ),
  dive = BehaviourSpec(
-    behav = "flying",
+    behav = "dive",
     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
@@ -86,7 +87,7 @@ imp_resp <- list(
   )
 )
 
-# 3. `stars` array eith 10 samples of monthly density distribution
+# 3. `stars` array with 10 samples of monthly density distribution
 dens <- data.frame(
            expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
            counts = rlnorm(5*5*3*10)) |>

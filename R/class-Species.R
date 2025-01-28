@@ -47,6 +47,7 @@ methods::setClass(
     spatial_distr = "stars",
     behaviour_profile = "list",
     impact_responses = "list",
+    driver_responses = "list",
     mortality_thresh_distr = "VarDist"
   ),
   prototype = list(
@@ -69,6 +70,10 @@ methods::setClass(
     impact_responses = list(
       impact_1 = ImpactResponse(impact_id = "owf_footprint"),
       impact_2 = ImpactResponse(impact_id = "owf_buffer")
+    ),
+    driver_responses = list(
+      land = new("DriverResponse", driver_id = "land"),
+      sst = new("DriverResponse", driver_id = "sst")
     )
   )
 )
@@ -143,7 +148,7 @@ methods::setClass(
 #'   )
 #' )
 #'
-#' # 3. `stars` array eith 10 samples of monthly density distribution
+#' # 3. `stars` array with 10 samples of monthly density distribution
 #' dens <- data.frame(
 #'            expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
 #'            counts = rlnorm(5*5*3*10)) |>
@@ -170,11 +175,13 @@ Species <- function(id = NA_character_,
                     mortality_thresh_distr = VarDist(),
                     spatial_distr = stars::st_as_stars(matrix(NA)),
                     behaviour_profile = list(),
-                    impact_responses = list()){
+                    impact_responses = list(),
+                    driver_responses = list()){
 
   # allow for unlisted objects assigned to `behaviour_profile` and `impact_responses`, if of the correct class
   if(is(behaviour_profile, "BehaviourSpec")) behaviour_profile <- list(behaviour_profile)
   if(is(impact_responses, "ImpactResponse")) impact_responses <- list(impact_responses)
+  if(is(driver_responses, "DriverResponse")) driver_responses <- list(driver_responses)
 
   # input validation ---------------
   role <- rlang::arg_match(role)
@@ -187,6 +194,7 @@ Species <- function(id = NA_character_,
   check_class(spatial_distr, "stars")
   if(length(behaviour_profile) > 0) check_class(behaviour_profile, "BehaviourSpec", inlist = TRUE)
   if(length(impact_responses) > 0) check_class(impact_responses, "ImpactResponse", inlist = TRUE)
+  if(length(driver_responses) > 0) check_class(driver_responses, "DriverResponse", inlist = TRUE)
 
 
   # TODO:
@@ -205,7 +213,8 @@ Species <- function(id = NA_character_,
     mortality_thresh_distr = mortality_thresh_distr,
     spatial_distr = spatial_distr,
     behaviour_profile = behaviour_profile,
-    impact_responses = impact_responses
+    impact_responses = impact_responses,
+    driver_responses = driver_responses
   )
 }
 
