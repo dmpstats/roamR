@@ -133,7 +133,7 @@ drv_sp_distr <- Driver(
 
 # sst monthly averages from 1981-2023
 # source: https://psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html
-sst_month <- stars::read_stars("data-raw/sst.mon.mean.nc", proxy = TRUE) |>
+sst_month <- stars::read_stars("C:/Users/Bruno/Dropbox/ORJIP/DisNBS/data/env rasters/sst.mon.mean.nc", proxy = TRUE) |>
   st_set_crs(4326) |>
   # crop to mack bounding box
   st_crop(mock_bbox)
@@ -260,7 +260,7 @@ drv_prey <- Driver(
 # SOURCE:  https://data.ceda.ac.uk/download?path=/neodc/esacci/sea_surface_salinity/data/v04.41/GLOBALv4.41/30days/2021
 # only year 2021
 
-sss <- fs::dir_map("data-raw/sss_esa_neodc//esacci/sea_surface_salinity/data/v04.41/GLOBALv4.41/30days/2021/", \(x) read_ncdf(x, var = "sss"))
+sss <- fs::dir_map("C:/Users/Bruno/Dropbox/ORJIP/DisNBS/data/env rasters/sss_esa_neodc//esacci/sea_surface_salinity/data/v04.41/GLOBALv4.41/30days/2021/", \(x) read_ncdf(x, var = "sss"))
 sss <- do.call("c", sss)
 
 plot(sss[mock_bbox])
