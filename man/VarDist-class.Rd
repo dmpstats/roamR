@@ -6,7 +6,7 @@
 \title{Class \verb{<VarDist>}}
 \description{
 \verb{<VarDist>} is an S4 class that encapsulates the distributional properties of
-a variable of interest. Variables can be speified in terms of their
+a variable of interest. Variables can be specified in terms of their
 probability distribution, sampling distribution, percentile distribution or a
 fixed value. Intended to provide a structured way to specify input values and
 quantify the uncertainty associated with their estimates.

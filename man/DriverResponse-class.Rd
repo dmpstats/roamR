@@ -5,7 +5,7 @@
 \alias{DriverResponse-class}
 \title{Class \verb{<DriverResponse>}}
 \description{
-\verb{<DriverResponse>} is an S4 class hat defines species-level, per-agent
+\verb{<DriverResponse>} is an S4 class that defines species-level, per-agent
 responses to a specific environmental or man-made "driver", as declared in an
 associated object of class <\code{\linkS4class{Driver}}>.
 }
