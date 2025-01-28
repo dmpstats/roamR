@@ -22,7 +22,7 @@ to anthropogenic and other non-environmental impacts.
 \item{\code{role}}{character string, defining the role of the species in the IBM (one
 of "agent", "prey", "competitor")}
 
-\item{\code{mass_distr}}{an object of class \linkS4class{VarDist}, defining the species'
+\item{\code{body_mass_distr}}{an object of class \linkS4class{VarDist}, defining the species'
 distribution of body mass}
 
 \item{\code{spatial_distr}}{a \verb{<stars>} array, comprising a time-series of
