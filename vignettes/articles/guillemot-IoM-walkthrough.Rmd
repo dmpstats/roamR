@@ -10,5 +10,38 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+library(tidyverse)
 library(roamR)
 ```
+
+
+# Overview
+
+
+# Initialisation
+
+## Inputs
+
+## Data
+
+* Transition matrices - scaling for time-steps
+
+```{r}
+
+lila_dat <- read_csv("data/ActivityBudget.csv")
+
+lila_mat <- lila_dat %>% 
+  group_by(Colony, TDR_ID, Date, Behaviour) %>%
+  summarise(sum(Hours))
+
+```
+
+
+
+## Parameters
+
+# Running a simulation
+
+
+# Querying the outputs
+
