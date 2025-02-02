@@ -315,15 +315,26 @@ ggplot() +
 ```{r}
 system.time({
 
+set.seed(7657)
+n_steps <- 10000 # 3 months, 10 min steps = 12960
+prop_hr <- 1/4
+
+
+SST <- 15
+
 state_df <- list(A = c(0.1, 0.1), B = c(2, 1), C = c(4, 2))
   
-trans_mat <- matrix(runif(9), ncol = 3)
+trans_mat <- matrix(c(90, 5, 5, 2, 70, 10, 8, 25, 85), ncol = 3)
 trans_row_sum <- apply(trans_mat, 1, sum)
 trans_mat <- trans_mat/trans_row_sum
 
+n_states <- nrow(trans_mat)
 
-set.seed(7657)
-n_steps <- 10000 # 3 months, 10 min steps = 12960
+ind_mat <- diag(n_states)
+state_expenditure <- c(141, 33.8, 113-(2.75*SST))*prop_hr
+
+energy_out <- 0
+
 
 repel_array <- c(bound_repel, coast_repel)
 
@@ -347,8 +358,8 @@ current_pos <- start_pos
 travel_dir <- init_dir
 current_state <- start_state
 
-step_hist <- matrix(nrow = n_steps+1, ncol = 3) 
-step_hist[1, ] <- c(unlist(start_pos), start_state)
+step_hist <- matrix(nrow = n_steps+1, ncol = 4) 
+step_hist[1, ] <- c(unlist(start_pos), start_state, energy_out)
 
 
 for(i in 2:(n_steps+1)){
@@ -361,6 +372,8 @@ for(i in 2:(n_steps+1)){
   
   current_state <- sample(1:3, 1, prob = trans_mat[current_state, ])
   
+  current_expenditure <- ind_mat[current_state, ] %*% state_expenditure
+  
   pars <- as.numeric(c(1, dir_modifiers[c(2,4)]))
   dirs <- as.numeric(c(current_dir, dir_modifiers[c(1, 3)]))
     
@@ -371,7 +384,7 @@ for(i in 2:(n_steps+1)){
     
   current_pos <- next_pos
   
-  step_hist[i,] <- c(unlist(next_pos), current_state)
+  step_hist[i,] <- c(unlist(next_pos), current_state, current_expenditure)
   
 }
 })
@@ -379,8 +392,8 @@ for(i in 2:(n_steps+1)){
 step_hist <- step_hist %>% 
   as.data.frame() %>% 
   sf::st_as_sf(coords = c(1, 2)) %>% 
-  rename(state = V3) %>% 
-  mutate(state = factor(state)) %>% 
+  rename(state = V3, energy_out = V4) %>% 
+  mutate(state = factor(state), cum_energy = cumsum(energy_out)) %>% 
   st_set_crs(crs_utm31)
 ```
 
