@@ -5,43 +5,64 @@
 \title{Create a \verb{<ModelConfig>} object}
 \usage{
 ModelConfig(
-  n_agents = 100,
+  n_agents = 100L,
   ref_sys = sf::st_crs(4326),
-  aoc_bbx = c(0, 100, 0, 100),
+  aoc_bbx = c(0, 0, 10, 10),
   delta_x = 10,
   delta_y = 10,
   time_step = "1 day",
   start_date = Sys.Date() - 5,
-  end_date = Sys.Date()
+  end_date = Sys.Date(),
+  start_sites = NULL,
+  end_sites = NULL
 )
 }
 \arguments{
-\item{ref_sys}{object of class <\code{crs}>, specifies the Coordinate Reference
-System to be applied to the IBM, defined via \code{\link[sf:st_crs]{sf::st_crs()}}}
+\item{n_agents}{integer, the number of agents to track within the simulation.}
 
-\item{aoc_bbx}{a numeric vector or object of class <\code{bbox}>, specifies the
-spatial bounding box delimiting the area of calculation within which
-simulation occurs. If a numeric, expects a 4-length vector specifying
-\code{xmin}, \code{ymin}, \code{xmax} and \code{ymax} values.}
+\item{ref_sys}{object of class <\code{crs}>, defining the Coordinate Reference System to
+be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
+
+\item{aoc_bbx}{object of class <\code{bbox}>, specifying the area of calculation,
+i.e. the spatial bounding box within which simulation occurs.}
 
 \item{delta_x, delta_y}{numeric, the cell (pixel) size in the x and y
-dimensions, respectively. Assumed to be in the same units as \code{ref_sys}.}
+dimensions, respectively. Assumed to take the same units as \code{ref_sys}.}
 
 \item{time_step}{character string, defines the temporal resolution of the
 model. Refer to the \code{by} argument in \code{\link[=seq.Date]{seq.Date()}} for string-based
 specification of time increments.}
 
-\item{n_agent}{integer, the number of agents to track within the simulation.}
+\item{start_sites}{an \verb{<sf>} object, defining the sites where agents start the
+simulation. Apart from the sites' geometry, this object must contain the
+following columns:
+\itemize{
+\item \code{site_id}: a unique identifier for each site.
+\item \code{prop}: the proportion of \code{n_agents} allocated at each site. The values
+in this column must sum to 1.
+}
+
+If \code{NULL} (the default), agents start at random locations within the AOC.}
+
+\item{end_sites}{an \verb{<sf>} object, analogous to \code{start_sites}, specifying the
+sites to which agents must return at the end of the simulation.}
 
 \item{start_date;end_date}{Date, respectively, defines the start and end
-dates for the simulation period}
+dates for the simulation period.}
 }
 \value{
-an object of class <\linkS4class{ModelConfig}>
-
-TODO: (i) examples; (ii) unit-tests
+An object of class <\linkS4class{ModelConfig}>
 }
 \description{
 Helper function to define the model configuration of the IMB. It constructs
-instances of <\code{\linkS4class{ModelConfig}}> objects
+instances of <\code{\linkS4class{ModelConfig}}> objects.
+}
+\details{
+\subsection{\code{start_sites} and \code{end_sites}}{
+
+For site geometries other than points, agents' starting/end locations are
+randomly drawn within the boundary of the geometry. For example, if a site
+is defined by polygon(s), agents assigned to that site start/end at random
+points within the polygon.
+}
 }
