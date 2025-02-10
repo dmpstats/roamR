@@ -582,7 +582,7 @@ resp_trawling <- new(
 
 
 ## Build <Species> object ----------------------------------------------
-rover2 <- Species(
+rover <- Species(
   id = "rvr",
   role = "agent",
   common_name = "Rover",
@@ -600,7 +600,7 @@ rover2 <- Species(
 )
 
 ## Set as {raomR} data ---------------------------------------
-usethis::use_data(rover2, overwrite = TRUE, compress = "xz")
+usethis::use_data(rover, overwrite = TRUE, compress = "xz")
 
 
 
@@ -648,7 +648,7 @@ ggplot() +
   geom_sf(data = st_as_sfc(mock_bbox), col = "orange", fill = NA)
 
 
-rover_ibm_config <- ModelConfig(
+ibm_config_rover <- ModelConfig(
   n_agents = 1000,
   ref_sys = st_crs(4326),
   aoc_bbx = mock_bbox,
@@ -664,7 +664,7 @@ rover_ibm_config <- ModelConfig(
 
 
 ## Set as {raomR} data ---------------------------------------
-usethis::use_data(rover_ibm_config, overwrite = TRUE, compress = "xz")
+usethis::use_data(ibm_config_rover, overwrite = TRUE, compress = "xz")
 
 
 
