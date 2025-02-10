@@ -64,7 +64,7 @@ check_units <- function(units_chr,
 #' @return logical, whether x is a `<stars>` object or not
 is_stars_empty <- function(x){
 
-  if(class(x) != "stars"){
+  if(!inherits(x, "stars")){
     cli::cli_abort(
       c("Argument {.arg x} must be of class {.cls stars}, not {.cls {class(x)}}"),
       class = "err-arg-wrong-class"
@@ -74,7 +74,6 @@ is_stars_empty <- function(x){
   lapply(x, \(x) all(is.na(x))) |>
     unlist() |>
     all()
-
 }
 
 
