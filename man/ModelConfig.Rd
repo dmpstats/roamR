@@ -23,8 +23,10 @@ ModelConfig(
 \item{ref_sys}{object of class <\code{crs}>, defining the Coordinate Reference System to
 be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
 
-\item{aoc_bbx}{object of class <\code{bbox}>, specifying the area of calculation,
-i.e. the spatial bounding box within which simulation occurs.}
+\item{aoc_bbx}{numeric vector or object of class <\code{bbox}>, specifying the
+area of calculation, i.e. the spatial bounding box within which simulation
+occurs. If numeric, expects a 4-length vector specifying \code{xmin}, \code{ymin},
+\code{xmax} and \code{ymax} values.}
 
 \item{delta_x, delta_y}{numeric, the cell (pixel) size in the x and y
 dimensions, respectively. Assumed to take the same units as \code{ref_sys}.}

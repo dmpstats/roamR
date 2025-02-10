@@ -17,6 +17,8 @@
 #' @seealso Helper function [VarDist()] to construct `<varDist>` objects
 #'
 #' @include s4_management.R
+#'
+#' @export
 
 methods::setClass(
   Class = "VarDist",
@@ -54,7 +56,7 @@ methods::setClass(
 #'
 #' @seealso
 #' For details on available distributions, see the documentation for the
-#' [`{distributional}`](https://pkg.mitchelloharawild.com/distributional/index.html)
+#' [`distributional`](https://pkg.mitchelloharawild.com/distributional/index.html)
 #' package.
 #'
 #' @returns an object of class `<VarDist>`

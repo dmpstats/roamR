@@ -85,8 +85,10 @@ methods::setClass(
 #' @param n_agents integer, the number of agents to track within the simulation.
 #' @param ref_sys object of class <`crs`>, defining the Coordinate Reference System to
 #'   be applied to the IBM. Must be specified via [sf::st_crs()].
-#' @param aoc_bbx object of class <`bbox`>, specifying the area of calculation,
-#'   i.e. the spatial bounding box within which simulation occurs.
+#' @param aoc_bbx numeric vector or object of class <`bbox`>, specifying the
+#'   area of calculation, i.e. the spatial bounding box within which simulation
+#'   occurs. If numeric, expects a 4-length vector specifying `xmin`, `ymin`,
+#'   `xmax` and `ymax` values.
 #' @param delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
 #' @param time_step character string, defines the temporal resolution of the

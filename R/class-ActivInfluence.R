@@ -2,6 +2,8 @@
 #'
 #' @include utils.R s4_utils.R class-VarDist.R
 #'
+#' @export
+#'
 methods::setClass(
   Class = "ActivInfluence",
   slots = list(

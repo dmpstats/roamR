@@ -22,8 +22,9 @@
 #'   (e.g., "attraction", "repulsion"). This allows for categorization of
 #'   movement influence.
 #'
-#'
 #' @include class-VarDist.R
+#'
+#' @export
 #'
 methods::setClass(
   Class = "MoveInfluence",
