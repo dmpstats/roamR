@@ -13,26 +13,27 @@ Species(
   mortality_thresh_distr = VarDist(),
   spatial_distr = stars::st_as_stars(matrix(NA)),
   behaviour_profile = list(),
-  impact_responses = list(),
   driver_responses = list()
 )
 }
 \arguments{
 \item{id}{character string, the identifier code for the species}
 
-\item{role}{character string, defining the role of the species in the IBM (one
-of "agent", "prey", "competitor")}
+\item{role}{character string, defining the role of the species in the IBM
+(one of "agent", "prey", "competitor")}
 
 \item{common_name}{character string, the common name of the species}
 
 \item{scientific_name}{character string, the scientific name of the species}
 
-\item{body_mass_distr}{an object of class \linkS4class{VarDist}, defining the species'
-distribution of body mass}
+\item{body_mass_distr}{an object of class \linkS4class{VarDist}, defining the
+species' distribution of body mass}
 
 \item{mortality_thresh_distr}{an object of class \linkS4class{VarDist}, specifying
 the values of agent's condition (e.g. body mass), below which the agent is
-assumed to have died}
+assumed to have died
+
+specific environmental or man-made "driver"}
 
 \item{spatial_distr}{a \verb{<stars>} array, comprising a time-series of
 raster-type density surfaces of the species covering the area of interest.
@@ -44,8 +45,11 @@ of the density surfaces}
 \item{behaviour_profile}{a list comprising objects of class
 \linkS4class{BehaviourSpec}, defining the behavioural profile of the species.}
 
-\item{impact_responses}{a list containing objects of class
-\linkS4class{ImpactResponse}, specifying per-agent responses to impact factors.}
+\item{driver_responses}{a list of \linkS4class{DriverResponse} objects. Each object
+specifies the responses of individual agents to various factors, including
+environmental, biological, or artificial influences, that drive their
+movement and activities. See \linkS4class{DriverResponse} class definition for
+further details.}
 }
 \description{
 Helper function to construct instances of \linkS4class{Species} objects, which
@@ -67,31 +71,45 @@ behav <- list(
     speed = VarDist(dist_uniform(10, 20), "m/s")
     ),
  dive = BehaviourSpec(
-    behav = "dive",
+    behav = "diving",
     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
   )
 )
 
-# 2. the list of impact responses
-imp_resp <- list(
-  owf_footprint = ImpactResponse(
-    impact_id = "owf_foot",
-    displace_prob = VarDist(dist_beta(2, 8)),
-    displace_fn = function(x, y){ x/y},
-    disturb_prob = VarDist(dist_beta(1, 5)),
-    disturb_behav = "flying",
-    # extra hours/day of flight due to impact
-    disturb_extent = VarDist(dist_lognormal(2, 1), "hr/day")
-  )
-)
+# 2. Then the list of driver responses
+driver_resp <- list(
+  coast = new(
+    "DriverResponse",
+    driver_id = "land",
+    movement = MoveInfluence(
+      prob = VarDist(distributional::dist_degenerate(1)),
+      fn = function(x, slope = 1/2) exp(-slope * x),
+      type = "repulsion"
+    )
+  ),
+  owf = new(
+    "DriverResponse",
+    driver_id = "owf_foot",
+    movement = MoveInfluence(
+      prob = VarDist(dist_beta(2, 8)),
+      fn = function(x, slope = 1/2) exp(-slope * x),
+      type = "repulsion"
+    ),
+    activities = list(
+      ActivInfluence(
+        behav = "flying",
+        prob = VarDist(dist_beta(1, 5)),
+        extent = VarDist(dist_lognormal(2, 1), "hr/day")
+      ))))
 
 # 3. `stars` array with 10 samples of monthly density distribution
 dens <- data.frame(
-           expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
-           counts = rlnorm(5*5*3*10)) |>
-        st_as_stars(dims = c("x", "y", "month", "iter"))
+  expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
+  counts = rlnorm(5*5*3*10)) |>
+  st_as_stars(dims = c("x", "y", "month", "iter")
+  )
 
 # 4. specify <Species>
 guill <- Species(
@@ -99,17 +117,17 @@ guill <- Species(
      role = "agent",
      common_name = "guillemot",
      scientific_name = "Uria Aalge",
+     spatial_distr = dens,
      body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
      mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
-     spatial_distr = dens,
      behaviour_profile = behav,
-     impact_responses = imp_resp
+     driver_responses = driver_resp
    )
 
 }
 \seealso{
 \itemize{
-\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=ImpactResponse]{ImpactResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}}
+\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}}
 \item \code{\link[stars:st_as_stars]{stars::st_as_stars()}} for generating \verb{<stars>} arrays
 }
 }
