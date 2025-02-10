@@ -28,7 +28,6 @@ Imports:
     terra,
     units
 Collate: 
-    'utils.R'
     's4_utils.R'
     's4_management.R'
     'class-VarDist.R'
