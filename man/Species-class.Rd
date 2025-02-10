@@ -4,6 +4,13 @@
 \name{Species-class}
 \alias{Species-class}
 \title{\verb{<Species>}}
+\arguments{
+\item{driver_responses}{a list of \linkS4class{DriverResponse} objects. Each object
+specifies the responses of individual agents to various factors, including
+environmental, biological, or artificial influences, that drive their
+movement and activities. See \linkS4class{DriverResponse} class definition for
+further details.}
+}
 \description{
 \verb{<Species>} is an S4 class that comprises species-level properties of the
 simulated agents. It includes attributes that dictate individual agents'
@@ -32,11 +39,10 @@ density surfaces. The 3rd dimension specifies the temporal resolution of
 the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
 of the density surfaces}
 
+\item{\code{pop_size}}{numeric, the population size within the Area of calculation}
+
 \item{\code{behaviour_profile}}{a list comprising objects of class
 \linkS4class{BehaviourSpec}, defining the behavioural profile of the species.}
-
-\item{\code{impact_responses}}{a list containing objects of class
-\linkS4class{ImpactResponse}, specifying per-agent responses to impact factors.}
 
 \item{\code{mortality_thresh_distr}}{an object of class \linkS4class{VarDist}, specifying
 the values of agent's condition (e.g. body mass), below which the agent is
@@ -46,7 +52,7 @@ assumed to have died}
 \seealso{
 \itemize{
 \item Helper function \code{\link[=Species]{Species()}} to define \verb{<Species>} objects
-\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=ImpactResponse]{ImpactResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}} for constructing
+\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}} for constructing
 objects of the dependency classes
 }
 }
