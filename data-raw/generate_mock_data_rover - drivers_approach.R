@@ -422,7 +422,7 @@ drv_trawling <- Driver(
   id = "trawling_area",
   type = "impact",
   descr = "Fishing Restricted Area for Trawling",
-  sf_obj = owf_foot,
+  sf_obj = fra_foot,
   obj_active = "sf"
 )
 
