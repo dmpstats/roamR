@@ -5,25 +5,21 @@
 #'
 #' TODO: Flesh out description
 #'
-#' @include class-Species.R class-Habitat.R class-Structure.R class-ModelConfig.R
+#' @include class-Species.R  class-ModelConfig.R
 #'
 #' @export
 methods::setClass(
   Class = "IBM",
   slots = list(
     agents = "list",
+    drivers = "list",
     species = "Species",
-    habitat = "Habitat",
-    structures = "list",
     config = "ModelConfig"
   ),
   prototype = list(
     agents = list(),
+    drivers = list(),
     species = new("Species"),
-    habitat = Habitat(),
-    structures = list(
-      owf = Structure()
-    ),
     config = ModelConfig()
   )
 )
@@ -37,18 +33,16 @@ methods::setClass(
 #'
 #' @export
 IBM <- function(agents = list(),
-                species = new("Species"),
-                habitat = Habitat(),
-                structures = list(owf = Structure(type = "OWF")),
-                config = ModelConfig()){
+                 species = new("Species"),
+                 drivers = list(),
+                 config = ModelConfig()){
 
 
   methods::new(
     "IBM",
     agents = agents,
+    drivers = drivers,
     species = species,
-    habitat = habitat,
-    structures = structures,
     config = config
   )
 
