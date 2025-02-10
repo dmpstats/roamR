@@ -8,11 +8,8 @@ library(stars)
 library(MetBrewer)
 
 
-
-mock_extent <- list(xmin = -4, xmax = 5, ymin = 52, ymax = 60)
+mock_extent <- list(xmin = -4.5, ymin = 55.5, xmax = 3, ymax = 61)
 mock_bbox <- structure(unlist(mock_extent), class = "bbox") |> st_set_crs(4326)
-
-
 
 # -------------------------------------------------------------------------- #
 #
@@ -44,16 +41,18 @@ drv_land <- Driver(
 )
 
 
-# # Set as {raomR} data
-# usethis::use_data(drv_land, overwrite = TRUE, compress = "xz")
+# Set as {raomR} data
+usethis::use_data(drv_land, overwrite = TRUE, compress = "xz")
 
 
 ## "Spatial Distribution" driver  -------------------------------------------------
 
 # generate spatial grid
 dns_srf_grd <- expand_grid(
-  x = seq(-3.5, 3, by = 0.1),
-  y = seq(55, 60, by = 0.1)
+  #x = seq(-3.5, 3, by = 0.1),
+  #y = seq(55, 60, by = 0.1)
+  x = seq(mock_extent$xmin - 0.1, mock_extent$xmax + 0.1, by = 0.1),
+  y = seq(mock_extent$ymin - 0.1, mock_extent$ymax + 0.1, by = 0.1)
 ) |> as.matrix()
 
 plot(dns_srf_grd)
@@ -69,7 +68,7 @@ set.seed(1979)
 rvr_dns_hot <- tibble(
   month,
   month_mu_x = c(-2, 0, -1, 1.5),
-  month_mu_y = c(54, 58, 53.3, 56)
+  month_mu_y = c(54, 60, 53.3, 56)
 ) |>
   expand_grid(hotspot_id = 1:3) |>
   mutate(
@@ -123,8 +122,8 @@ drv_sp_distr <- Driver(
 )
 
 
-# # Set as {raomR} data
-# usethis::use_data(drv_sp_distr, overwrite = TRUE, compress = "xz")
+# Set as {raomR} data
+usethis::use_data(drv_sp_distr, overwrite = TRUE, compress = "xz")
 
 
 
@@ -134,9 +133,15 @@ drv_sp_distr <- Driver(
 # sst monthly averages from 1981-2023
 # source: https://psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html
 sst_month <- stars::read_stars("C:/Users/Bruno/Dropbox/ORJIP/DisNBS/data/env rasters/sst.mon.mean.nc", proxy = TRUE) |>
-  st_set_crs(4326) |>
+  #st_set_crs(4326) |>
+  st_set_crs('OGC:CRS84') |>
+  st_warp(st_as_stars(st_bbox(), dx = 0.25)) |>
   # crop to mack bounding box
-  st_crop(mock_bbox)
+  st_crop(mock_bbox + c(-0.1, -0.1, 0.1, 0.1))
+
+
+st_bbox(sst_month)
+sst_month
 
 # compute the mean for each "month-of-year"
 sst <- sst_month |>
@@ -156,6 +161,13 @@ sst <- sst_month |>
   )
 
 plot(sst, mfrow = c(2, 6), axes = TRUE)
+plot(sst, axes = TRUE)
+
+
+ggplot() +
+  geom_sf(data = drv_land@sf_obj) +
+  geom_sf(data = st_as_sfc(mock_bbox), fill = NA, col = "red") +
+  geom_stars(data = sst |> filter(months == "December"), alpha = 0.7)
 
 
 # construct driver
@@ -167,8 +179,12 @@ drv_sst <- Driver(
   stars_descr = "Monthly average SST maps"
 )
 
-# # Set as {raomR} data
-# usethis::use_data(drv_sst, overwrite = TRUE, compress = "xz")
+# Set as {raomR} data
+usethis::use_data(drv_sst, overwrite = TRUE, compress = "xz")
+
+
+
+
 
 
 
@@ -194,8 +210,8 @@ prey_peaks <- runif(
 sp_res <- 0.2
 
 # grid points in x and y axes
-x_grid <- seq(mock_extent$xmin, mock_extent$xmax, by = sp_res)
-y_grid <- seq(mock_extent$ymin, mock_extent$ymax, by = sp_res)
+x_grid <- seq(mock_extent$xmin - 0.1, mock_extent$xmax + 0.1, by = sp_res)
+y_grid <- seq(mock_extent$ymin - 0.1, mock_extent$ymax + 0.1, by = sp_res)
 
 # mesh points
 mesh <- expand_grid(
@@ -248,8 +264,8 @@ drv_prey <- Driver(
 )
 
 
-# # Set as {raomR} data
-# usethis::use_data(drv_prey, overwrite = TRUE, compress = "xz")
+# Set as {raomR} data
+usethis::use_data(drv_prey, overwrite = TRUE, compress = "xz")
 
 
 
@@ -267,7 +283,7 @@ plot(sss[mock_bbox])
 
 sss_moy <- sss |>
   select(sss) |>
-  st_crop(mock_bbox) |>
+  st_crop(mock_bbox + c(-0.1, -0.1, 0.1, 0.1)) |>
   aggregate(
     by = \(x){ month <- months(x) |> factor(levels = month.name); month},
     FUN = mean
@@ -280,8 +296,13 @@ sss_moy <- sss |>
     sss_mean_moy = units::set_units(sss_mean_moy, "ppt")
   )
 
-
 plot(sss_moy, axes = TRUE, mfrow = c(2, 6))
+
+
+ggplot() +
+  geom_sf(data = drv_land@sf_obj) +
+  geom_sf(data = st_as_sfc(mock_bbox), fill = NA, col = "red") +
+  geom_stars(data = sss_moy |> filter(months == "December"), alpha = 0.7)
 
 
 # construct driver
@@ -300,42 +321,76 @@ drv_sss <- Driver(
 
 
 
-## "OWF" driver -----------------------------------------
+## "OWFs" driver -----------------------------------------
 
-# Generate mock Offshore Wind Farm footprint
-owf_foot <- st_polygon(
-  list(
-    rbind(
-      c(-1.2, 56.9),
-      c(-1.2, 57),
-      c(-1.05, 57.15),
-      c(-0.85, 57.15),
-      c(-1., 57),
-      c(-1., 56.9),
-      c(-1.2, 56.9)
-    )
-  )
-) |>
-  st_sfc(crs = 4326)
+# Generate random mock Offshore Wind Farms' footprints
 
-plot(owf_foot)
+# number of footprints
+n_owfs <- 5
+
+set.seed(399)
+owf_foots <- st_as_sfc(mock_bbox) |>
+  # get sea by extracting land
+  st_difference(uk_land) |>
+  # generate random owfs positions
+  st_sample(n_owfs) |>
+  st_buffer(15000) |>
+  # generate footprints - i.e. polygons inside each position
+  sapply(\(x){
+    x |>
+      st_sample(5) |>
+      st_combine() |>
+      st_convex_hull()
+  }) |>
+  st_sf(owf = letters[1:n_owfs], geometry = _) |>
+  st_set_crs(st_crs(mock_bbox))
+
 
 ggplot() +
-  geom_stars(data = drv_sp_dist@stars_obj |> filter(month == "Feb", iter == 2)) +
   geom_sf(data = drv_land@sf_obj) +
-  geom_sf(data = owf_foot, fill = "red", col = "firebrick", alpha = 0.2)
+  geom_sf(data = st_as_sfc(mock_bbox), col = "orange", fill = NA) +
+  geom_sf(data = owf_foots, fill = "red", col = "firebrick", alpha = 0.2)
+
+
+
+# # Generate mock Offshore Wind Farm footprint
+# owf_foot <- st_polygon(
+#   list(
+#     rbind(
+#       c(-1.2, 56.9),
+#       c(-1.2, 57),
+#       c(-1.05, 57.15),
+#       c(-0.85, 57.15),
+#       c(-1., 57),
+#       c(-1., 56.9),
+#       c(-1.2, 56.9)
+#     )
+#   )
+# ) |>
+#   st_sfc(crs = 4326)
+#
+# plot(owf_foot)
+#
+# ggplot() +
+#   geom_stars(data = drv_sp_distr@stars_obj |> filter(month == "Feb", iter == 2)) +
+#   geom_sf(data = drv_land@sf_obj) +
+#   geom_sf(data = owf_foot, fill = "red", col = "firebrick", alpha = 0.2)
+
 
 
 # construct driver
-drv_owf <- Driver(
+drv_owfs <- Driver(
   id = "owf_foot",
   type = "impact",
-  descr = "OWF Footprint",
-  sf_obj = owf_foot,
+  descr = "OWF Footprints",
+  sf_obj = owf_foots,
   obj_active = "sf"
 )
 
-# usethis::use_data(drv_owf, overwrite = TRUE, compress = "xz")
+usethis::use_data(drv_owfs, overwrite = TRUE, compress = "xz")
+
+
+
 
 
 ## "Fishing Ground" driver -----------------------------------------
@@ -357,7 +412,7 @@ plot(fra_foot)
 ggplot() +
   geom_stars(data = drv_sp_distr@stars_obj |> filter(month == "Feb", iter == 2)) +
   geom_sf(data = drv_land@sf_obj) +
-  geom_sf(data = owf_foot, fill = "red", col = "firebrick", alpha = 0.2) +
+  geom_sf(data = owf_foots, fill = "red", col = "firebrick", alpha = 0.2) +
   geom_sf(data = fra_foot, fill = "green", col = "darkgreen", alpha = 0.2)
 
 
@@ -376,13 +431,13 @@ drv_trawling <- Driver(
 ## Combine drivers into a list and write out to as package data -----------------------------------------
 
 rover_drivers <- list(
-  drv_land,
-  drv_owf,
-  drv_sp_distr,
-  drv_sst,
-  drv_prey,
-  drv_trawling,
-  drv_sss
+  drv_land = drv_land,
+  drv_owfs = drv_owfs,
+  drv_sp_distr = drv_sp_distr,
+  drv_sst = drv_sst,
+  drv_prey = drv_prey,
+  drv_trawling = drv_trawling,
+  drv_sss = drv_sss
 )
 
 usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
@@ -422,7 +477,7 @@ rvr_behav <- list(
   )
 )
 
-
+usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
 
 
 ## Species driver responses  ----------------------------------
@@ -560,31 +615,62 @@ usethis::use_data(rover2, overwrite = TRUE, compress = "xz")
 
 ## Build <ModelConfig> object ----------------------------------------------
 
-config <- ModelConfig(
+### starting sites
+coast_pts <- st_buffer(uk_land, 50) |>
+  st_crop(st_as_sfc(mock_bbox)) |>
+  st_cast("MULTILINESTRING") |>
+  st_cast("LINESTRING") |>
+  st_cast("POINT")
+
+plot(coast_pts)
+
+
+set.seed(1015)
+set.seed(1019)
+sites3 <- coast_pts[sample(length(coast_pts), 3),]
+
+st_crs(sites3) <- st_crs(coast_pts)
+
+sites3 <- st_as_sf(sites3) |>
+  mutate(
+    id = c("A", "B", "C"),
+    prop = c(0.30, 0.30, 0.40)
+  ) |>
+  st_set_geometry("geom")
+
+plot(coast_pts)
+plot(sites3["id"], add = TRUE, col = "red", pch = 19)
+
+ggplot() +
+  geom_stars(data = drv_sp_distr@stars_obj |> filter(month == "Feb", iter == 2)) +
+  geom_sf(data = drv_land@sf_obj) +
+  geom_sf(data = sites3, col = "red") +
+  geom_sf(data = st_as_sfc(mock_bbox), col = "orange", fill = NA)
+
+
+rover_ibm_config <- ModelConfig(
   n_agents = 1000,
   ref_sys = st_crs(4326),
-  aoc_bbx = c(0, 57, 2,58),
+  aoc_bbx = mock_bbox,
   delta_x = 0.1,
   delta_y = 0.1,
   time_step = "1 day",
   start_date = as.Date("2022-09-01"),
-  end_date = as.Date("2023-04-30")
+  end_date = as.Date("2023-04-30"),
+  start_sites = sites3
 )
 
 
 
 
+## Set as {raomR} data ---------------------------------------
+usethis::use_data(rover_ibm_config, overwrite = TRUE, compress = "xz")
 
 
 
-yday(as.Date("0000-12-31"))
 
 
-library(lubridate)
-Trips <- tibble(month = c(1,3,12,3,6,2,3,7))
-Trips$month2 <- month.abb[Trips$month]
-Trips$L_month <- month(Trips$month, label = FALSE)
-Trips$L_month_labels <- month(Trips$month, label = TRUE)
+
 
 
 
