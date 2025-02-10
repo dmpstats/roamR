@@ -5,41 +5,138 @@
 #'
 #' @param species an object of class `<Species>`, comprising the species-level
 #'   characteristics of the simulated agents (see [Species()])
-#' @param habitat an object of class `<Habitat>`, detailing habitat-level
-#'   features of the Area of Calculation (AOC) where the simulation takes place
-#'   (see [Habitat()])
-#' @param structures a `list` consisting exclusively of objects of class
-#'   `<Structure>` [see Structure()], listing man-made physical structures within the
-#'   AOC that may influence the agents' movement
+#' @param drivers ...
 #' @param config an object of class `<ModelConfig>`, specifying the primary
 #'   configuration settings for the IBM (see [ModelConfig()])
 #'
 #' @export
 #'
-rmr_initiate <- function(species, habitat, structures, config){
+rmr_initiate <- function(config, species, drivers){
 
-  ## input validation
+  ## Input validation ----------------------------------------------------------
+  cli::cli_progress_step("Performing input validation")
+
+  if(is(drivers, "Driver")){
+    drivers <- list(drivers)
+  }else if(!is.list(drivers)){
+    cli::cli_abort("{.arg drivers} must be a list of {.cls Driver} objects")
+  }
+
+  ### Type checking -----------
   check_class(species, "Species", class_fn = "roamR::Species")
-  check_class(habitat, "Habitat", class_fn = "roamR::Habitat")
-  check_class(structures, "Structure", inlist = TRUE, class_fn = "roamR::Struture")
+  check_class(drivers, "Driver", inlist = TRUE, class_fn = "roamR::Driver")
   check_class(config, "ModelConfig", class_fn = "roamR::ModelConfig")
 
+  ### Content checking --------
+  # TODO Check spatial consistency of drivers given specified AOC (inc CRS)
+  # TODO check existence of driver responses
+  # TODO check consistency in driver_ids between drivers and driver_responses
+  # TODO check uniqueness of driver_ids
 
-  ## initialize Species
 
+  ## AOC Processing -------------------------------------------------------
+  cli::cli_progress_step("Processing the AOC")
 
-
-  ## initialize Agents
-
-  IBM(
-    agents = list(),
-    species = species,
-    habitat = habitat,
-    structures = list(),
-    config = config
+  #TODO: Add safeguard on handling memory failures due to unreasonable spatial
+  #resolution. Maybe use a try_fetch to rephrase the error and provide
+  #constructive user feedback
+  aoc_grid <- sf::st_make_grid(
+    config@aoc_bbx,
+    cellsize = c(config@delta_x, config@delta_y),
+    what = "centers"
   )
 
+  aoc_grid <- sf::st_sf(cellid = 1:length(aoc_grid), geometry = aoc_grid)
+
+  # generate aoc driver
+  aoc_driver <- generate_aoc_driver(config@aoc_bbx, aoc_grid)
+  drivers <- append(drivers, aoc_driver)
+
+  # define species response
+  aoc_resp <- DriverResponse(
+    driver_id = aoc_driver@id,
+    movement = MoveInfluence(
+      prob = VarDist(distributional::dist_degenerate(1)),  # all agents to be influenced
+      fn = \(x) ifelse(x <= 0, 1, 0), # binary influencer with cut-off at bbox's border (i.e. 0m)
+      type = "repulsion"
+    )
+  )
+
+  species@driver_responses <- append(species@driver_responses, aoc_resp)
+
+
+  ## Driver processing  ------------------------------------------------------
+  cli::cli_progress_step("Calculating vector fields for movement drivers")
+
+  ### Compute vector fields for movement influencers ----------------
+  drv_ids <- purrr::map_chr(drivers, \(x) x@id)
+
+  # IDs of drivers influencing movement
+  drvmv_ids <- species@driver_responses |>
+    purrr::keep(\(x) !is_empty(x@movement@prob)) |> # driver doesn't affect movement if @prob in <MoveInfluence> is empty
+    purrr::map_chr(\(x) x@driver_id)
+
+  if(length(drvmv_ids) > 0){
+
+    # For each geom-based movement drivers: (i) calculate surface of
+    # cell-distances (AOC grid); (ii)  update driver
+    drivers <- drivers |>
+      purrr::modify_if(
+        .p = \(d){ d@id %in% drvmv_ids && is_stars_empty(stars_obj(d))},
+        .f = \(d, grid = aoc_grid){
+          grid$drv_dist <- sf::st_distance(grid, d@sf_obj)
+          stars_obj(d) <- stars::st_rasterize(grid)["drv_dist"]
+          d@stars_descr <- paste0("Distance to ", d@sf_descr)
+          d@obj_active <- "stars"
+          validObject(d)
+          d
+        })
+
+    # add vector fields for movement-affecting drivers
+    drivers <- drivers |>
+      purrr::modify_if(
+        .p = \(d){ d@id %in% drvmv_ids},
+        .f = \(d){
+          stars_obj(d) <- compute_vector_fields(stars_obj(d))
+          d
+        },
+        .progress = TRUE
+      )
+
+  }else{
+     cli::cli_alert_warning("Skipping vector field computation as none of the specified drivers affect movement")
+  }
+
+
+
+
+  ## initialize Agents -------------------------------------------------------
+
+  # Agent()
+  #
+
+  # IBM(
+  #   #agents = list(),
+  #   #species = species,
+  #   #drivers = drivers,
+  #   config = config
+  # )
+
+
+  cli::cli_progress_done()
+
+
+  cli::cli_alert_danger("This function is under development - No output returned!")
+
+
+
 }
+
+
+
+
+
+#' Generate surface-based spatial driver for distances to bounding box
 #'
 #' Primarily intended For simulation purposes, so that agents are kept within
 #' the area of calculation in the movement model
