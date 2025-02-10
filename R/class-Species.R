@@ -19,6 +19,7 @@
 #'   density surfaces. The 3rd dimension specifies the temporal resolution of
 #'   the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
 #'   of the density surfaces
+#' @slot pop_size numeric, the population size within the Area of calculation
 #' @slot behaviour_profile a list comprising objects of class
 #'   [BehaviourSpec-class], defining the behavioural profile of the species.
 #' @param driver_responses a list of [DriverResponse-class] objects. Each object
@@ -47,6 +48,7 @@ methods::setClass(
     common_name = "character",
     scientific_name = "character",
     spatial_distr = "stars",
+    pop_size = "numeric",
     body_mass_distr = "VarDist",
     behaviour_profile = "list",
     driver_responses = "list",
@@ -58,6 +60,7 @@ methods::setClass(
     common_name = NA_character_,
     scientific_name = NA_character_,
     spatial_distr = stars::st_as_stars(matrix(NA)),
+    pop_size = NA_real_,
     body_mass_distr = VarDist(),
     mortality_thresh_distr = VarDist(),
     behaviour_profile = list(
@@ -179,6 +182,7 @@ methods::setClass(
 #'      common_name = "guillemot",
 #'      scientific_name = "Uria Aalge",
 #'      spatial_distr = dens,
+#'      pop_size = 10000,
 #'      body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
 #'      mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
 #'      behaviour_profile = behav,
@@ -192,6 +196,7 @@ Species <- function(id = NA_character_,
                     body_mass_distr = VarDist(),
                     mortality_thresh_distr = VarDist(),
                     spatial_distr = stars::st_as_stars(matrix(NA)),
+                    pop_size = NA_real_,
                     behaviour_profile = list(),
                     driver_responses = list()){
 
@@ -227,6 +232,7 @@ Species <- function(id = NA_character_,
     body_mass_distr = body_mass_distr,
     mortality_thresh_distr = mortality_thresh_distr,
     spatial_distr = spatial_distr,
+    pop_size = pop_size,
     behaviour_profile = behaviour_profile,
     driver_responses = driver_responses
   )

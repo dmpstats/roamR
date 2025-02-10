@@ -12,6 +12,7 @@ Species(
   body_mass_distr = VarDist(),
   mortality_thresh_distr = VarDist(),
   spatial_distr = stars::st_as_stars(matrix(NA)),
+  pop_size = NA_real_,
   behaviour_profile = list(),
   driver_responses = list()
 )
@@ -41,6 +42,8 @@ First 2 dimensions are expected to provide the spatial properties of the
 density surfaces. The 3rd dimension specifies the temporal resolution of
 the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
 of the density surfaces}
+
+\item{pop_size}{numeric, the population size within the Area of calculation}
 
 \item{behaviour_profile}{a list comprising objects of class
 \linkS4class{BehaviourSpec}, defining the behavioural profile of the species.}
@@ -118,6 +121,7 @@ guill <- Species(
      common_name = "guillemot",
      scientific_name = "Uria Aalge",
      spatial_distr = dens,
+     pop_size = 10000,
      body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
      mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
      behaviour_profile = behav,
