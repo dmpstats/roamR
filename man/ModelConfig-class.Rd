@@ -6,17 +6,27 @@
 \title{Class \verb{<ModelConfig>}}
 \description{
 \verb{<ModelConfig>} is an S4 class containing the user-defined configuration for
-the Individual-based Model (IBM), including the number of agents to simulate,
-the spatio-temporal resolution of the model, the bounding box (extent) of the
-area of interest (AOI), the simulation start and end date
+the Individual-based Model (IBM). t specifies key parameters such as the
+number of agents, the spatio-temporal resolution of the model, the bounding
+box (extent) of the area of calculation (AOC), the simulation start and end
+date.
+}
+\details{
+\subsection{\code{start_sites} and \code{end_sites}}{
+
+For site geometries other than points, agents' starting/end locations are
+randomly drawn within the boundary of the geometry. For example, if a site
+is defined by polygon(s), agents assigned to that site start/end at random
+points within the polygon.
+}
 }
 \section{Slots}{
 
 \describe{
-\item{\code{n_agents}}{integer, the number of agents to track within the simulation}
+\item{\code{n_agents}}{integer, the number of agents to track within the simulation.}
 
 \item{\code{ref_sys}}{object of class <\code{crs}>, defining the Coordinate Reference System to
-be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}}
+be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
 
 \item{\code{aoc_bbx}}{object of class <\code{bbox}>, specifying the area of calculation,
 i.e. the spatial bounding box within which simulation occurs.}
@@ -29,6 +39,24 @@ model. Refer to the \code{by} argument in \code{\link[=seq.Date]{seq.Date()}} fo
 specification of time increments.}
 
 \item{\code{start_date;end_date}}{Date, respectively, defines the start and end
-dates for the simulation period}
+dates for the simulation period.}
+
+\item{\code{start_sites}}{an \verb{<sf>} object, defining the sites where agents start the
+simulation. Apart from the sites' geometry, this object must contain the
+following columns:
+\itemize{
+\item \code{site_id}: a unique identifier for each site.
+\item \code{prop}: the proportion of \code{n_agents} allocated at each site. The values
+in this column must sum to 1.
+}
+
+If \code{start_sites} are not provided, agents are assigned to random locations
+within the AOC.}
+
+\item{\code{end_sites}}{an \verb{<sf>} object, analogous to \code{start_sites}, specifying the
+sites to which agents must return at the end of the simulation.}
 }}
 
+\seealso{
+Helper function \code{\link[=ModelConfig]{ModelConfig()}} for constructing \verb{<ModelConfig>} objects
+}

@@ -50,6 +50,6 @@ distributional::generate(mass@dist, times = 100) |>
 }
 \seealso{
 For details on available distributions, see the documentation for the
-\href{https://pkg.mitchelloharawild.com/distributional/index.html}{\code{{distributional}}}
+\href{https://pkg.mitchelloharawild.com/distributional/index.html}{\code{distributional}}
 package.
 }

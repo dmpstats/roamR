@@ -20,8 +20,7 @@ of new properties in the future
 \section{Slots}{
 
 \describe{
-\item{\code{behav}}{character string, the name of the behaviour or activity
-(see 'Usage' section for available options)}
+\item{\code{behav}}{character string, the name of the behaviour or activity}
 
 \item{\code{energy_cost}}{an object of class <\code{\linkS4class{VarDist}}>, representing the
 energy cost (e.g. kJ/hour/grams) associated with the behaviour or activity.}

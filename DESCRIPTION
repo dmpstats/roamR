@@ -21,24 +21,27 @@ Imports:
     cli,
     distributional,
     methods,
+    purrr,
     rlang,
     sf,
     stars,
+    terra,
     units
 Collate: 
-    'utils.R'
     's4_utils.R'
     's4_management.R'
     'class-VarDist.R'
+    'utils.R'
+    'class-ActivInfluence.R'
     'class-AgentProperties.R'
     'class-AgentState.R'
     'class-Agent.R'
     'class-BehaviourSpec.R'
-    'class-ImpactResponse.R'
-    'class-Species.R'
-    'class-Habitat.R'
+    'class-Driver.R'
+    'class-MoveInfluence.R'
+    'class-DriverResponse.R'
     'class-ModelConfig.R'
-    'class-Structure.R'
+    'class-Species.R'
     'class-IBM.R'
     'data.R'
     'rmr_initiate.R'

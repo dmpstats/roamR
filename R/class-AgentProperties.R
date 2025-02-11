@@ -7,7 +7,7 @@
 #' physical traits, movement properties, initialization and and final states,
 #' susceptibility to impact effects,
 #'
-#' Currently this is an "internal" class, i.e. it is not meant to be user-facing
+#' Currently this is an "internal" class, i.e. not meant to be user-facing
 #'
 #' @slot species_id character, the identifier code for the agent's species
 #' @slot initial_mass numeric, the agent's body mass at the start of the

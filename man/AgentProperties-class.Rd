@@ -11,7 +11,7 @@ that remain constant throughout simulation run, including biological and
 physical traits, movement properties, initialization and and final states,
 susceptibility to impact effects,
 
-Currently this is an "internal" class, i.e. it is not meant to be user-facing
+Currently this is an "internal" class, i.e. not meant to be user-facing
 }
 \section{Slots}{
 
@@ -39,9 +39,9 @@ agent at the start and end of the simulation, respectively}
 \item{\code{mortality_tresh}}{numeric, the threshold body mass below which the agent
 is assumed to die (units: g)}
 
-\item{\code{disturbance_efects}}{named list, indicating how anthropogenic disturbances
+\item{\code{disturbance_effects}}{named list, indicating how anthropogenic disturbances
 impact key properties of the agent. Each list element specifies
-the direction and magnitude of the effect on an affected property#'}
+the direction and magnitude of the effect on an affected behaviour or activity}
 
 \item{\code{redistributed}}{logical, indicating the agent's susceptibility to change
 its expected spatial distribution in response to man-made structures (\code{TRUE}

@@ -4,22 +4,16 @@
 \alias{rmr_initiate}
 \title{Initialize the Individual Based Model}
 \usage{
-rmr_initiate(species, habitat, structures, config)
+rmr_initiate(config, species, drivers)
 }
 \arguments{
+\item{config}{an object of class \verb{<ModelConfig>}, specifying the primary
+configuration settings for the IBM (see \code{\link[=ModelConfig]{ModelConfig()}})}
+
 \item{species}{an object of class \verb{<Species>}, comprising the species-level
 characteristics of the simulated agents (see \code{\link[=Species]{Species()}})}
 
-\item{habitat}{an object of class \verb{<Habitat>}, detailing habitat-level
-features of the Area of Calculation (AOC) where the simulation takes place
-(see \code{\link[=Habitat]{Habitat()}})}
-
-\item{structures}{a \code{list} consisting exclusively of objects of class
-\verb{<Structure>} \code{\link[=see Structure]{see Structure()}}, listing man-made physical structures within the
-AOC that may influence the agents' movement}
-
-\item{config}{an object of class \verb{<ModelConfig>}, specifying the primary
-configuration settings for the IBM (see \code{\link[=ModelConfig]{ModelConfig()}})}
+\item{drivers}{...}
 }
 \description{
 Sets up the starting conditions and initial state for the IBM simulation,

@@ -2,7 +2,7 @@
 #'
 #'
 #' `<VarDist>` is an S4 class that encapsulates the distributional properties of
-#' a variable of interest. Variables can be speified in terms of their
+#' a variable of interest. Variables can be specified in terms of their
 #' probability distribution, sampling distribution, percentile distribution or a
 #' fixed value. Intended to provide a structured way to specify input values and
 #' quantify the uncertainty associated with their estimates.
@@ -14,10 +14,11 @@
 #'   `"m/s"`) that is currently recognized by the udunits database (see
 #'   [units::valid_udunits()])
 #'
-#'
 #' @seealso Helper function [VarDist()] to construct `<varDist>` objects
 #'
 #' @include s4_management.R
+#'
+#' @export
 
 methods::setClass(
   Class = "VarDist",
@@ -26,10 +27,11 @@ methods::setClass(
     units = "character"
   ),
   prototype = list(
-    dist = dist_missing(),
+    dist = distributional::dist_missing(),
     units = NA_character_
   )
 )
+
 
 
 #' Create a `<VarDist>` object
@@ -54,7 +56,7 @@ methods::setClass(
 #'
 #' @seealso
 #' For details on available distributions, see the documentation for the
-#' [`{distributional}`](https://pkg.mitchelloharawild.com/distributional/index.html)
+#' [`distributional`](https://pkg.mitchelloharawild.com/distributional/index.html)
 #' package.
 #'
 #' @returns an object of class `<VarDist>`
@@ -88,7 +90,7 @@ VarDist <- function(dist = NA, units = NA){
 
   # NA handling
   if(is.na(units)) units <- ""
-  if(is.na(dist)) dist <- dist_missing()
+  if(is.na(dist)) dist <- distributional::dist_missing()
 
   # validate classes
   check_class(units, "character")
@@ -110,4 +112,12 @@ VarDist <- function(dist = NA, units = NA){
   # construct a new instance of <VarDist>
   new("VarDist", dist = dist, units = units)
 }
+
+
+
+
+#' @include s4_utils.R
+methods::setMethod("is_empty", "VarDist", function(object){
+  is.na(object@dist)
+})
 
