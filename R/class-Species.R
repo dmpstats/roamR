@@ -226,6 +226,7 @@ Species <- function(id = NA_character_,
   # construct a new instance of <Species>
   new(
     "Species",
+    id = id,
     role = role,
     common_name = common_name,
     scientific_name = scientific_name,
