@@ -7,7 +7,7 @@
 #' fixed value. Intended to provide a structured way to specify input values and
 #' quantify the uncertainty associated with their estimates.
 #'
-#' @slot dist an object of class `<distribution>` (from package
+#' @slot distr an object of class `<distribution>` (from package
 #'   `{distributional}`), specifying the distribution of values of the variable
 #' @slot units a character strintg, providing the measurement units the
 #'   variable.  Must be either a name (e.g. `"grams"`) or a symbol (e.g.
@@ -23,11 +23,11 @@
 methods::setClass(
   Class = "VarDist",
   slots = list(
-    dist = "distribution",
+    distr = "distribution",
     units = "character"
   ),
   prototype = list(
-    dist = distributional::dist_missing(),
+    distr = distributional::dist_missing(),
     units = NA_character_
   )
 )
@@ -41,7 +41,7 @@ methods::setClass(
 #' distributions, sampling distributions, percentile distributions or fixed
 #' point estimates.
 #'
-#' @param dist an object of class `<distribution>` (from package
+#' @param distr an object of class `<distribution>` (from package
 #'   `{distributional}`), specifying the distribution of values of the variable
 #' @param units a character string, indicating the measurement units the
 #'   variable. Must be either a name (e.g. `"grams"`) or a symbol (e.g. `"m/s"`)
@@ -74,12 +74,12 @@ methods::setClass(
 #' x <- rlnorm(100, 2, 1)
 #' mass <- VarDist(dist_sample(list(x)), "kg")
 #' # resample 100 values
-#' distributional::generate(mass@dist, times = 100) |>
+#' distributional::generate(mass@distr, times = 100) |>
 #'   lapply(units::as_units, value = mass@units)
 #'
 #'
 #' @export
-VarDist <- function(dist = NA, units = NA){
+VarDist <- function(distr = NULL, units = NULL){
 
   if(length(units) > 1){
     cli::cli_abort(c(
@@ -88,18 +88,18 @@ VarDist <- function(dist = NA, units = NA){
     ))
   }
 
-  # NA handling
-  if(is.na(units)) units <- ""
-  if(is.na(dist)) dist <- distributional::dist_missing()
+  # NULL handling
+  distr <- distr %||% distributional::dist_missing()
+  units <- units %||% ""
 
   # validate classes
   check_class(units, "character")
 
-  # validate `dist`
-  if(!distributional::is_distribution(dist)){
-    cli::abort(c(
-      "{.arg dist} must be an object of class {.cls distribution}",
-      "x" = "You've supplied an object of class {.cls {class(dist)}}"
+  # validate `distr`
+  if(!distributional::is_distribution(distr)){
+    cli::cli_abort(c(
+      "{.arg distr} must be an object of class {.cls distribution}",
+      "x" = "You've supplied an object of class {.cls {class(distr)}}"
     ))
   }
 
@@ -107,17 +107,40 @@ VarDist <- function(dist = NA, units = NA){
   check_units(units)
 
   # handle variable with fixed values (i.e. non-random)
-  if(is.numeric(dist) & length(dist) == 1) dist <- distributional::dist_degenerate(dist)
+  if(is.numeric(distr) & length(distr) == 1) distr <- distributional::dist_degenerate(distr)
 
   # construct a new instance of <VarDist>
-  new("VarDist", dist = dist, units = units)
+  new("VarDist", distr = distr, units = units)
 }
 
 
 
 
+# Methods -----------------------------------------------------
+
+## Accessors ----
+
+### @distr
+setGeneric("distr", function(object) standardGeneric("distr"))
+setMethod("distr", "VarDist", function(object) object@distr)
+
+### @units
+setMethod("units", "VarDist", function(x) x@units)
+
+
 #' @include s4_utils.R
 methods::setMethod("is_empty", "VarDist", function(object){
-  is.na(object@dist)
+  is.na(object@distr)
 })
+
+
+#' @include s4_utils.R
+methods::setMethod("generate", "VarDist", function(object, times = 1){
+  vals <- distributional::generate(object@distr, times)
+  vals <- lapply(vals, units::set_units, object@units, mode = "standard")
+  if(length(vals) == 1) vals[[1]] else vals
+})
+
+
+
 

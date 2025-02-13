@@ -2,6 +2,7 @@
 
 export(ActivInfluence)
 export(Agent)
+export(AgentProperties)
 export(BehaviourSpec)
 export(Driver)
 export(DriverResponse)

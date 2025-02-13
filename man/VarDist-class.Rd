@@ -14,7 +14,7 @@ quantify the uncertainty associated with their estimates.
 \section{Slots}{
 
 \describe{
-\item{\code{dist}}{an object of class \verb{<distribution>} (from package
+\item{\code{distr}}{an object of class \verb{<distribution>} (from package
 \code{{distributional}}), specifying the distribution of values of the variable}
 
 \item{\code{units}}{a character strintg, providing the measurement units the
