@@ -12,7 +12,7 @@
 #' @slot species_id character, the identifier code for the agent's species.
 #' @slot initial_mass `<units>` object, the agent's body mass at the start of the
 #'   simulation.
-#' @slot speeds a named list, defining travel speed properties for the agent.
+#' @slot speeds a named list, defining movement speed properties for the agent.
 #'   Each element specifies the agent's average speed for a given movement state
 #'   (e.g. flying, swimming, etc). List elements must be of type `<units>`.
 #' @slot start_point,end_point objects of class `XY`, the spatial coordinates
@@ -29,7 +29,7 @@
 #' @slot state_influences a named list, defining whether agent states are
 #'   influenced by model drivers. Each element, named after a `driver_id`,
 #'   contains a `data.frame` with columns:
-#'    * `state_id`: character string, the unique ID of an agent's state.
+#'    * `state_id`: character string, the unique identifier of an agent's state.
 #'    * `p`: numeric, the probability that the agent's `state_id` is influenced
 #'    by the driver.
 #'    * `infl`: logical, whether the agent's `state_id` is influenced by the
@@ -39,6 +39,9 @@
 #'   simulation (currently unused).
 #' @slot sex character, the sex of the agent, where `"f"`denotes female and
 #'   `"m"` denotes male (currently unused).
+#'
+#' @seealso
+#' Helper function [AgentProperties()] to create `<AgentProperties>` objects
 #'
 #' @include s4_management.R class-VarDist.R s4_utils.R utils.R
 #'
@@ -61,10 +64,7 @@ methods::setClass(
   prototype = list(
     species_id = NA_character_,
     initial_mass = units::set_units(NA, "g"),
-    speeds = list(
-      flying = VarDist(),
-      swimming = VarDist()
-    ),
+    speeds = list(),
     start_point = sf::st_point(),
     end_point = sf::st_point(),
     mortality_tresh = units::set_units(NA, "g"),
@@ -86,7 +86,7 @@ methods::setClass(
 #' @param species_id character, the identifier code for the agent's species.
 #' @param initial_mass `<units>` object, the agent's body mass at the start of the
 #'   simulation.
-#' @param speeds a named list, defining travel speed properties for the agent.
+#' @param speeds a named list, defining movement speed properties for the agent.
 #'   Each element specifies the agent's average speed for a given movement state
 #'   (e.g. flying, swimming, etc). List elements must be of type `<units>`.
 #' @param start_point,end_point objects of class `XY`, the spatial coordinates
@@ -104,7 +104,7 @@ methods::setClass(
 #' @param state_influences a named list, defining whether agent states are
 #'   influenced by model drivers. Each element, named after a `driver_id`,
 #'   contains a `data.frame` with columns:
-#'    * `state_id`: character string, the unique ID of an agent's state.
+#'    * `state_id`: character string, the unique identifier of an agent's state.
 #'    * `p`: numeric, the probability that the agent's `state_id` is influenced
 #'    by the driver.
 #'    * `infl`: logical, whether the agent's `state_id` is influenced by the
@@ -179,9 +179,9 @@ AgentProperties <- function(species_id = NA_character_,
     mortality_tresh <- generate(Species@mortality_thresh_distr)
 
     # generate speeds
-    states <- lapply(Species@behaviour_profile, \(s) s@behav) |> unlist()
-    speeds <- lapply(Species@behaviour_profile, \(s) generate(s@speed))
-    names(speeds) <- states
+    states_ids <- lapply(Species@states_profile, \(s) s@id) |> unlist()
+    speeds <- lapply(Species@states_profile, \(s) generate(s@speed))
+    names(speeds) <- states_ids
     speeds[sapply(speeds, is.na)] <- NULL
 
     # starting and ending points
@@ -207,13 +207,14 @@ AgentProperties <- function(species_id = NA_character_,
       }
     }) |> setNames(driver_ids)
 
+
     # initialize drivers' influence on agent's states
     state_influences <- lapply(Species@driver_responses, function(resp){
-
-      lapply(resp@activities, function(state){
-
+      lapply(resp@states, function(state){
+        # sample probability of current state being influenced by current driver
         p <- generate(state@prob) |> as.numeric()
-
+        # draw realization on whether status is influenced by driver and, if so,
+        # sample the extent of the influence
         if( !is.na(p) ){
           infl <- distributional::dist_bernoulli(p) |>
             distributional::generate(1) |>
@@ -222,11 +223,9 @@ AgentProperties <- function(species_id = NA_character_,
         } else {
           infl <- ext <- NA
         }
-
-        data.frame(state_id = state@behav, p, infl, ext)
-
+        # collected results in data.frame
+        data.frame(state_id = state@state_id, p, infl, ext)
       }) |> purrr::list_rbind()
-
     }) |> setNames(driver_ids)
 
 
@@ -282,14 +281,14 @@ methods::setValidity("AgentProperties", function(object) {
 # Helpers ---------------------------------------------------------------------
 get_endpoint <- function(sites, aoc_bbox){
   sites_sfc <- sf::st_geometry(sites)
-  if( length(sites_sfc) == 0 ){
+  if (length(sites_sfc) == 0) {
     return(sf::st_sample(aoc_bbox, 1)[[1]])
   }
-
+  # randomly draw a site
   endpt <- sample(sites_sfc, 1, prob = sites$prop)
-  if( sf::st_geometry_type(endpt) != "POINT" ){
+  # randomly draw a point inside geometry if site is not a point
+  if (sf::st_geometry_type(endpt) != "POINT") {
     endpt <- sf::st_sample(endpt, 1)
   }
-
   endpt[[1]] # return sfg
 }

@@ -14,7 +14,7 @@
 rmr_initiate <- function(config, species, drivers){
 
   ## Input validation ----------------------------------------------------------
-  cli::cli_progress_step("Performing input validation")
+  cli::cli_progress_step("Validating inputs")
 
   if(is(drivers, "Driver")){
     drivers <- list(drivers)
@@ -65,8 +65,9 @@ rmr_initiate <- function(config, species, drivers){
   species@driver_responses <- append(species@driver_responses, aoc_resp)
 
 
+
   ## Driver processing  ------------------------------------------------------
-  cli::cli_progress_step("Calculating vector fields for movement drivers")
+  cli::cli_progress_step("Calculate vector fields for movement drivers")
 
   ### Compute vector fields for movement influencers ----------------
   drv_ids <- purrr::map_chr(drivers, \(x) x@id)
@@ -78,13 +79,15 @@ rmr_initiate <- function(config, species, drivers){
 
   if(length(drvmv_ids) > 0){
 
-    # For each geom-based movement drivers: (i) calculate surface of
+    # For each geom-based movement driver: (i) calculate surface of
     # cell-distances (AOC grid); (ii)  update driver
     drivers <- drivers |>
       purrr::modify_if(
         .p = \(d){ d@id %in% drvmv_ids && is_stars_empty(stars_obj(d))},
-        .f = \(d, grid = aoc_grid){
-          grid$drv_dist <- sf::st_distance(grid, d@sf_obj)
+        .f = function(d, grid = aoc_grid){
+          # forcing unioning to get single vector of grid-point distances when
+          # driver contains multiple geoms
+          grid$drv_dist <- sf::st_distance(grid, sf::st_union(d@sf_obj))
           stars_obj(d) <- stars::st_rasterize(grid)["drv_dist"]
           d@stars_descr <- paste0("Distance to ", d@sf_descr)
           d@obj_active <- "stars"
@@ -92,11 +95,12 @@ rmr_initiate <- function(config, species, drivers){
           d
         })
 
+
     # add vector fields for movement-affecting drivers
     drivers <- drivers |>
       purrr::modify_if(
         .p = \(d){ d@id %in% drvmv_ids},
-        .f = \(d){
+        .f = function(d){
           stars_obj(d) <- compute_vector_fields(stars_obj(d))
           d
         },
@@ -110,10 +114,60 @@ rmr_initiate <- function(config, species, drivers){
 
 
 
-  ## initialize Agents -------------------------------------------------------
+  ## Initialize Agents -------------------------------------------------------
+  cli::cli_progress_step("Initialize Agents")
 
-  # Agent()
-  #
+  ### Agent Properties ------
+  ap_rvs
+
+  ### Agent State ------
+  as_rvs
+
+
+  species@behaviour_profile$flight@behav
+  species@behaviour_profile$flight@speed
+  species@behaviour_profile$flight@energy_cost
+  species@behaviour_profile$flight
+
+  lapply(
+    species@behaviour_profile,
+    function(b){
+
+      list(
+        behav = b@behav,
+        speeds = distributional::generate(b@speed@distr, config@n_agents)
+      )
+
+  })
+
+
+
+
+
+  agent_rvs <- list()
+
+  agent_rvs$body_mass <- species@body_mass_distr@distr |>
+    distributional::generate(config@n_agents) |>
+    unlist() |>
+    units::as_units(species@body_mass_distr@units)
+
+  agent_rvs$mortality_thresh_distr <- species@mortality_thresh_distr@distr |>
+    distributional::generate(config@n_agents) |>
+    unlist() |>
+    units::as_units(species@mortality_thresh_distr@units)
+
+  agent_rvs |>
+    purrr::pmap(function(...){
+      test <- list(...)
+
+      browser()
+
+      age
+    })
+
+
+  new("AgentProperties")
+
 
   # IBM(
   #   #agents = list(),

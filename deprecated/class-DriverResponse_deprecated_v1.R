@@ -22,8 +22,8 @@
 #'   Unmatched IDs will trigger an error during model initialization.
 #' @slot movement an object of class <[`MoveInfluence-class`]>, specifying how
 #'   the driver influences the agent's movement
-#' @slot states a list of <[`StateInfluence-class`]> objects, listing the
-#'   influence of the driver in the agent's states.
+#' @slot activities a list of <[`ActivInfluence-class`]> objects, listing the
+#'   influence of the driver in the agent's activities and behaviours.
 #' @slot condition a character string (feature under development). Reserved for
 #'   specifying additional effects of the driver on agent condition.
 #'
@@ -39,13 +39,13 @@ methods::setClass(
   slots = list(
     driver_id = "character",
     movement = "MoveInfluence",
-    states = "list",
+    activities = "list",
     condition = "character"
   ),
   prototype = list(
     driver_id = NA_character_,
     movement = new("MoveInfluence"),
-    states = list(),
+    activities = list(),
     condition = NA_character_
   )
 )
@@ -69,8 +69,8 @@ methods::setClass(
 #'   Unmatched IDs will trigger an error during model initialization.
 #' @param movement an object of class <[`MoveInfluence-class`]>, specifying how the
 #'   driver influences the agent's movement
-#' @param states a list of <[`StateInfluence-class`]> objects, listing the
-#'   influence of the driver in the agent's states.
+#' @param activities a list of <[`ActivInfluence-class`]> objects, listing the
+#'   influence of the driver in the agent's activities and behaviours.
 #' @param condition a character string (feature under development). Reserved for
 #'   specifying additional effects of the driver on agent condition.
 #'
@@ -78,23 +78,23 @@ methods::setClass(
 
 DriverResponse <- function(driver_id = NA_character_,
                            movement = MoveInfluence(),
-                           states = list(),
+                           activities = list(),
                            condition = NA_character_){
 
-  # allow for specification of unique, unlisted, <StateInfluence> objects
-  # to `states`, if of the correct class
-  if(is(states, "StateInfluence")) states <- list(states)
+  # allow for specification of unique, unlisted, <ActivInfluence> objects
+  # to `activities`, if of the correct class
+  if(is(activities, "ActivInfluence")) activities <- list(activities)
 
   # input validation
   check_class(movement, "MoveInfluence", class_fn = "roamR::MoveInfluence")
-  if(length(states) > 0) check_class(states, "StateInfluence", inlist = TRUE)
+  if(length(activities) > 0) check_class(activities, "ActivInfluence", inlist = TRUE)
 
   # construct a new instance of <DriverResponse>
   new(
     "DriverResponse",
     driver_id = driver_id,
     movement = movement,
-    states = states,
+    activities = activities,
     condition = condition
   )
 

@@ -4,55 +4,53 @@
 \name{Species-class}
 \alias{Species-class}
 \title{\verb{<Species>}}
-\arguments{
-\item{driver_responses}{a list of \linkS4class{DriverResponse} objects. Each object
-specifies the responses of individual agents to various factors, including
-environmental, biological, or artificial influences, that drive their
-movement and activities. See \linkS4class{DriverResponse} class definition for
-further details.}
-}
 \description{
-\verb{<Species>} is an S4 class that comprises species-level properties of the
-simulated agents. It includes attributes that dictate individual agents'
-biological features, movement patterns, behavioural decisions, and responses
-to anthropogenic and other non-environmental impacts.
+\verb{<Species>} is an S4 class that comprises species-level properties of
+simulated agents. It includes attributes related to taxonomy, physiology,
+behavioural/activity states, responses to environmental and non-environmental
+drivers, and population size.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{id}}{character string, the identifier code for the species}
+\item{\code{id}}{character string, a unique identifier for the species.}
 
-\item{\code{common_name}}{character string, the common name of the species}
+\item{\code{common_name}}{character string, the common name of the species.}
 
-\item{\code{scientific_name}}{character string, the scientific name of the species}
+\item{\code{scientific_name}}{character string, the scientific name of the species.}
 
-\item{\code{role}}{character string, defining the role of the species in the IBM (one
-of "agent", "prey", "competitor")}
+\item{\code{body_mass_distr}}{an object of class \linkS4class{VarDist}, defining the
+distribution of body mass for the species.}
 
-\item{\code{body_mass_distr}}{an object of class \linkS4class{VarDist}, defining the species'
-distribution of body mass}
+\item{\code{states_profile}}{a list \linkS4class{StateSpec} objects, defining the
+behavioural/activity states for the species to consider in the model.}
 
-\item{\code{spatial_distr}}{a \verb{<stars>} array, comprising a time-series of
-raster-type density surfaces of the species covering the area of interest.
-First 2 dimensions are expected to provide the spatial properties of the
-density surfaces. The 3rd dimension specifies the temporal resolution of
-the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
-of the density surfaces}
+\item{\code{driver_responses}}{list of \linkS4class{DriverResponse} objects, specifying the
+species’ responses to predefined model drivers, such as environmental
+pressures, biological influences, and human-induced impacts affecting
+movement and behaviour/activity states. See \linkS4class{DriverResponse} for
+details.
 
-\item{\code{pop_size}}{numeric, the population size within the Area of calculation}
-
-\item{\code{behaviour_profile}}{a list comprising objects of class
-\linkS4class{BehaviourSpec}, defining the behavioural profile of the species.}
+Each element in the \code{driver_responses} list must correspond to an existing
+object of class \linkS4class{Driver}. At the initialization phase of the
+Individual-Based Model (IBM), these \code{driver_responses} are matched with
+their respective \linkS4class{Driver} objects to ensure a consistent and
+well-defined set of species-driver interactions. Failure to provide a
+corresponding \linkS4class{Driver} object for each entry of \code{driver_responses}
+will result in missing or undefined driver effects during the simulation.}
 
 \item{\code{mortality_thresh_distr}}{an object of class \linkS4class{VarDist}, specifying
-the values of agent's condition (e.g. body mass), below which the agent is
-assumed to have died}
+the values of agent's condition (e.g. body mass), below which it is
+assumed to have died (\emph{Note: slot may require further generalization})}
+
+\item{\code{pop_size}}{numeric, the population size (i.e., number of individuals)
+within the area of calculation (AOC).}
 }}
 
 \seealso{
 \itemize{
 \item Helper function \code{\link[=Species]{Species()}} to define \verb{<Species>} objects
-\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}} for constructing
-objects of the dependency classes
+\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=StateSpec]{StateSpec()}} for
+constructing objects of the dependency classes
 }
 }

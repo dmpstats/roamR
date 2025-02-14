@@ -6,75 +6,70 @@
 \usage{
 Species(
   id = NA_character_,
-  role = c("agent", "prey", "competitor"),
   common_name = NA_character_,
   scientific_name = NA_character_,
   body_mass_distr = VarDist(),
   mortality_thresh_distr = VarDist(),
-  spatial_distr = stars::st_as_stars(matrix(NA)),
   pop_size = NA_real_,
-  behaviour_profile = list(),
+  states_profile = list(),
   driver_responses = list()
 )
 }
 \arguments{
-\item{id}{character string, the identifier code for the species}
+\item{id}{character string, a unique identifier for the species.}
 
-\item{role}{character string, defining the role of the species in the IBM
-(one of "agent", "prey", "competitor")}
+\item{common_name}{character string, the common name of the species.}
 
-\item{common_name}{character string, the common name of the species}
-
-\item{scientific_name}{character string, the scientific name of the species}
+\item{scientific_name}{character string, the scientific name of the species.}
 
 \item{body_mass_distr}{an object of class \linkS4class{VarDist}, defining the
-species' distribution of body mass}
+distribution of body mass for the species.}
 
 \item{mortality_thresh_distr}{an object of class \linkS4class{VarDist}, specifying
-the values of agent's condition (e.g. body mass), below which the agent is
-assumed to have died
+the values of agent's condition (e.g. body mass), below which it is
+assumed to have died (\emph{Note: parameter may require further generalization})}
 
-specific environmental or man-made "driver"}
+\item{pop_size}{numeric, the population size (i.e., number of individuals)
+within the area of calculation (AOC).}
 
-\item{spatial_distr}{a \verb{<stars>} array, comprising a time-series of
-raster-type density surfaces of the species covering the area of interest.
-First 2 dimensions are expected to provide the spatial properties of the
-density surfaces. The 3rd dimension specifies the temporal resolution of
-the data, while the 4th dimension relates to draws (e.g. bootstrap samples)
-of the density surfaces}
+\item{states_profile}{a list \linkS4class{StateSpec} objects, defining the
+behavioural/activity states for the species to consider in the model.}
 
-\item{pop_size}{numeric, the population size within the Area of calculation}
-
-\item{behaviour_profile}{a list comprising objects of class
-\linkS4class{BehaviourSpec}, defining the behavioural profile of the species.}
-
-\item{driver_responses}{a list of \linkS4class{DriverResponse} objects. Each object
-specifies the responses of individual agents to various factors, including
-environmental, biological, or artificial influences, that drive their
-movement and activities. See \linkS4class{DriverResponse} class definition for
-further details.}
+\item{driver_responses}{list of \linkS4class{DriverResponse} objects, specifying
+the species’ responses to predefined model drivers, such as environmental
+pressures, biological influences, and human-induced impacts affecting
+movement and behaviour/activity states. See the Details section below and
+\linkS4class{DriverResponse} for further information.}
 }
 \description{
-Helper function to construct instances of \linkS4class{Species} objects, which
-comprise species-level properties of the simulated agents. It includes
-attributes that dictate individual agents' biological features, movement
-patterns, behavioural decisions, and responses to anthropogenic and other
-non-environmental impacts.
+Helper function to construct instances of \linkS4class{Species} objects, representing
+species-level properties of simulated agents. These include attributes
+related to taxonomy, physiology, behavioural/activity states, responses to
+environmental and non-environmental drivers, and population size.
+}
+\details{
+Each element in the \code{driver_responses} list must correspond to an existing
+object of class \linkS4class{Driver}. At the initialization phase of \code{{roamR}}s
+IBM, these \code{driver_responses} are matched with their respective
+\linkS4class{Driver} objects to ensure a consistent set of species-driver
+interactions. Failure to provide a corresponding \linkS4class{Driver} object for
+each entry of \code{driver_responses} will result in missing or undefined driver
+effects during the simulation.
 }
 \examples{
 
 library(distributional)
 
 # 1. Start by setting the behaviour profile
-behav <- list(
- flight = BehaviourSpec(
-    behav = "flying",
+states <- list(
+ flight = StateSpec(
+    state_id = "flying",
     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
     ),
- dive = BehaviourSpec(
-    behav = "diving",
+ dive = StateSpec(
+    state_id = "diving",
     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
@@ -83,55 +78,41 @@ behav <- list(
 
 # 2. Then the list of driver responses
 driver_resp <- list(
-  coast = new(
-    "DriverResponse",
+  coast = DriverResponse(
     driver_id = "land",
     movement = MoveInfluence(
       prob = VarDist(distributional::dist_degenerate(1)),
       fn = function(x, slope = 1/2) exp(-slope * x),
       type = "repulsion"
-    )
-  ),
-  owf = new(
-    "DriverResponse",
+    )),
+  owf = DriverResponse(
     driver_id = "owf_foot",
     movement = MoveInfluence(
       prob = VarDist(dist_beta(2, 8)),
       fn = function(x, slope = 1/2) exp(-slope * x),
       type = "repulsion"
     ),
-    activities = list(
-      ActivInfluence(
-        behav = "flying",
+    states = list(
+      StateInfluence(
+        state_id = "flying",
         prob = VarDist(dist_beta(1, 5)),
         extent = VarDist(dist_lognormal(2, 1), "hr/day")
-      ))))
-
-# 3. `stars` array with 10 samples of monthly density distribution
-dens <- data.frame(
-  expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
-  counts = rlnorm(5*5*3*10)) |>
-  st_as_stars(dims = c("x", "y", "month", "iter")
+      )))
   )
 
-# 4. specify <Species>
+# 3. specify <Species>
 guill <- Species(
      id = "guill",
-     role = "agent",
      common_name = "guillemot",
      scientific_name = "Uria Aalge",
-     spatial_distr = dens,
      pop_size = 10000,
      body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
      mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
-     behaviour_profile = behav,
+     states_profile = states,
      driver_responses = driver_resp
    )
 
 }
 \seealso{
-\itemize{
-\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=BehaviourSpec]{BehaviourSpec()}}
-\item \code{\link[stars:st_as_stars]{stars::st_as_stars()}} for generating \verb{<stars>} arrays
-}
+Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=StateSpec]{StateSpec()}}
 }

@@ -26,7 +26,7 @@ AgentProperties(
 \item{initial_mass}{\verb{<units>} object, the agent's body mass at the start of the
 simulation.}
 
-\item{speeds}{a named list, defining travel speed properties for the agent.
+\item{speeds}{a named list, defining movement speed properties for the agent.
 Each element specifies the agent's average speed for a given movement state
 (e.g. flying, swimming, etc). List elements must be of type \verb{<units>}.}
 
@@ -51,7 +51,7 @@ be determined via a Bernoulli trial with probability \code{p}.
 influenced by model drivers. Each element, named after a \code{driver_id},
 contains a \code{data.frame} with columns:
 \itemize{
-\item \code{state_id}: character string, the unique ID of an agent's state.
+\item \code{state_id}: character string, the unique identifier of an agent's state.
 \item \code{p}: numeric, the probability that the agent's \code{state_id} is influenced
 by the driver.
 \item \code{infl}: logical, whether the agent's \code{state_id} is influenced by the

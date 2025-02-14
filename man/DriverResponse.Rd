@@ -7,7 +7,7 @@
 DriverResponse(
   driver_id = NA_character_,
   movement = MoveInfluence(),
-  activities = list(),
+  states = list(),
   condition = NA_character_
 )
 }
@@ -19,8 +19,8 @@ Unmatched IDs will trigger an error during model initialization.}
 \item{movement}{an object of class <\code{\linkS4class{MoveInfluence}}>, specifying how the
 driver influences the agent's movement}
 
-\item{activities}{a list of <\code{\linkS4class{ActivInfluence}}> objects, listing the
-influence of the driver in the agent's activities and behaviours.}
+\item{states}{a list of <\code{\linkS4class{StateInfluence}}> objects, listing the
+influence of the driver in the agent's states.}
 
 \item{condition}{a character string (feature under development). Reserved for
 specifying additional effects of the driver on agent condition.}
