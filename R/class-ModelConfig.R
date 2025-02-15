@@ -31,7 +31,6 @@
 #' @slot end_sites an `<sf>` object, analogous to `start_sites`, specifying the
 #'   sites to which agents must return at the end of the simulation.
 #'
-#'
 #' @details
 #'
 #'  ## `start_sites` and `end_sites`
@@ -106,17 +105,57 @@ methods::setClass(
 #'    If `NULL` (the default), agents start at random locations within the AOC.
 #'
 #' @param end_sites an `<sf>` object, analogous to `start_sites`, specifying the
-#'   sites to which agents must return at the end of the simulation.
+#'   sites to which agents must return to at the end of the simulation. If `NULL`
+#'   (the default), end locations are not forced upon agents.
 #'
 #'
 #' @details
 #'
 #'  ## `start_sites` and `end_sites`
 #'
-#'  For site geometries other than points, agents' starting/end locations are
+#'  * For site geometries other than points, agents' starting/end locations are
 #'  randomly drawn within the boundary of the geometry. For example, if a site
 #'  is defined by polygon(s), agents assigned to that site start/end at random
 #'  points within the polygon.
+#'
+#'
+#'
+#' @examples
+#' library(sf)
+#' library(ggplot2)
+#'
+#' # specify colonies
+#' colonies <- st_sf(
+#'   id = c("A", "B", "C"),
+#'   prop = c(0.30, 0.30, 0.40),
+#'   geom = st_sfc(st_point(c(1,1)), st_point(c(2,2)), st_point(c(3,3))),
+#'   crs = 4326
+#' )
+#'
+#' # initialize model configuration object
+#' config <- ModelConfig(
+#'   n_agents = 1000,
+#'   ref_sys = st_crs(4326),
+#'   aoc_bbx = c(0, 0, 5, 5),
+#'   delta_x = 0.25,
+#'   delta_y = 0.25,
+#'   time_step = "1 day",
+#'   start_date = as.Date("2022-09-01"),
+#'   end_date = as.Date("2022-09-30"),
+#'   start_sites = colonies,
+#'   end_sites = colonies
+#' )
+#'
+#' # Accessors
+#' aoc_bbx(config)
+#' start_sites(config)
+#' end_sites(config)
+#'
+#' # vizualizing the AOC's bounding box, the start and end sites
+#' ggplot() +
+#'   geom_sf(data = st_as_sfc(aoc_bbx(config)), col = "orange", fill = NA) +
+#'   geom_sf(data = start_sites(config), size = 4, colour = "darkgreen") +
+#'   geom_sf(data = end_sites(config), col = "red")
 #'
 #' @return An object of class <[ModelConfig-class]>
 #'
@@ -190,27 +229,24 @@ ModelConfig <- function(n_agents = 100L,
 # Validator -----------------------------------------------------
 methods::setValidity("ModelConfig", function(object) {
 
-  errmsg <- c()
+  err <- c()
 
-  errmsg <- c(errmsg, val_sites(object@start_sites, object@aoc_bbx))
-  errmsg <- c(errmsg, val_sites(object@end_sites, object@aoc_bbx))
+  err <- c(err, val_sites(object@start_sites, object@aoc_bbx))
+  err <- c(err, val_sites(object@end_sites, object@aoc_bbx))
 
-  if(length(errmsg) > 0){
+  if(length(err) > 0){
     # need to collapse into single string for desired formatting
-    do.call(paste, list(errmsg, collapse = " "))
+    do.call(paste, list(err, collapse = " "))
   } else{
     TRUE
   }
-
 })
 
 
-
-
-
+# Sites validation helper
 val_sites <- function(sites, aoc_bbx){
 
-  out <- list()
+  err <- list()
   n_sites <- nrow(sites)
 
   # only check for non-empty sf objects
@@ -221,14 +257,14 @@ val_sites <- function(sites, aoc_bbx){
 
     # validate attributes
     if(length(misscols) > 0){
-      out <- c(out, cli::format_inline("\n- {slot_name} must contain {cli::qty(misscols)}column{?s} {.val {misscols}}"))
+      err <- c(err, cli::format_inline("\n- {slot_name} must contain {cli::qty(misscols)}column{?s} {.val {misscols}}"))
     }else if(sum(sites$prop) != 1){
-      out <- c(out, cli::format_inline("\n- {slot_name}: values in column {.val prop} must add up to 1."))
+      err <- c(err, cli::format_inline("\n- {slot_name}: values in column {.val prop} must add up to 1."))
     }
 
-    # validate spatial requirments
+    # validate spatial requirements
     if(sf::st_crs(sites) != sf::st_crs(aoc_bbx)){
-      out <- c(out, cli::format_inline(
+      err <- c(err, cli::format_inline(
         "\n- {slot_name} must have the same CRS as @aoc_bbx: ",
         "{.val {sf::st_crs(aoc_bbx)$input}}"
       ))
@@ -237,7 +273,7 @@ val_sites <- function(sites, aoc_bbx){
       sites_in_aoc <- sf::st_within(sites, sf::st_as_sfc(aoc_bbx))
       n_sites_outside_aoc <- sum(lengths(sites_in_aoc) == 0)
       if(n_sites_outside_aoc > 0){
-        out <- c(out, cli::format_inline(
+        err <- c(err, cli::format_inline(
           "\n- {slot_name}: {n_sites_outside_aoc} out of {n_sites}",
           "{cli::qty(n_sites_outside_aoc)} site{?s} {?is/are} not ",
           "located within the AOC area, as per @aoc_bbx."
@@ -246,5 +282,33 @@ val_sites <- function(sites, aoc_bbx){
     }
   }
 
-  out
+  err
 }
+
+
+
+# Methods-----------------------------------------------------------------
+
+## Accessors ------------------------------------
+### @start_sites
+#### getter
+setGeneric("start_sites", function(x) standardGeneric("start_sites"))
+setMethod("start_sites", "ModelConfig", function(x) x@start_sites)
+
+
+### @end_sites
+#### getter
+setGeneric("end_sites", function(x) standardGeneric("end_sites"))
+setMethod("end_sites", "ModelConfig", function(x) x@end_sites)
+
+
+### @aoc_bbx
+#### getter
+setGeneric("aoc_bbx", function(x) standardGeneric("aoc_bbx"))
+setMethod("aoc_bbx", "ModelConfig", function(x) x@aoc_bbx)
+
+
+# visualize bbox,  start and end sites stored in `config`
+# plot(st_as_sfc(config@aoc_bbx), axes = TRUE, col = NA, border = "blue", lwd = 1.5)
+# plot(start_sites(config)["id"], pch = 19, col = "darkgreen", add = TRUE, cex = 1.5)
+# plot(end_sites(config)["id"], pch = 19, col = "red", add = TRUE)
