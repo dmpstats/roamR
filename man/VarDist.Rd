@@ -4,10 +4,10 @@
 \alias{VarDist}
 \title{Create a \verb{<VarDist>} object}
 \usage{
-VarDist(dist = NA, units = NA)
+VarDist(distr = NULL, units = NULL)
 }
 \arguments{
-\item{dist}{an object of class \verb{<distribution>} (from package
+\item{distr}{an object of class \verb{<distribution>} (from package
 \code{{distributional}}), specifying the distribution of values of the variable}
 
 \item{units}{a character string, indicating the measurement units the
@@ -43,7 +43,7 @@ VarDist(10, "m")
 x <- rlnorm(100, 2, 1)
 mass <- VarDist(dist_sample(list(x)), "kg")
 # resample 100 values
-distributional::generate(mass@dist, times = 100) |>
+distributional::generate(mass@distr, times = 100) |>
   lapply(units::as_units, value = mass@units)
 
 

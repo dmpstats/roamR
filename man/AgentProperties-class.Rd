@@ -6,45 +6,56 @@
 \title{\verb{<AgentProperties>}}
 \description{
 \verb{<AgentProperties>} is an S4 class specifying the individual-level properties
-of a given agent being traced in the simulation model. It subsumes features
-that remain constant throughout simulation run, including biological and
-physical traits, movement properties, initialization and and final states,
-susceptibility to impact effects,
+of an agent being traced in the simulation model. It subsumes features that
+remain constant throughout the simulation run, including biological traits,
+average travelling speeds, initialization and final states and locations,
+susceptibility of movement and states to model drivers.
 
-Currently this is an "internal" class, i.e. not meant to be user-facing
+Currently this is an "internal" class, i.e. not meant to be user-facing.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{species_id}}{character, the identifier code for the agent's species}
+\item{\code{species_id}}{character, the identifier code for the agent's species.}
 
-\item{\code{initial_mass}}{numeric, the agent's body mass at the start of the
-simulation (g)}
+\item{\code{initial_mass}}{\verb{<units>} object, the agent's body mass at the start of the
+simulation.}
 
-\item{\code{wingspan}}{numeric, the agent's maximum extent across its wings (units: cm)}
+\item{\code{speeds}}{a named list, defining travel speed properties for the agent.
+Each element specifies the agent's average speed for a given movement state
+(e.g. flying, swimming, etc). List elements must be of type \verb{<units>}.}
 
-\item{\code{age}}{numeric, the age of the agent at the start of the simulation}
+\item{\code{start_point,end_point}}{objects of class \code{XY}, the spatial coordinates
+of the agent at the start and end of the simulation, respectively.
+the agent is assumed to die.}
+
+\item{\code{move_influences}}{a named list, defining whether the agent is influenced
+by model drivers. Each element corresponds to a \code{driver_id} (which must be
+defined in the model's \linkS4class{Driver} object) and contains a single-row
+\code{data.frame} with columns:
+\itemize{
+\item \code{p}: numeric, providing the probability that the agent is influenced by
+the named driver.
+\item \code{infl}: logical, whether the agent is influenced by the driver. It should
+be determined via a Bernoulli trial with probability \code{p}.
+}}
+
+\item{\code{state_influences}}{a named list, defining whether agent states are
+influenced by model drivers. Each element, named after a \code{driver_id},
+contains a \code{data.frame} with columns:
+\itemize{
+\item \code{state_id}: character string, the unique ID of an agent's state.
+\item \code{p}: numeric, the probability that the agent's \code{state_id} is influenced
+by the driver.
+\item \code{infl}: logical, whether the agent's \code{state_id} is influenced by the
+driver. It should be determined via a Bernoulli trial with probability \code{p}.
+\item \code{ext}: \verb{<units>} value, the extent of the influence on the agent's \code{state_id}.
+}}
+
+\item{\code{age}}{\verb{<units>} object, the age of the agent at the start of the
+simulation (currently unused).}
 
 \item{\code{sex}}{character, the sex of the agent, where \code{"f"}denotes female and
-\code{"m"} denotes male}
-
-\item{\code{speed}}{named list, defining the travel speed properties for the agent. Each
-element specifies the distribution of speeds, in terms of mean and
-coefficient of variation (cv), for a given movement type  (e.g. flight
-speed and swim speed).}
-
-\item{\code{start_location,end_location}}{objects of class \code{XY}, the location of the
-agent at the start and end of the simulation, respectively}
-
-\item{\code{mortality_tresh}}{numeric, the threshold body mass below which the agent
-is assumed to die (units: g)}
-
-\item{\code{disturbance_effects}}{named list, indicating how anthropogenic disturbances
-impact key properties of the agent. Each list element specifies
-the direction and magnitude of the effect on an affected behaviour or activity}
-
-\item{\code{redistributed}}{logical, indicating the agent's susceptibility to change
-its expected spatial distribution in response to man-made structures (\code{TRUE}
-if susceptible, \code{FALSE} if not)}
+\code{"m"} denotes male (currently unused).}
 }}
 

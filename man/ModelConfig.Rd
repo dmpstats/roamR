@@ -47,7 +47,8 @@ in this column must sum to 1.
 If \code{NULL} (the default), agents start at random locations within the AOC.}
 
 \item{end_sites}{an \verb{<sf>} object, analogous to \code{start_sites}, specifying the
-sites to which agents must return at the end of the simulation.}
+sites to which agents must return to at the end of the simulation. If \code{NULL}
+(the default), end locations are not forced upon agents.}
 
 \item{start_date;end_date}{Date, respectively, defines the start and end
 dates for the simulation period.}
@@ -61,10 +62,49 @@ instances of <\code{\linkS4class{ModelConfig}}> objects.
 }
 \details{
 \subsection{\code{start_sites} and \code{end_sites}}{
-
-For site geometries other than points, agents' starting/end locations are
+\itemize{
+\item For site geometries other than points, agents' starting/end locations are
 randomly drawn within the boundary of the geometry. For example, if a site
 is defined by polygon(s), agents assigned to that site start/end at random
 points within the polygon.
 }
+}
+}
+\examples{
+library(sf)
+library(ggplot2)
+
+# specify colonies
+colonies <- st_sf(
+  id = c("A", "B", "C"),
+  prop = c(0.30, 0.30, 0.40),
+  geom = st_sfc(st_point(c(1,1)), st_point(c(2,2)), st_point(c(3,3))),
+  crs = 4326
+)
+
+# initialize model configuration object
+config <- ModelConfig(
+  n_agents = 1000,
+  ref_sys = st_crs(4326),
+  aoc_bbx = c(0, 0, 5, 5),
+  delta_x = 0.25,
+  delta_y = 0.25,
+  time_step = "1 day",
+  start_date = as.Date("2022-09-01"),
+  end_date = as.Date("2022-09-30"),
+  start_sites = colonies,
+  end_sites = colonies
+)
+
+# Accessors
+aoc_bbx(config)
+start_sites(config)
+end_sites(config)
+
+# vizualizing the AOC's bounding box, the start and end sites
+ggplot() +
+  geom_sf(data = st_as_sfc(aoc_bbx(config)), col = "orange", fill = NA) +
+  geom_sf(data = start_sites(config), size = 4, colour = "darkgreen") +
+  geom_sf(data = end_sites(config), col = "red")
+
 }

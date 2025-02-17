@@ -10,7 +10,8 @@ check_class(
   inlist = FALSE,
   class_fn = NULL,
   arg = rlang::caller_arg(x),
-  call = rlang::caller_env()
+  call = rlang::caller_env(),
+  return_msg = FALSE
 )
 }
 \arguments{

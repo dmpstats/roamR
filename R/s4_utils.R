@@ -28,7 +28,8 @@ check_class <- function(x,
                         inlist = FALSE,
                         class_fn = NULL,
                         arg = rlang::caller_arg(x),
-                        call = rlang::caller_env()){
+                        call = rlang::caller_env(),
+                        return_msg = FALSE){
 
   msg <- NULL
 
@@ -38,12 +39,12 @@ check_class <- function(x,
       failed_el <- which(!unlist(lapply(x, is, class)))
 
       if(length(failed_el) > 0){
-        msg <- c("Argument {.arg {arg}} must be a {.cls list} comprising objects of class {.cls {class}}")
+        msg <- c("Argument {.arg {arg}} must be a {.cls list} comprising objects of class {.cls {class}}.")
 
         for(i in seq_along(failed_el)){
           el_pos <- failed_el[i]
           el_class <- class(x[[el_pos]])
-          msg <- c(msg, "x" = paste0("List element #", el_pos, " is an object of class {.cls ", el_class, "}"))
+          msg <- c(msg, "x" = paste0("List element #", el_pos, " is an object of class {.cls ", el_class, "}."))
         }
       }
 
@@ -61,33 +62,26 @@ check_class <- function(x,
           "x" = "You've provided an object of class {.cls {class(x)}}"
         )
     }
-
-    # if(!is.list(x)){
-    #   if(!is(x, class)){
-    #     msg <- c(
-    #       "Argument {.arg {arg}} must be an object of class {.cls {class}}",
-    #       "x" = "You've provided an object of class {.cls {class(x)}}"
-    #     )
-    #   }
-    # }else if(class != "list"){
-    #   msg <- c("Argument {.arg {arg}} must be an object of class {.cls {class}}",
-    #            "x" = "You've provided an object of class {.cls list}")
-    # }
   }
 
-  if(!is.null(msg)){
-    if(!is.null(class_fn)){
+  if (!is.null(msg)) {
+    if (!is.null(class_fn)) {
       if(inlist){
         msg <- c(msg, "i" = "Combine {.fun base::list} and {.fun {class_fn}} to construct a {.cls list} of {.cls {class}} objects")
-      }else{
+      } else {
         msg <- c(msg, "i" = "Use {.fun {class_fn}} to construct {.cls {class}} objects")
       }
     }
 
-    cli::cli_abort(msg, class = "err_class_unexpected", call = call)
+    if (return_msg ) {
+      return(cli::format_inline(msg))
+    } else{
+      cli::cli_abort(msg, class = "err_class_unexpected", call = call)
+    }
   }
 
-  invisible()
+  NULL
+  #invisible()
 }
 
 
@@ -97,7 +91,7 @@ check_class <- function(x,
 
 # Generics -------------------------------------------------------------------
 methods::setGeneric("is_empty", function(object) standardGeneric("is_empty"))
-
+methods::setGeneric("generate", function(object, ...) standardGeneric("generate"))
 
 
 
