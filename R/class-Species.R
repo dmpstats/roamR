@@ -185,7 +185,7 @@ Species <- function(id = NA_character_,
   check_class(common_name, "character")
   check_class(body_mass_distr, "VarDist")
   check_class(mortality_thresh_distr, "VarDist")
-  if(length(states_profile) > 0) check_class(states_profile, "StateSpec", inlist = TRUE)
+  if(length(states_profile) > 0) check_class(states_profile, "State", inlist = TRUE)
   if(length(driver_responses) > 0) check_class(driver_responses, "DriverResponse", inlist = TRUE)
 
 
@@ -210,5 +210,21 @@ Species <- function(id = NA_character_,
 }
 
 
+
+
+# Methods -----------------------------------------------------
+
+## utils  ----
+
+#' @include s4_utils.R
+methods::setMethod("is_empty", "Species", function(object){
+  length(object@driver_responses) == 0
+})
+
+
+
 # TODO
-#  - implement `show` method for <Species> for neat display
+# 1. Validator:
+#    - impose restrictions on @state_profile, where all elements must have
+#       comparable (i.e. divisable) units under @time_budget and @energy_cost
+# 2. `show` method for <Species> for neat display
