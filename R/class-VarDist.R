@@ -45,8 +45,9 @@ methods::setClass(
 #'   `{distributional}`), specifying the distribution of values of the variable
 #' @param units a character string, indicating the measurement units the
 #'   variable. Must be either a name (e.g. `"grams"`) or a symbol (e.g. `"m/s"`)
-#'   that is currently recognized by the udunits database (see [units::valid_udunits()])
-#'
+#'   that is currently recognized by the udunits database (see
+#'   [units::valid_udunits()]). If `NULL` (default) the variable is assumed to
+#'   be unitless.
 #' @details
 #' The `{distributional}` package provides a comprehensive selection of
 #' statistical distributions through a simple and intuitive interface.
@@ -74,9 +75,7 @@ methods::setClass(
 #' x <- rlnorm(100, 2, 1)
 #' mass <- VarDist(dist_sample(list(x)), "kg")
 #' # resample 100 values
-#' distributional::generate(mass@distr, times = 100) |>
-#'   lapply(units::as_units, value = mass@units)
-#'
+#' generate(mass, times = 100)
 #'
 #' @export
 VarDist <- function(distr = NULL, units = NULL){

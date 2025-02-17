@@ -12,7 +12,9 @@ VarDist(distr = NULL, units = NULL)
 
 \item{units}{a character string, indicating the measurement units the
 variable. Must be either a name (e.g. \code{"grams"}) or a symbol (e.g. \code{"m/s"})
-that is currently recognized by the udunits database (see \code{\link[units:valid_udunits]{units::valid_udunits()}})}
+that is currently recognized by the udunits database (see
+\code{\link[units:valid_udunits]{units::valid_udunits()}}). If \code{NULL} (default) the variable is assumed to
+be unitless.}
 }
 \value{
 an object of class \verb{<VarDist>}
