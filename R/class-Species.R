@@ -211,6 +211,29 @@ Species <- function(id = NA_character_,
 
 
 
+# Validator -----------------------------------------------------
+methods::setValidity("Species", function(object) {
+  errors <- character()
+
+  # states_profile - state@time_budgets checks: units must be convertible across states
+  if( length(object@states_profile) > 0){
+    unts <- sapply(object@states_profile, \(state) state@time_budget@units)
+    non_conv <- combn(unts, 2, \(x) !units::ud_are_convertible(x[[1]], x[[2]]))
+    if (any(non_conv)) {
+      msg <- cli::format_inline(
+        "\n - slot @states_profile: units of {.cls State} slot @time_budget must ",
+        "be convertible across the specified states. {.val {unts}} are not convertible units."
+      )
+      errors <- c(errors, msg)
+    }
+  }
+
+  if(length(errors) == 0) TRUE else do.call(paste, list(errors, collapse = " "))
+})
+
+
+
+
 
 # Methods -----------------------------------------------------
 
@@ -220,6 +243,11 @@ Species <- function(id = NA_character_,
 methods::setMethod("is_empty", "Species", function(object){
   length(object@driver_responses) == 0
 })
+
+
+
+
+
 
 
 
