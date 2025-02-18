@@ -7,12 +7,16 @@
 VarDist(distr = NULL, units = NULL)
 }
 \arguments{
-\item{distr}{an object of class \verb{<distribution>} (from package
-\code{{distributional}}), specifying the distribution of values of the variable}
+\item{distr}{either an object of class
+\code{\link[distributional:distributional-package]{<distribution>}} or a numeric value.
+Specifies the distribution of values of the variable, representing its
+expected value and uncertainty/variability. If a numeric value is provided,
+the variable is assumed to be constant and will remain fixed throughout the
+simulation.}
 
-\item{units}{a character string, indicating the measurement units the
+\item{units}{a character string, defining the measurement units of the
 variable. Must be either a name (e.g. \code{"grams"}) or a symbol (e.g. \code{"m/s"})
-that is currently recognized by the udunits database (see
+that recognized by the "udunits" database (see
 \code{\link[units:valid_udunits]{units::valid_udunits()}}). If \code{NULL} (default) the variable is assumed to
 be unitless.}
 }
@@ -20,17 +24,16 @@ be unitless.}
 an object of class \verb{<VarDist>}
 }
 \description{
-Helper function to construct instances of <\code{\linkS4class{VarDist}}> objects,
-enabling the definition of variables of interest in terms of their probability
-distributions, sampling distributions, percentile distributions or fixed
-point estimates.
+Helper function to construct an instance of a <\code{\linkS4class{VarDist}}> object,
+which defines a variable of interest in terms of its probability
+distribution, sampling distribution, percentile distribution or fixed point
+estimate.
 }
 \details{
-The \code{{distributional}} package provides a comprehensive selection of
-statistical distributions through a simple and intuitive interface.
-\verb{<VarDist>} objects build on this functionality by incorporating measurement
-units for variables, ensuring precise and accurate handling of values in
-subsequent calculations and analyses.
+\verb{<VarDist>} objects extend the functionality of the commendable
+\link[distributional:distributional-package]{distributional} package by integrating
+measurement units, ensuring that variable values are interpreted and
+processed correctly during simulation calculations.
 }
 \examples{
 library(distributional)
@@ -41,17 +44,14 @@ VarDist(dist_normal(mean = 23, sd = 2), "m/s")
 # define a parameter with fixed value
 VarDist(10, "m")
 
-# set variable empirical distribution from a random sample (e.g a bootstrap)
-x <- rlnorm(100, 2, 1)
-mass <- VarDist(dist_sample(list(x)), "kg")
-# resample 100 values
-distributional::generate(mass@distr, times = 100) |>
-  lapply(units::as_units, value = mass@units)
-
+# set variable's empirical distribution from a random sample (e.g a bootstrap)
+boot <- rlnorm(100, 2, 1)
+mass <- VarDist(dist_sample(list(boot)), "kg")
+# re-sample 100 values
+generate(mass, times = 100)
 
 }
 \seealso{
-For details on available distributions, see the documentation for the
-\href{https://pkg.mitchelloharawild.com/distributional/index.html}{\code{distributional}}
-package.
+Package \link[distributional:distributional-package]{distributional} for access to and details
+on a comprehensive selection of distributions.
 }

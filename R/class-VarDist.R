@@ -1,24 +1,35 @@
 #' Class `<VarDist>`
 #'
-#'
 #' `<VarDist>` is an S4 class that encapsulates the distributional properties of
-#' a variable of interest. Variables can be specified in terms of their
+#' a variable of interest. It allows variables to be defined n terms of their
 #' probability distribution, sampling distribution, percentile distribution or a
-#' fixed value. Intended to provide a structured way to specify input values and
-#' quantify the uncertainty associated with their estimates.
+#' fixed value. The class provides a structured approach to specifying input
+#' values by allowing the quantification of uncertainty while ensuring proper
+#' handling of measurement units.
 #'
-#' @slot distr an object of class `<distribution>` (from package
-#'   `{distributional}`), specifying the distribution of values of the variable
-#' @slot units a character strintg, providing the measurement units the
-#'   variable.  Must be either a name (e.g. `"grams"`) or a symbol (e.g.
-#'   `"m/s"`) that is currently recognized by the udunits database (see
-#'   [units::valid_udunits()])
+#' @slot distr an object of class
+#'   [`<distribution>`][distributional::distributional]. Specifies the
+#'   distribution of values of the variable, representing its expected value and
+#'   uncertainty/variability.
+#' @slot units a character string, defining the measurement units of the
+#'   variable. Must be either a name (e.g. `"grams"`) or a symbol (e.g. `"m/s"`)
+#'   that recognized by the "udunits" database (see
+#'   [units::valid_udunits()]). If `NULL` (default) the variable is assumed to
+#'   be unitless.
 #'
-#' @seealso Helper function [VarDist()] to construct `<varDist>` objects
+#'
+#' @details
+#' `<VarDist>` objects extend the functionality of the commendable
+#' [distributional][distributional::distributional] package by incorporating
+#' measurement units, ensuring that variable values are interpreted and
+#' processed correctly during simulation calculations.
+#'
+#' @seealso
+#'  * Helper function [VarDist()] to construct `<varDist>` objects
+#'  * Package [distributional][distributional::distributional] for access to and details
+#' on a comprehensive selection of distributions.
 #'
 #' @include s4_management.R
-#'
-#' @export
 
 methods::setClass(
   Class = "VarDist",
@@ -36,29 +47,32 @@ methods::setClass(
 
 #' Create a `<VarDist>` object
 #'
-#' Helper function to construct instances of <[`VarDist-class`]> objects,
-#' enabling the definition of variables of interest in terms of their probability
-#' distributions, sampling distributions, percentile distributions or fixed
-#' point estimates.
+#' Helper function to construct an instance of a <[`VarDist-class`]> object,
+#' which defines a variable of interest in terms of its probability
+#' distribution, sampling distribution, percentile distribution or fixed point
+#' estimate.
 #'
-#' @param distr an object of class `<distribution>` (from package
-#'   `{distributional}`), specifying the distribution of values of the variable
-#' @param units a character string, indicating the measurement units the
+#' @param distr either an object of class
+#'   [`<distribution>`][distributional::distributional] or a numeric value.
+#'   Specifies the distribution of values of the variable, representing its
+#'   expected value and uncertainty/variability. If a numeric value is provided,
+#'   the variable is assumed to be constant and will remain fixed throughout the
+#'   simulation.
+#' @param units a character string, defining the measurement units of the
 #'   variable. Must be either a name (e.g. `"grams"`) or a symbol (e.g. `"m/s"`)
-#'   that is currently recognized by the udunits database (see
+#'   that recognized by the "udunits" database (see
 #'   [units::valid_udunits()]). If `NULL` (default) the variable is assumed to
 #'   be unitless.
+#'
 #' @details
-#' The `{distributional}` package provides a comprehensive selection of
-#' statistical distributions through a simple and intuitive interface.
-#' `<VarDist>` objects build on this functionality by incorporating measurement
-#' units for variables, ensuring precise and accurate handling of values in
-#' subsequent calculations and analyses.
+#' `<VarDist>` objects extend the functionality of the commendable
+#' [distributional][distributional::distributional] package by integrating
+#' measurement units, ensuring that variable values are interpreted and
+#' processed correctly during simulation calculations.
 #'
 #' @seealso
-#' For details on available distributions, see the documentation for the
-#' [`distributional`](https://pkg.mitchelloharawild.com/distributional/index.html)
-#' package.
+#' Package [distributional][distributional::distributional] for access to and details
+#' on a comprehensive selection of distributions.
 #'
 #' @returns an object of class `<VarDist>`
 #'
@@ -71,25 +85,45 @@ methods::setClass(
 #' # define a parameter with fixed value
 #' VarDist(10, "m")
 #'
-#' # set variable empirical distribution from a random sample (e.g a bootstrap)
-#' x <- rlnorm(100, 2, 1)
-#' mass <- VarDist(dist_sample(list(x)), "kg")
-#' # resample 100 values
+#' # set variable's empirical distribution from a random sample (e.g a bootstrap)
+#' boot <- rlnorm(100, 2, 1)
+#' mass <- VarDist(dist_sample(list(boot)), "kg")
+#' # re-sample 100 values
 #' generate(mass, times = 100)
 #'
 #' @export
 VarDist <- function(distr = NULL, units = NULL){
 
+  # input pre-processing -------------------------------------
+
+  ## variable with fixed values (i.e. non-random)
+  #if(is.numeric(distr) & length(distr) == 1) distr <- distributional::dist_degenerate(distr)
+  if(is.numeric(distr)) distr <- distributional::dist_degenerate(distr)
+
+  ## NULL handling
+  distr <- distr %||% distributional::dist_missing()
+  units <- units %||% ""
+
+  # input validation -----------------------------------------
+
+  ## validate `units`
+  check_units(units)
+
+  ## length validation
+  if(length(distr) > 1){
+    cli::cli_abort(c(
+      "{.arg distr} must be of lenght 1",
+      "x" = "You've provided an object with length {length(distr)}"
+    ), class = "err-arg-wrong-length")
+  }
+
   if(length(units) > 1){
     cli::cli_abort(c(
       "{.arg units} must be of lenght 1",
       "x" = "You've provided an object with length {length(units)}"
-    ))
-  }
+    ), class = "err-arg-wrong-length")
 
-  # NULL handling
-  distr <- distr %||% distributional::dist_missing()
-  units <- units %||% ""
+  }
 
   # validate classes
   check_class(units, "character")
@@ -97,21 +131,32 @@ VarDist <- function(distr = NULL, units = NULL){
   # validate `distr`
   if(!distributional::is_distribution(distr)){
     cli::cli_abort(c(
-      "{.arg distr} must be an object of class {.cls distribution}",
+      "{.arg distr} must be either a {.cls numeric} or {.cls distribution} object.",
       "x" = "You've supplied an object of class {.cls {class(distr)}}"
     ))
   }
-
-  # validate `units`
-  check_units(units)
-
-  # handle variable with fixed values (i.e. non-random)
-  if(is.numeric(distr) & length(distr) == 1) distr <- distributional::dist_degenerate(distr)
 
   # construct a new instance of <VarDist>
   new("VarDist", distr = distr, units = units)
 }
 
+
+
+
+# Validator -----------------------------------------------------
+methods::setValidity("VarDist", function(object) {
+
+  errors <- character()
+
+  if(length(object@distr) > 1){
+    err <- c(err, "\n- slot @distr must be of length 1")
+  }else if(length(object@units) > 1){
+    err <- c(err, "\n- slot @units must be of length 1")
+  }
+
+  if(length(errors) == 0) TRUE else do.call(paste, list(errors, collapse = " "))
+
+})
 
 
 
