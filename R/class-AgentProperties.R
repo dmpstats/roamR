@@ -35,6 +35,7 @@
 #'    * `infl`: logical, whether the agent's `state_id` is influenced by the
 #'    driver. It should be determined via a Bernoulli trial with probability `p`.
 #'    * `ext`: `<units>` value, the extent of the influence on the agent's `state_id`.
+#'
 #' @slot age `<units>` object, the age of the agent at the start of the
 #'   simulation (currently unused).
 #' @slot sex character, the sex of the agent, where `"f"`denotes female and

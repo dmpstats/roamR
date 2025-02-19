@@ -1,45 +1,38 @@
 #' `<Agent>`
 #'
-#' `<Agent>` is an S4 class representing the biological properties and
-#' historical state of an individual agent within the simulation model. It uses
-#' classes <[AgentProperties-class]> and <[AgentState-class]>, collating a
-#' historical record of the agent's movement and state properties generated
-#' throughout the simulation.
+#' `<Agent>` is an S4 class encapsulating the biological and physiological
+#' properties and historical status of an individual agent within the simulated
+#' IBM. It uses classes <[AgentCondition-class]> and
+#' <[AgentProperties-class]>, also collating a historical record of the agent's
+#' movement and state properties generated throughout the simulation.
 #'
-#' @slot state object of class <[AgentState-class]>, describing the agent's
-#'   state for the current simulation time-step.
-#' @slot properties object of class <[AgentProperties-class]>, defining the
-#'   individual-level properties of the agent
+#' @slot condition object of class <[AgentCondition-class]>, describing the
+#'   agent's condition at the end of the current simulation time-step.
+#' @slot properties object of class <[AgentProperties-class]>, defining
+#'   attributes of the agent that remain constant throughout simulation.
 #' @slot history object of class `sf`, storing historical data comprising the
 #'   agent's state and spatio-temporal activity for each time-step of the
 #'   simulation.
 #'
-#' @include class-AgentState.R class-AgentProperties.R
+#' @include class-AgentCondition.R class-AgentProperties.R
 #'
 #' @seealso
 #'    * Helper function [Agent()] to construct `<Agent>` objects
-#'    * Helper functions [AgentState()] and [AgentProperties()]
+#'    * Helper functions [AgentProperties()] and [AgentCondition()]
 #'
 #' @export
 
 methods::setClass(
   Class = "Agent",
   slots = list(
-    state = "AgentState",
+    condition = "AgentCondition",
     properties = "AgentProperties",
     history = "sf"
   ),
   prototype = list(
-    state = new("AgentState"),
+    condition = new("AgentCondition"),
     properties = new("AgentProperties"),
-    history = sf::st_sf(
-      timestamp = as.POSIXct(NA),
-      geom = sf::st_sfc(sf::st_point()),
-      body_mass = NA,
-      foraging = NA,
-      energy = NA,
-      alive = NA
-    )
+    history = sf::st_sf(sf::st_sfc())
   )
 )
 
@@ -48,79 +41,98 @@ methods::setClass(
 
 #' Create `<Agent>` objects
 #'
-#' `Agent()` is a helper function to construct instances of `[Agent-class]`
-#' objects
+#' `Agent()` is a helper function for constructing instances of [Agent-class]
+#' objects. It relies on predefined classes `<Species>` and `<ModelConfig>`
+#' objects to initiate its slots accordingly.
 #'
-#' @param state object of class [AgentState-class], describing the agent's
-#'   state for the current simulation time-step.
-#' @param properties object of class [AgentProperties-class], defining the
-#'   individual-level properties of the agent
-#' @param history object of class `<sf>`, storing historical data comprising the
-#'   agent's state and spatio-temporal activity for each time-step of the
-#'   simulation.
+#' @param species object of class <[Species-class]>, specifying the agent's
+#'   species-level properties. If `NULL` (default), species-related slots in
+#'   `<Agent>` are initialized as empty.
+#' @param model_cfg object of class <[ModelConfig-class]>, defining the IBM's
+#'   configuration. If `NULL` (default), model-related slots in `<Agent>` are
+#'   initialized as empty.
 #'
 #' @seealso
-#'    * Helper functions [AgentState()] and [AgentProperties()]
+#'    * Helper functions [Species()] and [ModelConfig()]
 #'
 #' @export
-Agent <- function(state = new("AgentState"),
-                  properties = new("AgentProperties"),
-                  history = sf::st_sf(
-                    timestamp = as.POSIXct(NA),
-                    geom = sf::st_sfc(sf::st_point()),
-                    body_mass = NA,
-                    foraging = NA,
-                    energy = NA,
-                    alive = NA)){
+Agent <- function(species = NULL, model_cfg = NULL){
 
-  # Handling NA inputs --------------
-  if(all(is.na(history))){
-    history <- sf::st_sf(
-      timestamp = as.POSIXct(NA),
-      geom = sf::st_sfc(sf::st_point()),
-      body_mass = NA,
-      alive = NA)
-  }
+  # NULL input handling
+  species <- species %||% Species()
+  model_cfg <- model_cfg %||% ModelConfig()
 
   # Input validation ----------------------------
-  check_class(state, "AgentState")
-  check_class(properties, "AgentProperties")
-  check_class(history, "sf")
+  check_class(species, "Species")
+  check_class(model_cfg, "ModelConfig")
 
 
-  # construct a new instance of <Agent> ----------
+  if(is_empty(species)){
+
+    condition <- new("AgentCondition")
+    properties <- new("AgentProperties")
+    history <- sf::st_sf(geom = sf::st_sfc())
+
+  }else{
+
+    # initialize <AgentProperties> -----------------------------------
+    properties <- AgentProperties(Species = species, ModelConfig = model_cfg)
+
+    # initialize <AgentCondition> -----------------------------------
+    ## placeholding slots - i.e. currently ignored
+    grid_cell <- sf::st_point()
+    mortality_prob <- NA_real_
+
+    ## State Budgets: initialize budgets (relative time lengths) and standardise
+    ## i.e. to be treated as probabilities, adding up to 1
+    stt_bgt <- lapply(species@states_profile, \(s) generate(s@time_budget))
+    bgt_sum <- Reduce("+", stt_bgt)
+    stt_prob <- lapply(stt_bgt, \(b) b/bgt_sum)
+
+    # Starting at 0 cost
+    stt_cost <- lapply(species@states_profile, \(state) units::set_units(0, kJ/g/h))
+    #stt_cost <- lapply(species@states_profile, \(s) generate(s@energy_cost))
+
+    condition <- new(
+      "AgentCondition",
+      location = properties@start_point,
+      grid_cell = grid_cell,
+      timestep = 0L,
+      timestamp = as.POSIXct(model_cfg@start_date, "UTC"),
+      body_mass = properties@initial_mass,
+      states_budget = stt_prob,
+      states_cost = stt_cost,
+      energy_expenditure = units::set_units(0, "kJ/g"),
+      foraging_success = units::set_units(0, "g/day"),
+      mass_change_value = units::set_units(0, "g"),
+      mortality_prob = mortality_prob,
+      alive = TRUE,
+      track = sf::st_sf(
+        timestamp = as.POSIXct(NA),
+        geom = sf::st_sfc(sf::st_point())
+      ))
+
+
+    # Populate @history ---------------------------------------
+    history <- sf::st_sf( # tibble::tibble(
+      timestep = condition@timestep,
+      body_mass = condition@body_mass,
+      states_budget = list(condition@states_budget),
+      energy_expenditure = condition@energy_expenditure,
+      geometry = sf::st_sfc(condition@location)
+    )
+
+  }
+
+
+  # construct a new instance of <Agent> ---------------------------------------
+
   methods::new(
     Class = "Agent",
-    state = state,
+    condition = condition,
     properties = properties,
     history = history
   )
-
-
-  # if(!is(species, "Species")){
-  #   cli::cli_abort(c(
-  #     "{.arg species} must be an object of class {.cls Species}",
-  #     "x" = "You've supplied a {.cls {class(species)}} object",
-  #     "i" = "Use {.code Species()} to generate a {.cls Species} object"
-  #   ))
-  # }
-  #
-  # if(!is.numeric(alive)){
-  #   cli::cli_abort(
-  #     "Argument {.arg alive} must be {.cls numeric}, not {.cls {class(alive)}}"
-  #     )
-  # }else if(alive %notin% c(NA_integer_, 0, 1)){
-  #   cli::cli_abort(
-  #     "{.arg alive} must be either 0 or 1, not `{.val {alive}}`")
-  # }
-  #
-  #
-  # if(!is.numeric(body_mass)){
-  #   cli::cli_abort(
-  #     "Argument {.code body_mass} must be {.cls numeric}, not {.cls {class(body_mass)}}")
-  # }
-
-
 
 }
 
@@ -131,3 +143,42 @@ Agent <- function(state = new("AgentState"),
 
 
 
+
+# Methods -----------------------------------------------------
+
+
+## Accessors ----
+
+### @body_mass
+setMethod("body_mass", "Agent", function(x) x@condition@body_mass)
+setMethod("body_mass<-", "Agent", function(x, value) {
+  x@condition@body_mass <- value
+  validObject(x@condition)
+  x
+})
+
+
+### @location
+setMethod("location", "Agent", function(x) x@condition@location)
+# setMethod("location<-", "Agent", function(x, value) {
+#   x@condition@location <- value
+#   validObject(x@condition)
+#   x
+# })
+#
+
+
+
+# ## show ----
+# setMethod("show", "Agent", function(object) {
+#
+#   cat(class(object), "instance with the following history\n\n")
+#
+#   print.data.frame(object@history)
+#
+#   # cat(is(object)[[1]], "\n",
+#   #     "  Name: ", object@condition, "\n",
+#   #     "  Age:  ", object@age, "\n",
+#   #     sep = ""
+#   # )
+# })

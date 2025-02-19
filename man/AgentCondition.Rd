@@ -11,7 +11,7 @@ AgentCondition(
   timestamp = as.Date(NA),
   body_mass = NA_real_,
   states_budget = list(),
-  states_costs = list(),
+  states_cost = list(),
   mortality_prob = NA_real_,
   alive = NA,
   track = sf::st_sf(timestamp = as.POSIXct(NA), geom = sf::st_sfc(sf::st_point()))
@@ -37,6 +37,10 @@ across the different behavioural/activity states during the time-step. Each
 element (of type \verb{<units>}) is named after a specific state and stores the
 duration (e.g. hours) the agent spent in that state.}
 
+\item{states_cost}{a named list, specifying the energy costs (e.g. KJ/hr/g)
+associated with each state defined in \code{state_budget}. List elements are of
+type \verb{<units>}.}
+
 \item{mortality_prob}{numeric, the probability of the agent dying within the
 the current time-step (\emph{currently ignored}).}
 
@@ -45,10 +49,6 @@ whether the agent has survived the time-step.}
 
 \item{track}{object of class \code{sf}, storing a time-series of location points
 tracking the agent's movement within the current time-step.}
-
-\item{states_cost}{a named list, specifying the energy costs (e.g. KJ/hr/g)
-associated with each state defined in \code{state_budget}. List elements are of
-type \verb{<units>}.}
 
 \item{energy_expenditure}{a \verb{<units>} object, representing the total energy
 (e.g. KJ/g) expended across all states during the time-step.}
