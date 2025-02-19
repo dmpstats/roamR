@@ -160,12 +160,12 @@ setMethod("body_mass<-", "Agent", function(x, value) {
 
 ### @location
 setMethod("location", "Agent", function(x) x@condition@location)
-# setMethod("location<-", "Agent", function(x, value) {
-#   x@condition@location <- value
-#   validObject(x@condition)
-#   x
-# })
-#
+setMethod("location<-", "Agent", function(x, value) {
+  x@condition@location <- value
+  validObject(x@condition)
+  x
+})
+
 
 
 
