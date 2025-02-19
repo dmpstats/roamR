@@ -100,7 +100,7 @@ State <- function(id = NA_character_,
 # Validator -----------------------------------------------------
 methods::setValidity("State", function(object) {
 
-  err <- c()
+  err <- character()
 
   # if(!is_empty(object@time_budget)){
   #   if(units(object@time_budget) == "") {
