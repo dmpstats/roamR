@@ -35,7 +35,6 @@ Collate:
     'class-AgentProperties.R'
     'class-AgentCondition.R'
     'class-Agent.R'
-    'class-AgentState.R'
     'class-Driver.R'
     'class-MoveInfluence.R'
     'class-DriverResponse.R'
