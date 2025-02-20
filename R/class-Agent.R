@@ -48,7 +48,7 @@ methods::setClass(
 #' @param species object of class <[Species-class]>, specifying the agent's
 #'   species-level properties. If `NULL` (default), species-related slots in
 #'   `<Agent>` are initialized as empty.
-#' @param model_cfg object of class <[ModelConfig-class]>, defining the IBM's
+#' @param model_config object of class <[ModelConfig-class]>, defining the IBM's
 #'   configuration. If `NULL` (default), model-related slots in `<Agent>` are
 #'   initialized as empty.
 #'
@@ -56,15 +56,15 @@ methods::setClass(
 #'    * Helper functions [Species()] and [ModelConfig()]
 #'
 #' @export
-Agent <- function(species = NULL, model_cfg = NULL){
+Agent <- function(species = NULL, model_config = NULL){
 
   # NULL input handling
   species <- species %||% Species()
-  model_cfg <- model_cfg %||% ModelConfig()
+  model_config <- model_config %||% ModelConfig()
 
   # Input validation ----------------------------
   check_class(species, "Species")
-  check_class(model_cfg, "ModelConfig")
+  check_class(model_config, "ModelConfig")
 
 
   if(is_empty(species)){
@@ -76,7 +76,7 @@ Agent <- function(species = NULL, model_cfg = NULL){
   }else{
 
     # initialize <AgentProperties> -----------------------------------
-    properties <- AgentProperties(Species = species, ModelConfig = model_cfg)
+    properties <- AgentProperties(species = species, model_config = model_config)
 
     # initialize <AgentCondition> -----------------------------------
     ## placeholding slots - i.e. currently ignored
@@ -98,7 +98,7 @@ Agent <- function(species = NULL, model_cfg = NULL){
       location = properties@start_point,
       grid_cell = grid_cell,
       timestep = 0L,
-      timestamp = as.POSIXct(model_cfg@start_date, "UTC"),
+      timestamp = as.POSIXct(model_config@start_date, "UTC"),
       body_mass = properties@initial_mass,
       states_budget = stt_prob,
       states_cost = stt_cost,

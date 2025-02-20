@@ -6,15 +6,17 @@
 #' @param species an object of class `<Species>`, comprising the species-level
 #'   characteristics of the simulated agents (see [Species()])
 #' @param drivers ...
-#' @param config an object of class `<ModelConfig>`, specifying the primary
+#' @param model_config an object of class `<ModelConfig>`, specifying the primary
 #'   configuration settings for the IBM (see [ModelConfig()])
+#' @param verbose logical, should feedback on initiation progress be printed in
+#'   R console?
 #'
 #' @export
 #'
-rmr_initiate <- function(config, species, drivers){
+rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
 
   ## Input validation ----------------------------------------------------------
-  cli::cli_progress_step("Validating inputs")
+  if(verbose) cli::cli_progress_step("Validating inputs")
 
   if(is(drivers, "Driver")){
     drivers <- list(drivers)
@@ -25,7 +27,7 @@ rmr_initiate <- function(config, species, drivers){
   ### Type checking -----------
   check_class(species, "Species", class_fn = "roamR::Species")
   check_class(drivers, "Driver", inlist = TRUE, class_fn = "roamR::Driver")
-  check_class(config, "ModelConfig", class_fn = "roamR::ModelConfig")
+  check_class(model_config, "ModelConfig", class_fn = "roamR::ModelConfig")
 
   ### Content checking --------
   # TODO Check spatial consistency of drivers given specified AOC (inc CRS)
@@ -35,28 +37,28 @@ rmr_initiate <- function(config, species, drivers){
 
 
   ## AOC Processing -------------------------------------------------------
-  cli::cli_progress_step("Processing the AOC")
+  if(verbose) cli::cli_progress_step("Processing the AOC")
 
-  #TODO: Add safeguard on handling memory failures due to unreasonable spatial
+  # TODO: Add safeguard on handling memory failures due to unreasonable spatial
   #resolution. Maybe use a try_fetch to rephrase the error and provide
   #constructive user feedback
   aoc_grid <- sf::st_make_grid(
-    config@aoc_bbx,
-    cellsize = c(config@delta_x, config@delta_y),
+    model_config@aoc_bbx,
+    cellsize = c(model_config@delta_x, model_config@delta_y),
     what = "centers"
   )
 
   aoc_grid <- sf::st_sf(cellid = 1:length(aoc_grid), geometry = aoc_grid)
 
   # generate aoc driver
-  aoc_driver <- generate_aoc_driver(config@aoc_bbx, aoc_grid)
+  aoc_driver <- generate_aoc_driver(model_config@aoc_bbx, aoc_grid)
   drivers <- append(drivers, aoc_driver)
 
   # define species response
   aoc_resp <- DriverResponse(
     driver_id = aoc_driver@id,
     movement = MoveInfluence(
-      prob = VarDist(distributional::dist_degenerate(1)),  # all agents to be influenced
+      prob = VarDist(1),  # all agents to be influenced (p = 1)
       fn = \(x) ifelse(x <= 0, 1, 0), # binary influencer with cut-off at bbox's border (i.e. 0m)
       type = "repulsion"
     )
@@ -67,7 +69,7 @@ rmr_initiate <- function(config, species, drivers){
 
 
   ## Driver processing  ------------------------------------------------------
-  cli::cli_progress_step("Calculate vector fields for movement drivers")
+  if(verbose) cli::cli_progress_step("Calculate vector fields for movement drivers")
 
   ### Compute vector fields for movement influencers ----------------
   drv_ids <- purrr::map_chr(drivers, \(x) x@id)
@@ -112,80 +114,45 @@ rmr_initiate <- function(config, species, drivers){
   }
 
 
-
-
   ## Initialize Agents -------------------------------------------------------
-  cli::cli_progress_step("Initialize Agents")
+  if(verbose) cli::cli_progress_step("Initialize Agents")
 
-  ### Agent Properties ------
-  ap_rvs
+  if (model_config@n_agents > 100 && !is_empty(species)) {
+    future::plan(future::multisession(), workers = future::availableCores() - 3)
+  } else {
+    future::plan(future::sequential())
+  }
 
-  ### Agent State ------
-  as_rvs
+  fmt <- "{cli::symbol$info} Initialize Agents {cli::pb_bar} {cli::pb_current}/{cli::pb_total} | ETA: {cli::pb_eta}"
 
-
-  species@behaviour_profile$flight@behav
-  species@behaviour_profile$flight@speed
-  species@behaviour_profile$flight@energy_cost
-  species@behaviour_profile$flight
-
-  lapply(
-    species@behaviour_profile,
-    function(b){
-
-      list(
-        behav = b@behav,
-        speeds = distributional::generate(b@speed@distr, config@n_agents)
-      )
-
-  })
+  agents <- furrr::future_map(
+    cli::cli_progress_along(1:model_config@n_agents, current = FALSE, format = fmt),
+    function(i){
+      Agent(species, model_config)
+    },
+    .options = furrr::furrr_options(seed = TRUE)
+  )
 
 
 
+  ## Initialize <IBM> object --------------------------------------------------
+  if(verbose) cli::cli_progress_step("Initialize {.cls IBM} object")
 
+  ibm <- IBM(
+    agents = agents,
+    species = species,
+    drivers = drivers,
+    model_config = model_config
+  )
 
-  agent_rvs <- list()
+  if(verbose){
+    cli::cli_progress_done()
+    cli::cli_alert_success("All DONE!")
+    #cli::cli_text("{cli::hash_emoji('foobar', 1)$emoji[[1]]} Model initialization DONE!")
+  }
 
-  agent_rvs$body_mass <- species@body_mass_distr@distr |>
-    distributional::generate(config@n_agents) |>
-    unlist() |>
-    units::as_units(species@body_mass_distr@units)
-
-  agent_rvs$mortality_thresh_distr <- species@mortality_thresh_distr@distr |>
-    distributional::generate(config@n_agents) |>
-    unlist() |>
-    units::as_units(species@mortality_thresh_distr@units)
-
-  agent_rvs |>
-    purrr::pmap(function(...){
-      test <- list(...)
-
-      browser()
-
-      age
-    })
-
-
-  new("AgentProperties")
-
-
-  # IBM(
-  #   #agents = list(),
-  #   #species = species,
-  #   #drivers = drivers,
-  #   config = config
-  # )
-
-
-  cli::cli_progress_done()
-
-
-  cli::cli_alert_danger("This function is under development - No output returned!")
-
-
-
+  ibm
 }
-
 
 
 

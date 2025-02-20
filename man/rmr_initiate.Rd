@@ -4,16 +4,19 @@
 \alias{rmr_initiate}
 \title{Initialize the Individual Based Model}
 \usage{
-rmr_initiate(config, species, drivers)
+rmr_initiate(model_config, species, drivers, verbose = TRUE)
 }
 \arguments{
-\item{config}{an object of class \verb{<ModelConfig>}, specifying the primary
+\item{model_config}{an object of class \verb{<ModelConfig>}, specifying the primary
 configuration settings for the IBM (see \code{\link[=ModelConfig]{ModelConfig()}})}
 
 \item{species}{an object of class \verb{<Species>}, comprising the species-level
 characteristics of the simulated agents (see \code{\link[=Species]{Species()}})}
 
 \item{drivers}{...}
+
+\item{verbose}{logical, should feedback on initiation progress be printed in
+R console?}
 }
 \description{
 Sets up the starting conditions and initial state for the IBM simulation,

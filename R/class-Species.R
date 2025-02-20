@@ -97,7 +97,6 @@ methods::setClass(
 #'
 #'
 #' @details
-#'
 #' Each element in the `driver_responses` list must correspond to an existing
 #' object of class [Driver-class]. At the initialization phase of `{roamR}`s
 #' IBM, these `driver_responses` are matched with their respective
@@ -109,6 +108,8 @@ methods::setClass(
 #'
 #' @seealso
 #' Helper functions [VarDist()], [DriverResponse()] and [StateSpec()]
+#'
+#' @export
 #'
 #' @examples
 #'
@@ -241,7 +242,8 @@ methods::setValidity("Species", function(object) {
 
 #' @include s4_utils.R
 methods::setMethod("is_empty", "Species", function(object){
-  length(object@driver_responses) == 0
+  #length(object@driver_responses) == 0
+  length(object@states_profile) == 0
 })
 
 

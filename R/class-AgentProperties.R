@@ -116,15 +116,15 @@ methods::setClass(
 #' @param sex character, the sex of the agent, where `"f"`denotes female and
 #'   `"m"` denotes male (currently unused).
 #' @param ... reserved for future extensions (currently ignored).
-#' @param Species a <[Species-class]> object, If not `NULL` (default), it is
+#' @param species a <[Species-class]> object, If not `NULL` (default), it is
 #'   used to populate the slots of the returned `<AgentProperties>` object,
 #'   overriding the above function arguments.
-#' @param ModelConfig  a [ModelConfig-class] object, used alongside Species to
+#' @param model_config  a [ModelConfig-class] object, used alongside Species to
 #'   populate the returned `<AgentProperties>` object.
 #'
 #' @details
 #'
-#' If `Species` (and `ModelConfig`) are specified, all other arguments are
+#' If `species` (and `model_config`) are specified, all other arguments are
 #' ignored. The [AgentProperties-class] object is then populated using the
 #' provided `<Species>` and `<ModelConfig>` objects. Specifically:
 #'
@@ -153,46 +153,46 @@ AgentProperties <- function(species_id = NA_character_,
                             age = NULL,
                             sex = c("f", "m"),
                             ...,
-                            Species = NULL,
-                            ModelConfig = NULL){
+                            species = NULL,
+                            model_config = NULL){
 
   # TODO: unit-testing!!!
 
-  if( is.null(Species) ){
+  if (is.null(species) || is_empty(species)) {
 
     initial_mass <- initial_mass %||% units::set_units(NA, "g")
     mortality_tresh <- mortality_tresh %||% units::set_units(NA, "g")
     age <- age %||% units::set_units(NA, "") # currenty ignored
-    sex <- NA_character_  # currenty ignored
+    sex <- NA_character_  # currently ignored
 
   } else{
 
-    if( is.null(ModelConfig) ){
-      cli::cli_abort("{.arg ModelConfig} must be provided when {.arg Species} is specified.")
+    if( is.null(model_config) ){
+      cli::cli_abort("{.arg model_config} must be provided when {.arg species} is specified.")
     }
 
     # input checking
-    check_class(Species, "Species")
-    check_class(ModelConfig, "ModelConfig")
+    check_class(species, "Species")
+    check_class(model_config, "ModelConfig")
 
-    species_id <- Species@id
-    initial_mass <- generate(Species@body_mass_distr)
-    mortality_tresh <- generate(Species@mortality_thresh_distr)
+    species_id <- species@id
+    initial_mass <- generate(species@body_mass_distr)
+    mortality_tresh <- generate(species@mortality_thresh_distr)
 
     # generate speeds
-    states_ids <- lapply(Species@states_profile, \(s) s@id) |> unlist()
-    speeds <- lapply(Species@states_profile, \(s) generate(s@speed))
+    states_ids <- lapply(species@states_profile, \(s) s@id) |> unlist()
+    speeds <- lapply(species@states_profile, \(s) generate(s@speed))
     names(speeds) <- states_ids
     speeds[sapply(speeds, is.na)] <- NULL
 
     # starting and ending points
-    start_point <- get_endpoint(ModelConfig@start_sites, ModelConfig@aoc_bbx)
-    end_point <- get_endpoint(ModelConfig@end_sites, ModelConfig@aoc_bbx)
+    start_point <- get_endpoint(model_config@start_sites, model_config@aoc_bbx)
+    end_point <- get_endpoint(model_config@end_sites, model_config@aoc_bbx)
 
-    driver_ids <- sapply(Species@driver_responses, \(resp) resp@driver_id)
+    driver_ids <- sapply(species@driver_responses, \(resp) resp@driver_id)
 
     # generate drivers' influence on agent's movement
-    move_influences <- lapply(Species@driver_responses, function(resp){
+    move_influences <- lapply(species@driver_responses, function(resp){
       if( resp@movement@type != "null" ){
         # draw probability of agent's movement being influenced  by driver
         p <- generate(resp@movement@prob) |> as.numeric()
@@ -210,7 +210,7 @@ AgentProperties <- function(species_id = NA_character_,
 
 
     # initialize drivers' influence on agent's states
-    state_influences <- lapply(Species@driver_responses, function(resp){
+    state_influences <- lapply(species@driver_responses, function(resp){
       lapply(resp@states, function(state){
         # sample probability of current state being influenced by current driver
         p <- generate(state@prob) |> as.numeric()

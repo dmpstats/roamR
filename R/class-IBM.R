@@ -14,13 +14,13 @@ methods::setClass(
     agents = "list",
     drivers = "list",
     species = "Species",
-    config = "ModelConfig"
+    model_config = "ModelConfig"
   ),
   prototype = list(
     agents = list(),
     drivers = list(),
-    species = new("Species"),
-    config = ModelConfig()
+    species = Species(),
+    model_config = ModelConfig()
   )
 )
 
@@ -35,7 +35,7 @@ methods::setClass(
 IBM <- function(agents = list(),
                  species = new("Species"),
                  drivers = list(),
-                 config = ModelConfig()){
+                 model_config = ModelConfig()){
 
 
   methods::new(
@@ -43,7 +43,7 @@ IBM <- function(agents = list(),
     agents = agents,
     drivers = drivers,
     species = species,
-    config = config
+    model_config = model_config
   )
 
 }

@@ -4,14 +4,14 @@
 \alias{Agent}
 \title{Create \verb{<Agent>} objects}
 \usage{
-Agent(species = NULL, model_cfg = NULL)
+Agent(species = NULL, model_config = NULL)
 }
 \arguments{
 \item{species}{object of class <\linkS4class{Species}>, specifying the agent's
 species-level properties. If \code{NULL} (default), species-related slots in
 \verb{<Agent>} are initialized as empty.}
 
-\item{model_cfg}{object of class <\linkS4class{ModelConfig}>, defining the IBM's
+\item{model_config}{object of class <\linkS4class{ModelConfig}>, defining the IBM's
 configuration. If \code{NULL} (default), model-related slots in \verb{<Agent>} are
 initialized as empty.}
 }
