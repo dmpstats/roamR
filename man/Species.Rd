@@ -62,14 +62,14 @@ library(distributional)
 
 # 1. Start by setting the behaviour profile
 states <- list(
- flight = StateSpec(
-    state_id = "flying",
+ flight = State(
+    id = "flying",
     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
     ),
- dive = StateSpec(
-    state_id = "diving",
+ dive = State(
+    id = "diving",
     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")

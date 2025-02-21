@@ -118,7 +118,9 @@ rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
   if(verbose) cli::cli_progress_step("Initialize Agents")
 
   if (model_config@n_agents > 100 && !is_empty(species)) {
-    future::plan(future::multisession(), workers = future::availableCores() - 3)
+    n_wk <- future::availableCores() - 3
+    cli::cli_alert_info("Parallelizing agent initialization across {n_wk} workers")
+    future::plan(future::multisession(), workers = n_wk)
   } else {
     future::plan(future::sequential())
   }
@@ -147,8 +149,8 @@ rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
 
   if(verbose){
     cli::cli_progress_done()
-    cli::cli_alert_success("All DONE!")
-    #cli::cli_text("{cli::hash_emoji('foobar', 1)$emoji[[1]]} Model initialization DONE!")
+    #cli::cli_alert_success("All DONE! {emoji::emoji('thumbsup')}")
+    cli::cli_text(cli::style_bold("{cli::symbol$star} All DONE!"))
   }
 
   ibm
