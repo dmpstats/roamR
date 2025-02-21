@@ -4,30 +4,24 @@
 \alias{Agent}
 \title{Create \verb{<Agent>} objects}
 \usage{
-Agent(
-  state = new("AgentState"),
-  properties = new("AgentProperties"),
-  history = sf::st_sf(timestamp = as.POSIXct(NA), geom = sf::st_sfc(sf::st_point()),
-    body_mass = NA, foraging = NA, energy = NA, alive = NA)
-)
+Agent(species = NULL, model_config = NULL)
 }
 \arguments{
-\item{state}{object of class \linkS4class{AgentState}, describing the agent's
-state for the current simulation time-step.}
+\item{species}{object of class <\linkS4class{Species}>, specifying the agent's
+species-level properties. If \code{NULL} (default), species-related slots in
+\verb{<Agent>} are initialized as empty.}
 
-\item{properties}{object of class \linkS4class{AgentProperties}, defining the
-individual-level properties of the agent}
-
-\item{history}{object of class \verb{<sf>}, storing historical data comprising the
-agent's state and spatio-temporal activity for each time-step of the
-simulation.}
+\item{model_config}{object of class <\linkS4class{ModelConfig}>, defining the IBM's
+configuration. If \code{NULL} (default), model-related slots in \verb{<Agent>} are
+initialized as empty.}
 }
 \description{
-\code{Agent()} is a helper function to construct instances of \verb{[Agent-class]}
-objects
+\code{Agent()} is a helper function for constructing instances of \linkS4class{Agent}
+objects. It relies on predefined classes \verb{<Species>} and \verb{<ModelConfig>}
+objects to initiate its slots accordingly.
 }
 \seealso{
 \itemize{
-\item Helper functions \code{\link[=AgentState]{AgentState()}} and \code{\link[=AgentProperties]{AgentProperties()}}
+\item Helper functions \code{\link[=Species]{Species()}} and \code{\link[=ModelConfig]{ModelConfig()}}
 }
 }

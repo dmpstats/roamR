@@ -163,7 +163,7 @@ Driver <- function(id = NA_character_,
 # Validator -----------------------------------------------------
 methods::setValidity("Driver", function(object) {
 
-  err <- c()
+  errors <- character()
 
   if(length(object@id) > 1){
     err <- c(err, "Slot @id must be of length 1")
@@ -171,9 +171,13 @@ methods::setValidity("Driver", function(object) {
     err <- c(err, "Slot @ann must be of length 1")
   }
 
-  if(length(err) == 0) TRUE else err
+  if(length(errors) == 0) TRUE else do.call(paste, list(errors, collapse = " "))
 
 })
+
+
+
+
 
 
 

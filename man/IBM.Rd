@@ -8,7 +8,7 @@ IBM(
   agents = list(),
   species = new("Species"),
   drivers = list(),
-  config = ModelConfig()
+  model_config = ModelConfig()
 )
 }
 \description{

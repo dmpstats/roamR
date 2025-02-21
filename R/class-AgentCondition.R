@@ -11,7 +11,7 @@
 #' @slot location object of class `XY`, specifying the agent's spatial
 #'   coordinates at the end of the current time-step.
 #' @slot grid_cell object of class `XY`, representing the AOC's grid-cell
-#'   occupied by the agent.
+#'   occupied by the agent (*currently ignored*).
 #' @slot timestep integer, indicating the current simulation time-step index.
 #' @slot timestamp a `<POSIXct>` object, the date-time at the end of the current
 #'   time-step.
@@ -51,7 +51,7 @@ methods::setClass(
     timestamp = "POSIXct",
     body_mass = "units",
     states_budget = "list",
-    states_costs = "list",
+    states_cost = "list",
     energy_expenditure = "units",
     foraging_success = "units",
     mass_change_value = "units",
@@ -66,7 +66,7 @@ methods::setClass(
     timestamp = as.POSIXct(NA),
     body_mass = units::set_units(NA, "g"),
     states_budget = list(),
-    states_costs = list(),
+    states_cost = list(),
     energy_expenditure = units::set_units(NA, "kJ/g"),
     foraging_success = units::set_units(NA, "g/day"),
     mass_change_value = units::set_units(NA, "g"),
@@ -125,7 +125,7 @@ AgentCondition <- function(location = sf::st_point(),
                            timestamp = as.Date(NA),
                            body_mass =  NA_real_,
                            states_budget = list(),
-                           states_costs = list(),
+                           states_cost = list(),
                            mortality_prob =  NA_real_,
                            alive = NA,
                            track = sf::st_sf(
@@ -133,16 +133,55 @@ AgentCondition <- function(location = sf::st_point(),
                              geom = sf::st_sfc(sf::st_point())
                            )){
 
+
+  # construct a new instance of <AgentProperties> ----------
+  new(
+    "AgentCondition"#,
+    # location = location,
+    # grid_cell = grid_cell,
+    # timestep = timestep,
+    # timestamp = timestamp,
+    # body_mass =  body_mass,
+    # states_budget = states_budget,
+    # states_cost = states_cost,
+    # mortality_prob = mortality_prob,
+    # alive = alive,
+    # track = track
+  )
+
 }
 
 
 
 
-# getters
+
+# Methods -----------------------------------------------------
+
+
+## Accessors ----
+
+### @body_mass
+setGeneric("body_mass", function(x) standardGeneric("body_mass"))
+setMethod("body_mass", "AgentCondition", function(x) x@body_mass)
+
+setGeneric("body_mass<-", function(x, value) standardGeneric("body_mass<-"))
+setMethod("body_mass<-", "AgentCondition", function(x, value) {
+  x@body_mass <- value
+  validObject(x)
+  x
+})
+
+
+### @location
 setGeneric("location", function(x) standardGeneric("location"))
 setMethod("location", "AgentCondition", function(x) x@location)
 
-setGeneric("body_mass", function(x) standardGeneric("body_mass"))
-setMethod("body_mass", "AgentCondition", function(x) x@body_mass)
+setGeneric("location<-", function(x, ...) standardGeneric("location<-"))
+setMethod("location<-", "AgentCondition", function(x, value) {
+  x@location <- value
+  validObject(x)
+  x
+})
+
 
 

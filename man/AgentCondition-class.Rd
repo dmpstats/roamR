@@ -21,7 +21,7 @@ not expected to be user-facing.
 coordinates at the end of the current time-step.}
 
 \item{\code{grid_cell}}{object of class \code{XY}, representing the AOC's grid-cell
-occupied by the agent.}
+occupied by the agent (\emph{currently ignored}).}
 
 \item{\code{timestep}}{integer, indicating the current simulation time-step index.}
 

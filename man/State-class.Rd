@@ -28,7 +28,8 @@ specific behaviour or activity.}
 expenditure associated with the state (e.g. kJ/hour/grams).}
 
 \item{\code{time_budget}}{a <\code{\linkS4class{VarDist}}> object, defining the agent's typical
-time allocation to this state (e.g. hours/day).}
+time allocation to this state. It should be expressed as a relative length
+of time (e.g. hours/day).}
 
 \item{\code{speed}}{a <\code{\linkS4class{VarDist}}> object, specifying the movement speed
 associated with this state (e.g. m/s).}

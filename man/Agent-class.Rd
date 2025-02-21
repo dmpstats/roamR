@@ -5,20 +5,20 @@
 \alias{Agent-class}
 \title{\verb{<Agent>}}
 \description{
-\verb{<Agent>} is an S4 class representing the biological properties and
-historical state of an individual agent within the simulation model. It uses
-classes <\linkS4class{AgentProperties}> and <\linkS4class{AgentState}>, collating a
-historical record of the agent's movement and state properties generated
-throughout the simulation.
+\verb{<Agent>} is an S4 class encapsulating the biological and physiological
+properties and historical status of an individual agent within the simulated
+IBM. It uses classes <\linkS4class{AgentCondition}> and
+<\linkS4class{AgentProperties}>, also collating a historical record of the agent's
+movement and state properties generated throughout the simulation.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{state}}{object of class <\linkS4class{AgentState}>, describing the agent's
-state for the current simulation time-step.}
+\item{\code{condition}}{object of class <\linkS4class{AgentCondition}>, describing the
+agent's condition at the end of the current simulation time-step.}
 
-\item{\code{properties}}{object of class <\linkS4class{AgentProperties}>, defining the
-individual-level properties of the agent}
+\item{\code{properties}}{object of class <\linkS4class{AgentProperties}>, defining
+attributes of the agent that remain constant throughout simulation.}
 
 \item{\code{history}}{object of class \code{sf}, storing historical data comprising the
 agent's state and spatio-temporal activity for each time-step of the
@@ -28,6 +28,6 @@ simulation.}
 \seealso{
 \itemize{
 \item Helper function \code{\link[=Agent]{Agent()}} to construct \verb{<Agent>} objects
-\item Helper functions \code{\link[=AgentState]{AgentState()}} and \code{\link[=AgentProperties]{AgentProperties()}}
+\item Helper functions \code{\link[=AgentProperties]{AgentProperties()}} and \code{\link[=AgentCondition]{AgentCondition()}}
 }
 }

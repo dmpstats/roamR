@@ -16,8 +16,8 @@ AgentProperties(
   age = NULL,
   sex = c("f", "m"),
   ...,
-  Species = NULL,
-  ModelConfig = NULL
+  species = NULL,
+  model_config = NULL
 )
 }
 \arguments{
@@ -67,11 +67,11 @@ simulation (currently unused).}
 
 \item{...}{reserved for future extensions (currently ignored).}
 
-\item{Species}{a <\linkS4class{Species}> object, If not \code{NULL} (default), it is
+\item{species}{a <\linkS4class{Species}> object, If not \code{NULL} (default), it is
 used to populate the slots of the returned \verb{<AgentProperties>} object,
 overriding the above function arguments.}
 
-\item{ModelConfig}{a \linkS4class{ModelConfig} object, used alongside Species to
+\item{model_config}{a \linkS4class{ModelConfig} object, used alongside Species to
 populate the returned \verb{<AgentProperties>} object.}
 }
 \value{
@@ -84,7 +84,7 @@ properties, including body mass, movement parameters, and interactions with
 environmental drivers.
 }
 \details{
-If \code{Species} (and \code{ModelConfig}) are specified, all other arguments are
+If \code{species} (and \code{model_config}) are specified, all other arguments are
 ignored. The \linkS4class{AgentProperties} object is then populated using the
 provided \verb{<Species>} and \verb{<ModelConfig>} objects. Specifically:
 \itemize{
