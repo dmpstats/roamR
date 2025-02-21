@@ -10,7 +10,7 @@
 #' @slot scientific_name character string, the scientific name of the species.
 #' @slot body_mass_distr an object of class [VarDist-class], defining the
 #'   distribution of body mass for the species.
-#' @slot states_profile a list [StateSpec-class] objects, defining the
+#' @slot states_profile a list [State-class] objects, defining the
 #'   behavioural/activity states for the species to consider in the model.
 #' @slot driver_responses list of [DriverResponse-class] objects, specifying the
 #'   species’ responses to predefined model drivers, such as environmental
@@ -117,14 +117,14 @@ methods::setClass(
 #'
 #' # 1. Start by setting the behaviour profile
 #' states <- list(
-#'  flight = StateSpec(
-#'     state_id = "flying",
+#'  flight = State(
+#'     id = "flying",
 #'     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
 #'     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
 #'     speed = VarDist(dist_uniform(10, 20), "m/s")
 #'     ),
-#'  dive = StateSpec(
-#'     state_id = "diving",
+#'  dive = State(
+#'     id = "diving",
 #'     energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
 #'     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
 #'     speed = VarDist(dist_uniform(10, 20), "m/s")

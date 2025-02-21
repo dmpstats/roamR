@@ -22,7 +22,7 @@ drivers, and population size.
 \item{\code{body_mass_distr}}{an object of class \linkS4class{VarDist}, defining the
 distribution of body mass for the species.}
 
-\item{\code{states_profile}}{a list \linkS4class{StateSpec} objects, defining the
+\item{\code{states_profile}}{a list \linkS4class{State} objects, defining the
 behavioural/activity states for the species to consider in the model.}
 
 \item{\code{driver_responses}}{list of \linkS4class{DriverResponse} objects, specifying the
