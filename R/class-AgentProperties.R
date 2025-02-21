@@ -259,6 +259,7 @@ AgentProperties <- function(species_id = NA_character_,
 methods::setValidity("AgentProperties", function(object) {
   errors <- character()
 
+  # speeds check
   if( length(object@speeds) > 0){
     if( is.null(names(object@speeds)) ){
       msg <- cli::format_inline("\n - slot @speeds must be a named {.cls list}" )
@@ -271,6 +272,23 @@ methods::setValidity("AgentProperties", function(object) {
       errors <- c(errors, paste0("\n - ", msg) )
     }
   }
+
+  # move_influences
+  if (length(object@move_influences) > 0) {
+    if (is.null(names(object@move_influences))) {
+      msg <- cli::format_inline("\n - slot @move_influences must be a named {.cls list}" )
+      errors <- c(errors, msg)
+    }
+  }
+
+  # state_influences
+  if (length(object@state_influences) > 0) {
+    if (is.null(names(object@state_influences))) {
+      msg <- cli::format_inline("\n - slot @state_influences must be a named {.cls list}" )
+      errors <- c(errors, msg)
+    }
+  }
+
 
   if(length(errors) == 0) TRUE else do.call(paste, list(errors, collapse = " "))
 })

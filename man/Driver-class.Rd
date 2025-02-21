@@ -50,9 +50,14 @@ geometry of the driver, if applicable.}
 \item{\code{sf_descr}}{character string, a brief description of data contained in
 \code{sf_obj}}
 
-\item{\code{stars_obj}}{an object of class \verb{<stars>}, a multidimensional array containing
-grid-type spatio-temporal attributes of the driver, such as e.g spatio-temporal
-surfaces or raster maps, if applicable.}
+\item{\code{stars_obj}}{an object of class \verb{<stars>}, a multidimensional array
+containing grid-type spatio-temporal attributes of the driver, such as e.g
+time-series of raster-type density surfaces, distance surfaces to landscape
+features or man-made structures/impacts. First 2 dimensions are expected to
+provide the spatial-grid properties of the density surfaces. The 3rd
+dimension specifies the temporal resolution of the data, while the 4th
+dimension relates to random draws (e.g. bootstrap samples) of the density
+surfaces.}
 
 \item{\code{stars_descr}}{character string, a brief description of the data
 contained in \code{stars_obj}}

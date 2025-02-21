@@ -6,23 +6,37 @@
 \title{Class \verb{<VarDist>}}
 \description{
 \verb{<VarDist>} is an S4 class that encapsulates the distributional properties of
-a variable of interest. Variables can be specified in terms of their
+a variable of interest. It allows variables to be defined n terms of their
 probability distribution, sampling distribution, percentile distribution or a
-fixed value. Intended to provide a structured way to specify input values and
-quantify the uncertainty associated with their estimates.
+fixed value. The class provides a structured approach to specifying input
+values by allowing the quantification of uncertainty while ensuring proper
+handling of measurement units.
+}
+\details{
+\verb{<VarDist>} objects extend the functionality of the commendable
+\link[distributional:distributional-package]{distributional} package by incorporating
+measurement units, ensuring that variable values are interpreted and
+processed correctly during simulation calculations.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{distr}}{an object of class \verb{<distribution>} (from package
-\code{{distributional}}), specifying the distribution of values of the variable}
+\item{\code{distr}}{an object of class
+\code{\link[distributional:distributional-package]{<distribution>}}. Specifies the
+distribution of values of the variable, representing its expected value and
+uncertainty/variability.}
 
-\item{\code{units}}{a character strintg, providing the measurement units the
-variable.  Must be either a name (e.g. \code{"grams"}) or a symbol (e.g.
-\code{"m/s"}) that is currently recognized by the udunits database (see
-\code{\link[units:valid_udunits]{units::valid_udunits()}})}
+\item{\code{units}}{a character string, defining the measurement units of the
+variable. Must be either a name (e.g. \code{"grams"}) or a symbol (e.g. \code{"m/s"})
+that recognized by the "udunits" database (see
+\code{\link[units:valid_udunits]{units::valid_udunits()}}). If \code{NULL} (default) the variable is assumed to
+be unitless.}
 }}
 
 \seealso{
-Helper function \code{\link[=VarDist]{VarDist()}} to construct \verb{<varDist>} objects
+\itemize{
+\item Helper function \code{\link[=VarDist]{VarDist()}} to construct \verb{<varDist>} objects
+\item Package \link[distributional:distributional-package]{distributional} for access to and details
+on a comprehensive selection of distributions.
+}
 }

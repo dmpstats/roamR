@@ -64,3 +64,22 @@ MoveInfluence <- function(prob = VarDist(),
   )
 
 }
+
+
+
+
+# Validator -----------------------------------------------------
+methods::setValidity("MoveInfluence", function(object) {
+  errors <- character()
+  if(length(distr(object@prob)) > 1){
+    msg <- cli::format_inline(
+      "\n - slot @prob must specify a {.cls VarDist} object containing one single distribution."
+    )
+    errors <- c(errors, msg)
+  }
+
+  if(length(errors) == 0) TRUE else do.call(paste, list(errors, collapse = " "))
+})
+
+
+

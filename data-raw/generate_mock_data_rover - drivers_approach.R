@@ -42,6 +42,7 @@ drv_land <- Driver(
 
 
 # Set as {raomR} data
+usethis::use_data(uk_land, overwrite = TRUE, compress = "xz")
 usethis::use_data(drv_land, overwrite = TRUE, compress = "xz")
 
 
@@ -334,7 +335,7 @@ owf_foots <- st_as_sfc(mock_bbox) |>
   st_difference(uk_land) |>
   # generate random owfs positions
   st_sample(n_owfs) |>
-  st_buffer(15000) |>
+  st_buffer(20000) |>
   # generate footprints - i.e. polygons inside each position
   sapply(\(x){
     x |>
@@ -388,6 +389,8 @@ drv_owfs <- Driver(
 )
 
 usethis::use_data(drv_owfs, overwrite = TRUE, compress = "xz")
+
+
 
 
 
@@ -452,32 +455,33 @@ usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
 # -------------------------------------------------------------------------- #
 
 ## Species behaviour profile  ----------------------------------
-rvr_behav <- list(
-  flight = BehaviourSpec(
-    behav = "flying",
-    energy_cost = VarDist(dist_uniform(2, 2), units = "kJ/hour/gram"),
+rvr_states <- list(
+  flight = State(
+    id = "flying",
+    energy_cost = VarDist(dist_uniform(2, 2), "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
   ),
-  dive = BehaviourSpec(
-    behav = "foraging",
-    energy_cost = VarDist(dist_uniform(3, 5), units = "kJ/hour/gram"),
+  dive = State(
+    id = "foraging",
+    energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
   ),
-  swimming = BehaviourSpec(
-    behav = "swimming",
-    energy_cost = VarDist(dist_uniform(3, 6), units = "kJ/hour/gram"),
+  swimming = State(
+    id = "swimming",
+    energy_cost = VarDist(dist_uniform(3, 6), "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(0, 2), "m/s")
   ),
-  water_rest = BehaviourSpec(
-    behav = "water_resting",
-    energy_cost = VarDist(dist_uniform(0.5, 1.5), units = "kJ/hour/gram"),
+  water_rest = State(
+    id = "water_resting",
+    energy_cost = VarDist(dist_uniform(0.5, 1.5), "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
   )
 )
 
-usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
+
+usethis::use_data(rvr_states, overwrite = TRUE, compress = "xz")
 
 
 ## Species driver responses  ----------------------------------
@@ -545,9 +549,9 @@ resp_owf <- new(
     fn = exp_decay,
     type = "repulsion"
   ),
-  activities = list(
-    ActivInfluence(
-      behav = "flying",
+  states = list(
+    StateInfluence(
+      state_id = "flying",
       prob = VarDist(dist_beta(1, 5)),
       extent = VarDist(dist_lognormal(2, 1), "hr/day")
     )
@@ -565,14 +569,14 @@ resp_trawling <- new(
     fn = exp_decay,
     type = "attraction"
   ),
-  activities = list(
-    ActivInfluence(
-      behav = "foraging",
+  states = list(
+    StateInfluence(
+      state_id = "foraging",
       prob = VarDist(dist_beta(1, 5)),
       extent = VarDist(dist_lognormal(2, 1), "hr/day")
     ),
-    ActivInfluence(
-      behav = "swimming",
+    StateInfluence(
+      state_id = "swimming",
       prob = VarDist(dist_beta(2, 3)),
       extent = VarDist(dist_lognormal(1, 1), "hr/day")
     )
@@ -583,13 +587,12 @@ resp_trawling <- new(
 
 ## Build <Species> object ----------------------------------------------
 rover <- Species(
-  id = "rvr",
-  role = "agent",
+  id = "rover",
   common_name = "Rover",
   scientific_name = "Rover Vulgaris",
   body_mass_distr = VarDist(dist_normal(1000, 0.2 * 1000), units = "grams"),
   mortality_thresh_distr = VarDist(dist_uniform(300, 350), units = "grams"),
-  behaviour_profile = rvr_behav,
+  states_profile = rvr_states,
   driver_responses = list(
     resp_land,
     resp_spdist,

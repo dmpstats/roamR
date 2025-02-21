@@ -36,9 +36,14 @@
 #'   geometry of the driver, if applicable.
 #' @slot sf_descr character string, a brief description of data contained in
 #'   `sf_obj`
-#' @slot stars_obj an object of class `<stars>`, a multidimensional array containing
-#'   grid-type spatio-temporal attributes of the driver, such as e.g spatio-temporal
-#'   surfaces or raster maps, if applicable.
+#' @slot stars_obj an object of class `<stars>`, a multidimensional array
+#'   containing grid-type spatio-temporal attributes of the driver, such as e.g
+#'   time-series of raster-type density surfaces, distance surfaces to landscape
+#'   features or man-made structures/impacts. First 2 dimensions are expected to
+#'   provide the spatial-grid properties of the density surfaces. The 3rd
+#'   dimension specifies the temporal resolution of the data, while the 4th
+#'   dimension relates to random draws (e.g. bootstrap samples) of the density
+#'   surfaces.
 #' @slot stars_descr character string, a brief description of the data
 #'   contained in `stars_obj`
 #' @slot obj_active character string, specifying whether `sf_obj` or `stars_obj` is
@@ -92,9 +97,14 @@ methods::setClass(
 #'   geometry of the driver, if applicable.
 #' @param sf_descr character string, a brief description of data contained in
 #'   `sf_obj`
-#' @param stars_obj an object of class `<stars>`, a multidimensional array containing
-#'   grid-type spatio-temporal attributes of the driver, such as e.g spatio-temporal
-#'   surfaces or raster maps, if applicable.
+#' @param stars_obj stars_obj an object of class `<stars>`, a multidimensional array
+#'   containing grid-type spatio-temporal attributes of the driver, such as e.g
+#'   time-series of raster-type density surfaces, distance surfaces to landscape
+#'   features or man-made structures/impacts. First 2 dimensions are expected to
+#'   provide the spatial-grid properties of the density surfaces. The 3rd
+#'   dimension specifies the temporal resolution of the data, while the 4th
+#'   dimension relates to random draws (e.g. bootstrap samples) of the density
+#'   surfaces.
 #' @param stars_descr character string, a brief description of the data
 #'   contained in `stars_obj`
 #' @param obj_active character string, specifying whether `sf_obj` or `stars_obj` is
@@ -128,7 +138,6 @@ Driver <- function(id = NA_character_,
 
   check_class(stars_obj, class = "stars")
 
-
   # TODO: validation on dimensionality of `stars` objects (e.g. impose
   # attribution of 3rd dimension to temporal steps and 4th dimension for
   # iterations)
@@ -154,13 +163,15 @@ Driver <- function(id = NA_character_,
 # Validator -----------------------------------------------------
 methods::setValidity("Driver", function(object) {
 
+  err <- c()
+
   if(length(object@id) > 1){
-    "Slot @id must be of length 1"
+    err <- c(err, "Slot @id must be of length 1")
   }else if(length(object@ann) > 1){
-    "Slot @ann must be of length 1"
-  }else{
-    TRUE
+    err <- c(err, "Slot @ann must be of length 1")
   }
+
+  if(length(err) == 0) TRUE else err
 
 })
 

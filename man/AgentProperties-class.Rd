@@ -8,7 +8,7 @@
 \verb{<AgentProperties>} is an S4 class specifying the individual-level properties
 of an agent being traced in the simulation model. It subsumes features that
 remain constant throughout the simulation run, including biological traits,
-average travelling speeds, initialization and final states and locations,
+average travelling speeds, initialization and final locations,
 susceptibility of movement and states to model drivers.
 
 Currently this is an "internal" class, i.e. not meant to be user-facing.
@@ -21,7 +21,7 @@ Currently this is an "internal" class, i.e. not meant to be user-facing.
 \item{\code{initial_mass}}{\verb{<units>} object, the agent's body mass at the start of the
 simulation.}
 
-\item{\code{speeds}}{a named list, defining travel speed properties for the agent.
+\item{\code{speeds}}{a named list, defining movement speed properties for the agent.
 Each element specifies the agent's average speed for a given movement state
 (e.g. flying, swimming, etc). List elements must be of type \verb{<units>}.}
 
@@ -44,7 +44,7 @@ be determined via a Bernoulli trial with probability \code{p}.
 influenced by model drivers. Each element, named after a \code{driver_id},
 contains a \code{data.frame} with columns:
 \itemize{
-\item \code{state_id}: character string, the unique ID of an agent's state.
+\item \code{state_id}: character string, the unique identifier of an agent's state.
 \item \code{p}: numeric, the probability that the agent's \code{state_id} is influenced
 by the driver.
 \item \code{infl}: logical, whether the agent's \code{state_id} is influenced by the
@@ -59,3 +59,6 @@ simulation (currently unused).}
 \code{"m"} denotes male (currently unused).}
 }}
 
+\seealso{
+Helper function \code{\link[=AgentProperties]{AgentProperties()}} to create \verb{<AgentProperties>} objects
+}
