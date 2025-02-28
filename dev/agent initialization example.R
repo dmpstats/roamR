@@ -165,4 +165,3 @@ guill_ibm <- rmr_initiate(
 
 
 
-
