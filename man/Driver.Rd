@@ -20,7 +20,7 @@ Driver(
 \item{id}{character string, a unique identifier for the driver.}
 
 \item{type}{character string, the driver type within the context of the IBM.
-Currently supports one of two values: "habitat" or "impact".}
+Currently supports 3 options: "habitat" (default), "impact" or "model".}
 
 \item{descr}{character string, general description of the driver.}
 
