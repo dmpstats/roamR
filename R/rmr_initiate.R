@@ -238,11 +238,14 @@ get_slope_aspect <- function(strs){
   if(length(dim(strs)) > 2) stop("`strs` cannot have more than 2 dimensions")
 
   vf <- as(strs, "SpatRaster") |>
-    terra::terrain(v = c("aspect", "slope")) |>
+    terra::terrain(v = c("aspect", "slope"), units = "radians") |>
     stars::st_as_stars(as_attributes = TRUE)
 
   # force equal dimensions of original data
   stars::st_dimensions(vf) <- stars::st_dimensions(strs)
+
+  # convert aspect to bearing (i.e. East is 0)
+  vf$aspect <- -(vf$aspect - 0.5*pi)
 
   c(strs, vf)
 }
