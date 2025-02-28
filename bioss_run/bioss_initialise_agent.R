@@ -78,22 +78,24 @@ coast_drv <- Driver(
   id = "land",
   type = "habitat",
   descr = "Coastline",
-  stars_obj = coastline %>% st_as_stars() %>% st_transform(utm30)
+  sf_obj = coastline %>% st_transform(utm30)
 )
 
 owf_drv <- Driver(
   id = "owf_foot",
   type = "impact",
   descr = "OWF footprints",
-  stars_obj = footprints %>% st_as_stars() %>% st_transform(utm30)
+  sf_obj = footprints %>% st_transform(utm30)
 )
 
 
 guill_drivers <- list(
- # sst = sst_drv,
+  sst = sst_drv,
   coast = coast_drv,
   owf = owf_drv
 )
+
+
 
 # IBM settings -------------------------------------------------
 
