@@ -147,13 +147,55 @@ plot(sst_crop, axes = T)
 
 ## IBM initialisation
 
-The objective here is to create an individual agent, in preparation for interacting with its environment. `roamR` 
+The objective here is to create an individual agent, in preparation for interacting with its environment. `roamR` attempts to be quite general and covers complex cases - we'll include aspects in the initialisation that we won't actively use. 
+
+
+### high-level IBM configuration
+
+Here we're seeking to initiate a single agent and run this with direct control over its inputs. Generally the IBM will be prepared for large numbers of agents, all run internally with one call to the initialised objects. We need to specify high-level elements before creating an agent:
+
+* A start/finish location and times for the non-breeding season i.e. the colony we're simulating the population for. Here the Isle of May.
+* Common projections/coordinate system to impose.
+* Time steps for revising activity budgets
+* Raster resolutions
+* Area of Calculation (AoC)
+
+Here we're running for 9 months, reassessing activity budgets daily, for a colony based at the Isle of May, UTM 30N projection, and basic 1km^2 resolution where needed.
 
 
 ```{r}
+# IBM settings -------------------------------------------------
+
+isle_may <- st_sf(
+  id = "Isle of May",
+  prop = 1,
+  geom = st_sfc(st_point(c(-2.5667, 56.1833))),
+  crs = 4326
+)
+
+
+# IBM Settings - modify parameter values to your specific case
+guill_imb_config <- ModelConfig(
+  n_agents = 1,
+  ref_sys = utm30,
+  aoc_bbx = dens_crop |> st_transform(utm30) |>  st_bbox(), #
+  delta_x = 1000,
+  delta_y = 1000,
+  time_step = "1 day",
+  start_date = date("2025-07-01"),
+  end_date = date("2025-07-01") + 240, # ~9 months
+  start_sites = isle_may |> st_transform(utm30),
+  end_sites = isle_may |> st_transform(utm30)
+)
+
+```
+
+### Influencers on movement (drivers) 
+
+The framework allows for various things to influence animal movement in complex ways, which are referred to as drivers. For our simulation only three will be influential: the bounding box of the simulation (AoC), the coastline and the location of the OWF. In general there might be complex inputs and reactions of the agent to these. These enter into the `Species` class, so are structurally associated with the population being simulated. Although the term "species" is used, they could be different for populations of the same species. Some of the agent's properties flow from these, when assigned to that species.
+
+```{r}
 # Set up IBM drivers ----------------------------------------------------------------------------------------------
-
-
 
 sst_drv <- Driver(
   id = "sst",
@@ -176,44 +218,47 @@ owf_drv <- Driver(
   sf_obj = footprints %>% st_transform(utm30)
 )
 
-
+# store as list for initialisation
 guill_drivers <- list(
   sst = sst_drv,
   coast = coast_drv,
   owf = owf_drv
 )
 
+```
 
+The agent's response to these can be functionally related e.g. via the distance from an OWF. While we're not requiring anything complex here, a couple of simple effects are specified - the birds tend to move over the ocean, and may not enter the OWF footprint if they are sensitive to these.
 
-# IBM settings -------------------------------------------------
+```{r}
 
-isle_may <- st_sf(
-  id = "Isle of May",
-  prop = 1,
-  geom = st_sfc(st_point(c(-2.5667, 56.1833))),
-  crs = 4326
+# Response to drivers  -------------------------------------------------
+
+driver_resp <- list(
+  coast = DriverResponse(
+    driver_id = "land",
+    movement = MoveInfluence(
+      prob = VarDist(1),
+      fn = function(x, slope = 1/2) exp(-slope * x),
+      type = "repulsion"
+    )),
+  owf = DriverResponse(
+    driver_id = "owf_foot",
+    movement = MoveInfluence(
+      prob = VarDist(dist_beta(2, 8)), # made-up
+      fn = function(x, slope = 1/2) exp(-slope * x),
+      type = "repulsion"
+    ))
 )
 
 
-# IBM Settings - modify parameter values to your specific case
-guill_imb_config <- ModelConfig(
-  n_agents = 1,
-  ref_sys = utm30,
-  aoc_bbx = dens_crop |> st_transform(utm30) |>  st_bbox(), #
-  delta_x = 1000,
-  delta_y = 1000,
-  time_step = "1 day",
-  start_date = Sys.Date(),
-  end_date = Sys.Date() + 180, # ~6 months
-  start_sites = isle_may |> st_transform(utm30)
-)
+```
+
+### Activity and energetics
+
+The energetics of the agents are dictated by the time spent in particular states and the environment they are operating in. These will be populated with more care later, in particular diving, but as an initial pass these are populated. There are currently 3 main components, beyond settling on the total possible states. Each state has state movement properties, an amount of the day spent in the state (note these are converted to proportions and balanced behind the scenes, with due consideration of units), and parameters for the energy calculations.
 
 
-
-
-guill_drivers
-
-
+```{r}
 # States specification -------------------------------------------------
 
 states <- list(
@@ -248,43 +293,11 @@ colony = State(
   speed = VarDist(0, "m/s") # made-up
 )
 )
+```
 
+In addition to response to drivers, and state specifications, there are several simpler parameters for the species class. In particular, the size of the "species" population i.e. the simulated population (used as a weighting factor when the number of simulated animals $\ne$ colony size), the distribution of initial body masses, body weight below which agents die and other labelling.
 
-
-# Response to drivers  -------------------------------------------------
-
-driver_resp <- list(
-  coast = DriverResponse(
-    driver_id = "land",
-    movement = MoveInfluence(
-      prob = VarDist(1),
-      fn = function(x, slope = 1/2) exp(-slope * x),
-      type = "repulsion"
-    )),
-  owf = DriverResponse(
-    driver_id = "owf_foot",
-    movement = MoveInfluence(
-      prob = VarDist(dist_beta(2, 8)), # made-up
-      fn = function(x, slope = 1/2) exp(-slope * x),
-      type = "repulsion"
-    ))
-  #,
-  # dens = DriverResponse(
-  #   driver_id = "dens",
-  #   movement = MoveInfluence(
-  #     prob = VarDist(1),
-  #     type = "attraction"
-  #   )),
-  # conspec = DriverResponse(
-  #   driver_id = "conspec",
-  #   movement = MoveInfluence(
-  #     prob = VarDist(1),
-  #     type = "repulsion"
-  #   ))
-)
-
-
-
+```{r}
 # Specify <Species>  -------------------------------------------------
 
 guill <- Species(
@@ -297,8 +310,14 @@ guill <- Species(
   states_profile = states,
   driver_responses = driver_resp
 )
+```
 
 
+## Initialise the IBM
+
+The configuration, drivers and species classes collectively define the IBM - which is initialised with `rmr_initiate`. This starts a number of checks, puts data into appropriate structures and calculates elements for the movement drivers. This can be time consuming, but is only required to be done once. The simulation function wrapper for the BioSS runs will make minimal direct changes to IBM elements - so re-initialisation is not required. The main calculations made by `rmr_initiate` relate inputs that are temporally invariant over a breeding season - coastline and OWFs.
+
+```{r}
 # Initiate Agent  -------------------------------------------------
 
 guill_ibm <- rmr_initiate(
@@ -306,161 +325,18 @@ guill_ibm <- rmr_initiate(
   drivers = guill_drivers,
   model_config = guill_imb_config
 )
+```
 
 
+## Create an agent
 
+An instance of an agent/simulated bird is via `Agent`, requiring the species definition and model configuration. 
 
+```{r}
 
-
-# FOR REFERENCE: Initiate IBM -------------------------------------------------
-#
-# guill_drivers <- list(
-#   drv_land = Driver(
-#     id = "land",
-#     type = "habitat",
-#     descr = "land",
-#     sf_obj = uk_land |> st_transform(utm30)
-#   ),
-#   drv_owfs = Driver(
-#     id = "owf_foot",
-#     type = "impact",
-#     descr = "OWF Footprints",
-#     sf_obj = owf_foots |> st_transform(utm30)
-#   ),
-#   drv_dens = Driver(
-#     id = "dens",
-#     type = "habitat",
-#     descr = "Guillemot spatial distribution",
-#     stars_obj = stars::st_as_stars(matrix(NA))  # plugin appropriate raster
-#   ),
-#   drv_conspec = Driver(
-#     id = "conspec",
-#     type = "habitat",
-#     descr = "conspecific distribution",
-#     stars_obj = stars::st_as_stars(matrix(NA)) # plugin appropriate raster
-#   )
-# )
-#
-#
-# guill_ibm <- rmr_initiate(
-#   species = guill,
-#   drivers = guill_drivers,
-#   model_config = guill_imb_config
-# )
-#
-#
-#
-# current_time <- now()
-# tz(current_time) <- "UTC"
-#
-# my_config <- ModelConfig(n_agents = 1L,
-#                          ref_sys = sf::st_crs(32631), #UTM 31N
-#                          #ref_sys = sf::st_crs(4326),
-#                          aoc_bbx = c(0, 0, 10, 10),
-#                          delta_x = 1000, #m
-#                          delta_y = 1000,
-#                          time_step = "1 day",
-#                          start_date = Sys.Date() - 5,
-#                          end_date = Sys.Date(),
-#                          start_sites = NULL,
-#                          end_sites = NULL
-# )
-#
-# density_map <- st_transform(density_map, my_config@ref_sys)
-# AoC <- st_transform(AoC, my_config@ref_sys)
-#
-# my_config@aoc_bbx <- AoC
-#
-#
-# aoc_grid <- sf::st_make_grid(
-#   my_config@aoc_bbx,
-#   cellsize = c(my_config@delta_x, my_config@delta_y),
-#   what = "centers"
-# ) %>%
-#   st_sf()
-#
-# aoc_driver <- generate_aoc_driver(grid = aoc_grid, bbox = AoC)
-#
-#
-# # 1. Start by setting the behaviour profile
-#
-# SST <- 15
-# t_dive <- 5
-#
-# behav <- list(
-#   flight = BehaviourSpec(
-#     behav = "flying",
-#     energy_cost = VarDist(dist_normal(141, 66), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(0.056, 0.056), "hours/day"),
-#     speed = VarDist(dist_gamma(shape = 8, rate = 1/0.5), "m/s")
-#   ),
-#   dive = BehaviourSpec(
-#     behav = "diving",
-#     energy_cost = VarDist(dist_normal(3.71*(3.11*60/t_dive*(1-exp(-5/1.23))), 1.3), units = "kJ/min/gram"), # note units are per minute
-#     time_budget = VarDist(dist_uniform(3.11, 3.11), "hours/day"),
-#     speed = VarDist(dist_uniform(0, 1), "m/s")
-#   ),
-#   active = BehaviourSpec(
-#     behav = "swimming",
-#     energy_cost = VarDist(dist_normal(113-(2.75*SST), 22), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(10.5, 10.5), "hours/day"),
-#     speed = VarDist(dist_uniform(0, 1), "m/s")
-#   ),
-#   inactive = BehaviourSpec(
-#     behav = "other",
-#     energy_cost = VarDist(dist_normal(72.2-(2.75*SST), 22), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(10.3, 10.3),"hours/day"),
-#     speed = VarDist(dist_uniform(0, 0.1), "m/s")
-#   ),
-#   colony = BehaviourSpec(
-#     behav = "nest_attending",
-#     energy_cost = VarDist(dist_normal(33.8, 11.4), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(0, 0), "hours/day"),
-#     speed = VarDist(dist_uniform(0, 0), "m/s")
-#   )
-# )
-#
-#
-#
-# # 2. the list of impact responses
-# imp_resp <- list(
-#   owf_footprint = ImpactResponse(
-#     impact_id = "owf_foot",
-#     displace_prob = VarDist(dist_beta(2, 8)),
-#     displace_fn = function(x, y){ x/y},
-#     disturb_prob = VarDist(dist_beta(1, 5)),
-#     disturb_behav = "flying",
-#     # extra hours/day of flight due to impact
-#     disturb_extent = VarDist(dist_lognormal(2, 1), "hr/day")
-#   )
-# )
-#
-# # 3. `stars` array eith 10 samples of monthly density distribution
-# dens <- data.frame(
-#   expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
-#   counts = rlnorm(5*5*3*10)) |>
-#   st_as_stars(dims = c("x", "y", "month", "iter"))
-#
-# # 4. specify <Species>
-# guill <- Species(
-#   id = "guill",
-#   role = "agent",
-#   common_name = "guillemot",
-#   scientific_name = "Uria Aalge",
-#   body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
-#   mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
-#   spatial_distr = dens,
-#   behaviour_profile = behav,
-#   impact_responses = imp_resp
-# )
-#
-#
-#
-# lila_dat <- read_csv("data/ActivityBudget.csv")
-#
-# lila_mat <- lila_dat %>%
-#   group_by(Colony, TDR_ID, Date, Behaviour) %>%
-#   summarise(sum(Hours))
+simBird <- Agent(species = guill, model_config = guill_imb_config)
 
 ```
+
+
 
