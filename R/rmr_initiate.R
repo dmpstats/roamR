@@ -8,15 +8,15 @@
 #' @param drivers ...
 #' @param model_config an object of class `<ModelConfig>`, specifying the primary
 #'   configuration settings for the IBM (see [ModelConfig()])
-#' @param verbose logical, should feedback on initiation progress be printed in
-#'   R console?
+#' @param quiet logical, should feedback on initiation progress be prevented
+#'   from being printed in R console?
 #'
 #' @export
 #'
-rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
+rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
   ## Input validation ----------------------------------------------------------
-  if(verbose) cli::cli_progress_step("Validating inputs")
+  if(!quiet) cli::cli_progress_step("Validating inputs")
 
   if(is(drivers, "Driver")){
     drivers <- list(drivers)
@@ -37,7 +37,7 @@ rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
 
 
   ## AOC Processing -------------------------------------------------------
-  if(verbose) cli::cli_progress_step("Processing the AOC")
+  if(!quiet) cli::cli_progress_step("Processing the AOC")
 
   # TODO: Add safeguard on handling memory failures due to unreasonable spatial
   #resolution. Maybe use a try_fetch to rephrase the error and provide
@@ -69,7 +69,7 @@ rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
 
 
   ## Driver processing  ------------------------------------------------------
-  if(verbose) cli::cli_progress_step("Calculate vector fields for movement drivers")
+  if(!quiet) cli::cli_progress_step("Calculate vector fields for movement drivers")
 
   ### Compute vector fields for movement influencers ----------------
   drv_ids <- purrr::map_chr(drivers, \(x) x@id)
@@ -115,7 +115,7 @@ rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
 
 
   ## Initialize Agents -------------------------------------------------------
-  if(verbose) cli::cli_progress_step("Initialize Agents")
+  if(!quiet) cli::cli_progress_step("Initialize Agents")
 
   if (model_config@n_agents > 100 && !is_empty(species)) {
     n_wk <- future::availableCores() - 3
@@ -135,10 +135,11 @@ rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
     .options = furrr::furrr_options(seed = TRUE)
   )
 
+  future::plan(future::sequential())
 
 
   ## Initialize <IBM> object --------------------------------------------------
-  if(verbose) cli::cli_progress_step("Initialize {.cls IBM} object")
+  if(!quiet) cli::cli_progress_step("Initialize {.cls IBM} object")
 
   ibm <- IBM(
     agents = agents,
@@ -147,7 +148,7 @@ rmr_initiate <- function(model_config, species, drivers, verbose = TRUE){
     model_config = model_config
   )
 
-  if(verbose){
+  if(!quiet){
     cli::cli_progress_done()
     #cli::cli_alert_success("All DONE! {emoji::emoji('thumbsup')}")
     cli::cli_text(cli::style_bold("{cli::symbol$star} All DONE!"))
@@ -237,11 +238,14 @@ get_slope_aspect <- function(strs){
   if(length(dim(strs)) > 2) stop("`strs` cannot have more than 2 dimensions")
 
   vf <- as(strs, "SpatRaster") |>
-    terra::terrain(v = c("aspect", "slope")) |>
+    terra::terrain(v = c("aspect", "slope"), units = "radians") |>
     stars::st_as_stars(as_attributes = TRUE)
 
   # force equal dimensions of original data
   stars::st_dimensions(vf) <- stars::st_dimensions(strs)
+
+  # convert aspect to bearing (i.e. East is 0)
+  vf$aspect <- -(vf$aspect - 0.5*pi)
 
   c(strs, vf)
 }

@@ -50,7 +50,7 @@ within the area of calculation (AOC).}
 \seealso{
 \itemize{
 \item Helper function \code{\link[=Species]{Species()}} to define \verb{<Species>} objects
-\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=StateSpec]{StateSpec()}} for
+\item Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=State]{State()}} for
 constructing objects of the dependency classes
 }
 }

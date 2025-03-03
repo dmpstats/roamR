@@ -36,7 +36,7 @@
 #'
 #' @seealso
 #'  * Helper function [Species()] to define `<Species>` objects
-#'  * Helper functions [VarDist()], [DriverResponse()] and [StateSpec()] for
+#'  * Helper functions [VarDist()], [DriverResponse()] and [State()] for
 #'  constructing objects of the dependency classes
 #'
 #' @export
@@ -81,9 +81,9 @@ methods::setClass(
 #' @param scientific_name character string, the scientific name of the species.
 #' @param body_mass_distr an object of class [VarDist-class], defining the
 #'   distribution of body mass for the species.
-#' @param states_profile a list [StateSpec-class] objects, defining the
+#' @param states_profile a list [State-class] objects, defining the
 #'   behavioural/activity states for the species to consider in the model.
-#' @param driver_responses list of [DriverResponse-class] objects, specifying
+#' @param driver_responses a list of [DriverResponse-class] objects, specifying
 #'   the species’ responses to predefined model drivers, such as environmental
 #'   pressures, biological influences, and human-induced impacts affecting
 #'   movement and behaviour/activity states. See the Details section below and
@@ -107,7 +107,7 @@ methods::setClass(
 #'
 #'
 #' @seealso
-#' Helper functions [VarDist()], [DriverResponse()] and [StateSpec()]
+#' Helper functions [VarDist()], [DriverResponse()] and [State()]
 #'
 #' @export
 #'
@@ -177,7 +177,7 @@ Species <- function(id = NA_character_,
                     driver_responses = list()){
 
   # allow for unlisted objects assigned to `states_profile` and `impact_responses`, if of the correct class
-  if(is(states_profile, "StateSpec")) states_profile <- list(states_profile)
+  if(is(states_profile, "State")) states_profile <- list(states_profile)
   if(is(driver_responses, "DriverResponse")) driver_responses <- list(driver_responses)
 
   # input validation ---------------
@@ -217,7 +217,7 @@ methods::setValidity("Species", function(object) {
   errors <- character()
 
   # states_profile - state@time_budgets checks: units must be convertible across states
-  if( length(object@states_profile) > 0){
+  if( length(object@states_profile) > 1){
     unts <- sapply(object@states_profile, \(state) state@time_budget@units)
     non_conv <- combn(unts, 2, \(x) !units::ud_are_convertible(x[[1]], x[[2]]))
     if (any(non_conv)) {

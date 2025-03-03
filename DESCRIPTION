@@ -30,6 +30,7 @@ Imports:
     terra,
     units
 Collate: 
+    'build_cost_fn.R'
     'utils.R'
     's4_utils.R'
     's4_management.R'

@@ -92,7 +92,7 @@ methods::setClass(
 #' @param ann character string, annotation for referencing the driver for
 #'   reporting purposes.
 #' @param type character string, the driver type within the context of the IBM.
-#'   Currently supports one of two values: "habitat" or "impact".
+#'   Currently supports 3 options: "habitat" (default), "impact" or "model".
 #' @param sf_obj object of class `<sf>`, the simple feature representing the spatial
 #'   geometry of the driver, if applicable.
 #' @param sf_descr character string, a brief description of data contained in
@@ -162,6 +162,9 @@ Driver <- function(id = NA_character_,
 
 # Validator -----------------------------------------------------
 methods::setValidity("Driver", function(object) {
+
+  # TODO
+  # - validade 3rd and 4th dimensions as time-related and iteration, respectively
 
   errors <- character()
 

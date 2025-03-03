@@ -32,7 +32,7 @@ assumed to have died (\emph{Note: parameter may require further generalization})
 \item{pop_size}{numeric, the population size (i.e., number of individuals)
 within the area of calculation (AOC).}
 
-\item{states_profile}{a list \linkS4class{StateSpec} objects, defining the
+\item{states_profile}{a list \linkS4class{State} objects, defining the
 behavioural/activity states for the species to consider in the model.}
 
 \item{driver_responses}{list of \linkS4class{DriverResponse} objects, specifying
@@ -114,5 +114,5 @@ guill <- Species(
 
 }
 \seealso{
-Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=StateSpec]{StateSpec()}}
+Helper functions \code{\link[=VarDist]{VarDist()}}, \code{\link[=DriverResponse]{DriverResponse()}} and \code{\link[=State]{State()}}
 }
