@@ -38,6 +38,9 @@ quick_extract_pt <- function(in_rast, in_point){
 
 simBird <- Agent(species = guill, model_config = guill_imb_config)
 
+simBird@history <- simBird@history %>%
+  st_set_crs(guill_imb_config@ref_sys)
+
 
 set.seed(7657)
 nsteps <- 100
@@ -46,7 +49,7 @@ dive_duration <- runif(1, 1, 2)
 start_state <- 1
 init_dir <- 0
 var_dir <- 1
-SST <- 15
+
 
 state_labels <- names(simBird@condition@states_budget)
 state_distrib <- unlist(simBird@condition@states_budget)
@@ -69,9 +72,13 @@ current_state <- sample(state_ind, 1, prob = state_distrib)
 
 system.time({
 
+  current_time <- guill_imb_config@start_date + days(1)
+  step_duration <- hours(1)
+
+
   # daylight_refs <- suncalc::getSunlightTimes(lat = simBird@history$geometry[1], lon = ref_loc[2], date = as_date(current_time))
 
-  for(i in 1:nsteps){
+  while(current_time <= guill_imb_config@end_date){
 
     # daytime <- current_time %within% interval(daylight_refs$sunrise, daylight_refs$sunset)
 
@@ -83,14 +90,18 @@ system.time({
 
       current_dir <- calc_direction(current_pos, next_pos)
 
-      dir_modifiers <- quick_extract_pt(repel_array, next_pos)
+      #dir_modifiers <- quick_extract_pt(test, next_pos)
 
-      current_state <- sample(1:5, 1, prob = trans_mat[current_state, ])
+      dir_modifiers <- st_extract(guill_ibm@drivers$owf@stars_obj, at = current_pos)
 
-      current_expenditure <- ind_mat[current_state, ] %*% state_expenditure
+      # dir_modifiers <- quick_extract_pt(repel_array, next_pos)
 
-      pars <- as.numeric(c(1, dir_modifiers[c(2,4)]))
-      dirs <- as.numeric(c(current_dir, dir_modifiers[c(1, 3)]))
+      # current_state <- sample(1:5, 1, prob = trans_mat[current_state, ])
+
+      # current_expenditure <- ind_mat[current_state, ] %*% state_expenditure
+
+      pars <- c(1, dir_modifiers$slope)
+      dirs <- c(current_dir, dir_modifiers$aspect)
 
       y_tan <- sin(dirs) %*% pars
       x_tan <- cos(dirs) %*% pars
@@ -99,32 +110,39 @@ system.time({
 
       current_pos <- next_pos
 
-    # } else {
-
-      current_state <- 1
-
-      current_expenditure <- ind_mat[current_state, ] %*% state_expenditure
-
-    # }
+    # # } else {
+    #
+    #   current_state <- 1
+    #
+    #   current_expenditure <- ind_mat[current_state, ] %*% state_expenditure
+    #
+    # # }
 
     new_time <- current_time + step_duration
 
     if(date(new_time) != date(current_time)) {
 
       cat("=")
-
-      prop_night <- as.period(daylight_refs$sunset - daylight_refs$sunrise, unit = "hours")/hours(24)
-
-      # revise
-      daylight_refs <- suncalc::getSunlightTimes(lat = ref_loc[1], lon = ref_loc[2], date = as_date(new_time))
-
-      sim_day <- sim_day + 1
+#
+#       prop_night <- as.period(daylight_refs$sunset - daylight_refs$sunrise, unit = "hours")/hours(24)
+#
+#       # revise
+#       daylight_refs <- suncalc::getSunlightTimes(lat = ref_loc[1], lon = ref_loc[2], date = as_date(new_time))
+#
+#       sim_day <- sim_day + 1
 
     }
 
     current_time <- new_time
 
-    step_hist[i,] <- c(unlist(next_pos), current_state, current_expenditure, current_time, sim_day, energy_in_step)
+    agent_update <- sf::st_sf(timestep = condition@timestep,
+      body_mass = condition@body_mass,
+      states_budget = list(condition@states_budget),
+      energy_expenditure = condition@energy_expenditure,
+      geometry = sf::st_sfc(condition@location)
+    )
+
+    #step_hist[i,] <- c(unlist(next_pos), current_state, current_expenditure, current_time, sim_day, energy_in_step)
 
   }
 })

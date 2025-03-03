@@ -357,7 +357,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-   5.41    0.11    5.80 </code></pre>
+   3.09    0.03    6.18 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>step_hist <span class="ot">&lt;-</span> step_hist <span class="sc">%&gt;%</span> </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
@@ -389,88 +389,161 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>State-specific movement parameters</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>state_df <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.1</span>), <span class="at">B =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>), <span class="at">C =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">2</span>))</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>trans_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">runif</span>(<span class="dv">9</span>), <span class="at">ncol =</span> <span class="dv">3</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>trans_row_sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(trans_mat, <span class="dv">1</span>, sum)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>trans_mat <span class="ot">&lt;-</span> trans_mat<span class="sc">/</span>trans_row_sum</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7657</span>)</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>n_steps <span class="ot">&lt;-</span> <span class="dv">10000</span> <span class="co"># 3 months, 10 min steps = 12960</span></span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7657</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>n_steps <span class="ot">&lt;-</span> <span class="dv">10000</span> <span class="co"># 3 months, 10 min steps = 12960</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>prop_hr <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">4</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>n_agents <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>current_time <span class="ot">&lt;-</span> <span class="fu">now</span>() </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tz</span>(current_time) <span class="ot">&lt;-</span> <span class="st">"UTC"</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>sim_day <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>energy_in_step <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">22</span>, <span class="dv">2</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>ref_loc <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">56.2</span>, <span class="sc">-</span><span class="fl">2.56</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>step_duration <span class="ot">&lt;-</span> <span class="fu">minutes</span>(<span class="dv">10</span>)</span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>repel_array <span class="ot">&lt;-</span> <span class="fu">c</span>(bound_repel, coast_repel)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>start_pos <span class="ot">&lt;-</span> <span class="fu">st_sfc</span>(<span class="fu">st_point</span>(<span class="fu">c</span>(<span class="fl">15e4</span>, <span class="fl">626e4</span>)), <span class="at">crs =</span> crs_utm31)</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>start_state <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>init_dir <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>var_dir <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>time_step <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>mean_speed <span class="ot">&lt;-</span> </span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>var_speed <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>mean_step <span class="ot">&lt;-</span> time_step<span class="sc">*</span>mean_speed <span class="co"># this overstates the length for multisteps, as 2D travel distance in reality</span></span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>var_step <span class="ot">&lt;-</span> time_step<span class="sc">*</span>var_speed</span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>in_shape <span class="ot">&lt;-</span> mean_step<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>var_step</span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>in_scale <span class="ot">&lt;-</span> var_step<span class="sc">/</span>mean_step</span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>current_pos <span class="ot">&lt;-</span> start_pos</span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>travel_dir <span class="ot">&lt;-</span> init_dir</span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>current_state <span class="ot">&lt;-</span> start_state</span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>step_hist <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> n_steps<span class="sc">+</span><span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">3</span>) </span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>step_hist[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">unlist</span>(start_pos), start_state)</span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co"># notably faster to work directly with seconds</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>working_time <span class="ot">&lt;-</span> current_time <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>working_duration <span class="ot">&lt;-</span> step_duration <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>pop_size <span class="ot">&lt;-</span> <span class="fl">1e5</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>pop_wt <span class="ot">&lt;-</span> pop_size<span class="sc">/</span>n_agents</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>SST <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>state_df <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.1</span>), <span class="at">B =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>), <span class="at">C =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">2</span>))</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>trans_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">70</span>, <span class="dv">10</span>, <span class="dv">8</span>, <span class="dv">25</span>, <span class="dv">85</span>), <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>trans_row_sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(trans_mat, <span class="dv">1</span>, sum)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>trans_mat <span class="ot">&lt;-</span> trans_mat<span class="sc">/</span>trans_row_sum</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>n_states <span class="ot">&lt;-</span> <span class="fu">nrow</span>(trans_mat)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>ind_mat <span class="ot">&lt;-</span> <span class="fu">diag</span>(n_states)</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>state_expenditure <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">141</span>, <span class="fl">33.8</span>, <span class="dv">113</span><span class="sc">-</span>(<span class="fl">2.75</span><span class="sc">*</span>SST))<span class="sc">*</span>prop_hr</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>energy_out <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>max_intake_rate <span class="ot">&lt;-</span> <span class="fl">2.95</span> <span class="co">#g per minute: seabord (p127)</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>energy_intake <span class="ot">&lt;-</span> <span class="fl">6.1</span> <span class="co"># j per g: seabord (p127)</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>repel_array <span class="ot">&lt;-</span> <span class="fu">c</span>(bound_repel, coast_repel)</span>
 <span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(n_steps<span class="sc">+</span><span class="dv">1</span>)){</span>
-<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>  next_pos <span class="ot">&lt;-</span> <span class="fu">move_agent</span>(current_pos, travel_dir, var_dir, in_shape, in_scale)  </span>
-<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>  current_dir <span class="ot">&lt;-</span> <span class="fu">calc_direction</span>(current_pos, next_pos)</span>
-<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>  dir_modifiers <span class="ot">&lt;-</span> <span class="fu">quick_extract_pt</span>(repel_array, next_pos) </span>
-<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>  current_state <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">1</span>, <span class="at">prob =</span> trans_mat[current_state, ])</span>
-<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>  pars <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">c</span>(<span class="dv">1</span>, dir_modifiers[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>)]))</span>
-<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>  dirs <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">c</span>(current_dir, dir_modifiers[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)]))</span>
-<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>  y_tan <span class="ot">&lt;-</span> <span class="fu">sin</span>(dirs) <span class="sc">%*%</span> pars</span>
-<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>  x_tan <span class="ot">&lt;-</span> <span class="fu">cos</span>(dirs) <span class="sc">%*%</span> pars</span>
-<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>  travel_dir <span class="ot">&lt;-</span> <span class="fu">atan2</span>(y_tan, x_tan)</span>
-<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>  current_pos <span class="ot">&lt;-</span> next_pos</span>
-<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>  step_hist[i,] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">unlist</span>(next_pos), current_state)</span>
-<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>start_pos <span class="ot">&lt;-</span> <span class="fu">st_sfc</span>(<span class="fu">st_point</span>(<span class="fu">c</span>(<span class="fl">15e4</span>, <span class="fl">626e4</span>)), <span class="at">crs =</span> crs_utm31)</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>start_state <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>init_dir <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>var_dir <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>time_step <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>mean_speed <span class="ot">&lt;-</span> </span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>var_speed <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>mean_step <span class="ot">&lt;-</span> time_step<span class="sc">*</span>mean_speed <span class="co"># this overstates the length for multisteps, as 2D travel distance in reality</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>var_step <span class="ot">&lt;-</span> time_step<span class="sc">*</span>var_speed</span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>in_shape <span class="ot">&lt;-</span> mean_step<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>var_step</span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>in_scale <span class="ot">&lt;-</span> var_step<span class="sc">/</span>mean_step</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>current_pos <span class="ot">&lt;-</span> start_pos</span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>travel_dir <span class="ot">&lt;-</span> init_dir</span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>current_state <span class="ot">&lt;-</span> start_state</span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>step_hist <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> n_steps<span class="sc">+</span><span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">7</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>step_hist[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">unlist</span>(start_pos), start_state, energy_out, current_time, sim_day, energy_intake)</span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(step_hist) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"start_state"</span>, <span class="st">"energy_out"</span>, <span class="st">"sim_time"</span>, <span class="st">"sim_day"</span>, <span class="st">"energy_intake"</span>)</span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a>  daytime <span class="ot">&lt;-</span> T</span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(n_steps<span class="sc">+</span><span class="dv">1</span>)){</span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(daytime) {</span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>    next_pos <span class="ot">&lt;-</span> <span class="fu">move_agent</span>(current_pos, travel_dir, var_dir, in_shape, in_scale)  </span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>    current_dir <span class="ot">&lt;-</span> <span class="fu">calc_direction</span>(current_pos, next_pos)</span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>    dir_modifiers <span class="ot">&lt;-</span> <span class="fu">quick_extract_pt</span>(repel_array, next_pos) </span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>    current_state <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">1</span>, <span class="at">prob =</span> trans_mat[current_state, ])</span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>    current_expenditure <span class="ot">&lt;-</span> ind_mat[current_state, ] <span class="sc">%*%</span> state_expenditure</span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>    pars <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">c</span>(<span class="dv">1</span>, dir_modifiers[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>)]))</span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>    dirs <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">c</span>(current_dir, dir_modifiers[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)]))</span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a>    y_tan <span class="ot">&lt;-</span> <span class="fu">sin</span>(dirs) <span class="sc">%*%</span> pars</span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a>    x_tan <span class="ot">&lt;-</span> <span class="fu">cos</span>(dirs) <span class="sc">%*%</span> pars</span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>    travel_dir <span class="ot">&lt;-</span> <span class="fu">atan2</span>(y_tan, x_tan)</span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>    current_pos <span class="ot">&lt;-</span> next_pos</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a>    current_state <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a>    current_expenditure <span class="ot">&lt;-</span> ind_mat[current_state, ] <span class="sc">%*%</span> state_expenditure</span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a>    new_time <span class="ot">&lt;-</span> current_time <span class="sc">+</span> step_duration</span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(<span class="fu">date</span>(new_time) <span class="sc">!=</span> <span class="fu">date</span>(current_time)) {</span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cat</span>(<span class="st">"="</span>)</span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>      daylight_refs <span class="ot">&lt;-</span> suncalc<span class="sc">::</span><span class="fu">getSunlightTimes</span>(<span class="at">lat =</span> ref_loc[<span class="dv">1</span>], <span class="at">lon =</span> ref_loc[<span class="dv">2</span>], <span class="at">date =</span> <span class="fu">as_date</span>(current_time))</span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>      prop_night <span class="ot">&lt;-</span> <span class="fu">as.period</span>(daylight_refs<span class="sc">$</span>sunset <span class="sc">-</span> daylight_refs<span class="sc">$</span>sunrise, <span class="at">unit =</span> <span class="st">"hours"</span>)<span class="sc">/</span><span class="fu">hours</span>(<span class="dv">24</span>)</span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>      sim_day <span class="ot">&lt;-</span> sim_day <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a>    current_time <span class="ot">&lt;-</span> new_time</span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>    step_hist[i,] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">unlist</span>(next_pos), current_state, current_expenditure, current_time, sim_day, energy_in_step)</span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>=====================================================================</code></pre>
+</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-   5.65    0.08    6.06 </code></pre>
+   5.78    0.75   14.02 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>step_hist <span class="ot">&lt;-</span> step_hist <span class="sc">%&gt;%</span> </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">state =</span> V3) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">state =</span> <span class="fu">factor</span>(state)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(crs_utm31)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>step_hist <span class="ot">&lt;-</span> step_hist <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">current_state =</span> <span class="fu">factor</span>(current_state), <span class="at">c_energy =</span> <span class="fu">cumsum</span>(energy_out), <span class="at">sim_time =</span> <span class="fu">as_datetime</span>(sim_time)) <span class="sc">%&gt;%</span> <span class="co">#, sim_time = current_time + seconds(sim_time)) %&gt;% </span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_crs</span>(crs_utm31)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  tidyterra<span class="sc">::</span><span class="fu">geom_spatraster</span>(<span class="at">data =</span> coast_repel<span class="sc">$</span>slope, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  tidyterra<span class="sc">::</span><span class="fu">geom_spatraster</span>(<span class="at">data =</span> bound_repel<span class="sc">$</span>slope, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> step_hist, <span class="fu">aes</span>(<span class="at">col =</span> state), <span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  tidyterra<span class="sc">::</span><span class="fu">geom_spatraster</span>(<span class="at">data =</span> coast_repel<span class="sc">$</span>slope, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  tidyterra<span class="sc">::</span><span class="fu">geom_spatraster</span>(<span class="at">data =</span> bound_repel<span class="sc">$</span>slope, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> step_hist, <span class="fu">aes</span>(<span class="at">col =</span> current_state), <span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
 <p><img src="movement_engine_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(step_hist) <span class="sc">+</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(sim_time, c_energy, <span class="at">col =</span> current_state)) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="movement_engine_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

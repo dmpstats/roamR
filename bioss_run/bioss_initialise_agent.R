@@ -35,10 +35,23 @@ footprints <- st_read("vignettes/articles/data/Synthetic Polygons/") %>%
   st_transform(st_crs(density_map)) %>%
   st_crop(dens_crop)
 
-coastline <- st_read("vignettes/articles/data/coastline/") %>%
+# coastline <- st_read("vignettes/articles/data/coastline/") %>%
+#   st_transform(st_crs(density_map)) %>%
+#   st_crop(dens_crop) %>%
+#   st_combine()
+
+
+coastline <- ggplot2::map_data("world", region = "UK") |>
+  st_as_sf(coords = c("long", "lat"),  crs = 4326) |>
+  group_split(group) |>
+  purrr::map(\(x){
+    st_combine(x) |>
+      st_cast("POLYGON")
+  } ) |>
+  purrr::list_c() |>
+  st_combine() %>%
   st_transform(st_crs(density_map)) %>%
   st_crop(dens_crop)
-
 
 ggplot(coastline) +
   viridis::scale_fill_viridis() +
@@ -56,7 +69,11 @@ source("movement_devel/sst-to-aoc.R")
 sst_aoc <- dens_crop %>%
   st_transform(4326)
 
-sst_crop <- st_crop(sst, sst_aoc) %>%
+# due to such low res, we need to interpolate - a fancy model would be best, here just mean
+sst_crop <- st_crop(sst, sst_aoc)
+sst_crop$sst <- ifelse(is.na(sst_crop$sst), mean(sst_crop$sst, na.rm = T), sst_crop$sst)
+
+sst_crop <- sst_crop %>%
   st_transform(st_crs(density_map))
 
 plot(sst_crop, axes = T)
@@ -212,9 +229,6 @@ guill <- Species(
 
 
 # Initiate Agent  -------------------------------------------------
-simBird_1 <- Agent(species = guill, model_config = guill_imb_config)
-
-
 
 guill_ibm <- rmr_initiate(
   species = guill,
