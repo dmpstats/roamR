@@ -238,7 +238,7 @@ get_slope_aspect <- function(strs){
   if(length(dim(strs)) > 2) stop("`strs` cannot have more than 2 dimensions")
 
   vf <- as(strs, "SpatRaster") |>
-    terra::terrain(v = c("aspect", "slope"), units = "radians") |>
+    terra::terrain(v = c("aspect", "slope"), unit = "radians") |>
     stars::st_as_stars(as_attributes = TRUE)
 
   # force equal dimensions of original data
