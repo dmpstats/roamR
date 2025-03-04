@@ -132,8 +132,8 @@ guill_imb_config <- ModelConfig(
   delta_x = 1000,
   delta_y = 1000,
   time_step = "1 day",
-  start_date = Sys.Date(),
-  end_date = Sys.Date() + 180, # ~6 months
+  start_date = date("2025-07-01"),
+  end_date = date("2025-07-01") + 270, # ~9 months
   start_sites = isle_may |> st_transform(utm30)
 )
 
@@ -197,19 +197,6 @@ driver_resp <- list(
       fn = function(x, slope = 1/2) exp(-slope * x),
       type = "repulsion"
     ))
-  #,
-  # dens = DriverResponse(
-  #   driver_id = "dens",
-  #   movement = MoveInfluence(
-  #     prob = VarDist(1),
-  #     type = "attraction"
-  #   )),
-  # conspec = DriverResponse(
-  #   driver_id = "conspec",
-  #   movement = MoveInfluence(
-  #     prob = VarDist(1),
-  #     type = "repulsion"
-  #   ))
 )
 
 
@@ -238,155 +225,3 @@ guill_ibm <- rmr_initiate(
 
 
 
-
-
-
-# FOR REFERENCE: Initiate IBM -------------------------------------------------
-#
-# guill_drivers <- list(
-#   drv_land = Driver(
-#     id = "land",
-#     type = "habitat",
-#     descr = "land",
-#     sf_obj = uk_land |> st_transform(utm30)
-#   ),
-#   drv_owfs = Driver(
-#     id = "owf_foot",
-#     type = "impact",
-#     descr = "OWF Footprints",
-#     sf_obj = owf_foots |> st_transform(utm30)
-#   ),
-#   drv_dens = Driver(
-#     id = "dens",
-#     type = "habitat",
-#     descr = "Guillemot spatial distribution",
-#     stars_obj = stars::st_as_stars(matrix(NA))  # plugin appropriate raster
-#   ),
-#   drv_conspec = Driver(
-#     id = "conspec",
-#     type = "habitat",
-#     descr = "conspecific distribution",
-#     stars_obj = stars::st_as_stars(matrix(NA)) # plugin appropriate raster
-#   )
-# )
-#
-#
-# guill_ibm <- rmr_initiate(
-#   species = guill,
-#   drivers = guill_drivers,
-#   model_config = guill_imb_config
-# )
-#
-#
-#
-# current_time <- now()
-# tz(current_time) <- "UTC"
-#
-# my_config <- ModelConfig(n_agents = 1L,
-#                          ref_sys = sf::st_crs(32631), #UTM 31N
-#                          #ref_sys = sf::st_crs(4326),
-#                          aoc_bbx = c(0, 0, 10, 10),
-#                          delta_x = 1000, #m
-#                          delta_y = 1000,
-#                          time_step = "1 day",
-#                          start_date = Sys.Date() - 5,
-#                          end_date = Sys.Date(),
-#                          start_sites = NULL,
-#                          end_sites = NULL
-# )
-#
-# density_map <- st_transform(density_map, my_config@ref_sys)
-# AoC <- st_transform(AoC, my_config@ref_sys)
-#
-# my_config@aoc_bbx <- AoC
-#
-#
-# aoc_grid <- sf::st_make_grid(
-#   my_config@aoc_bbx,
-#   cellsize = c(my_config@delta_x, my_config@delta_y),
-#   what = "centers"
-# ) %>%
-#   st_sf()
-#
-# aoc_driver <- generate_aoc_driver(grid = aoc_grid, bbox = AoC)
-#
-#
-# # 1. Start by setting the behaviour profile
-#
-# SST <- 15
-# t_dive <- 5
-#
-# behav <- list(
-#   flight = BehaviourSpec(
-#     behav = "flying",
-#     energy_cost = VarDist(dist_normal(141, 66), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(0.056, 0.056), "hours/day"),
-#     speed = VarDist(dist_gamma(shape = 8, rate = 1/0.5), "m/s")
-#   ),
-#   dive = BehaviourSpec(
-#     behav = "diving",
-#     energy_cost = VarDist(dist_normal(3.71*(3.11*60/t_dive*(1-exp(-5/1.23))), 1.3), units = "kJ/min/gram"), # note units are per minute
-#     time_budget = VarDist(dist_uniform(3.11, 3.11), "hours/day"),
-#     speed = VarDist(dist_uniform(0, 1), "m/s")
-#   ),
-#   active = BehaviourSpec(
-#     behav = "swimming",
-#     energy_cost = VarDist(dist_normal(113-(2.75*SST), 22), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(10.5, 10.5), "hours/day"),
-#     speed = VarDist(dist_uniform(0, 1), "m/s")
-#   ),
-#   inactive = BehaviourSpec(
-#     behav = "other",
-#     energy_cost = VarDist(dist_normal(72.2-(2.75*SST), 22), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(10.3, 10.3),"hours/day"),
-#     speed = VarDist(dist_uniform(0, 0.1), "m/s")
-#   ),
-#   colony = BehaviourSpec(
-#     behav = "nest_attending",
-#     energy_cost = VarDist(dist_normal(33.8, 11.4), units = "kJ/hour/gram"),
-#     time_budget = VarDist(dist_uniform(0, 0), "hours/day"),
-#     speed = VarDist(dist_uniform(0, 0), "m/s")
-#   )
-# )
-#
-#
-#
-# # 2. the list of impact responses
-# imp_resp <- list(
-#   owf_footprint = ImpactResponse(
-#     impact_id = "owf_foot",
-#     displace_prob = VarDist(dist_beta(2, 8)),
-#     displace_fn = function(x, y){ x/y},
-#     disturb_prob = VarDist(dist_beta(1, 5)),
-#     disturb_behav = "flying",
-#     # extra hours/day of flight due to impact
-#     disturb_extent = VarDist(dist_lognormal(2, 1), "hr/day")
-#   )
-# )
-#
-# # 3. `stars` array eith 10 samples of monthly density distribution
-# dens <- data.frame(
-#   expand.grid(x= 1:5, y = 1:5, month = 3:5, iter = as.integer(1:10)),
-#   counts = rlnorm(5*5*3*10)) |>
-#   st_as_stars(dims = c("x", "y", "month", "iter"))
-#
-# # 4. specify <Species>
-# guill <- Species(
-#   id = "guill",
-#   role = "agent",
-#   common_name = "guillemot",
-#   scientific_name = "Uria Aalge",
-#   body_mass_distr = VarDist(dist_uniform(850, 1130), "g"),
-#   mortality_thresh_distr = VarDist(dist_normal(500, 20), "g"),
-#   spatial_distr = dens,
-#   behaviour_profile = behav,
-#   impact_responses = imp_resp
-# )
-#
-#
-#
-# lila_dat <- read_csv("data/ActivityBudget.csv")
-#
-# lila_mat <- lila_dat %>%
-#   group_by(Colony, TDR_ID, Date, Behaviour) %>%
-#   summarise(sum(Hours))
