@@ -23,7 +23,7 @@ move_agent <- function(current_pos, direct_m, direct_v, state_speed){
 
 calc_direction <- function(start, finish){
 
-  diff <- unlist(finish) - unlist(start) # much faster if reduced to vectors cf spatial
+  diff <- as.vector(finish) - as.vector(start) # much faster if reduced to vectors cf spatial
 
   atan2(diff[2], diff[1])
 
@@ -36,6 +36,25 @@ quick_extract_pt <- function(in_rast, in_point){
 }
 
 
+# UTM zone 30N
+utm30 <- st_crs(32630)
+
+
+# Input data layers -----------------------------------------------------------------------------------------------
+
+density_map <- readRDS("vignettes/articles/data/GuillemotIsle of May3_iteration1.rds") %>%
+  st_as_stars() %>%
+  rename(pop_dens = X3)
+
+dens_crop <- st_bbox(c(xmin = -5e5, ymin = -4e6,  xmax = 5e5, ymax = -3.2e6), crs = st_crs(density_map))
+
+density_map <- st_crop(density_map, dens_crop)
+
+template_rast <- st_as_stars(guill_imb_config@aoc_bbx, nx = dim(density_map)[1], ny = dim(density_map)[2], values = NA_real_)
+
+density_map <- st_warp(density_map, template_rast)
+
+
 simBird <- Agent(species = guill, model_config = guill_imb_config)
 
 simBird@history <- simBird@history %>%
@@ -43,8 +62,6 @@ simBird@history <- simBird@history %>%
 
 
 set.seed(7657)
-nsteps <- 100
-sim_day <- 1
 dive_duration <- runif(1, 1, 2)
 start_state <- 1
 init_dir <- 0
@@ -66,6 +83,29 @@ trans_mat <- matrix(rep(state_distrib, length(state_distrib)), nrow = length(sta
 current_pos <- simBird@history$geometry
 travel_dir <- init_dir
 current_state <- sample(state_ind, 1, prob = state_distrib)
+destination <- sample_cell(density_map, 1000)
+travel_dir <- calc_direction(simBird@properties@start_point, destination)
+
+foot_plot <- footprints %>%
+  st_transform(utm30)
+
+# temp <- vect(destination, geom = c("x", "y"), crs = "epsg:32630")
+# temp <- vect(data.frame(destination), geom = c("x", "y"), crs = "epsg:32630")
+# temp
+# shortest_paths(rast(density_map), test, temp)
+# temp <- vect(data.frame(destination)[1,], geom = c("x", "y"), crs = "epsg:32630")
+# shortest_paths(rast(density_map), test, temp)
+# shortest_paths(rast(density_map), test, temp, output = "lines")
+# path_calc <- shortest_paths(rast(density_map), test, temp, output = "lines")
+
+ggplot() +
+  geom_stars(data = density_map, aes(fill = pop_dens)) +
+  geom_point(aes(destination[,1], destination[,2]), color = "red", fill = "red", alpha = 0.4) +
+  geom_point(aes(simBird@properties@start_point[1], simBird@properties@start_point[2]), color = "green") +
+  geom_sf(data = st_as_sf(path_calc)) +
+  geom_sf(data = foot_plot)
+
+
 
 
 #  names(step_hist) <- c("x", "y", "current_state", "energy_out", "sim_time", "sim_day", "energy_intake")
@@ -73,12 +113,12 @@ current_state <- sample(state_ind, 1, prob = state_distrib)
 system.time({
 
   current_time <- guill_imb_config@start_date + days(1)
-  step_duration <- hours(1)
-
+  step_duration <- days(1)
+  small_run_date <- current_time + days(60)
 
   # daylight_refs <- suncalc::getSunlightTimes(lat = simBird@history$geometry[1], lon = ref_loc[2], date = as_date(current_time))
 
-  while(current_time <= guill_imb_config@end_date){
+  while(current_time <= small_run_date){ #guill_imb_config@end_date){
 
     # daytime <- current_time %within% interval(daylight_refs$sunrise, daylight_refs$sunset)
 
@@ -90,7 +130,7 @@ system.time({
 
       current_dir <- calc_direction(current_pos, next_pos)
 
-      #dir_modifiers <- quick_extract_pt(test, next_pos)
+      #dir_modifiers <- quick_extract_pt(guill_ibm@drivers$owf@stars_obj, next_pos)
 
       dir_modifiers <- st_extract(guill_ibm@drivers$owf@stars_obj, at = current_pos)
 
@@ -135,24 +175,21 @@ system.time({
 
     current_time <- new_time
 
-    agent_update <- sf::st_sf(timestep = condition@timestep,
-      body_mass = condition@body_mass,
-      states_budget = list(condition@states_budget),
-      energy_expenditure = condition@energy_expenditure,
-      geometry = sf::st_sfc(condition@location)
+    agent_update <- sf::st_sf(timestep = simBird@condition@timestep,
+      body_mass = simBird@condition@body_mass,
+      states_budget = list(simBird@condition@states_budget),
+      energy_expenditure = simBird@condition@energy_expenditure,
+      geometry = sf::st_sfc(simBird@condition@location, crs = sf::st_crs(simBird@history$geometry))
     )
 
-    #step_hist[i,] <- c(unlist(next_pos), current_state, current_expenditure, current_time, sim_day, energy_in_step)
+    simBird@history <- simBird@history %>% bind_rows(agent_update)
 
   }
 })
 
-step_hist <- step_hist %>%
-  sf::st_as_sf(coords = c(1, 2)) %>%
-  mutate(current_state = factor(current_state), c_energy = cumsum(energy_out), sim_time = as_datetime(sim_time)) %>% #, sim_time = current_time + seconds(sim_time)) %>%
-  st_set_crs(crs_utm31)
 
-# ggplot() +
-#   tidyterra::geom_spatraster(data = coast_repel$slope, alpha = 0.5) +
-#   tidyterra::geom_spatraster(data = bound_repel$slope, alpha = 0.5) +
-#   geom_sf(data = step_hist, aes(col = current_state), alpha = 0.5)
+
+ggplot() +
+  # tidyterra::geom_spatraster(data = guill_drivers$coast$slope, alpha = 0.5) +
+  # tidyterra::geom_spatraster(data = bound_repel$slope, alpha = 0.5) +
+  geom_sf(data = simBird@history$geometry, alpha = 0.5)
