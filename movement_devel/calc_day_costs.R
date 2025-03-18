@@ -19,6 +19,7 @@ source("movement_devel/sample_cell.R")
 guill_imb_config <- readRDS("movement_devel/guill_ibm_config.rds")
 guill_ibm <- readRDS("movement_devel/guill_ibm.rds")
 guill <- readRDS("movement_devel/guill_species.rds")
+in_lat <- st_transform(guill_imb_config@start_sites, crs = 4326)$geom[[1]][2]
 
 
 simBird <- Agent(species = guill, model_config = guill_imb_config)
@@ -84,17 +85,17 @@ colony_cost_fn <- function(species){
 
 # Calc costs ------------------------------------------------------------------------------------------------------
 #' A function of the activity and the amount of time spent in the data (and potentially SST)
+#' Assume 593 kJ per hour of feeding on average
 
-
-calc_day_cost <- function(in_agent, in_species, in_ibm) {
+calc_day_cost <- function(in_agent, in_species, in_ibm, intake) {
 
   sst <- st_extract(in_ibm@drivers$sst@stars_obj, st_sfc(in_agent@condition@location, crs = in_ibm@model_config@ref_sys))$sst
 
-  costs <- list(flight = flight_cost_fn(species = in_species),
-                dive = dive_cost_fn(species = in_species, t_dive = units::set_units(1.05, "min")),
-                active = active_water_cost_fn(sst = sst, species = in_species),
-                inactive = inactive_water_cost_fn(sst = sst, species = in_species),
-                colony = colony_cost_fn(species = in_species)) %>%
+  costs <- list(flight = -flight_cost_fn(species = in_species),
+                dive = -dive_cost_fn(species = in_species, t_dive = units::set_units(1.05, "min")) + intake,
+                active = -active_water_cost_fn(sst = sst, species = in_species),
+                inactive = -inactive_water_cost_fn(sst = sst, species = in_species),
+                colony = -colony_cost_fn(species = in_species)) %>%
     as.data.frame() %>%
     pivot_longer(names_to = "state", values_to = "unit_cost", everything())
 
@@ -111,6 +112,32 @@ calc_day_cost <- function(in_agent, in_species, in_ibm) {
 
 }
 
-calc_day_cost(in_agent = simBird, in_species = guill, in_ibm = guill_ibm)
+test <- calc_day_cost(in_agent = simBird, in_species = guill, in_ibm = guill_ibm, intake = units::set_units(593, "kJ/h"))
+test
 
+sample_vect <- numeric(270)
+
+for(i in 1:270){test <- calc_day_cost(in_agent = simBird, in_species = guill, in_ibm = guill_ibm, intake = units::set_units(593, "kJ/h")); sample_vect[i] <- sum(test$day_cost)}
+plot(cumsum(sample_vect*0.072))
+
+
+
+# LP for state proportions ----------------------------------------------------------------------------------------
+
+
+night_length <- 24 - geosphere::daylength(lat = in_lat, doy = yday(simBird@condition@timestamp))
+
+
+lp_coef <- test$unit_cost
+lp_constr <- matrix(c(rep(1, 5),
+                      c(1, 0, 0, 0, 0),
+                      c(0, 1, 0, 0, 0),
+                      c(0, 0, 1, 0, 0),
+                      c(0, 0, 0, 1, 0),
+                      c(0, 0, 0, 0, 1)), ncol = 5)
+lp_b <- c(538, 0, 0, 0, 0, 0)
+lp_dir <- c(">=", ">=", ">=", ">=", ">=", "=")
+
+lp_solve <- lpSolve::lp("max", lp_coef, lp_constr, lp_dir, lp_b)
+lp_solve$solution
 
