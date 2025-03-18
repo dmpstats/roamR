@@ -88,7 +88,7 @@ colony_cost_fn <- function(species){
 
 calc_day_cost <- function(in_agent, in_species, in_ibm) {
 
-  sst <- st_extract(in_ibm@drivers$sst@stars_obj, st_sfc(in_agent@condition@location, crs = utm30))$sst
+  sst <- st_extract(in_ibm@drivers$sst@stars_obj, st_sfc(in_agent@condition@location, crs = in_ibm@model_config@ref_sys))$sst
 
   costs <- list(flight = flight_cost_fn(species = in_species),
                 dive = dive_cost_fn(species = in_species, t_dive = units::set_units(1.05, "min")),
