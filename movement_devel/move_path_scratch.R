@@ -1,3 +1,9 @@
+library(tidyverse)
+library(devtools)
+library(sf)
+library(stars)
+load_all()
+
 # UTM zone 30N
 utm30 <- st_crs(32630)
 
@@ -25,6 +31,18 @@ density_map <- st_warp(density_map, template_rast)
 footprints <- st_read("vignettes/articles/data/Synthetic Polygons/") %>%
   st_as_stars() %>%
   st_transform(utm30)
+
+coastline <- ggplot2::map_data("world", region = "UK") |>
+  st_as_sf(coords = c("long", "lat"),  crs = 4326) |>
+  group_split(group) |>
+  purrr::map(\(x){
+    st_combine(x) |>
+      st_cast("POLYGON")
+  } ) |>
+  purrr::list_c() |>
+  st_combine() %>%
+  st_transform(utm30) %>%
+  st_crop(density_map)
 
 
 
@@ -57,17 +75,19 @@ start <- simBird@properties@start_point %>%
 
 crs(start) <- "epsg:32630"
 
-path_calc <- spaths::shortest_paths(rast(density_map), start, destination, output = "lines") %>%
+path_calc <- spaths::shortest_paths(terra::rast(density_map), start, destination, output = "lines") %>%
   st_as_sf()
 
-day_dist <- units::drop_units(simBird@properties@speeds$flight*0.06*24*3600)/2
+# day_dist <- units::drop_units(simBird@properties@speeds$flight*0.06*24*3600)# simBird@condition@states_budget$flight*24*3600)/2
+# day_dist <- 25e3
 
 #day_path <- dest_fn(st_as_sf(start), day_dist, st_as_sf(path_calc))
 
-n_pts <- st_length(path_calc)/day_dist
+# n_pts <- st_length(path_calc)/day_dist
+# prop_samp <- runif(as.integer(n_pts), 0, 1)
 
-test_pts <- st_line_sample(test, sample = runif(as.integer(n_pts), 0, 1)) %>%
-  st_jitter(1e4)
+move_pts <- st_line_sample(path_calc, density = 0.0001, type = "random") %>%
+  st_jitter(1e3)
 
 
 ggplot() +
@@ -75,8 +95,7 @@ ggplot() +
   geom_sf(data = st_as_sf(destination), color = "red", fill = "red", alpha = 0.4) +
   geom_sf(data = st_as_sf(start), color = "green") +
   geom_sf(data = path_calc) +
-  geom_sf(data =  test_pts, col = "white") +
-  # geom_sf(data = day_path, color = "purple", linewidth = 2) +
+  geom_sf(data =  move_pts, col = "white") +
   geom_sf(data = coastline) +
   geom_stars(data = footprints, fill = "lightblue", alpha = 0.4)
 
