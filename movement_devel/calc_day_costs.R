@@ -8,6 +8,7 @@
 library(devtools)
 library(tidyverse)
 library(sf)
+library(stars)
 
 load_all()
 
@@ -16,6 +17,7 @@ utm30 <- st_crs(32630)
 
 source("movement_devel/sample_cell.R")
 guill_imb_config <- readRDS("movement_devel/guill_ibm_config.rds")
+guill_ibm <- readRDS("movement_devel/guill_ibm.rds")
 guill <- readRDS("movement_devel/guill_species.rds")
 
 
@@ -36,9 +38,10 @@ dive_cost_fn <- function(t_dive, species){
 
   x <- units::drop_units(t_dive)
 
-  rand_par <- generate(species@states_profile$dive@energy_cost, 1)
+  rand_par <- generate(species@states_profile$dive@energy_cost, 1) %>%
+    units::drop_units()
 
-  rand_par*sum(1-exp(-x/1.23))/sum(x)*60 %>%
+  max((rand_par*sum(1-exp(-x/1.23))/sum(x)*60), 0) %>%
     units::set_units(., kJ/hr)
 
   }
@@ -49,7 +52,7 @@ active_water_cost_fn <- function(sst, species){
   rand_par <- generate(species@states_profile$active@energy_cost, 1) %>%
     units::drop_units()
 
-  (rand_par-(2.75*sst)) %>%
+  max((rand_par-(2.75*sst)), 0) %>%
     units::set_units(., kJ/hr)
 
 }
@@ -60,20 +63,20 @@ inactive_water_cost_fn <- function(sst, species){
   rand_par <- generate(species@states_profile$inactive@energy_cost, 1) %>%
     units::drop_units()
 
-  (rand_par-(2.75*sst)) %>%
+  max((rand_par-(2.75*sst)), 0) %>%
     units::set_units(., kJ/hr)
 
 }
 
 flight_cost_fn <- function(species){
 
-  generate(species@states_profile$flight@energy_cost, 1)
+  max(generate(species@states_profile$flight@energy_cost, 1), units::set_units(0, "kJ/hr"))
 
 }
 
 colony_cost_fn <- function(species){
 
-  generate(species@states_profile$colony@energy_cost, 1)
+  max(generate(species@states_profile$colony@energy_cost, 1), units::set_units(0, "kJ/hr"))
 
 }
 
@@ -85,14 +88,15 @@ colony_cost_fn <- function(species){
 
 calc_day_cost <- function(in_agent, in_species, in_ibm) {
 
-  sst <- st_extract(in_ibm@drivers$sst@stars_obj, st_sfc(in_agent@condition@location, crs = utm30))
+  sst <- st_extract(in_ibm@drivers$sst@stars_obj, st_sfc(in_agent@condition@location, crs = utm30))$sst
 
   costs <- list(flight = flight_cost_fn(species = in_species),
-                dive = dive_cost_fn(species = in_species, t_dive = 1.05),
+                dive = dive_cost_fn(species = in_species, t_dive = units::set_units(1.05, "min")),
                 active = active_water_cost_fn(sst = sst, species = in_species),
                 inactive = inactive_water_cost_fn(sst = sst, species = in_species),
                 colony = colony_cost_fn(species = in_species)) %>%
-    as.data.frame()
+    as.data.frame() %>%
+    pivot_longer(names_to = "state", values_to = "unit_cost", everything())
 
 
   in_agent@condition@states_budget %>%
@@ -101,13 +105,12 @@ calc_day_cost <- function(in_agent, in_species, in_ibm) {
     pivot_longer(names_to = "state", values_to = "prop", everything()) %>%
     mutate(time = prop*24,
            time = units::set_units(time, h)) %>%
-    left_join(costs)
+    left_join(costs, by = "state") %>%
+    mutate(day_cost = time*unit_cost)
 
 
 }
 
-
-
-
+calc_day_cost(in_agent = simBird, in_species = guill, in_ibm = guill_ibm)
 
 
