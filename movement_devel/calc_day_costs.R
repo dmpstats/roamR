@@ -82,14 +82,115 @@ colony_cost_fn <- function(species){
 }
 
 
+# scratch ---------------------------------------------------------------------------------------------------------
+
+
+#
+#
+# dive_cost_fn <- function(t_dive, species){
+#
+#   x <- units::drop_units(t_dive)
+#
+#   rand_par <- 3.7
+#
+#   max((rand_par*sum(1-exp(-x/1.23))/sum(x)*60), 0) %>%
+#     units::set_units(., kJ/hr)
+#
+# }
+#
+#
+# active_water_cost_fn <- function(sst, species){
+#
+#   rand_par <- 113
+#
+#   max((rand_par-(2.75*sst)), 0) %>%
+#     units::set_units(., kJ/hr)
+#
+# }
+#
+#
+# inactive_water_cost_fn <- function(sst, species){
+#
+#   rand_par <- 72
+#
+#   max((rand_par-(2.75*sst)), 0) %>%
+#     units::set_units(., kJ/hr)
+#
+# }
+#
+# flight_cost_fn <- function(species){
+#
+#   units::set_units(508, "kJ/hr")
+#
+# }
+#
+# colony_cost_fn <- function(species){
+#
+#  units::set_units(34, "kJ/hr")
+#
+# }
+#
+
+
+# scratch ---------------------------------------------------------------------------------------------------------
+
+
+
+
+dive_cost_fn <- function(t_dive, species){
+
+  x <- units::drop_units(t_dive)
+
+  rand_par <- generate(species@states_profile$dive@energy_cost, 1) %>%
+    units::drop_units()
+
+  (rand_par*sum(1-exp(-x/1.23))/sum(x)*60) %>%
+    units::set_units(., kJ/hr)
+
+}
+
+
+active_water_cost_fn <- function(sst, species){
+
+  rand_par <- generate(species@states_profile$active@energy_cost, 1) %>%
+    units::drop_units()
+
+  (rand_par-(2.75*sst)) %>%
+    units::set_units(., kJ/hr)
+
+}
+
+
+inactive_water_cost_fn <- function(sst, species){
+
+  rand_par <- generate(species@states_profile$inactive@energy_cost, 1) %>%
+    units::drop_units()
+
+  (rand_par-(2.75*sst)) %>%
+    units::set_units(., kJ/hr)
+
+}
+
+flight_cost_fn <- function(species){
+
+  generate(species@states_profile$flight@energy_cost, 1)
+
+}
+
+colony_cost_fn <- function(species){
+
+  generate(species@states_profile$colony@energy_cost, 1)
+
+}
+
+
 
 # Calc costs ------------------------------------------------------------------------------------------------------
 #' A function of the activity and the amount of time spent in the data (and potentially SST)
 #' Assume 593 kJ per hour of feeding on average
 
-calc_day_cost <- function(in_agent, in_species, in_ibm, intake) {
 
-  sst <- st_extract(in_ibm@drivers$sst@stars_obj, st_sfc(in_agent@condition@location, crs = in_ibm@model_config@ref_sys))$sst
+calc_day_cost <- function(in_agent, in_species, in_ibm, intake, sst) {
 
   costs <- list(flight = -flight_cost_fn(species = in_species),
                 dive = -dive_cost_fn(species = in_species, t_dive = units::set_units(1.05, "min")) + intake,
@@ -104,26 +205,174 @@ calc_day_cost <- function(in_agent, in_species, in_ibm, intake) {
     as.data.frame() %>%
     units::drop_units() %>%
     pivot_longer(names_to = "state", values_to = "prop", everything()) %>%
-    mutate(time = prop*24,
-           time = units::set_units(time, h)) %>%
+    mutate(time = units::set_units(prop*24, "h")) %>%
     left_join(costs, by = "state") %>%
-    mutate(day_cost = time*unit_cost)
-
+    mutate(day_cost = time * unit_cost)
 
 }
 
-test <- calc_day_cost(in_agent = simBird, in_species = guill, in_ibm = guill_ibm, intake = units::set_units(593, "kJ/h"))
+
+set.seed(934875)
+
+test_bird <- simBird
+
+mean_sst <- st_extract(guill_ibm@drivers$sst@stars_obj, st_sfc(test_bird@condition@location, crs = guill_ibm@model_config@ref_sys))$sst
+test <- calc_day_cost(in_agent = test_bird, in_species = guill, in_ibm = guill_ibm, sst = mean_sst, intake = units::set_units(589.5, "kJ/h"))
 test
+sum(test$day_cost)
+
+
+
+
+
 
 sample_vect <- numeric(270)
 
-for(i in 1:270){test <- calc_day_cost(in_agent = simBird, in_species = guill, in_ibm = guill_ibm, intake = units::set_units(593, "kJ/h")); sample_vect[i] <- sum(test$day_cost)}
+for(i in 1:270){test <- calc_day_cost(in_agent = test_bird, in_species = guill,
+                                      in_ibm = guill_ibm, sst = mean_sst, intake = units::set_units(589.5, "kJ/h"))
+                sample_vect[i] <- sum(test$day_cost)
+                nudge_states <- state_balance(in_states = test[1:4,])
+                test_bird@condition@states_budget[1:4] <- nudge_states
+                # cat(i, sample_vect[i], "\n")
+                }
+
 plot(cumsum(sample_vect*0.072))
 
+dive_cost_fn(species = guill, t_dive = units::set_units(1.05, "min"))
+
+593*0.072
+589.5
+
+# Rebalance states ------------------------------------------------------------------------------------------------
+
+# 4.85
+# geometry approach
+
+state_balance <- function(in_states, night_proportion = 0.3, feed_state = 2, rest_state = 4,
+                          energy_target = units::set_units(1.14, "kJ/h")){
+
+  out_states <- in_states$prop
+
+  net <- sum(in_states$prop * in_states$unit_cost)
+
+  feed_energy <- in_states$prop[feed_state] * in_states$unit_cost[feed_state]
+  target_energy <- in_states$prop[feed_state] * in_states$unit_cost[feed_state] - net + energy_target
+
+  feed_mult <- target_energy/feed_energy
+
+  # lock in feed state: has prop of base and height of in_state i.e. change in average energy  is bu probability change
+  out_states[feed_state] <- in_states$prop[feed_state]*feed_mult
+
+  # need to change other states base proportionately - squeeze targets up/down to maintain area/energy
+  non_feed_mult <- (1-out_states[feed_state])/sum(in_states$prop[-feed_state])
+
+  out_states[-feed_state] <- in_states$prop[-feed_state]*non_feed_mult
+
+  if(out_states[rest_state] < night_proportion){
+    out_states[rest_state] <- night_proportion
+    drop_states <- c(feed_state, rest_state)
+    non_feed_mult <- (1-sum(out_states[drop_states]))/sum(in_states$prop[-drop_states])
+    out_states[-drop_states] <- in_states$prop[-drop_states]*non_feed_mult
+  }
+
+  out_states
+
+}
+
+
+state_balance <- function(in_states, energy_target = units::set_units(0, "kJ/h")){
+
+  net <- sum(in_states$prop * in_states$unit_cost)
+  rebal_target <- (energy_target - net)
+
+  target_costs <-in_states$unit_cost + rebal_target
+
+  ratio_vect <- target_costs/in_states$unit_cost
+  out_states <- in_states$prop * ratio_vect
+  sum_states <- sum(out_states)
+
+  cat("Target", energy_target, "out ", out_states %*% in_states$unit_cost, "\n")
+
+  out_states <- out_states/sum_states
+
+  cat("Vs", out_states %*% in_states$unit_cost, "\n")
+
+  out_states
+
+}
+
+
+
+state_balance <- function(in_states, feed_state = 2, energy_target = units::set_units(0, "kJ/h")){
+
+  net <- sum(in_states$prop * in_states$unit_cost)
+  rebal_target <- (energy_target - net)
+
+  target_costs <-in_states$unit_cost + rebal_target
+
+  ratio_vect <- target_costs/in_states$unit_cost
+  out_states <- in_states$prop * ratio_vect
+  sum_states <- sum(out_states)
+
+  cat("Target", energy_target, "out ", out_states %*% in_states$unit_cost, "\n")
+
+  out_states
+
+}
+
+
+
+state_balance <- function(in_states, energy_target = 1.14, pos_states = 2){
+  not_pos <- c(1:nrow(in_states))[-pos_states]
+  net <- sum(in_states$prop * in_states$unit_cost) %>% units::drop_units()
+  rebal_target <- (energy_target - net)
+
+  prop_pos <- sum(in_states$prop[pos_states])
+  prop_neg <- sum(in_states$prop[not_pos])
+
+  pos_costs <- sum(in_states$prop[pos_states] * in_states$unit_cost[pos_states]) %>% units::drop_units()
+  neg_costs <- sum(in_states$prop[not_pos] * in_states$unit_cost[not_pos]) %>% units::drop_units()
+
+  A <- (rebal_target - pos_costs)/(neg_costs - pos_costs)
+
+  out_states <- in_states$prop
+  out_states[pos_states] <- out_states[pos_states]*(1-A)
+  out_states[not_pos] <- out_states[not_pos]*A
+  out_states/sum(out_states)
+
+}
+
+
+state_balance <- function(in_states, energy_target, pos_states = 2){
+  pos_states <- 2
+  in_states <- test[1:4,]
+  energy_target <- units::set_units(1.14, "kJ/h")
+
+
+  not_pos <- c(1:nrow(in_states))[-pos_states]
+  net <- sum(in_states$unit_cost)
+  rebal_target <- (energy_target - net)  %>% units::drop_units()
+
+  prop_pos <- sum(in_states$prop[pos_states])
+  prop_neg <- sum(in_states$prop[not_pos])
+
+  pos_costs <- sum(in_states$prop[pos_states] * in_states$unit_cost[pos_states]) %>% units::drop_units()
+  neg_costs <- sum(in_states$prop[not_pos] * in_states$unit_cost[not_pos]) %>% units::drop_units()
+
+  A <- (rebal_target - pos_costs)/(neg_costs - pos_costs)
+
+  out_states <- in_states$prop
+  out_states[pos_states] <- out_states[pos_states]*(1-A)
+  out_states[not_pos] <- out_states[not_pos]*A
+  #out_states/sum(out_states)
+  out_states
+}
 
 
 # LP for state proportions ----------------------------------------------------------------------------------------
 
+net <- sum(test$day_cost)
+net
 
 night_length <- 24 - geosphere::daylength(lat = in_lat, doy = yday(simBird@condition@timestamp))
 
@@ -134,10 +383,43 @@ lp_constr <- matrix(c(rep(1, 5),
                       c(0, 1, 0, 0, 0),
                       c(0, 0, 1, 0, 0),
                       c(0, 0, 0, 1, 0),
-                      c(0, 0, 0, 0, 1)), ncol = 5)
-lp_b <- c(538, 0, 0, 0, 0, 0)
-lp_dir <- c(">=", ">=", ">=", ">=", ">=", "=")
+                      c(0, 0, 0, 1, 0),
+                      c(0, 0, 0, 0, 1)), ncol = 5, byrow = T)
+lp_b <- c(1, 0, 0, 0, 0, night_length/24, 0)
+lp_dir <- c("<=", ">=", ">=", ">=", ">=", ">=", "=")
 
 lp_solve <- lpSolve::lp("max", lp_coef, lp_constr, lp_dir, lp_b)
+lp_solve
 lp_solve$solution
+lp_solve$solution %*% lp_coef
+(lp_solve$solution %*% lp_coef)*0.072
+
+test$time %*% test$unit_cost
+
+sum(test$day_cost)
+
+
+
+
+# -----------------------------------------------------------------------------------------------------------------
+
+
+lp_coef <- c(units::drop_units(test$unit_cost), -1.4)
+lp_constr <- matrix(c(c(rep(1, 5),0),
+                      # c(1, 0, 0, 0, 0),
+                      c(0, 0, 0, 0, 0, 1),
+                      c(0, 0, 0, 1, 0, 0),
+                      c(0, 0, 0, 0, 1, 0)), ncol = 6, byrow = T)
+lp_b <- c(1, 1, night_length/24, 0)
+lp_dir <- c("=", "=", ">=", "=")
+
+lp_solve <- lpSolve::lp("max", lp_coef, lp_constr, lp_dir, lp_b)
+lp_solve
+lp_solve$solution
+lp_solve$solution %*% lp_coef
+(lp_solve$solution %*% lp_coef)*0.072
+
+test$time %*% test$unit_cost
+
+sum(test$day_cost)
 
