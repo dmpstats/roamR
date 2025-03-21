@@ -10,6 +10,7 @@ utm30 <- st_crs(32630)
 source("movement_devel/sample_cell.R")
 source("movement_devel/calc_day_costs.R")
 source("movement_devel/sample_cell.R")
+source("movement_devel/run_sim.R")
 
 guill_imb_config <- readRDS("movement_devel/guill_ibm_config.rds")
 guill <- readRDS("movement_devel/guill_species.rds")
@@ -27,99 +28,42 @@ template_rast <- st_as_stars(guill_imb_config@aoc_bbx, nx = dim(density_map)[1],
 
 density_map <- st_warp(density_map, template_rast)
 
-footprints <- st_read("vignettes/articles/data/Synthetic Polygons/") %>%
-  st_as_stars() %>%
-  st_transform(utm30)
-
-coastline <- ggplot2::map_data("world", region = "UK") |>
-  st_as_sf(coords = c("long", "lat"),  crs = 4326) |>
-  group_split(group) |>
-  purrr::map(\(x){
-    st_combine(x) |>
-      st_cast("POLYGON")
-  } ) |>
-  purrr::list_c() |>
-  st_combine() %>%
-  st_transform(utm30) %>%
-  st_crop(density_map)
-
-
-
-work_agent <- Agent(species = guill, model_config = guill_imb_config)
-
-work_agent@history$energy_expenditure <- work_agent@history$energy_expenditure %>%
-  units::drop_units() %>%
-  units::set_units(., "kJ")
-
-work_agent@history <- work_agent@history %>%
-  st_set_crs(guill_imb_config@ref_sys)
 
 
 # Input data layers -----------------------------------------------------------------------------------------------
 
-set.seed(4958)
-
-
-system.time({
 
   current_time <- guill_imb_config@start_date + days(1)
+  guill_imb_config@end_date <- guill_imb_config@start_date + days(100)
+
   step_duration <- days(1)
-  return_date <- current_time + days(270)
 
-  # daylight_refs <- suncalc::getSunlightTimes(lat = work_agent@history$geometry[1], lon = ref_loc[2], date = as_date(current_time))
+  agent_list <- list()
 
-  while(current_time <= guill_imb_config@end_date){
+  set.seed(4958)
 
-    destination <- sample_cell(density_map, 1)
+  for(i in 1:4){
 
-    new_time <- current_time + step_duration
+  agent_list[[i]] <- Agent(species = guill, model_config = guill_imb_config)
 
-    if(date(new_time) != date(current_time)) {
+  agent_list[[i]]@history$energy_expenditure <- agent_list[[i]]@history$energy_expenditure %>%
+    units::drop_units() %>%
+    units::set_units(., "kJ")
 
-      energy_profile <- calc_day_cost(in_agent = work_agent, in_species = guill,
-                            in_ibm = guill_ibm, sst = 8, intake = units::set_units(589.5, "kJ/h"))
+  agent_list[[i]]@history <- agent_list[[i]]@history %>%
+    st_set_crs(guill_imb_config@ref_sys)
 
-      # existing activity profile - store
-      energy_expenditure <- sum((energy_profile$prop*24) * energy_profile$unit_cost) %>%
-        units::drop_units() %>%
-        units::set_units(., "kJ")
-
-      wt_gain <- units::drop_units(energy_expenditure) * 0.072 %>%
-        units::set_units(., "g")
-
-      # update activity profile for use in t+1
-      nudge_states <- state_balance(in_states = energy_profile[1:4,], night_proportion = 0.3,
-                                    energy_target = units::set_units(1.14, "kJ/h"))
-
-      work_agent@condition@states_budget[1:4] <- nudge_states %>%
-        units::set_units(., 1) %>%
-        as.list()
+  } # eol i
 
 
-    }
-
-    if(month(new_time) != month(current_time)) {
-
-      destination <- sample_cell(density_map, 1)
-
-    }
-
-    current_time <- new_time
-    work_agent@condition@location[1:2] <- destination[1:2]
-    work_agent@condition@body_mass <- work_agent@condition@body_mass + wt_gain
-
-    agent_update <- sf::st_sf(timestep = work_agent@condition@timestep + 1,
-                              body_mass = work_agent@condition@body_mass,
-                              states_budget = list(work_agent@condition@states_budget),
-                              energy_expenditure = energy_expenditure,
-                              geometry = sf::st_sfc(work_agent@condition@location, crs = sf::st_crs(work_agent@history$geometry))
-    )
-
-    work_agent@history <- work_agent@history %>% bind_rows(agent_update)
-
-  }
-})
+  # future::plan(future::multisession, workers = 4)
+  #
+  #
+  #   test <- agent_list %>%
+  #     furrr::future_map(.f = \(x) run_sim(in_agent = x, in_species = guill, in_ibm_config = guill_imb_config,
+  #                                         in_density = density_map), .progress = T)
 
 
-#plot(work_agent@history$geometry, pch = 19, cex = 0.5, col = "red")
-plot(work_agent@history$body_mass)
+
+   test <- lapply(agent_list, \(x) run_sim(in_agent = x, in_species = guill, in_ibm_config = guill_imb_config,
+            in_density = density_map))
