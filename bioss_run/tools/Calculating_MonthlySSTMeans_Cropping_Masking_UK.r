@@ -1,4 +1,4 @@
-setwd("C://Users//ND44442//OneDrive - The James Hutton Institute//Documents//owf//")
+setwd("C:/Users/stats/dmpstats.co.uk/DisNBS PSG - WP3/data/sst_file")
 library(ncdf4)
 library(raster)
 library(terra)
@@ -39,6 +39,21 @@ plot(crop_UK, axes=T)
 #Mask the cropped area
 mask_UK = mask(crop_UK,e)
 plot(mask_UK, axes=T)
+
+
+
+bioss_sst <- st_as_stars(mask_UK)
+names(bioss_sst) <- "sst"
+
+date_values <- date("2025-01-01") + months(0:11) + years(c(rep(1, 6), rep(0, 6)))
+
+bioss_sst <- st_set_dimensions(bioss_sst, 3, values = date_values, names = "time")
+
+
+bioss_sst <- st_transform(bioss_sst, st_crs(32630))
+
+saveRDS(bioss_sst, "bioss_sst_stars.rds")
+
 
 
 
