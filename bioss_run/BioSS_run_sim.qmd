@@ -32,7 +32,6 @@ utm30 <- st_crs(32630)
 
 source("tools/sample_cell.R")
 source("tools/calc_day_costs.R")
-source("tools/run_sim.R")
 
 
 # Input data layers -----------------------------------------------------------------------------------------------
@@ -49,9 +48,9 @@ template_rast <- st_as_stars(dens_crop |> st_transform(utm30) |>  st_bbox(), nx 
 
 density_map <- st_warp(density_map, template_rast)
 
-
+# note, month number is used, so no more than one year's data
 sst <- stars::read_ncdf("data/sst.mnmean.nc") %>%
-  filter(time >= "2023-12-01")
+  filter(time >= "2023-07-01", time <= "2024-06-30")
 
 
 # crop to AOC: dec lat/long
@@ -206,7 +205,7 @@ agent_list <- list()
 
 ```{r}
 
-sequent_runs <- lapply(agent_list[1], \(x) run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
+sequent_runs <- lapply(agent_list[1], \(x) bioss_run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
             in_density = guill_ibm@drivers$dens@stars_obj))
 
 ```
