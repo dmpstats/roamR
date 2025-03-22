@@ -6,6 +6,8 @@ run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density = de
 
   current_month <- month(current_time)
 
+  sst_month <- month(st_dimensions(in_ibm@drivers$sst@stars_obj)$time$values)
+
   night_proportion <- 1-(geosphere::daylength(lat = 56.18, doy = yday(current_time)))/24
 
   destination <- sample_cell(in_density, 1)
@@ -14,7 +16,8 @@ run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density = de
 
     new_time <- current_time + step_duration
 
-    in_sst <- st_extract(in_ibm@drivers$sst@stars_obj, st_sfc(in_agent@condition@location, crs = in_ibm_config@ref_sys))$sst[current_month]
+    in_sst <- st_extract(in_ibm@drivers$sst@stars_obj,
+                         st_sfc(in_agent@condition@location, crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
 
     if(date(new_time) != date(current_time)) {
 
