@@ -7,41 +7,36 @@ format:
 editor: visual
 ---
 
-
 ## Overview
 
 The `roamR` package is S4-class based. At the basic level there is a general agent (here a simulated bird), which inherits properties from its species, and the moves around in an environment which consists of things like coastline boundaries, off-shore windfarms/structures etc. Here we describe the process to initiate agents i.e. create the simulated birds in preparation for spatio-temporal simulation.
 
+This is described in the context of what BioSS needs to do for the WP3 uncertainty analysis. This distinct from running the simulation in a standard way, as the inputs will be varied in a structured fashion to investigate sensitivities. For BioSS' purposes, the following will need varying over batches of simulation runs (as implied by the spreadsheet *ORJIP-DisNBS-Casestudyinputvalues-draftformAB31may2024_JAG_Guillemots.xlsx* in the project team files):
 
-This is described in the context of what BioSS needs to do for the WP3 uncertainty analysis. This distinct from running the simulation in a standard way, as the inputs will be varied in a structured fashion to investigate sensitivities. For BioSS' purposes, the following will need varying over batches of simulation runs (as implied by the spreadsheet _ORJIP-DisNBS-Casestudyinputvalues-draftformAB31may2024_JAG_Guillemots.xlsx_ in the project team files):
+-   SST: 3D data-cube, SST in C at x, y and numeric month
+-   Case-study species density maps: 3D data-cube, animal densities at x, y and numeric month
+-   Case-study species competitor maps: 3D data-cube, animal densities at x, y and numeric month
+-   (potential) species level variations:
+    -   Redistribution rate for footprint
+    -   Behavioural costs for activities flight/active/inactive/diving (NB colony excluded for these NBS simulations)
+    -   Initial body mass distribution
+    -   Initial activity budgets (proportion of time per day in each state)
 
-* SST: 3D data-cube, SST in C at x, y and numeric month
-* Case-study species density maps: 3D data-cube, animal densities at x, y and numeric month
-* Case-study species competitor maps: 3D data-cube, animal densities at x, y and numeric month
-* (potential) species level variations:
-  * Redistribution rate for footprint
-  * Behavioural costs for activities flight/active/inactive/diving (NB colony excluded for these NBS simulations)
-  * Initial body mass distribution
-  * Initial activity budgets (proportion of time per day in each state)
-  
 Note:
 
-* Impact scenarios are limited to one set of synthetic OWF footprints.
-* Many of the inputs have explicit stochasticity associated, particularly at the species definition level (see below). Spatio-temporal data-cubes need stochasticity managed "outside" i.e. varied as inputs across simulations.
-
+-   Impact scenarios are limited to one set of synthetic OWF footprints.
+-   Many of the inputs have explicit stochasticity associated, particularly at the species definition level (see below). Spatio-temporal data-cubes need stochasticity managed "outside" i.e. varied as inputs across simulations.
 
 ## Initial steps
 
 Example data sourced by BioSS is found in the project sharepoint (`/DisNBS PSG - WP3/data`) and covers SST, conspecific distributions, target population distributions, and synthetic wind-farms. They are:
 
-* `sst_file/sst.mnmean.nc` a netCDF file of global SST temperatures, monthly  for more than a century.
-* `/case study guillemot isle of may/CompetitionMaps/newrds` conspecific density maps in monthly `rds` files (covering 9 non-breeding months, indexed numercially 1-12 for months), consisting of 100 bootstraps within each. Provides spatial density maps.
-* `/case study guillemot isle of may/GuillemotIsleOfMayDensityMaps` target population density maps, separate files for months and bootstraps (covering 9 non-breeding months, indexed numercially 1-12 for months asnd indexed 1-100 for boostraps). Provides spatial density maps.
-* `/case study guillemot isle of may/WindfarmFootprints/Synthetic Polygons` shapefiles giving collection of polygons.
+-   `sst_file/sst.mnmean.nc` a netCDF file of global SST temperatures, monthly for more than a century.
+-   `/case study guillemot isle of may/CompetitionMaps/newrds` conspecific density maps in monthly `rds` files (covering 9 non-breeding months, indexed numercially 1-12 for months), consisting of 100 bootstraps within each. Provides spatial density maps.
+-   `/case study guillemot isle of may/GuillemotIsleOfMayDensityMaps` target population density maps, separate files for months and bootstraps (covering 9 non-breeding months, indexed numercially 1-12 for months asnd indexed 1-100 for boostraps). Provides spatial density maps.
+-   `/case study guillemot isle of may/WindfarmFootprints/Synthetic Polygons` shapefiles giving collection of polygons.
 
-A BioSS branch of the `roamR` package can be found here ([roamR](https://www.dropbox.com/scl/fo/xr4855ffhvcvs9p6qgnpv/AP8m31z5MHT2oyoD_BwyKys?rlkey=rqcd3an2kqhs02xjhew7ey3ds&dl=0)). The package is in development - we will not install this branch `per se`, rather access directly i.e. open the package project () and use `devtools` to access the namespace.  
-
-
+A BioSS branch of the `roamR` package can be found here ([roamR](https://www.dropbox.com/scl/fo/xr4855ffhvcvs9p6qgnpv/AP8m31z5MHT2oyoD_BwyKys?rlkey=rqcd3an2kqhs02xjhew7ey3ds&dl=0)). The package is in development - we will not install this branch `per se`, rather access directly i.e. open the package project () and use `devtools` to access the namespace.
 
 ```{r}
 
@@ -63,7 +58,6 @@ load_all()
 ### Spatio-temporal inputs
 
 The following are elements of the simulation data provided by BioSS. There is an Area of Calculation (AoC) which bounds the simulation spatially, and a common projection for all the spatial data. These are also/generally specified in the IBM config object (see later), but explicit here. The AoC is a reasonably large box (some 1000km x 800km) encompassing the Isle of May, and the coordinate system imposed here is UTM 30N - noting the underlying movement model operates on metres, so decimal lat/long for instance is inconvenient. The underlying density maps extend from the mediterranian sea into the arctic, which is larger than we reasonably require, and would incur some computational overhead.
-
 
 ```{r}
  
@@ -95,9 +89,7 @@ footprints <- st_read("data/Synthetic Polygons/") %>%
 
 ```
 
-
 One requirement is a coastline, as the agents move at sea. There is an overhead in initialising this, although it need only be done once at the start (coastlines being constant). The following is a simple coastline that works well computationally.
-
 
 ```{r}
 coastline <- ggplot2::map_data("world", region = "UK") |>
@@ -125,7 +117,7 @@ ggplot(coastline) +
 
 ```
 
-SST is similarly required, principally for the calculation of energetics in our example. The data is global, over a long time frame,  an awkward coordinate systen, and is quite coarse. To use this for our example (where at the scale of the Isle of May there is no SST data) we impute to avoid gaps. Here it is a mean imputation as an example, but ought to be treated more thoroughly.
+SST is similarly required, principally for the calculation of energetics in our example. The data is global, over a long time frame, an awkward coordinate systen, and is quite coarse. To use this for our example (where at the scale of the Isle of May there is no SST data) we impute to avoid gaps. Here it is a mean imputation as an example, but ought to be treated more thoroughly.
 
 ```{r}
  
@@ -155,21 +147,19 @@ plot(sst_crop, axes = T)
 
 ## IBM initialisation
 
-The objective here is to create an individual agent, in preparation for interacting with its environment. `roamR` attempts to be quite general and covers complex cases - we'll include aspects in the initialisation that we won't actively use. 
-
+The objective here is to create an individual agent, in preparation for interacting with its environment. `roamR` attempts to be quite general and covers complex cases - we'll include aspects in the initialisation that we won't actively use.
 
 ### high-level IBM configuration
 
 Here we're seeking to initiate a single agent and run this with direct control over its inputs. Generally the IBM will be prepared for large numbers of agents, all run internally with one call to the initialised objects. We need to specify high-level elements before creating an agent:
 
-* A start/finish location and times for the non-breeding season i.e. the colony we're simulating the population for. Here the Isle of May.
-* Common projections/coordinate system to impose.
-* Time steps for revising activity budgets
-* Raster resolutions
-* Area of Calculation (AoC)
+-   A start/finish location and times for the non-breeding season i.e. the colony we're simulating the population for. Here the Isle of May.
+-   Common projections/coordinate system to impose.
+-   Time steps for revising activity budgets
+-   Raster resolutions
+-   Area of Calculation (AoC)
 
-Here we're running for 9 months, reassessing activity budgets daily, for a colony based at the Isle of May, UTM 30N projection, and basic 1km^2 resolution where needed.
-
+Here we're running for 9 months, reassessing activity budgets daily, for a colony based at the Isle of May, UTM 30N projection, and basic 1km\^2 resolution where needed.
 
 ```{r}
 # IBM settings -------------------------------------------------
@@ -198,7 +188,7 @@ guill_imb_config <- ModelConfig(
 
 ```
 
-### Influencers on movement (drivers) 
+### Influencers on movement (drivers)
 
 The framework allows for various things to influence animal movement in complex ways, which are referred to as drivers. For our simulation only three will be influential: the bounding box of the simulation (AoC), the coastline and the location of the OWF. In general there might be complex inputs and reactions of the agent to these. These enter into the `Species` class, so are structurally associated with the population being simulated. Although the term "species" is used, they could be different for populations of the same species. Some of the agent's properties flow from these, when assigned to that species.
 
@@ -265,39 +255,38 @@ driver_resp <- list(
 
 The energetics of the agents are dictated by the time spent in particular states and the environment they are operating in. These will be populated with more care later, in particular diving, but as an initial pass these are populated. There are currently 3 main components, beyond settling on the total possible states. Each state has state movement properties, an amount of the day spent in the state (note these are converted to proportions and balanced behind the scenes, with due consideration of units), and parameters for the energy calculations.
 
-
 ```{r}
 # States specification -------------------------------------------------
 
 states <- list(
   flight = State(
     id = "flight",
-    energy_cost = VarDist(dist_normal(141, 66), units = "kJ/hour/gram"), # vals from excel sheet. Normal not adequate as it will generate negative values - needs reparameterization to logN
-    time_budget = VarDist(dist_uniform(0, 0.15), "hours/day"), # roughly based on Lila's summaries
+    energy_cost = VarDist(dist_normal(507.6, 237.6), units = "kJ/hour"), # vals from excel sheet. Normal may not be adequate (some good chance of <zero)
+    time_budget = VarDist(dist_degenerate(0.056), "hours/day"), # roughly based on Lila's summaries
     speed = VarDist(dist_uniform(10, 20), "m/s") # made-up
 ),
 dive = State(
   id = "diving",
-  energy_cost = VarDist(dist_normal(200, 10), units = "kJ/hour/gram"), # made-up
-  time_budget = VarDist(dist_uniform(2.5, 3.5), "hours/day"), # roughly based on Lila's summaries
+  energy_cost = VarDist(dist_normal(3.71, 1.3), units = NULL), # from spreadsheet
+  time_budget = VarDist(dist_degenerate(3.11), "hours/day"), # roughly based on Lila's summaries
   speed = VarDist(dist_uniform(0, 1), "m/s") # made-up
 ),
 active = State(
   id = "active_on_water",
-  energy_cost = VarDist(dist_normal(150, 10), units = "kJ/hour/gram"), # made-up
-  time_budget = VarDist(dist_uniform(10, 11), "hours/day"), # roughly based on Lila's summaries
+  energy_cost = VarDist(dist_normal(113, 22), units = NULL), # made-up
+  time_budget = VarDist(dist_degenerate(10.5), "hours/day"), # roughly based on Lila's summaries
   speed = VarDist(dist_uniform(0, 1), "m/s") # made-up
 ),
 inactive = State(
   id = "inactive_on_water",
-  energy_cost = VarDist(dist_normal(150, 10), units = "kJ/hour/gram"), # made-up
-  time_budget = VarDist(dist_uniform(10, 11), "hours/day"), # roughly based on Lila's summaries
+  energy_cost = VarDist(dist_normal(72.2, 22), units = NULL), # made-up
+  time_budget = VarDist(dist_degenerate(10.3), "hours/day"), # roughly based on Lila's summaries
   speed = VarDist(dist_uniform(0, 1), "m/s") # made-up
 ),
 colony = State(
   id = "colony",
-  energy_cost = VarDist(dist_normal(33.8, 11.4), units = "kJ/hour/gram"), # vals from excel sheet
-  time_budget = VarDist(0, "hours/day"), # no time at colony
+  energy_cost = VarDist(dist_normal(33.8, 11.4), units = "kJ/hour"), # vals from excel sheet
+  time_budget = VarDist(dist_degenerate(0), "hours/day"), # no time at colony
   speed = VarDist(0, "m/s") # made-up
 )
 )
@@ -320,7 +309,6 @@ guill <- Species(
 )
 ```
 
-
 ## Initialise the IBM
 
 The configuration, drivers and species classes collectively define the IBM - which is initialised with `rmr_initiate`. This starts a number of checks, puts data into appropriate structures and calculates elements for the movement drivers. This can be time consuming, but is only required to be done once. The simulation function wrapper for the BioSS runs will make minimal direct changes to IBM elements - so re-initialisation is not required. The main calculations made by `rmr_initiate` relate inputs that are temporally invariant over a breeding season - coastline and OWFs.
@@ -335,10 +323,9 @@ guill_ibm <- rmr_initiate(
 )
 ```
 
-
 ## Create an agent
 
-An instance of an agent/simulated bird is via `Agent`, requiring the species definition and model configuration. 
+An instance of an agent/simulated bird is via `Agent`, requiring the species definition and model configuration.
 
 ```{r}
 
@@ -348,9 +335,9 @@ simBird <- Agent(species = guill, model_config = guill_imb_config)
 
 This agent contains three main slots to govern its:
 
-* current "state", e.g. position, behaviour, direction, body mass etc (`@condition`)
-* properties assigned specifically to that agent at initialisation, inherited from the species definition e.g. things tha influence it, initial weight, start and finish locations etc (`@properties`)
-* evaluations of the condition over the course of the simulation (`@history`)
+-   current "state", e.g. position, behaviour, direction, body mass etc (`@condition`)
+-   properties assigned specifically to that agent at initialisation, inherited from the species definition e.g. things tha influence it, initial weight, start and finish locations etc (`@properties`)
+-   evaluations of the condition over the course of the simulation (`@history`)
 
 Currently the agent class accommodates:
 
@@ -359,8 +346,3 @@ Currently the agent class accommodates:
 str(simBird)
 
 ```
-
-
-
-
-
