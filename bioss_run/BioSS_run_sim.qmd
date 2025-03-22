@@ -10,8 +10,10 @@ editor: visual
 ## 
 
 ```{r}
-#| include: false
-# initially required packages
+#| code-fold: true
+#| code-summary: "Show the code"
+#| output: false
+
 library(tidyverse)
 library(roamR)
 library(stars)
@@ -27,11 +29,6 @@ load_all()
 
 # UTM zone 30N
 utm30 <- st_crs(32630)
-
-#setwd("bioss_run/")
-
-source("tools/sample_cell.R")
-source("tools/calc_day_costs.R")
 
 
 # Input data layers -----------------------------------------------------------------------------------------------
@@ -49,22 +46,24 @@ template_rast <- st_as_stars(dens_crop |> st_transform(utm30) |>  st_bbox(), nx 
 density_map <- st_warp(density_map, template_rast)
 
 # note, month number is used, so no more than one year's data
-sst <- stars::read_ncdf("data/sst.mnmean.nc") %>%
-  filter(time >= "2023-07-01", time <= "2024-06-30")
+# sst <- stars::read_ncdf("data/sst.mnmean.nc") %>%
+#   filter(time >= "2023-07-01", time <= "2024-06-30")
 
 
-# crop to AOC: dec lat/long
-sst_aoc <- dens_crop %>%
-  st_transform(4326)
+sst <- readRDS("data/bioss_sst_stars.rds")
 
-source("tools/sst-to-aoc.R")
-
-# due to such low res, we need to interpolate - a fancy model would be best, here just mean
-sst_crop <- st_crop(sst, sst_aoc)
-sst_crop$sst <- ifelse(is.na(sst_crop$sst), mean(sst_crop$sst, na.rm = T), sst_crop$sst)
-
-sst_crop <- sst_crop %>%
-  st_transform(st_crs(density_map))
+# # crop to AOC: dec lat/long
+# sst_aoc <- dens_crop %>%
+#   st_transform(4326)
+# 
+# source("tools/sst-to-aoc.R")
+# 
+# # due to such low res, we need to interpolate - a fancy model would be best, here just mean
+# sst_crop <- st_crop(sst, sst_aoc)
+# sst_crop$sst <- ifelse(is.na(sst_crop$sst), mean(sst_crop$sst, na.rm = T), sst_crop$sst)
+# 
+# sst_crop <- sst_crop %>%
+#   st_transform(st_crs(density_map))
 
 
 
@@ -85,7 +84,7 @@ sst_drv <- Driver(
   id = "sst",
   type = "habitat",
   descr = "Sea Surface Temperature",
-  stars_obj = sst_crop %>% st_transform(utm30)
+  stars_obj = sst# sst_crop %>% st_transform(utm30)
 )
 
 
