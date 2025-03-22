@@ -102,7 +102,7 @@ Agent <- function(species = NULL, model_config = NULL){
       body_mass = properties@initial_mass,
       states_budget = stt_prob,
       states_cost = stt_cost,
-      energy_expenditure = units::set_units(0, "kJ/g"),
+      energy_expenditure = units::set_units(0, "kJ"),
       foraging_success = units::set_units(0, "g/day"),
       mass_change_value = units::set_units(0, "g"),
       mortality_prob = mortality_prob,
