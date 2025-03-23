@@ -30,7 +30,9 @@ Imports:
     terra,
     units
 Collate: 
+    'bioss_run_sim.R'
     'build_cost_fn.R'
+    'calc_day_costs.R'
     'utils.R'
     's4_utils.R'
     's4_management.R'
@@ -50,6 +52,7 @@ Collate:
     'rmr_initiate.R'
     'rmr_run.R'
     'roamR-package.R'
+    'sample_cell.R'
     'velocity_ou.R'
 VignetteBuilder: knitr
 Depends: 
