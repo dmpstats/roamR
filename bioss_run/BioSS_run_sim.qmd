@@ -7,7 +7,9 @@ format:
 editor: visual
 ---
 
-## 
+## Initialise the IBM
+
+The following is largely the same as previous, but now uses your SST data.
 
 ```{r}
 #| code-fold: true
@@ -46,25 +48,8 @@ template_rast <- st_as_stars(dens_crop |> st_transform(utm30) |>  st_bbox(), nx 
 density_map <- st_warp(density_map, template_rast)
 
 # note, month number is used, so no more than one year's data
-# sst <- stars::read_ncdf("data/sst.mnmean.nc") %>%
-#   filter(time >= "2023-07-01", time <= "2024-06-30")
-
 
 sst <- readRDS("data/bioss_sst_stars.rds")
-
-# # crop to AOC: dec lat/long
-# sst_aoc <- dens_crop %>%
-#   st_transform(4326)
-# 
-# source("tools/sst-to-aoc.R")
-# 
-# # due to such low res, we need to interpolate - a fancy model would be best, here just mean
-# sst_crop <- st_crop(sst, sst_aoc)
-# sst_crop$sst <- ifelse(is.na(sst_crop$sst), mean(sst_crop$sst, na.rm = T), sst_crop$sst)
-# 
-# sst_crop <- sst_crop %>%
-#   st_transform(st_crs(density_map))
-
 
 
 # IBM settings -------------------------------------------------
@@ -107,6 +92,8 @@ guill_drivers <- list(
 driver_resp <- list()
 ```
 
+Of more direct interest here, are the uncertainties around the energetics calculations.Currently these are used to generate stochastic value for each of the agents.
+
 
 ```{r}
 # States specification -------------------------------------------------
@@ -114,33 +101,33 @@ driver_resp <- list()
 states <- list(
   flight = State(
     id = "flight",
-    energy_cost = VarDist(dist_normal(507.6, 237.6), units = "kJ/hour"), # vals from excel sheet. Normal may not be adequate (some good chance of <zero)
+    energy_cost = VarDist(dist_normal(507.6, 237.6), units = "kJ/hour"), # vals from excel sheet. Normal may not be adequate (some good chance of <zero) - there is a catch for this
     time_budget = VarDist(dist_degenerate(0.056), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(10, 20), "m/s") # made-up
+    speed = VarDist(dist_uniform(10, 20), "m/s") # made up - not important here
   ),
   dive = State(
     id = "diving",
     energy_cost = VarDist(dist_normal(3.71, 1.3), units = NULL), # from spreadsheet
     time_budget = VarDist(dist_degenerate(3.11), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(0, 1), "m/s") # made-up
+    speed = VarDist(dist_uniform(0, 1), "m/s") # made up - not important here
   ),
   active = State(
     id = "active_on_water",
-    energy_cost = VarDist(dist_normal(113, 22), units = NULL), # made-up
+    energy_cost = VarDist(dist_normal(113, 22), units = NULL), # from spreadsheet
     time_budget = VarDist(dist_degenerate(10.5), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(0, 1), "m/s") # made-up
+    speed = VarDist(dist_uniform(0, 1), "m/s") # made up - not important here
   ),
   inactive = State(
     id = "inactive_on_water",
-    energy_cost = VarDist(dist_normal(72.2, 22), units = NULL), # made-up
+    energy_cost = VarDist(dist_normal(72.2, 22), units = NULL), # from spreadsheet
     time_budget = VarDist(dist_degenerate(10.3), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(0, 1), "m/s") # made-up
+    speed = VarDist(dist_uniform(0, 1), "m/s") # made up - not important here
   ),
   colony = State(
     id = "colony",
-    energy_cost = VarDist(dist_normal(33.8, 11.4), units = "kJ/hour"), # vals from excel sheet
+    energy_cost = VarDist(dist_normal(33.8, 11.4), units = "kJ/hour"), # from spreadsheet
     time_budget = VarDist(dist_degenerate(0), "hours/day"), # no time at colony
-    speed = VarDist(0, "m/s") # made-up
+    speed = VarDist(0, "m/s") # made up - not important here
   )
 )
 
@@ -184,6 +171,9 @@ guill_ibm <- rmr_initiate(
 )
 ```
 
+## Constructing agents and running the simulation
+
+The initiation of the IBM creates agents (`n_agents = 1`) however, for our purposes these are being made individually below. Here create 4 in a list (`agent_list`). There is a slight alteration of the history element here to respect the reference system of the IBM (will be future fix).
 
 ```{r}
 agent_list <- list()
@@ -201,10 +191,30 @@ agent_list <- list()
   } # eol i
 ```
 
+The simulation is run for each agent in the list. The `sequent_runs` object is a list of the results for each agent. We'll only run for the first one, for timing and looking at structure.
+
 
 ```{r}
-
+system.time({
+  
 sequent_runs <- lapply(agent_list[1], \(x) bioss_run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
             in_density = guill_ibm@drivers$dens@stars_obj))
 
+})
+
 ```
+
+
+```{r}
+
+slotNames(sequent_runs[[1]])
+
+```
+
+```{r}
+hist_obj <- sequent_runs[[1]]@history
+
+plot(hist_obj$body_mass, xlab = "timestep", ylab = "bodymass", col = "blue") 
+```
+
+
