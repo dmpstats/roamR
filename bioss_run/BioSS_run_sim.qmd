@@ -21,13 +21,6 @@ library(roamR)
 library(stars)
 library(sf)
 library(distributional)
-library(CircStats)
-library(devtools)
-
-# access the package elements
-load_all()
-
-
 
 # UTM zone 30N
 utm30 <- st_crs(32630)
@@ -195,8 +188,11 @@ The simulation is run for each agent in the list. The `sequent_runs` object is a
 
 
 ```{r}
+
+
 system.time({
   
+
 sequent_runs <- lapply(agent_list[1], \(x) bioss_run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
             in_density = guill_ibm@drivers$dens@stars_obj))
 
