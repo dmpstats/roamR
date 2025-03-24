@@ -35,7 +35,7 @@ within the area of calculation (AOC).}
 \item{states_profile}{a list \linkS4class{State} objects, defining the
 behavioural/activity states for the species to consider in the model.}
 
-\item{driver_responses}{list of \linkS4class{DriverResponse} objects, specifying
+\item{driver_responses}{a list of \linkS4class{DriverResponse} objects, specifying
 the species’ responses to predefined model drivers, such as environmental
 pressures, biological influences, and human-induced impacts affecting
 movement and behaviour/activity states. See the Details section below and

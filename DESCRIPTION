@@ -30,6 +30,11 @@ Imports:
     terra,
     units
 Collate: 
+    'activity_cost-active.R'
+    'activity_cost-colony.R'
+    'activity_cost-dive.R'
+    'activity_cost-flight.R'
+    'activity_cost-inactive.R'
     'bioss_run_sim.R'
     'build_cost_fn.R'
     'calc_day_costs.R'
@@ -49,6 +54,7 @@ Collate:
     'class-State.R'
     'class-StateInfluence.R'
     'data.R'
+    'rebalance_states.R'
     'rmr_initiate.R'
     'rmr_run.R'
     'roamR-package.R'

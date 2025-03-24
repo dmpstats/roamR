@@ -1,3 +1,15 @@
+#' Run a minimal simulation for BioSS analysess
+#'
+#' @param in_agent A roamR object of class Agent
+#' @param in_species A roamR object of class Species
+#' @param in_ibm A roamR object of class IBM
+#' @param in_ibm_config A roamR object of class IBMConfig
+#' @param in_density A stars object density map (raster) - projected as per ibm config and cropped to AoC
+#'
+#' @returns A roamR object of class Agent that has been simulated over time
+#' @export
+#'
+#' @examples TBD
 bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density = density_map){
 
   current_time <- in_ibm_config@start_date + days(1)
