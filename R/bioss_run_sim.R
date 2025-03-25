@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples TBD
-bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density = density_map){
+bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density){
 
   current_time <- in_ibm_config@start_date + days(1)
 
@@ -22,7 +22,12 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
   night_proportion <- 1-(geosphere::daylength(lat = 56.18, doy = yday(current_time)))/24
 
-  destination <- sample_cell(in_density, 1)
+  current_density <- in_density %>%
+    filter(month == current_month)
+
+  current_density <- current_density[drop = T] #drop unneeded dimensions
+
+  destination <- sample_cell(current_density, 1)
 
   while(current_time <= in_ibm_config@end_date){
 
@@ -58,7 +63,12 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
     if(lubridate::month(new_time) != lubridate::month(current_time)) {
 
-      destination <- sample_cell(in_density, 1)
+      current_density <- in_density %>%
+        filter(month == current_month)
+
+      current_density <- current_density[drop = T] #drop unneeded dimensions
+
+      destination <- sample_cell(current_density, 1)
 
     }
 
