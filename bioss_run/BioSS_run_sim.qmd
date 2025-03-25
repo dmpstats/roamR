@@ -27,18 +27,33 @@ utm30 <- st_crs(32630)
 
 
 # Input data layers -----------------------------------------------------------------------------------------------
+# datacubes: density, lat/lon/, month
+spec_map <- readRDS("data/guill_dens.rds") %>% 
+  rename(density = X10) 
 
-density_map <- readRDS("data/GuillemotIsle of May3_iteration1.rds") %>%
-  st_as_stars() %>%
-  rename(pop_dens = X3)
+conspec_map <- readRDS("data/guill_conspec.rds") %>%
+  rename(density = layer.1)
 
-dens_crop <- st_bbox(c(xmin = -5e5, ymin = -4e6,  xmax = 5e5, ymax = -3.2e6), crs = st_crs(density_map))
+spec_imp_map <- readRDS("data/guill_dens_clipped.rds") 
+spec_imp_map_p <- spec_imp_map$p
+spec_imp_map <- spec_imp_map$d %>%
+  rename(density = X10)
 
-density_map <- st_crop(density_map, dens_crop)
+conspec_imp_map <- readRDS("data/guill_conspec_clipped.rds") 
+conspec_imp_map_p <- conspec_imp_map$p
+conspec_imp_map <- conspec_imp_map$d %>%
+  rename(density = layer.1)
 
-template_rast <- st_as_stars(dens_crop |> st_transform(utm30) |>  st_bbox(), nx = dim(density_map)[1], ny = dim(density_map)[2], values = NA_real_)
+# clip and revise odd projection
+dens_crop <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 
-density_map <- st_warp(density_map, template_rast)
+template_rast <- st_as_stars(spec_map |> st_transform(utm30) |> st_bbox(),
+                             nx = dim(spec_map)[1], ny = dim(spec_map)[2], values = NA_real_)
+
+spec_map <- spec_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
+conspec_map <- conspec_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
+spec_imp_map <- spec_imp_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
+conspec_imp_map <- conspec_imp_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
 
 # note, month number is used, so no more than one year's data
 
@@ -62,21 +77,45 @@ sst_drv <- Driver(
   id = "sst",
   type = "habitat",
   descr = "Sea Surface Temperature",
-  stars_obj = sst# sst_crop %>% st_transform(utm30)
+  stars_obj = sst
 )
 
 
 dens_drv <- Driver(
   id = "dens",
   type = "impact",
-  descr = "dens/energy map",
-  stars_obj = density_map
+  descr = "species dens map",
+  stars_obj = spec_map
+)
+
+dens_imp_drv <- Driver(
+  id = "dens",
+  type = "impact",
+  descr = "species redist map",
+  stars_obj = spec_imp_map
+)
+
+consp_drv <- Driver(
+  id = "consp_dens",
+  type = "impact",
+  descr = "conspecific dens map",
+  stars_obj = conspec_map
+)
+
+consp_imp_drv <- Driver(
+  id = "dens",
+  type = "impact",
+  descr = "consp redist map",
+  stars_obj = conspec_imp_map
 )
 
 # store as list for initialisation
 guill_drivers <- list(
   sst = sst_drv,
-  dens = dens_drv
+  dens = dens_drv,
+  consp = consp_drv,
+  dens_imp = dens_imp_drv,
+  consp_imp = consp_imp_drv
 )
 
 
