@@ -12,10 +12,10 @@ dive_cost_fn <- function(t_dive, species){
 
   x <- units::drop_units(t_dive)
 
-  rand_par <- generate(species@states_profile$dive@energy_cost, 1) %>%
+  rand_par <- generate(species@states_profile$dive@energy_cost, 1) |>
     units::drop_units()
 
-  (rand_par*sum(1-exp(-x/1.23))/sum(x)*60) %>%
-    units::set_units(., kJ/hr)
+  (rand_par*sum(1-exp(-x/1.23))/sum(x)*60) |>
+    units::set_units("kJ/h")
 
 }
