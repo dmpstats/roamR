@@ -10,11 +10,11 @@
 #' @examples TBD
 active_water_cost_fn <- function(sst, species){
 
-  rand_par <- generate(species@states_profile$active@energy_cost, 1) %>%
+  rand_par <- generate(species@states_profile$active@energy_cost, 1) |>
     units::drop_units()
 
-  (rand_par-(2.75*sst)) %>%
-    units::set_units(., kJ/hr)
+  (rand_par-(2.75*sst)) |>
+    units::set_units("kJ/h")
 
 }
 
