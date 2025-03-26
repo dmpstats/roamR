@@ -20,14 +20,18 @@ Config/testthat/edition: 3
 Imports: 
     cli,
     distributional,
+    dplyr,
     furrr,
     future,
+    geosphere,
+    lubridate,
     methods,
     purrr,
     rlang,
     sf,
     stars,
     terra,
+    tidyr,
     units
 Collate: 
     'activity_cost-active.R'
