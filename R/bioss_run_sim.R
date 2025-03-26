@@ -12,50 +12,52 @@
 #' @examples TBD
 bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density){
 
-  current_time <- in_ibm_config@start_date + days(1)
+  current_time <- in_ibm_config@start_date + lubridate::days(1)
 
-  step_duration <- days(1)
+  step_duration <- lubridate::days(1)
 
-  current_month <- month(current_time)
+  current_month <- lubridate::month(current_time)
 
-  sst_month <- month(st_dimensions(in_ibm@drivers$sst@stars_obj)$time$values)
+  sst_month <- lubridate::month(stars::st_dimensions(in_ibm@drivers$sst@stars_obj)$time$values)
 
-  night_proportion <- 1-(geosphere::daylength(lat = 56.18, doy = yday(current_time)))/24
+  night_proportion <- 1-(geosphere::daylength(lat = 56.18, doy = lubridate::yday(current_time)))/24
 
-  current_density <- in_density %>%
-    filter(month == current_month)
+  current_density <- in_density |>
+    dplyr::filter(month == current_month)
 
   current_density <- current_density[drop = T] #drop unneeded dimensions
 
-  destination <- sample_cell(current_density, 1)
+  destination <- roamR::sample_cell(current_density, 1)
 
   while(current_time <= in_ibm_config@end_date){
 
     new_time <- current_time + step_duration
 
-    in_sst <- st_extract(in_ibm@drivers$sst@stars_obj,
-                         st_sfc(in_agent@condition@location, crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
+    in_sst <- stars::st_extract(in_ibm@drivers$sst@stars_obj,
+                         sf::st_sfc(in_agent@condition@location,
+                                    crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
 
     if(lubridate::date(new_time) != lubridate::date(current_time)) {
 
-      energy_profile <- calc_day_cost(in_agent = in_agent, in_species = in_species,
+      energy_profile <- roamR::calc_day_cost(in_agent = in_agent, in_species = in_species,
                                       in_ibm = in_ibm, sst = in_sst,
                                       intake = units::set_units(566, "kJ/h"))
 
       # existing activity profile - store
-      energy_expenditure <- sum((energy_profile$prop*24) * energy_profile$unit_cost) %>%
-        units::drop_units() %>%
-        units::set_units(., "kJ")
+      energy_expenditure <- sum((energy_profile$prop*24) * energy_profile$unit_cost) |>
+        units::drop_units() |>
+        units::set_units("kJ")
 
-      wt_gain <- units::drop_units(energy_expenditure) * 0.072 %>%
-        units::set_units(., "g")
+      wt_gain <- units::drop_units(energy_expenditure) * 0.072 |>
+        units::set_units("g")
 
       # update activity profile for use in t+1
-      nudge_states <- state_balance(in_states = energy_profile[1:4,], night_proportion = night_proportion,
+      nudge_states <- roamR::state_balance(in_states = energy_profile[1:4,],
+                                           night_proportion = night_proportion,
                                     energy_target = units::set_units(1.14, "kJ/h"))
 
-      in_agent@condition@states_budget[1:4] <- nudge_states %>%
-        units::set_units(., 1) %>%
+      in_agent@condition@states_budget[1:4] <- nudge_states |>
+        units::set_units(1) |>
         as.list()
 
 
@@ -63,12 +65,12 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
     if(lubridate::month(new_time) != lubridate::month(current_time)) {
 
-      current_density <- in_density %>%
-        filter(month == current_month)
+      current_density <- in_density |>
+        dplyr::filter(month == current_month)
 
       current_density <- current_density[drop = T] #drop unneeded dimensions
 
-      destination <- sample_cell(current_density, 1)
+      destination <- roamR::sample_cell(current_density, 1)
 
     }
 
@@ -84,7 +86,8 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
                               geometry = sf::st_sfc(in_agent@condition@location, crs = sf::st_crs(in_agent@history$geometry))
     )
 
-    in_agent@history <- in_agent@history %>% bind_rows(agent_update)
+    in_agent@history <- in_agent@history |>
+      dplyr::bind_rows(agent_update)
 
   }
 
