@@ -11,9 +11,10 @@ sample_cell <- function(in_rast, n_samp){
 
   n_row <- nrow(in_rast[[1]])
 
-  rast_vect <- in_rast[[1]] %>%
-    as.vector() %>%
-    if_else(is.na(.), 0, .)
+  rast_vect <- in_rast[[1]] |>
+    as.vector()
+
+  rast_vect <- dplyr::if_else(is.na(rast_vect), 0, rast_vect)
 
   p_vect <- rast_vect/sum(rast_vect)
 
