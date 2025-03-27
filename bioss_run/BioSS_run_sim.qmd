@@ -7,9 +7,18 @@ format:
 editor: visual
 ---
 
+## Setting up the IBM runs
+
+Parallelisation, counter-factuals
+
 ## Initialise the IBM
 
-The following is largely the same as previous, but now uses your SST data.
+Input data, species & model configurations etc
+
+
+### Spatio-temporal inputs
+
+Species, conspecifics and SST. Pre-parpared (clipped to AoC and projected to UTM30).
 
 ```{r}
 #| code-fold: true
@@ -25,52 +34,29 @@ library(distributional)
 # UTM zone 30N
 utm30 <- st_crs(32630)
 
+# AoC in UTM. Exact figures come from a previous lat/lon example
+AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 
 # Input data layers -----------------------------------------------------------------------------------------------
 # datacubes: density, lat/lon/, month
-spec_map <- readRDS("data/guill_dens.rds") %>% 
-  rename(density = X10) 
+spec_map <- readRDS("data/bioss_spec_map.rds")
 
-conspec_map <- readRDS("data/guill_conspec.rds") %>%
-  rename(density = layer.1)
+conspec_map <- readRDS("data/bioss_conspec_map.rds") 
 
-spec_imp_map <- readRDS("data/guill_dens_clipped.rds") 
-spec_imp_map_p <- spec_imp_map$p
-spec_imp_map <- spec_imp_map$d %>%
-  rename(density = X10)
+spec_imp_map <- readRDS("data/bioss_spec_imp_map.rds") 
 
-conspec_imp_map <- readRDS("data/guill_conspec_clipped.rds") 
-conspec_imp_map_p <- conspec_imp_map$p
-conspec_imp_map <- conspec_imp_map$d %>%
-  rename(density = layer.1)
-
-# clip and revise odd projection
-dens_crop <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
-
-template_rast <- st_as_stars(spec_map |> st_transform(utm30) |> st_bbox(),
-                             nx = dim(spec_map)[1], ny = dim(spec_map)[2], values = NA_real_)
-
-spec_map <- spec_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
-conspec_map <- conspec_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
-spec_imp_map <- spec_imp_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
-conspec_imp_map <- conspec_imp_map %>% st_warp(dest = template_rast) %>% st_crop(dens_crop) 
-
-# note, month number is used, so no more than one year's data
+conspec_imp_map <- readRDS("data/bioss_conspec_imp_map.rds") 
 
 sst <- readRDS("data/bioss_sst_stars.rds")
 
 
-# IBM settings -------------------------------------------------
 
-isle_may <- st_sf(
-  id = "Isle of May",
-  prop = 1,
-  geom = st_sfc(st_point(c(-2.5667, 56.1833))),
-  crs = 4326
-)
+```
+
+Put these in as `roamR` drivers. Exclude conspecifics for dev.
 
 
-
+```{r}
 # Set up IBM drivers ----------------------------------------------------------------------------------------------
 
 sst_drv <- Driver(
@@ -113,18 +99,25 @@ consp_imp_drv <- Driver(
 guill_drivers <- list(
   sst = sst_drv,
   dens = dens_drv,
-  consp = consp_drv,
-  dens_imp = dens_imp_drv,
-  consp_imp = consp_imp_drv
+  consp = consp_drv
+  # ,
+  # dens_imp = dens_imp_drv,
+  # consp_imp = consp_imp_drv
 )
+```
 
+Blank at this point.
+
+```{r}
 
 # Response to drivers  -------------------------------------------------
 
 driver_resp <- list()
 ```
 
-Of more direct interest here, are the uncertainties around the energetics calculations.Currently these are used to generate stochastic value for each of the agents.
+### Species and model configurations
+
+State specs: Of direct interest here, are the uncertainties around the energetics calculations.Currently these are used to generate stochastic values for each of the agents.
 
 
 ```{r}
@@ -162,6 +155,23 @@ states <- list(
     speed = VarDist(0, "m/s") # made up - not important here
   )
 )
+```
+
+Other high-level configurations.
+
+
+```{r}
+
+
+# IBM settings -------------------------------------------------
+
+isle_may <- st_sf(
+  id = "Isle of May",
+  prop = 1,
+  geom = st_sfc(st_point(c(-2.5667, 56.1833))),
+  crs = 4326
+)
+
 
 # Specify <Species>  -------------------------------------------------
 
@@ -181,7 +191,7 @@ guill <- Species(
 guill_imb_config <- ModelConfig(
   n_agents = 1,
   ref_sys = utm30,
-  aoc_bbx = dens_crop |> st_transform(utm30) |>  st_bbox(), #
+  aoc_bbx = AoC, #
   delta_x = 1000,
   delta_y = 1000,
   time_step = "1 day",
@@ -192,6 +202,7 @@ guill_imb_config <- ModelConfig(
 )
 ```
 
+The most time-consuming element of this is likely determining the "distance-to" things that influence the agents. The obvious one relevant here are the OWF - excluded currently for dev. Need for counter-factual runs.
 
 ```{r}
 # Initiate Agent  -------------------------------------------------
@@ -209,7 +220,7 @@ The initiation of the IBM creates agents (`n_agents = 1`) however, for our purpo
 
 ```{r}
 agent_list <- list()
-  n_agents <- 4
+  n_agents <- 8
 
   set.seed(4958)
 
@@ -217,27 +228,38 @@ agent_list <- list()
 
   agent_list[[i]] <- Agent(species = guill, model_config = guill_imb_config)
 
-  agent_list[[i]]@history <- agent_list[[i]]@history %>%
+  agent_list[[i]]@history <- agent_list[[i]]@history |>
     st_set_crs(guill_imb_config@ref_sys)
 
-  } # eol i
+  } 
 ```
 
-The simulation is run for each agent in the list. The `sequent_runs` object is a list of the results for each agent. We'll only run for the first one, for timing and looking at structure.
+The simulation is run for each agent in the list. The `sequent_runs` object is a list of the results for each agent. We'll only run for the first one, for timing and looking at structure. Parallelised using `furrr`.
 
 
 ```{r}
 
+future::plan(future::multisession, workers = 4)
 
 system.time({
+
+sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
+            in_density = guill_ibm@drivers$dens@stars_obj), .progress = T, .options = furrr::furrr_options(seed = T))
   
-
-sequent_runs <- lapply(agent_list[1], \(x) bioss_run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
-            in_density = guill_ibm@drivers$dens@stars_obj))
-
 })
 
 ```
+
+
+## Querying the outputs
+
+
+Each of the agents has 3 slots:
+
+* `condition`: this contains the current state of the agent as it progresses through the simulation e.g. position, weight etc. At the end of the simulation it will contain its final state. Elements of this are progressively used to populate the history slot below.
+* `properties`: the over-arching properties governing the agent which are fixed throughout the simulation. Elements of this are derived from the species properties and populated at the initialisation of the agent.
+* `history`: elements of the agent's condition recorded over time. 
+
 
 
 ```{r}
@@ -246,10 +268,43 @@ slotNames(sequent_runs[[1]])
 
 ```
 
+For example, the bodymass of the agent is recorded over time. The stochasticity here is defined at the species-level and as implemented for this example, the agent-level energetics parameters vary over time.
+
+
 ```{r}
 hist_obj <- sequent_runs[[1]]@history
 
-plot(hist_obj$body_mass, xlab = "timestep", ylab = "bodymass", col = "blue") 
+ggplot(hist_obj) + 
+  geom_point(aes(x = 1:nrow(hist_obj), y = units::drop_units(body_mass)), fill = "blue", col = "blue", alpha = 0.5) +
+  xlab("day") +
+  ylab("bodymass (g)") +
+  theme_light()
 ```
+## Counter-factual runs
+
+It is assumed here that there are only a binary comparison of unimpacted and impacted runs. Each agent will create a pair whose starting conditions are identical. This means common random seeds for stochastic components, although they are expected/allowed to deviate over time given the variable pressures applied through impact scenarios.
+
+Here we run a counter-factual set for the previous example agents. Note, only a proportion of agents are deemed responsive to the impacts, but they will all still be subject to the density dependent energy implications of those agents that are responsive. 
+
+```{r}
+
+# some code
+
+```
+
+### Counter-factual comparisons
+
+Here we summarise the impacts in terms of effects on energetics. Note, by design the agents will attempt to mitigate reductions in feeding success/energy inputs by modifying their activity budgets.
+
+```{r}
+
+# some code
+
+```
+
+
+
+
+
 
 
