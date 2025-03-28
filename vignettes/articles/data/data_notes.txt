@@ -1,2 +1,0 @@
-Coastline data is EEA version 3.0, march 2017: eea_v_3035_100_k_coastline-poly_1995-2017_p_v03_r00
-Activity data is from Lila Buckingham
