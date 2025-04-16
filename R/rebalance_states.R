@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples TBD
-state_balance <- function(in_states, night_proportion, feed_state = 2, rest_state = 4, energy_target = units::set_units(1.14, "kJ/h")){
+state_balance <- function(in_states, night_proportion, feed_state = 2, rest_state = 4, energy_target = units::set_units(0, "kJ/h")){
 
   out_states <- in_states$prop
 

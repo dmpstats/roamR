@@ -41,7 +41,7 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
       energy_profile <- roamR::calc_day_cost(in_agent = in_agent, in_species = in_species,
                                       in_ibm = in_ibm, sst = in_sst,
-                                      intake = units::set_units(566, "kJ/h"))
+                                      intake = units::set_units(100, "kJ/h"))
 
       # existing activity profile - store
       energy_expenditure <- sum((energy_profile$prop*24) * energy_profile$unit_cost) |>
@@ -54,7 +54,7 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
       # update activity profile for use in t+1
       nudge_states <- roamR::state_balance(in_states = energy_profile[1:4,],
                                            night_proportion = night_proportion,
-                                    energy_target = units::set_units(1.14, "kJ/h"))
+                                    energy_target = units::set_units(0, "kJ/h"))
 
       in_agent@condition@states_budget[1:4] <- nudge_states |>
         units::set_units(1) |>

@@ -10,7 +10,7 @@ state_balance(
   night_proportion,
   feed_state = 2,
   rest_state = 4,
-  energy_target = units::set_units(1.14, "kJ/h")
+  energy_target = units::set_units(0, "kJ/h")
 )
 }
 \arguments{
