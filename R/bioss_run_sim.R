@@ -41,7 +41,7 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
       energy_profile <- roamR::calc_day_cost(in_agent = in_agent, in_species = in_species,
                                       in_ibm = in_ibm, sst = in_sst,
-                                      intake = units::set_units(100, "kJ/h"))
+                                      intake = units::set_units(543, "kJ/h"))
 
       # existing activity profile - store
       energy_expenditure <- sum((energy_profile$prop*24) * energy_profile$unit_cost) |>
