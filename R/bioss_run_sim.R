@@ -10,10 +10,15 @@
 #' @export
 #'
 #' @examples TBD
-bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density,
-                          mean_intake, impact_map = NULL, in_imp_density){
+bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_intake, impact){
 
-  if(is.null(impact_map)){
+  in_density <- in_ibm@drivers$dens@stars_obj
+  impact_map <- in_ibm@drivers$energy_imp@stars_obj
+  in_imp_density <- in_ibm@drivers$dens_imp@stars_obj
+  sst_map <- in_ibm@drivers$sst@stars_obj
+
+
+  if(impact == F){
 
     agent_imp_resp <- 0
 
@@ -29,16 +34,16 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
   current_month <- lubridate::month(current_time)
 
-  sst_month <- lubridate::month(stars::st_dimensions(in_ibm@drivers$sst@stars_obj)$time$values)
+  sst_month <- lubridate::month(stars::st_dimensions(sst_map)$time$values)
 
-  dens_month <- lubridate::month(stars::st_dimensions(in_ibm@drivers$dens@stars_obj)$month$values)
+  dens_month <- lubridate::month(stars::st_dimensions(in_density)$month$values)
 
   night_proportion <- 1-(geosphere::daylength(lat = 56.18, doy = lubridate::yday(current_time)))/24
 
   e_intake <- mean_intake
 
 
-  if(!is.null(impact_map) & agent_imp_resp == 1){
+  if(impact == T & agent_imp_resp == 1){
 
     in_density <- in_imp_density
 
@@ -56,17 +61,16 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
     new_time <- current_time + step_duration
 
-    in_sst <- stars::st_extract(in_ibm@drivers$sst@stars_obj,
+    in_sst <- stars::st_extract(sst_map,
                          sf::st_sfc(in_agent@condition@location,
                                     crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
 
     if(lubridate::date(new_time) != lubridate::date(current_time)) {
 
-      if(!is.null(impact_map)){
+      if(impact == T){
 
-        impact <- stars::st_extract(in_ibm@drivers$energy_imp@stars_obj,
-                                                            sf::st_sfc(in_agent@condition@location,
-                                                                       crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
+        impact <- stars::st_extract(impact_map,
+                                    sf::st_sfc(in_agent@condition@location,crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
 
         impact <- ifelse(is.na(impact), 1, impact) # if foraging in footprint
 
@@ -89,7 +93,6 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
         units::set_units("g")
 
       # update activity profile for use in t+1
-      if(in_agent@condition@timestep == 215){browser}
 
       nudge_states <- roamR::state_balance(in_states = energy_profile[1:4,],
                                            night_proportion = night_proportion,
