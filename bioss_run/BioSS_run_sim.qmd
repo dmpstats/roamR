@@ -271,8 +271,8 @@ sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
             in_agent = x, in_ibm = guill_ibm,
             in_species = guill, 
             in_ibm_config = guill_imb_config,
-            in_density = guill_ibm@drivers$dens@stars_obj,
-            mean_intake = 543), 
+            mean_intake = 543,
+            impact = F), 
             .progress = T, .options = furrr::furrr_options(seed = T))
 
 })
@@ -347,10 +347,8 @@ sequent_imp_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
             in_agent = x, in_ibm = guill_ibm,
             in_species = guill, 
             in_ibm_config = guill_imb_config,
-            in_density = guill_ibm@drivers$dens@stars_obj,
             mean_intake = 543,
-            impact_map = guill_ibm@drivers$energy_imp@stars_obj,
-            in_imp_density = guill_ibm@drivers$dens_imp@stars_obj), 
+            impact = T), 
             .progress = T, .options = furrr::furrr_options(seed = T))
   
 })
@@ -401,6 +399,8 @@ comp_df <- bind_rows(hist_obj, imp_hist_obj)
 
 
 ```{r}
+
+library(units)
 
 energy_summ <- comp_df |> 
   group_by(agent_id, impact) |>
@@ -455,16 +455,6 @@ ggplot(activity_summ) +
  
 ```
 
-```{r}
-
-
-ggplot(test) +
-geom_bar(aes(x = impact, y = proportion, fill = activity), stat = "identity") +
-  theme_light()
-  
-
-
-```
 
 
 
