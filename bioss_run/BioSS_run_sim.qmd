@@ -180,7 +180,7 @@ guill <- Species(
   common_name = "guillemot",
   scientific_name = "Uria Aalge",
   pop_size = 15000,
-  body_mass_distr = VarDist(dist_uniform(600, 1450), "g"),
+  body_mass_distr = VarDist(dist_normal(mean = 929, sd = 56), "g"), # mean from kate CEH doc - sd digitising Francis' plot
   mortality_thresh_distr = VarDist(800, "g"),
   states_profile = states,
   driver_responses = driver_resp
@@ -196,7 +196,7 @@ guill_imb_config <- ModelConfig(
   delta_y = 1000,
   time_step = "1 day",
   start_date = date("2025-07-01"),
-  end_date = date("2025-07-01") + 240, # ~9 months
+  end_date = date("2025-07-01") + 270, # ~9 months
   start_sites = isle_may |> st_transform(utm30),
   end_sites = isle_may |> st_transform(utm30)
 )
@@ -272,14 +272,32 @@ For example, the bodymass of the agent is recorded over time. The stochasticity 
 
 
 ```{r}
-hist_obj <- sequent_runs[[1]]@history
+hist_obj <- lapply(sequent_runs, \(x) x@history)
+
+names(hist_obj) <- paste0("agent_", 1:length(hist_obj))
+
+hist_obj <- bind_rows(hist_obj, .id = "agent_id")
 
 ggplot(hist_obj) + 
-  geom_point(aes(x = 1:nrow(hist_obj), y = units::drop_units(body_mass)), fill = "blue", col = "blue", alpha = 0.5) +
+  geom_point(aes(x = timestep, y = units::drop_units(energy_expenditure)), fill = "blue", col = "blue", alpha = 0.5) +
   xlab("day") +
-  ylab("bodymass (g)") +
-  theme_light()
+  ylab("cumulative energy (kJ)") +
+  theme_light() +
+  facet_wrap(~agent_id, ncol = 2)
 ```
+
+
+```{r}
+ggplot(hist_obj, aes(x = timestep, y = units::drop_units(body_mass))) + 
+  geom_point(fill = "grey", col = "black", alpha = 0.5) +
+  xlab("day") +
+  ylab("Implied body-mass (g)") +
+  geom_smooth() +
+  theme_light() +
+  facet_wrap(~agent_id, ncol = 2)
+
+```
+
 ## Counter-factual runs
 
 It is assumed here that there are only a binary comparison of unimpacted and impacted runs. Each agent will create a pair whose starting conditions are identical. This means common random seeds for stochastic components, although they are expected/allowed to deviate over time given the variable pressures applied through impact scenarios.
