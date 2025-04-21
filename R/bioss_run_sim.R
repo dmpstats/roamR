@@ -54,7 +54,9 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
       # update activity profile for use in t+1
       nudge_states <- roamR::state_balance(in_states = energy_profile[1:4,],
                                            night_proportion = night_proportion,
-                                    energy_target = units::set_units(0, "kJ/h"))
+                                           #current_e = mean(c(in_agent@condition@energy_expenditure, energy_expenditure)),
+                                           current_e = in_agent@condition@energy_expenditure,
+                                           energy_target = 1)
 
       in_agent@condition@states_budget[1:4] <- nudge_states |>
         units::set_units(1) |>
@@ -77,12 +79,13 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
     current_time <- new_time
     in_agent@condition@location[1:2] <- destination[1:2]
     in_agent@condition@body_mass <- in_agent@condition@body_mass + wt_gain
-    in_agent@condition@timestep <- in_agent@condition@timestep + integer(1)
+    in_agent@condition@timestep <- in_agent@condition@timestep + as.integer(1)
+    in_agent@condition@energy_expenditure <- in_agent@condition@energy_expenditure + energy_expenditure
 
     agent_update <- sf::st_sf(timestep = in_agent@condition@timestep,
                               body_mass = in_agent@condition@body_mass,
                               states_budget = list(in_agent@condition@states_budget),
-                              energy_expenditure = energy_expenditure,
+                              energy_expenditure = in_agent@condition@energy_expenditure,
                               geometry = sf::st_sfc(in_agent@condition@location, crs = sf::st_crs(in_agent@history$geometry))
     )
 
