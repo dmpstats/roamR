@@ -263,12 +263,18 @@ The simulation is run for each agent in the list. The `sequent_runs` object is a
 
 future::plan(future::multisession, workers = 4)
 
-system.time({
+set.seed(34958)
 
-sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
-            in_density = guill_ibm@drivers$dens@stars_obj,
-            in_imp_density = guill_ibm@drivers$dens_imp@stars_obj), .progress = T, .options = furrr::furrr_options(seed = T))
+system.time({
   
+sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
+            in_agent = x, in_ibm = guill_ibm,
+            in_species = guill, 
+            in_ibm_config = guill_imb_config,
+            in_density = guill_ibm@drivers$dens@stars_obj,
+            mean_intake = 543), 
+            .progress = T, .options = furrr::furrr_options(seed = T))
+
 })
 
 ```
@@ -299,7 +305,8 @@ hist_obj <- lapply(sequent_runs, \(x) x@history)
 
 names(hist_obj) <- paste0("agent_", 1:length(hist_obj))
 
-hist_obj <- bind_rows(hist_obj, .id = "agent_id")
+hist_obj <- bind_rows(hist_obj, .id = "agent_id") |> 
+  mutate(impact = F)
 
 ggplot(hist_obj) + 
   geom_point(aes(x = timestep, y = units::drop_units(energy_expenditure)), fill = "blue", col = "blue", alpha = 0.5) +
@@ -327,11 +334,58 @@ It is assumed here that there are only a binary comparison of unimpacted and imp
 
 Here we run a counter-factual set for the previous example agents. Note, only a proportion of agents are deemed responsive to the impacts, but they will all still be subject to the density dependent energy implications of those agents that are responsive. 
 
+
 ```{r}
 
-# some code
+future::plan(future::multisession, workers = 4)
+
+set.seed(34958)
+
+system.time({
+
+sequent_imp_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
+            in_agent = x, in_ibm = guill_ibm,
+            in_species = guill, 
+            in_ibm_config = guill_imb_config,
+            in_density = guill_ibm@drivers$dens@stars_obj,
+            mean_intake = 543,
+            impact_map = guill_ibm@drivers$energy_imp@stars_obj,
+            in_imp_density = guill_ibm@drivers$dens_imp@stars_obj), 
+            .progress = T, .options = furrr::furrr_options(seed = T))
+  
+})
 
 ```
+
+
+```{r}
+imp_hist_obj <- lapply(sequent_imp_runs, \(x) x@history)
+
+names(imp_hist_obj) <- paste0("agent_", 1:length(imp_hist_obj))
+
+imp_hist_obj <- bind_rows(imp_hist_obj, .id = "agent_id") |> 
+  mutate(impact = T)
+
+ggplot(imp_hist_obj) + 
+  geom_point(aes(x = timestep, y = units::drop_units(energy_expenditure)), fill = "blue", col = "blue", alpha = 0.5) +
+  xlab("day") +
+  ylab("cumulative energy (kJ)") +
+  theme_light() +
+  facet_wrap(~agent_id, ncol = 2)
+```
+
+
+```{r}
+ggplot(imp_hist_obj, aes(x = timestep, y = units::drop_units(body_mass))) + 
+  geom_point(fill = "grey", col = "black", alpha = 0.5) +
+  xlab("day") +
+  ylab("Implied body-mass (g)") +
+  geom_smooth() +
+  theme_light() +
+  facet_wrap(~agent_id, ncol = 2)
+
+```
+
 
 ### Counter-factual comparisons
 
@@ -339,11 +393,78 @@ Here we summarise the impacts in terms of effects on energetics. Note, by design
 
 ```{r}
 
-# some code
+comp_df <- bind_rows(hist_obj, imp_hist_obj) 
+  
 
 ```
 
 
+
+```{r}
+
+energy_summ <- comp_df |> 
+  group_by(agent_id, impact) |>
+  summarise(
+    mean_energy = mean(energy_expenditure),
+    mean_mass = mean(body_mass)
+  ) |> 
+  mutate(mean_energy = units::drop_units(mean_energy),
+         mean_mass = units::drop_units(mean_mass))
+  
+```
+
+```{r}
+
+
+ggplot(energy_summ) +
+  geom_point(aes(agent_id, mean_energy, col = impact), size = 3) +
+  ggthemes::scale_color_fivethirtyeight() +
+  ggtitle("Mean energy expenditure difference", "Impacted vs unimpacted") +
+  ylab("Mean energy expenditure (kJ) over season") +
+  theme_light()
+  
+
+
+```
+
+
+```{r}
+
+activity_summ <- comp_df |> 
+  group_by(agent_id, impact) |>
+  summarise(
+    mean_dive = mean(states_budget.dive),
+    mean_flight = mean(states_budget.flight),
+    mean_active = mean(states_budget.active),
+    mean_inactive = mean(states_budget.inactive)
+  ) |> 
+  as.data.frame() |> 
+  select(-geometry) |> 
+  pivot_longer(names_to = "activity", values_to = "proportion", -c(agent_id, impact)) |> 
+  group_by(agent_id, activity) |> 
+  mutate(diff = 24*60*(proportion[2] - proportion[1])) |> 
+  select(-impact) |> 
+  distinct()
+
+
+ggplot(activity_summ) +
+  rcartocolor::scale_fill_carto_d(palette = "Geyser") +
+  geom_bar(aes(x = agent_id, y = diff, fill = activity), stat = "identity") +
+  ylab("Mena difference impact - unimpacted (mins per day)") +
+  ggtitle("Difference in time spent in activities", "Impacted vs unimpacted") 
+ 
+```
+
+```{r}
+
+
+ggplot(test) +
+geom_bar(aes(x = impact, y = proportion, fill = activity), stat = "identity") +
+  theme_light()
+  
+
+
+```
 
 
 
