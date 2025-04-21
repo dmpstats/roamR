@@ -47,6 +47,8 @@ spec_imp_map <- readRDS("data/bioss_spec_imp_map.rds")
 
 conspec_imp_map <- readRDS("data/bioss_conspec_imp_map.rds") 
 
+energy_imp_map <- readRDS("data/bioss_energy_imp_map.rds")
+
 sst <- readRDS("data/bioss_sst_stars.rds")
 
 
@@ -75,7 +77,7 @@ dens_drv <- Driver(
 )
 
 dens_imp_drv <- Driver(
-  id = "dens",
+  id = "dens_imp",
   type = "impact",
   descr = "species redist map",
   stars_obj = spec_imp_map
@@ -89,20 +91,29 @@ consp_drv <- Driver(
 )
 
 consp_imp_drv <- Driver(
-  id = "dens",
+  id = "consp_imp_dens",
   type = "impact",
-  descr = "consp redist map",
+  descr = "conspecific redist map",
   stars_obj = conspec_imp_map
 )
+
+
+energy_imp_drv <- Driver(
+  id = "energy_imp",
+  type = "impact",
+  descr = "energy impact map",
+  stars_obj = energy_imp_map
+)
+
 
 # store as list for initialisation
 guill_drivers <- list(
   sst = sst_drv,
   dens = dens_drv,
-  consp = consp_drv
-  # ,
-  # dens_imp = dens_imp_drv,
-  # consp_imp = consp_imp_drv
+  consp = consp_drv,
+  dens_imp = dens_imp_drv,
+  consp_imp = consp_imp_drv,
+  energy_imp = energy_imp_drv
 )
 ```
 
@@ -200,6 +211,15 @@ guill_imb_config <- ModelConfig(
   start_sites = isle_may |> st_transform(utm30),
   end_sites = isle_may |> st_transform(utm30)
 )
+
+
+# probability an agent responds to OWF - a Bioss sensitivity parameter
+# Spreadsheet sets to 67%, with (95% ?) CI of 53-77 - about sd of 6.1 if normal approx
+# use mean for example run
+
+p_imp_response <- 0.67
+
+
 ```
 
 The most time-consuming element of this is likely determining the "distance-to" things that influence the agents. The obvious one relevant here are the OWF - excluded currently for dev. Need for counter-factual runs.
@@ -230,6 +250,8 @@ agent_list <- list()
 
   agent_list[[i]]@history <- agent_list[[i]]@history |>
     st_set_crs(guill_imb_config@ref_sys)
+  
+  agent_list[[i]]@properties@move_influences <- list(owf_imp = rbinom(1, 1, p_imp_response))
 
   } 
 ```
@@ -244,7 +266,8 @@ future::plan(future::multisession, workers = 4)
 system.time({
 
 sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(in_agent = x, in_ibm = guill_ibm, in_species = guill, in_ibm_config = guill_imb_config,
-            in_density = guill_ibm@drivers$dens@stars_obj), .progress = T, .options = furrr::furrr_options(seed = T))
+            in_density = guill_ibm@drivers$dens@stars_obj,
+            in_imp_density = guill_ibm@drivers$dens_imp@stars_obj), .progress = T, .options = furrr::furrr_options(seed = T))
   
 })
 
