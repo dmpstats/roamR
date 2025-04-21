@@ -10,7 +10,10 @@ state_balance(
   night_proportion,
   feed_state = 2,
   rest_state = 4,
-  energy_target = units::set_units(0, "kJ/h")
+  max_nudge = 0.1,
+  current_e,
+  exp_e = 422,
+  energy_target = 0
 )
 }
 \arguments{
@@ -22,7 +25,7 @@ state_balance(
 
 \item{rest_state}{Index of resting state (where night constraint applies)}
 
-\item{energy_target}{Target energy (kJ/h) - must have units}
+\item{energy_target}{cumulative energy target}
 }
 \value{
 A vector of proportions
