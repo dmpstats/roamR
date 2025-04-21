@@ -1,0 +1,90 @@
+---
+title: "State balancing and calibration"
+format: html
+editor: source
+---
+
+## Overview
+
+Document describing the rebalancing of the activity states
+
+
+## Calculation
+
+* Altering the balance of activities per unit hour/day to increase/decrease energy intake
+* Intake for an hour of feeding is fixed
+* All costs are stochastic, including the output part of the feeding process
+* Hence even feeding can be a net loss, due to dive costs varying so much
+* Cannot feed more than day available
+* Sum of state probs = one, all state probs >= 0
+
+
+
+
+### State object
+
+```{r}
+
+init_states <- readRDS("initial_state_costs.rds")
+init_states
+
+```
+
+
+Some values for running experiments. `night_proportion` is proportion of a day that is night - is a constraint on how much feeding can be done
+
+```{r}
+
+in_states <- init_states
+night_proportion <- 0.26
+feed_state <- 2 
+rest_state <- 4 
+net_target <-  units::set_units(0, "kJ/h")
+out_states <- in_states$prop
+current_e <- 200
+exp_e <- 422
+max_nudge <- 0.1
+
+```
+
+Want to nudge the current proportion of time up or down based on energy deficit. 
+
+```{r}
+  feed_prop <- in_states$prop[feed_state]
+  upper_feed_bound <- min(1 - night_proportion, (1+max_nudge)*feed_prop)
+  lower_feed_bound <- max(0, (1 - max_nudge)*feed_prop)
+  
+```
+
+
+```{r}
+  
+  target_e <- net_target - current_e
+  
+  ratio_e <- target_e / exp_e  
+
+  move_p <- feed_prop + tanh(ratio_e) * max_nudge
+  
+  move_p <- min(move_p, upper_feed_bound)
+  
+  move_p <- max(move_p, lower_feed_bound)
+  
+  out_states[feed_state] <- move_p
+
+  # need to change other states base proportionately - squeeze targets up/down to maintain area/energy
+  non_feed_mult <- (1-out_states[feed_state])/sum(in_states$prop[-feed_state])
+
+  out_states[-feed_state] <- in_states$prop[-feed_state]*non_feed_mult
+
+  if(out_states[rest_state] < night_proportion){
+    out_states[rest_state] <- night_proportion
+    drop_states <- c(feed_state, rest_state)
+    non_feed_mult <- (1-sum(out_states[drop_states]))/sum(in_states$prop[-drop_states])
+    out_states[-drop_states] <- in_states$prop[-drop_states]*non_feed_mult
+  }
+
+  out_states
+
+```
+
+
