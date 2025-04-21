@@ -10,7 +10,18 @@
 #' @export
 #'
 #' @examples TBD
-bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density){
+bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_density,
+                          mean_intake, impact_map = NULL, in_imp_density){
+
+  if(is.null(impact_map)){
+
+    agent_imp_resp <- 0
+
+  } else {
+
+    agent_imp_resp <- in_agent@properties@move_influences$owf_imp
+
+  }
 
   current_time <- in_ibm_config@start_date + lubridate::days(1)
 
@@ -20,12 +31,24 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
   sst_month <- lubridate::month(stars::st_dimensions(in_ibm@drivers$sst@stars_obj)$time$values)
 
+  dens_month <- lubridate::month(stars::st_dimensions(in_ibm@drivers$dens@stars_obj)$month$values)
+
   night_proportion <- 1-(geosphere::daylength(lat = 56.18, doy = lubridate::yday(current_time)))/24
+
+  e_intake <- mean_intake
+
+
+  if(!is.null(impact_map) & agent_imp_resp == 1){
+
+    in_density <- in_imp_density
+
+  }
+
 
   current_density <- in_density |>
     dplyr::filter(month == current_month)
 
-  current_density <- current_density[drop = T] #drop unneeded dimensions
+  current_density <- current_density[drop = T]
 
   destination <- roamR::sample_cell(current_density, 1)
 
@@ -39,9 +62,23 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
 
     if(lubridate::date(new_time) != lubridate::date(current_time)) {
 
+      if(!is.null(impact_map)){
+
+        impact <- stars::st_extract(in_ibm@drivers$energy_imp@stars_obj,
+                                                            sf::st_sfc(in_agent@condition@location,
+                                                                       crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
+
+        impact <- ifelse(is.na(impact), 1, impact) # if foraging in footprint
+
+        e_intake <- mean_intake * impact
+
+      }
+
+      e_intake <- units::set_units(e_intake, "kJ/h")
+
       energy_profile <- roamR::calc_day_cost(in_agent = in_agent, in_species = in_species,
                                       in_ibm = in_ibm, sst = in_sst,
-                                      intake = units::set_units(543, "kJ/h"))
+                                      intake = e_intake)
 
       # existing activity profile - store
       energy_expenditure <- sum((energy_profile$prop*24) * energy_profile$unit_cost) |>
@@ -52,9 +89,10 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, in_densit
         units::set_units("g")
 
       # update activity profile for use in t+1
+      if(in_agent@condition@timestep == 215){browser}
+
       nudge_states <- roamR::state_balance(in_states = energy_profile[1:4,],
                                            night_proportion = night_proportion,
-                                           #current_e = mean(c(in_agent@condition@energy_expenditure, energy_expenditure)),
                                            current_e = in_agent@condition@energy_expenditure,
                                            energy_target = 1)
 
