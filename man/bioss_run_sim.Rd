@@ -4,7 +4,7 @@
 \alias{bioss_run_sim}
 \title{Run a minimal simulation for BioSS analysess}
 \usage{
-bioss_run_sim(in_agent, in_species, in_ibm, in_ibm_config, in_density)
+bioss_run_sim(in_agent, in_species, in_ibm, in_ibm_config, mean_intake, impact)
 }
 \arguments{
 \item{in_agent}{A roamR object of class Agent}
