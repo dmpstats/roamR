@@ -58,6 +58,7 @@ Collate:
     'class-State.R'
     'class-StateInfluence.R'
     'data.R'
+    'path_calc.R'
     'rebalance_states.R'
     'rmr_initiate.R'
     'rmr_run.R'
