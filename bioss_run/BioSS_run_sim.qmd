@@ -18,7 +18,7 @@ Input data, species & model configurations etc
 
 ### Spatio-temporal inputs
 
-Species, conspecifics and SST. Pre-parpared (clipped to AoC and projected to UTM30).
+Species, conspecifics and SST. Pre-prepared (clipped to AoC and projected to UTM30).
 
 ```{r}
 #| code-fold: true
@@ -34,8 +34,37 @@ library(distributional)
 # UTM zone 30N
 utm30 <- st_crs(32630)
 
+
 # AoC in UTM. Exact figures come from a previous lat/lon example
 AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
+
+
+# location of colony - start/finish locations
+
+isle_may <- st_sf(
+  id = "Isle of May",
+  prop = 1,
+  geom = st_sfc(st_point(c(-2.5667, 56.1833))),
+  crs = 4326
+)
+
+
+
+# IBM Settings - assume fixed for these simulations
+
+guill_imb_config <- ModelConfig(
+  n_agents = 1,
+  ref_sys = utm30,
+  aoc_bbx = AoC, #
+  delta_x = 1000,
+  delta_y = 1000,
+  time_step = "1 day",
+  start_date = date("2025-07-01"),
+  end_date = date("2025-07-01") + 270, # ~9 months
+  start_sites = isle_may |> st_transform(utm30),
+  end_sites = isle_may |> st_transform(utm30)
+)
+
 
 # Input data layers -----------------------------------------------------------------------------------------------
 # datacubes: density, lat/lon/, month
@@ -50,6 +79,9 @@ conspec_imp_map <- readRDS("data/bioss_conspec_imp_map.rds")
 energy_imp_map <- readRDS("data/bioss_energy_imp_map.rds")
 
 sst <- readRDS("data/bioss_sst_stars.rds")
+
+
+
 
 
 
@@ -117,19 +149,15 @@ guill_drivers <- list(
 )
 ```
 
-Blank at this point.
-
-```{r}
-
-# Response to drivers  -------------------------------------------------
-
-driver_resp <- list()
-```
 
 ### Species and model configurations
+These are the elements to be adjusted for the simulations in hand (as initially assuming datacubes are fixed):
 
-State specs: Of direct interest here, are the uncertainties around the energetics calculations.Currently these are used to generate stochastic values for each of the agents.
+* Means/variances of energy cost functions (inside `states` definition list)
+* Mean/variance of bodymass distribution (defined in the `Species` class object)
+* The parameter `p_imp_response` which governs the probability an agent is responsive to an OWF development
 
+__States__:
 
 ```{r}
 # States specification -------------------------------------------------
@@ -138,51 +166,40 @@ states <- list(
   flight = State(
     id = "flight",
     energy_cost = VarDist(dist_normal(507.6, 237.6), units = "kJ/hour"), # vals from excel sheet. Normal may not be adequate (some good chance of <zero) - there is a catch for this
-    time_budget = VarDist(dist_degenerate(0.056), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(10, 20), "m/s") # made up - not important here
+    time_budget = VarDist(dist_degenerate(0.056), "hours/day"), # Based on Lila's summary data
+    speed = VarDist(dist_uniform(10, 20), "m/s") # placeholder, not very relevant
   ),
   dive = State(
     id = "diving",
     energy_cost = VarDist(dist_normal(3.71, 1.3), units = NULL), # from spreadsheet
     time_budget = VarDist(dist_degenerate(3.11), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(0, 1), "m/s") # made up - not important here
+    speed = VarDist(dist_uniform(0, 1), "m/s") # placeholder, not very relevant
   ),
   active = State(
     id = "active_on_water",
     energy_cost = VarDist(dist_normal(113, 22), units = NULL), # from spreadsheet
-    time_budget = VarDist(dist_degenerate(10.5), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(0, 1), "m/s") # made up - not important here
+    time_budget = VarDist(dist_degenerate(10.5), "hours/day"), # Based on Lila's summaries
+    speed = VarDist(dist_uniform(0, 1), "m/s") # placeholder, not very relevant
   ),
   inactive = State(
     id = "inactive_on_water",
     energy_cost = VarDist(dist_normal(72.2, 22), units = NULL), # from spreadsheet
-    time_budget = VarDist(dist_degenerate(10.3), "hours/day"), # roughly based on Lila's summaries
-    speed = VarDist(dist_uniform(0, 1), "m/s") # made up - not important here
+    time_budget = VarDist(dist_degenerate(10.3), "hours/day"), # Based on Lila's summaries
+    speed = VarDist(dist_uniform(0, 1), "m/s") # placeholder, not very relevant
   ),
   colony = State(
     id = "colony",
     energy_cost = VarDist(dist_normal(33.8, 11.4), units = "kJ/hour"), # from spreadsheet
     time_budget = VarDist(dist_degenerate(0), "hours/day"), # no time at colony
-    speed = VarDist(0, "m/s") # made up - not important here
+    speed = VarDist(0, "m/s") # placeholder, not very relevant
   )
 )
 ```
 
-Other high-level configurations.
 
+__Species definition (bodymass of interest)__
 
 ```{r}
-
-
-# IBM settings -------------------------------------------------
-
-isle_may <- st_sf(
-  id = "Isle of May",
-  prop = 1,
-  geom = st_sfc(st_point(c(-2.5667, 56.1833))),
-  crs = 4326
-)
-
 
 # Specify <Species>  -------------------------------------------------
 
@@ -192,29 +209,14 @@ guill <- Species(
   scientific_name = "Uria Aalge",
   pop_size = 15000,
   body_mass_distr = VarDist(dist_normal(mean = 929, sd = 56), "g"), # mean from kate CEH doc - sd digitising Francis' plot
-  mortality_thresh_distr = VarDist(800, "g"),
+  mortality_thresh_distr = VarDist(800, "g"), # not used specifically - dealt with in post-processing (e.g. <60% of starting bodymass)
   states_profile = states,
-  driver_responses = driver_resp
-)
-
-
-# IBM Settings - modify parameter values to your specific case
-guill_imb_config <- ModelConfig(
-  n_agents = 1,
-  ref_sys = utm30,
-  aoc_bbx = AoC, #
-  delta_x = 1000,
-  delta_y = 1000,
-  time_step = "1 day",
-  start_date = date("2025-07-01"),
-  end_date = date("2025-07-01") + 270, # ~9 months
-  start_sites = isle_may |> st_transform(utm30),
-  end_sites = isle_may |> st_transform(utm30)
+  driver_responses = list()
 )
 
 
 # probability an agent responds to OWF - a Bioss sensitivity parameter
-# Spreadsheet sets to 67%, with (95% ?) CI of 53-77 - about sd of 6.1 if normal approx
+# Spreadsheet sets this to 67%, with (95% ?) CI of 53-77. NB implies a SD of abount 6.1 if normal approx
 # use mean for example run
 
 p_imp_response <- 0.67
@@ -222,7 +224,7 @@ p_imp_response <- 0.67
 
 ```
 
-The most time-consuming element of this is likely determining the "distance-to" things that influence the agents. The obvious one relevant here are the OWF - excluded currently for dev. Need for counter-factual runs.
+A series of internal calculations required to initialise the IBM. 
 
 ```{r}
 # Initiate Agent  -------------------------------------------------
@@ -236,7 +238,7 @@ guill_ibm <- rmr_initiate(
 
 ## Constructing agents and running the simulation
 
-The initiation of the IBM creates agents (`n_agents = 1`) however, for our purposes these are being made individually below. Here create 4 in a list (`agent_list`). There is a slight alteration of the history element here to respect the reference system of the IBM (will be future fix).
+The initiation of the IBM can create an arbitrary number of agents (via `n_agents = X`) however, for our purposes these are being made individually below. Here we create 8 in a list (`agent_list`). There is a slight alteration of the history element here to respect the reference system of the IBM (will be future fix).
 
 ```{r}
 agent_list <- list()
@@ -263,7 +265,7 @@ The simulation is run for each agent in the list. The `sequent_runs` object is a
 
 future::plan(future::multisession, workers = 4)
 
-set.seed(34958)
+set.seed(34958) # important this be set to allow paired runs with the impacted scenarios
 
 system.time({
   
@@ -272,7 +274,7 @@ sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
             in_species = guill, 
             in_ibm_config = guill_imb_config,
             mean_intake = 543,
-            impact = F), 
+            impact = F), # OWF information is ignored
             .progress = T, .options = furrr::furrr_options(seed = T))
 
 })
@@ -339,7 +341,7 @@ Here we run a counter-factual set for the previous example agents. Note, only a 
 
 future::plan(future::multisession, workers = 4)
 
-set.seed(34958)
+set.seed(34958) # seed matches previous run for pairing
 
 system.time({
 
@@ -348,7 +350,7 @@ sequent_imp_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
             in_species = guill, 
             in_ibm_config = guill_imb_config,
             mean_intake = 543,
-            impact = T), 
+            impact = T), # OWF information is observed
             .progress = T, .options = furrr::furrr_options(seed = T))
   
 })
@@ -356,39 +358,15 @@ sequent_imp_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
 ```
 
 
-```{r}
-imp_hist_obj <- lapply(sequent_imp_runs, \(x) x@history)
-
-names(imp_hist_obj) <- paste0("agent_", 1:length(imp_hist_obj))
-
-imp_hist_obj <- bind_rows(imp_hist_obj, .id = "agent_id") |> 
-  mutate(impact = T)
-
-ggplot(imp_hist_obj) + 
-  geom_point(aes(x = timestep, y = units::drop_units(energy_expenditure)), fill = "blue", col = "blue", alpha = 0.5) +
-  xlab("day") +
-  ylab("cumulative energy (kJ)") +
-  theme_light() +
-  facet_wrap(~agent_id, ncol = 2)
-```
-
-
-```{r}
-ggplot(imp_hist_obj, aes(x = timestep, y = units::drop_units(body_mass))) + 
-  geom_point(fill = "grey", col = "black", alpha = 0.5) +
-  xlab("day") +
-  ylab("Implied body-mass (g)") +
-  geom_smooth() +
-  theme_light() +
-  facet_wrap(~agent_id, ncol = 2)
-
-```
-
-
 ### Counter-factual comparisons
 
-Here we summarise the impacts in terms of effects on energetics. Note, by design the agents will attempt to mitigate reductions in feeding success/energy inputs by modifying their activity budgets.
+Here we summarise the impacts in terms of effects on energetics. Note, by design the agents will attempt to mitigate reductions in feeding success/energy inputs by modifying their activity budgets. The comparisons here are based solely on:
 
+* Comparison of energy expenditure over the simulation/NBS for the impacted/non-impacted.
+* The proportion of time spent in each activity state (flight, dive, active, inactive) over the simulation/NBS, for the impacted/non-impacted.
+
+
+Combine the simulations into one DF: 
 ```{r}
 
 comp_df <- bind_rows(hist_obj, imp_hist_obj) 
@@ -396,6 +374,7 @@ comp_df <- bind_rows(hist_obj, imp_hist_obj)
 
 ```
 
+Consider first the cumulative energy expenditure. Note these seem unreasonably variable, but are a natural consequence of the energetics equations and their parameter distributions as currently provided.
 
 
 ```{r}
@@ -405,13 +384,13 @@ library(units)
 energy_summ <- comp_df |> 
   group_by(agent_id, impact) |>
   summarise(
-    mean_energy = mean(energy_expenditure),
-    mean_mass = mean(body_mass)
+    mean_energy = mean(energy_expenditure)
   ) |> 
-  mutate(mean_energy = units::drop_units(mean_energy),
-         mean_mass = units::drop_units(mean_mass))
+  mutate(mean_energy = units::drop_units(mean_energy))
   
 ```
+
+Comparatively for the 8 agents run:
 
 ```{r}
 
@@ -419,14 +398,15 @@ energy_summ <- comp_df |>
 ggplot(energy_summ) +
   geom_point(aes(agent_id, mean_energy, col = impact), size = 3) +
   ggthemes::scale_color_fivethirtyeight() +
-  ggtitle("Mean energy expenditure difference", "Impacted vs unimpacted") +
-  ylab("Mean energy expenditure (kJ) over season") +
+  ggtitle("NBS cumulative energy expenditure", "Impacted vs unimpacted") +
+  ylab("Mean energy expenditure (kJ)") +
   theme_light()
   
 
 
 ```
 
+Looking crudely at the distribution of activity states for the NBS. Just taking means of proportions for each agent over the NBS, and comparing for their impacted/non-impacted states:
 
 ```{r}
 
@@ -450,7 +430,7 @@ activity_summ <- comp_df |>
 ggplot(activity_summ) +
   rcartocolor::scale_fill_carto_d(palette = "Geyser") +
   geom_bar(aes(x = agent_id, y = diff, fill = activity), stat = "identity") +
-  ylab("Mena difference impact - unimpacted (mins per day)") +
+  ylab("Mean difference impact - unimpacted (mins per day)") +
   ggtitle("Difference in time spent in activities", "Impacted vs unimpacted") 
  
 ```
