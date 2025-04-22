@@ -369,6 +369,14 @@ Here we summarise the impacts in terms of effects on energetics. Note, by design
 Combine the simulations into one DF: 
 ```{r}
 
+imp_hist_obj <- lapply(sequent_imp_runs, \(x) x@history)
+
+names(imp_hist_obj) <- paste0("agent_", 1:length(imp_hist_obj))
+
+imp_hist_obj <- bind_rows(imp_hist_obj, .id = "agent_id") |> 
+  mutate(impact = T)
+
+
 comp_df <- bind_rows(hist_obj, imp_hist_obj) 
   
 
