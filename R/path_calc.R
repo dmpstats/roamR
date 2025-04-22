@@ -19,7 +19,7 @@ path_calc <- function(density_map, agent) {
     sf::st_as_sf()
 
   move_pts <- sf::st_line_sample(path_line$geometry, n = 32, type = "regular") %>%
-    st_jitter(amount = 500)
+    sf::st_jitter(amount = 500)
 
   move_pts
 
