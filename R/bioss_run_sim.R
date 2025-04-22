@@ -55,9 +55,15 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
   current_density <- current_density[drop = T]
 
-  destination <- roamR::sample_cell(current_density, 1)
+  path_ind <- 1
+
+  mv_path <- roamR::path_calc(current_density, in_agent)
 
   while(current_time <= in_ibm_config@end_date){
+
+    in_agent@condition@location <- sf::st_point(mv_path[[1]][path_ind, ])
+
+    path_ind <- path_ind + 1
 
     new_time <- current_time + step_duration
 
@@ -70,7 +76,7 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
       if(impact == T){
 
         impact <- stars::st_extract(impact_map,
-                                    sf::st_sfc(in_agent@condition@location,crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
+                                    sf::st_sfc(in_agent@condition@location, crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
 
         impact <- ifelse(is.na(impact), 1, impact) # if foraging in footprint
 
@@ -113,12 +119,14 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
       current_density <- current_density[drop = T] #drop unneeded dimensions
 
-      destination <- roamR::sample_cell(current_density, 1)
+      mv_path <- roamR::path_calc(current_density, in_agent)
+
+      path_ind <- 1
 
     }
 
     current_time <- new_time
-    in_agent@condition@location[1:2] <- destination[1:2]
+    #in_agent@condition@location <- st_point(mv_path[[1]][path_ind,])
     in_agent@condition@body_mass <- in_agent@condition@body_mass + wt_gain
     in_agent@condition@timestep <- in_agent@condition@timestep + as.integer(1)
     in_agent@condition@energy_expenditure <- in_agent@condition@energy_expenditure + energy_expenditure
