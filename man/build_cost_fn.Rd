@@ -4,12 +4,10 @@
 \alias{build_cost_fn}
 \title{State cost function factory}
 \usage{
-build_cost_fn(base_fn, drivers)
+build_cost_fn(vrf, state_id = NULL)
 }
 \arguments{
-\item{drivers}{a list of \verb{<Driver>} objects.}
-
-\item{base_fun}{a function, the user-defined function for calculating the
+\item{vrf}{an \verb{<VarFn>} object, the user-defined function for calculating the
 energy cost of a given state. It gets wrapped by a function that is usable
 within \code{{roamR}}s infrastructure.}
 }
@@ -27,7 +25,7 @@ The function passed on to \code{base_fun} needs to observe a bunch of
 requirements:
 \itemize{
 \item Argument names must be the ID of a driver, "b" for biomass and/or "t" for
-time spent on activity on a given time-step
+time spent on activity on a current time-step
 \item it is be responsible to handle the intended units
 }
 }
