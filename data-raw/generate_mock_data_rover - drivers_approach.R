@@ -37,7 +37,8 @@ drv_land <- Driver(
   type = "habitat",
   descr = "land",
   sf_obj = uk_land,
-  sf_descr = "UK Coastline"
+  sf_descr = "UK Coastline",
+  obj_active = "sf"
 )
 
 
@@ -105,8 +106,8 @@ rvr_dns <- rvr_dns_hot |>
   ) |>
   unnest(dns) |>
   stars::st_as_stars(dims = c("x", "y", "month", "iter")) |>
-  st_set_crs(4326)
-
+  st_set_crs(4326) |>
+  mutate(counts = units::set_units(counts, "count"))
 
 rvr_dns |>
   filter(iter == 4) |>
@@ -119,7 +120,8 @@ drv_sp_distr <- Driver(
   type = "habitat",
   descr = "Spatial distribution",
   stars_obj = rvr_dns,
-  stars_descr = "Rovers monthly density maps"
+  stars_descr = "Rovers monthly density maps",
+  obj_active = "stars"
 )
 
 
@@ -165,6 +167,15 @@ plot(sst, mfrow = c(2, 6), axes = TRUE)
 plot(sst, axes = TRUE)
 
 
+# st_crs(sst)$proj4string
+# st_crs(rvr_dns)$proj4string
+# st_crs(owf_foots)$proj4string
+#
+# st_crs(sst)$epsg
+# st_crs(owf_foots)$epsg
+#
+# sf::st_crop(sst, owf_foots)
+
 ggplot() +
   geom_sf(data = drv_land@sf_obj) +
   geom_sf(data = st_as_sfc(mock_bbox), fill = NA, col = "red") +
@@ -177,15 +188,12 @@ drv_sst <- Driver(
   type = "habitat",
   descr = "Sea Surface Temperature",
   stars_obj = sst,
-  stars_descr = "Monthly average SST maps"
+  stars_descr = "Monthly average SST maps",
+  obj_active = "stars"
 )
 
 # Set as {raomR} data
 usethis::use_data(drv_sst, overwrite = TRUE, compress = "xz")
-
-
-
-
 
 
 
@@ -249,7 +257,8 @@ yumyum_dens <- st_as_stars(prey_dens) |>
   st_set_dimensions(2, values = y_grid, names = "y") |>
   st_set_dimensions(3, values = prey_months, names = "month") |>
   st_set_crs(4326) |>
-  setNames("counts")
+  setNames("prey") |>
+  mutate(prey = units::set_units(prey, "count"))
 
 plot(yumyum_dens, axes = TRUE, mfrow = c(2, 6))
 
@@ -261,7 +270,8 @@ drv_prey <- Driver(
   type = "habitat",
   descr = "Prey Density Surfaces",
   stars_obj = yumyum_dens,
-  stars_descr = "Monthly density surfaces of Yummy Inmybellis"
+  stars_descr = "Monthly density surfaces of Yummy Inmybellis",
+  obj_active = "stars"
 )
 
 
@@ -312,7 +322,8 @@ drv_sss <- Driver(
   type = "habitat",
   descr = "Monthly Sea Surface Salinity",
   stars_obj = sss_moy,
-  stars_descr = "Monthly average SSS"
+  stars_descr = "Monthly average SSS",
+  obj_active = "stars"
 )
 
 
@@ -388,6 +399,7 @@ drv_owfs <- Driver(
   obj_active = "sf"
 )
 
+usethis::use_data(owf_foots, overwrite = TRUE, compress = "xz")
 usethis::use_data(drv_owfs, overwrite = TRUE, compress = "xz")
 
 
@@ -454,11 +466,26 @@ usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
 #
 # -------------------------------------------------------------------------- #
 
-## Species behaviour profile  ----------------------------------
+## Species state profile  ----------------------------------
+
+swim_cost_fn <- function(sst, int){
+  int - (2.75 * sst)
+}
+
+water_rest_cost_fn <- function(b) sqrt(b)
+
+
+mu_f <- 141
+sigma_f <- 66
+flight_cost_dist <- dist_lognormal(
+  mu = log(mu_f/sqrt(mu_f^2 + sigma_f^2)),
+  sigma = sqrt(log(1 + sigma_f^2/mu_f^2))
+)
+
 rvr_states <- list(
   flight = State(
     id = "flying",
-    energy_cost = VarDist(dist_uniform(2, 2), "kJ/hour/gram"),
+    energy_cost = VarDist(flight_cost_dist, "kJ/hour/gram"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
   ),
@@ -469,16 +496,25 @@ rvr_states <- list(
   ),
   swimming = State(
     id = "swimming",
-    energy_cost = VarDist(dist_uniform(3, 6), "kJ/hour/gram"),
+    energy_cost = VarFn(
+      swim_cost_fn,
+      list(sst = "driver", int = VarDist(dist_normal(113, 22))),
+      units = "kJ/hour/gram"
+    ),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(0, 2), "m/s")
   ),
   water_rest = State(
     id = "water_resting",
-    energy_cost = VarDist(dist_uniform(0.5, 1.5), "kJ/hour/gram"),
+    energy_cost = VarFn(
+      water_rest_cost_fn,
+      list("body_mass"),
+      "kJ/hour/gram"
+    ),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
   )
 )
+
 
 
 usethis::use_data(rvr_states, overwrite = TRUE, compress = "xz")
@@ -607,6 +643,42 @@ usethis::use_data(rover, overwrite = TRUE, compress = "xz")
 
 
 
+
+
+coast_drv <- Driver(
+  id = "land",
+  type = "habitat",
+  descr = "land",
+  sf_obj = coastline,
+  sf_descr = "UK Coastline"
+)
+
+
+bla <- Species(
+  id = "bla",
+  common_name = "blabla",
+  scientific_name = "blablacocous",
+  body_mass_distr = VarDist(),
+  mortality_thresh_distr = VarDist(),
+  states_profile = list(State(), State()),
+  driver_responses = list(
+    DriverResponse(
+      driver_id = "land",
+      movement = MoveInfluence(
+        prob = VarDist(distributional::dist_degenerate(1)),
+        fn = \(x) x,
+        type = "repulsion"
+      )
+    )
+  )
+)
+
+
+rmr_initiate(
+  model_config = your_config,
+  species = bla,
+  drivers = coast_drv
+  )
 
 
 
