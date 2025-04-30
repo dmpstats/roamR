@@ -59,8 +59,9 @@ methods::setClass(
 #'
 #' @param id character string, a unique identifier for the state, representing a
 #'   specific behaviour or activity.
-#' @param energy_cost a <[`VarDist-class`]> object, defining the energy
-#'   expenditure associated with the state (e.g. kJ/hour/grams).
+#' @param energy_cost a <[`VarDist-class`]> or a <[`VarFn-class`]> object,
+#'   defining the energy expenditure associated with the state (e.g.
+#'   kJ/hour/grams).
 #' @param time_budget a <[`VarDist-class`]> object, defining the agent's typical
 #'   time allocation to this state. It should be expressed as a relative length
 #'   of time (e.g. hours/day).
@@ -77,11 +78,15 @@ State <- function(id = NA_character_,
                   time_budget = VarDist(),
                   speed = VarDist()){
 
+  # TODO: include alternative input formats on function's documentation
+  speed <- as_vardist(speed, "m/s")
+  energy_cost <- as_vardist(energy_cost, "kJ/hour/grams")
+  time_budget <- as_vardist(time_budget, "hour/day")
+
   # Input validation
   check_class(energy_cost, "VarDist")
   check_class(time_budget, "VarDist")
   check_class(speed, "VarDist")
-
 
   # construct a new instance of <State>
   new(
@@ -93,6 +98,7 @@ State <- function(id = NA_character_,
   )
 
 }
+
 
 
 

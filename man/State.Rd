@@ -15,8 +15,9 @@ State(
 \item{id}{character string, a unique identifier for the state, representing a
 specific behaviour or activity.}
 
-\item{energy_cost}{a <\code{\linkS4class{VarDist}}> object, defining the energy
-expenditure associated with the state (e.g. kJ/hour/grams).}
+\item{energy_cost}{a <\code{\linkS4class{VarDist}}> or a <\code{\linkS4class{VarFn}}> object,
+defining the energy expenditure associated with the state (e.g.
+kJ/hour/grams).}
 
 \item{time_budget}{a <\code{\linkS4class{VarDist}}> object, defining the agent's typical
 time allocation to this state. It should be expressed as a relative length
