@@ -1,291 +1,400 @@
-BehaviourSpec(behav = "flight", energy_cost = distributional::dist_normal(1, 0), time_budget = distributional::dist_normal(3, 1))
-
-library(distributional)
+library(sf)
 library(stars)
 
-data.frame(expand.grid(x=1:5, y = 1:5), z = rnorm(25)) |> st_as_stars() |> plot()
+
+# ibm_cfg <- ModelConfig(
+#   n_agents = 1000,
+#   ref_sys = st_crs(4326),
+#   aoc_bbx = c(0, 57, 2,58),
+#   delta_x = 0.1,
+#   delta_y = 0.1,
+#   time_step = "1 day",
+#   start_date = as.Date("2022-09-01"),
+#   end_date = as.Date("2023-04-30")
+# )
+
+# ibm_cfg <- ModelConfig(
+#   n_agents = 100L,
+#   ref_sys = st_crs(27700),
+#   aoc_bbx = c(0, 0, 10, 10),
+#   delta_x = 0.1,
+#   delta_y = 0.1,
+#   time_step = "1 day",
+#   start_date = as.Date("2022-09-01"),
+#   end_date = as.Date("2023-04-30"),
+#   start_sites =
+# )
+#
+# ibm_cfg <- ModelConfig(
+#   n_agents = 100L,
+#   ref_sys = st_crs(27700),
+#   aoc_bbx = c(0, 0, 10, 10),
+#   delta_x = 0.1,
+#   delta_y = 0.1,
+#   time_step = "1 day",
+#   start_date = as.Date("2022-09-01"),
+#   end_date = as.Date("2023-04-30")
+# )
+
+drv_owfs
 
 
-# density surfaces ----------------------------
-rvr_dens <- data.frame(
-  expand.grid(x = 1:50, y = 1:50, month = c(9, 10, 11, 12, 1, 2), iter = as.integer(1:25)),
-  counts = rpois(50*50*6*25, 2)) |>
-  st_as_stars(dims = c("x","y", "month", "iter"))
 
 
 
-rvr_dens |>
-  dplyr::filter(iter == 10) |>
-  plot()
 
-# behaviour profile ------------------------------------------
-behav <- list(
- flight = BehaviourSpec(
-    behav = "flying",
-    energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
-    time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
-    speed = VarDist(dist_uniform(10, 20), "m/s")
-    ),
- dive = BehaviourSpec(
-    behav = "diving",
-    energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
-    time_budget = VarDist(dist_uniform(1, 3), "hours/day")
-  ),
- swimming = BehaviourSpec(
-   behav = "swimming",
-   energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
-   time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
-   speed = VarDist(dist_uniform(0, 2), "m/s")
- ),
- water_rest = BehaviourSpec(
-   behav = "water_resting",
-   energy_cost = VarDist(dist_uniform(1, 2), units = "kJ/hour/gram"),
-   time_budget = VarDist(dist_uniform(1, 3), "hours/day")
- )
+
+
+
+
+
+swim_cost <- function(sst){
+  113-(2.75*sst)
+}
+
+swim_cost(2)
+
+
+dive_cost <- function(){
+  "Haha"
+}
+
+dive_cost()
+class(dive_cost)
+
+
+final_fn <- new_function(
+  exprs(x = , y = NULL),
+  expr({
+    if(is.null(y)) y <- 0
+    z <- x + y
+    q <- x*2 - z
+    t <- dplyr::as_tibble(mean(q))
+    base_fn(t)
+  })
 )
 
+final_fn(1, 2)
 
 
 
-rover <- Species(
-  id = "rvr",
-  role = "agent",
-  common_name = "Rover",
-  scientific_name = "Rover Vulgaris",
-  body_mass_distr = VarDist(dist_normal(1000, 0.2 * 1000), units = "grams"),
-  mortality_thresh_distr = VarDist(dist_uniform(300, 350), units = "grams"),
-  spatial_distr = rvr_dens,
-  behaviour_profile = list(
-    x = 2)
 
+
+cost_fct_builder <- function(base_fct, drivers){
+
+  if(!is.function(base_fct)) cli::cli_abort("Argument {.arg base_fct} must be a function.")
+
+  #browser()
+
+  base_fct_argnames <- rlang::fn_fmls_names(base_fct)
+  base_fct_argnames <- base_fct_argnames %||% ""
+
+  driver_ids <- lapply(drivers, \(x) x@id)
+
+  # any(base_fct_argnames %in% driver_ids)
+  # grepl("b|biom", base_fct_argnames)
+  # grepl("[state|activity|behaviour]_[time|duration]", base_fct_argnames)
+
+
+  # args of output functions is fixed. What varies is the body of the output
+  # function based on characteristics of the input function
+  fct_args <- exprs(drivers = NULL, agent_condition = NULL)
+
+  if(any(base_fct_argnames %in% driver_ids)){
+
+  }
+
+
+  if("sst" %in% base_fct_argnames){
+    new_function(
+      args = fct_args,
+      #exprs(x = , y = NULL),
+      expr({
+        if(is.null(y)) y <- 0
+        z <- x + y
+        q <- x*2 - z
+        t <- dplyr::as_tibble(mean(q))
+        base_fct(t)
+      }),
+      env = caller_env()
+    )
+  }else{
+    #fct_body <- base_fct
+    base_fct
+  }
+
+  #rlang::new_function(fct_args, fct_body)
+}
+
+
+
+
+
+final_fn <- cost_fct_builder(swim_cost, list(Driver())) ; final_fn
+final_fn <- cost_fct_builder(dive_cost) ; final_fn
+
+final_fn(12, 1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setClass(
+  "MockState",
+  contains = "VarDist",
+  slots = list(
+    id = "character",
+    cost_fn = "function"
+  )
 )
 
-
-
-
-
-
-
-
-hist(generate(dist_normal(1000, sd = 0.2 * 1000), 1000)[[1]])
-dist <- dist_multivariate_normal(mu = list(c(1,2), c(2,2)), sigma = list(matrix(c(4,2,2,3), ncol=2)))
-dimnames(dist) <- c("x", "y")
-dist
-generate(dist, 10)[[1]] |> plot()
-
-
+x_cost_fn_user <- function(sst){
+  113-(2.75*sst)
+}
+new("MockState", cost_fn = state_x_cost)
 
 
 
 rmr_initiate(
-  species = new("Species"),
-  habitat = Habitat(),
-  structures = list(s = Structure()),
-  config = 4
+  config = ibm_config_rover, #ibm_cfg,
+  species = rover,
+  drivers = rover_drivers
 )
 
 
+list(
+  Driver(id = "owfs", sf_obj = owf_foots, type = "impact"),
+  Driver(id = "sst", stars_obj = sst_month, type = "habitat")
+)
 
 
-hist(rnorm(1000), plot = FALSE)
+var <- "foo"
+rlang::sym(var)
+call("mean", rlang::sym(var), na.rm = TRUE)
 
 
 
-spatial_dim <- st_sf(
-  ID = 1:3,
-  geometry = list(
-    st_polygon(list(
-      cbind(c(0, 1, 1, 0, 0), c(0, 0, 1, 1, 0))
-    )),
-    st_polygon(list(
-      cbind(c(1, 2, 2, 1, 1), c(0, 0, 1, 1, 0))
-    )),
-    st_polygon(list(
-      cbind(c(2, 3, 3, 2, 2), c(0, 0, 1, 1, 0))
-    ))
+
+
+
+
+
+?rlang::new_function()
+
+
+
+
+tst <- new("MockCls", cost_fn = swimming_cost)
+
+tst@cost_fn(24)
+
+
+rlang::fn_fmls(tst@cost_fn)
+rlang::fn_fmls_names(tst@cost_fn)
+
+rover_drivers[rlang::fn_fmls_names(tst@cost_fn)]
+
+
+
+
+
+
+
+
+
+
+test_fn <- rlang::new_function(
+  rlang::fn_fmls_syms(tst@cost_fn),
+  rlang::fn_body(tst@cost_fn)
+)
+
+
+rlang::fn_fmls_syms(tst@cost_fn)
+rlang::fn_fmls_names(tst@cost_fn)
+
+
+
+
+
+x <- rover_drivers[[driver_sst_idx]]@stars_obj
+a <- Agent(species = rover, ibm_config_rover)
+
+
+cost_fn <- function(sst_raster, loc, month){
+  sst <- stars::st_extract(dplyr::filter(sst_raster, months == month), at = loc) |> as.numeric()
+  tst@cost_fn(sst)
+}
+
+
+cost_fn(x, st_coordinates(location(a) + 1), "December")
+
+sf::st_coordinates(location(a) + 1)
+
+
+
+
+# if dependent on driver, and driver defined by raster, f(raster, where, when, iter)
+
+
+
+fn_builder <- function(fn, drivers){
+  if(!is.function(fn)) cli::cli_abort("Argument {.arg fn} must be a function.")
+
+  fn_arg_nms <- rlang::fn_fmls_names(fn)
+  fn_arg_syms <- rlang::fn_fmls_syms(fn)
+
+
+  expr({
+    dplyr::filter(sst_raster, months == month)
+    x <- stars::st_extract(q)
+    !!fn
+  })
+
+
+  browser()
+
+  rlang::new_function(
+    fn_arg_syms,
+    rlang::expr({
+      !!fn
+    })
   )
-)
-weekdays_dim <- data.frame(weekdays = c("Monday", "Tuesday", "Wednesday",
-                                        "Thursday", "Friday", "Saturday", "Sunday"))
-hours_dim <- data.frame(hours = c("8am", "11am", "4pm", "11pm"))
-sf_dta <- spatial_dim |>
-  dplyr::cross_join(weekdays_dim)|>
-  dplyr::cross_join(hours_dim) |>
-  dplyr::mutate(population = rnorm(dplyr::n(), mean = 1000, sd = 200)) |>
-  dplyr::select(everything(), geometry)
 
-st_as_stars(sf_dta, dims = c("weekdays", "hours", "geometry"))
+  expr(!!fn)(2)
 
-
-
-
-
-data <- data.frame(x = rnorm(200), y = rnorm(200))
-
-#library(MASS)
-a <- data$x
-b <- data$y
-f1 <- MASS::kde2d(a, b, n = 100)
-filled.contour(f1)
-
-dim(f1$z)
-
-
-data.frame(expand.grid(x=1:5, y = 1:5), z = rnorm(25)) |> st_as_stars()
+}
 
 
 
 
 
 
+base_fn <- function(sst) 113-(2.75*sst)
 
-dist <- distributional::dist_logistic(location = c(5,9,9,6,2), scale = c(2,3,4,2,1))
-
-dist
-mean(dist)
-lapply(distributional::generate(dist, 5000), mean)
-
-
-y <- distributional::dist_normal(mu = 2, sigma = 2)
-class(y)
-plot(y)
-
-sloop::otype(distributional::dist_beta(2, 4))
-
-
-x
-plot(x)
-
-
-setOldClass("distribution")
-
-methods::setClass(
-  "TestClass",
-  slots = list(
-    speed = "distribution"
-  )
-)
+fn_builder(base_fn, rover_drivers)
 
 
 
-test <- new("TestClass", speed = distributional::dist_binomial(10, 0.1))
-
-distributional::support(test@speed)
-
-
-x <- distributional::dist_normal(3, 0.1)
-units::set_units(distributional::generate(x, c(5))[[1]], "m")
-
-attributes(x)
-attr(x, "units") <- "g"
-x
-attributes(x)
 
 
 
-RangedNumeric <- setClass(
-  "RangedNumeric",
-  contains = "numeric",
-  slots = c(min = "numeric", max = "numeric"),
-  prototype = structure(numeric(), min = NA_real_, max = NA_real_)
-)
-rn <- RangedNumeric(1:10, min = 1, max = 10)
-class(rn)
-inherits(rn, "numeric")
-str(rn)
-length(rn)
-mean(rn)
+x <- expr(-1)
+expr(f(!!x, y))
+
+library(rlang)
+
+new_function(pairlist2(x = 1, y = 3 * 6), quote(x * y))
+new_function(exprs(x = 1, y = 3 * 6), quote(x * y))
 
 
 
-MyDist <- setClass(
-  "MyDist",
-  contains = "distribution",
-  slots = c(units = "units"),
-  prototype = structure(distributional::dist_missing(), units = NA)
+
+drivers_id <- lapply(rover_drivers, \(x) x@id)
+driver_sst_idx <- which(drivers_id == rlang::fn_fmls_names(tst@cost_fn))
+
+
+
+
+
+
+location(a) |> st_coordinates()
+
+a@condition@timestamp
+
+
+x[, , , "December"]
+st_extract(x, at = st_coordinates(location(a) + 1))  # TODO: how to handle returning NAs
+
+
+class(units(x[[1]]))
+
+
+
+
+y <- st_extract(x[, , , "December"], at = st_coordinates(location(a) + 1)) |> as.numeric()
+#y <- units::set_units(y, units(x[[1]]), mode = "standard")
+
+
+
+
+
+st_extract(x, at = st_sf(month = "December", geometry = st_sfc(location(a) + 1), crs = st_crs(x)), time_column = "months")
+
+
+
+class(y$sst_mean_moy)
+
+
+
+swimming_cost_a <- function(sst){
+  sst <- units::set_units(sst, "Celsius")
+  113-(2.75*units::drop_units(sst))
+}
+
+swimming_cost_b <- function(sst){
+  113-(2.75*sst)
+}
+
+bench::mark(
+  swimming_cost_a(10),
+  swimming_cost_b(10),
+  iterations = 5000
 )
 
 
-test <- MyDist(distributional::dist_normal(1, 1), units = units::make_units(m))
 
-str(test)
-is(test, "distribution")
-distributional::generate(test, times = 2)
+stars::st_set_dimensions()
 
-
-
-VarDist(units = "mtttae")
+swimming_cost(12)
 
 
 
 
 
 
-MyDist_2 <- setClass(
-  "MyDist_2",
-  slots = c(
-    dist = "distribution",
-    units = "units"
-  ),
-  prototype = c(
-    dist = dist_missing(),
-    units = NA
-  )
-)
 
 
-test <- MyDist_2(
-  dist = distributional::dist_normal(1, 2),
-  units = units::make_units(m))
 
-distributional::generate(test@dist, 10) |> purrr::map(~as_units(.x, units(test@units)))
+energy_cost_factory <- function(f, drivers){
 
+  if(!is.function(f)) cli::cli_abort("Argument {.arg f} must be a function.")
 
-BehaviourSpec(
-  energy_cost = VarDist(dist = distributional::dist_degenerate(1, 2), units = "m"))
+  arg_names <- rlang::fn_fmls_names(f)
 
-# define distribution of variable based on a random sample (e.g a bootstrap)
-x <- rlnorm(1000, 9, 1)
-mass <- VarDist(dist = dist_sample(list(x)), c("hg", "re"))
-# resample 100 values
-distributional::generate(mass@dist, times = 100) |>
-  lapply(units::make_units, value = mass@units)
+}
 
 
-class(mass@units)
 
-x1 <- units::set_units(double(), "m")
-x1
 
-set_units(2, value = x1)
-#
-#
-#
-#
-# with_own_units_errors <- function(expr, call = rlang::caller_env()) {
-#   rlang::try_fetch(
-#     expr,
-#     error = function(cnd) {
-#       msg <- conditionMessage(cnd)
-#       if(grepl("not recognized by udunits.", msg)){
-#         cli::cli_abort(c("wrong units"), call= call, parent = NA)
-#       }
-#     }
-#   )
-# }
-#
-# with_own_units_errors(as_units("trs"))
-#
-#
-#
-#
-# grepl("not recognized by udunits.", "In ‘rrwrw’, ‘rrwrw’is not recognized by udunits.")
-#
-#
-#
-# units::as_units(1, mass@units)
-#
-# units::set_units(2, "") + set_units(2, "m")
-#
-# as.symbol()
+x |> filter(months == "January") |> plot(axes = TRUE)
+plot(location(a), add = TRUE, col = "red", pch = 19)
+
+x |> filter(months == "January") |> plot(axes = TRUE, reset = FALSE)
+plot(location(a), add = TRUE, col = "red", pch = 19)
+
+
+
+
+
+tst@cost_fn(12)
+lobstr::ast(tst@cost_fn)
+is.function(tst@cost_fn)
+is.call(rlang::expr(tst@cost_fn(1)))
+
+
+
+
+
+
+
 

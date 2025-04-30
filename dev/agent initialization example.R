@@ -113,6 +113,7 @@ guill <- Species(
 )
 
 
+
 # Initiate Agent  -------------------------------------------------
 Agent(species = guill, model_config = guill_imb_config)
 
