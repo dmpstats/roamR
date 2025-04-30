@@ -275,8 +275,8 @@ val_sites <- function(sites, aoc_bbx){
       if(n_sites_outside_aoc > 0){
         err <- c(err, cli::format_inline(
           "\n- {slot_name}: {n_sites_outside_aoc} out of {n_sites}",
-          "{cli::qty(n_sites_outside_aoc)} site{?s} {?is/are} not ",
-          "located within the AOC area, as per @aoc_bbx."
+          "{cli::qty(n_sites_outside_aoc)} site{?s} {?is/are} ",
+          "located outside the AOC area, as per @aoc_bbx."
         ))
       }
     }

@@ -32,10 +32,10 @@ assumed to have died (\emph{Note: parameter may require further generalization})
 \item{pop_size}{numeric, the population size (i.e., number of individuals)
 within the area of calculation (AOC).}
 
-\item{states_profile}{a list \linkS4class{State} objects, defining the
+\item{states_profile}{a list of \linkS4class{State} objects, defining the
 behavioural/activity states for the species to consider in the model.}
 
-\item{driver_responses}{list of \linkS4class{DriverResponse} objects, specifying
+\item{driver_responses}{a list of \linkS4class{DriverResponse} objects, specifying
 the species’ responses to predefined model drivers, such as environmental
 pressures, biological influences, and human-induced impacts affecting
 movement and behaviour/activity states. See the Details section below and
@@ -60,7 +60,7 @@ effects during the simulation.
 
 library(distributional)
 
-# 1. Start by setting the behaviour profile
+# 1. Start by setting the state profile
 states <- list(
  flight = State(
     id = "flying",

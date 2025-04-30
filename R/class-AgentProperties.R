@@ -314,6 +314,17 @@ AgentProperties <- function(species_id = NA_character_,
 }
 
 
+# test_build <- function(y){
+#
+#   rlang::new_function(
+#     rlang::exprs(agent = NULL, drivers = NULL),
+#     rlang::expr(!!y)
+#   )
+#
+#   # function(agent = NULL, drivers = NULL){
+#   #   eval(!!y)
+#   # }
+# }
 
 
 # Validator -----------------------------------------------------
@@ -333,6 +344,20 @@ methods::setValidity("AgentProperties", function(object) {
       errors <- c(errors, paste0("\n - ", msg) )
     }
   }
+
+  # # costings check
+  # if( length(object@costings) > 0){
+  #   if( is.null(names(object@costings)) ){
+  #     msg <- cli::format_inline("\n - slot @costings must be a named {.cls list}" )
+  #     errors <- c(errors, msg)
+  #   }
+  #
+  #   msg <- check_class(object@costings, class = "function", inlist = TRUE,
+  #                      return_msg = TRUE, arg = "@costings")
+  #   if(!is.null(msg)){
+  #     errors <- c(errors, paste0("\n - ", msg) )
+  #   }
+  # }
 
   # move_influences
   if (length(object@move_influences) > 0) {

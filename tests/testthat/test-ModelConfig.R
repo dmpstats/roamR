@@ -9,7 +9,7 @@ test_that("Validation of site slots work as expected", {
       aoc_bbx = c(0, 0, -10, -10),
       start_sites = sites
     ),
-    "sites are not located within the AOC area"
+    "sites are located outside the AOC area"
   )
 
   expect_error(

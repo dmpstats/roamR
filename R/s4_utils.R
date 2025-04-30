@@ -80,8 +80,8 @@ check_class <- function(x,
     }
   }
 
-  NULL
-  #invisible()
+  #NULL
+  invisible()
 }
 
 

@@ -4,7 +4,7 @@
 \alias{compute_vector_fields}
 \title{Compute vector field of a stars raster}
 \usage{
-compute_vector_fields(strs)
+compute_vector_fields(strs, unit = "radians")
 }
 \description{
 Calculate the vector fields (rasters aspect and slope) of a stars object for

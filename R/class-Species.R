@@ -10,7 +10,7 @@
 #' @slot scientific_name character string, the scientific name of the species.
 #' @slot body_mass_distr an object of class [VarDist-class], defining the
 #'   distribution of body mass for the species.
-#' @slot states_profile a list [State-class] objects, defining the
+#' @slot states_profile a list of [State-class] objects, defining the
 #'   behavioural/activity states for the species to consider in the model.
 #' @slot driver_responses list of [DriverResponse-class] objects, specifying the
 #'   species’ responses to predefined model drivers, such as environmental
@@ -81,7 +81,7 @@ methods::setClass(
 #' @param scientific_name character string, the scientific name of the species.
 #' @param body_mass_distr an object of class [VarDist-class], defining the
 #'   distribution of body mass for the species.
-#' @param states_profile a list [State-class] objects, defining the
+#' @param states_profile a list of [State-class] objects, defining the
 #'   behavioural/activity states for the species to consider in the model.
 #' @param driver_responses a list of [DriverResponse-class] objects, specifying
 #'   the species’ responses to predefined model drivers, such as environmental
@@ -115,7 +115,7 @@ methods::setClass(
 #'
 #' library(distributional)
 #'
-#' # 1. Start by setting the behaviour profile
+#' # 1. Start by setting the state profile
 #' states <- list(
 #'  flight = State(
 #'     id = "flying",
@@ -254,7 +254,4 @@ methods::setMethod("is_empty", "Species", function(object){
 
 
 # TODO
-# 1. Validator:
-#    - impose restrictions on @state_profile, where all elements must have
-#       comparable (i.e. divisable) units under @time_budget and @energy_cost
-# 2. `show` method for <Species> for neat display
+# 1. `show` method for <Species> for neat display
