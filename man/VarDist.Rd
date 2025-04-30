@@ -41,6 +41,7 @@ library(distributional)
 # define a Normally distributed variable with units m/s
 VarDist(dist_normal(mean = 23, sd = 2), "m/s")
 
+
 # define a parameter with fixed value
 VarDist(10, "m")
 

@@ -82,6 +82,7 @@ methods::setClass(
 #' # define a Normally distributed variable with units m/s
 #' VarDist(dist_normal(mean = 23, sd = 2), "m/s")
 #'
+#'
 #' # define a parameter with fixed value
 #' VarDist(10, "m")
 #'
@@ -146,7 +147,7 @@ VarDist <- function(distr = NULL, units = NULL){
 # Validator -----------------------------------------------------
 methods::setValidity("VarDist", function(object) {
 
-  errors <- character()
+  err <- character()
 
   if(length(object@distr) > 1){
     err <- c(err, "\n- slot @distr must be of length 1")
@@ -154,7 +155,7 @@ methods::setValidity("VarDist", function(object) {
     err <- c(err, "\n- slot @units must be of length 1")
   }
 
-  if(length(errors) == 0) TRUE else do.call(paste, list(errors, collapse = " "))
+  if(length(err) == 0) TRUE else do.call(paste, list(err, collapse = " "))
 
 })
 
@@ -172,12 +173,17 @@ setMethod("distr", "VarDist", function(object) object@distr)
 setMethod("units", "VarDist", function(x) x@units)
 
 
+## Other ----
+
+#' Empty assertion
 #' @include s4_utils.R
 methods::setMethod("is_empty", "VarDist", function(object){
   is.na(object@distr)
 })
 
 
+#' VarDist random sampler
+#'
 #' @include s4_utils.R
 methods::setMethod("generate", "VarDist", function(object, times = 1){
   vals <- distributional::generate(object@distr, times)
