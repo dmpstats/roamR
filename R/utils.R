@@ -78,6 +78,36 @@ is_stars_empty <- function(x){
 
 
 
+#' Assertion for empty `<function>` objects
+is_empty_function <- function(f){
+  check_class(f, "function")
+  all.equal(body(f), quote({}))
+
+}
+
+
+
+
+# Helper to define a cli style for a vector. A wrapper of `cli::cli_vec()` to
+# simplify calls, allowing the choice of separator and the last word when
+# collapsing a vector into a single string. Must be called inside a `cli` definition
+vec_style <- function(x, sep = ", ", last = " or "){
+  cli::cli_vec(x, style = list("vec-sep" = sep, "vec-last" = last))
+}
+
+
+
+#' Cast numeric, distributional and unit objects as VarDist
+as_vardist <- function(x, units){
+  if(inherits(x, "numeric") || distributional::is_distribution(x)){
+    x <- VarDist(x, units)
+  }else if(is(x, "units")){
+    x <- VarDist(units::drop_units(x), units::deparse_unit(x))
+  }
+  x
+}
+
+
 
 
 #' <stars> Slicer
@@ -145,3 +175,4 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
   eval(rlang::expr(strs[!!!indices]))
   #do.call("[", c(list(strs), indices))
 }
+
