@@ -8,9 +8,10 @@ AgentProperties(
   species_id = NA_character_,
   initial_mass = NULL,
   speeds = list(),
+  cost_par_draws = list(),
   start_point = sf::st_point(),
   end_point = sf::st_point(),
-  mortality_tresh = NULL,
+  mortality_thresh = NULL,
   move_influences = list(),
   state_influences = list(),
   age = NULL,
@@ -30,10 +31,12 @@ simulation.}
 Each element specifies the agent's average speed for a given movement state
 (e.g. flying, swimming, etc). List elements must be of type \verb{<units>}.}
 
+\item{cost_par_draws}{a named list bla}
+
 \item{start_point, end_point}{objects of class \code{XY}, the spatial coordinates
 of the agent at the start and end of the simulation, respectively.}
 
-\item{mortality_tresh}{\verb{<units>} object, the threshold body mass below which
+\item{mortality_thresh}{\verb{<units>} object, the threshold body mass below which
 the agent is assumed to die.}
 
 \item{move_influences}{a named list, defining whether the agent is influenced
@@ -90,7 +93,7 @@ provided \verb{<Species>} and \verb{<ModelConfig>} objects. Specifically:
 \itemize{
 \item \verb{@initial_mass} is sampled from \code{Species@body_mass_distr}
 \item \verb{@speeds} are generated based on \code{Species@behaviour_profile}
-\item \verb{@mortality_tresh} is sampled from \code{Species@mortality_thresh_distr}
+\item \verb{@mortality_thresh} is sampled from \code{Species@mortality_thresh_distr}
 \item \verb{@start_point} and \verb{@end_point} are defined from \code{ModelConfig@start_sites}
 and \code{ModelConfig@end_sites}. In cases where these slots are empty, the
 agent's start/end locations are randomly assigned within the AOC area based

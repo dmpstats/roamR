@@ -15,8 +15,11 @@
 #' @slot speeds a named list, defining movement speed properties for the agent.
 #'   Each element specifies the agent's average speed for a given movement state
 #'   (e.g. flying, swimming, etc). List elements must be of type `<units>`.
+#' @slot cost_par_draws a named list bla
 #' @slot start_point,end_point objects of class `XY`, the spatial coordinates
 #'   of the agent at the start and end of the simulation, respectively.
+#'   the agent is assumed to die.
+#' @slot mortality_thresh `<units>` object, the threshold body mass below which
 #'   the agent is assumed to die.
 #' @slot move_influences a named list, defining whether the agent is influenced
 #'   by model drivers. Each element corresponds to a `driver_id` (which must be
@@ -54,9 +57,11 @@ methods::setClass(
     species_id = "character",
     initial_mass = "units",
     speeds = "list",
+    #costings = "list",
+    cost_par_draws = "list",
     start_point = "XY",
     end_point = "XY",
-    mortality_tresh = "units",
+    mortality_thresh = "units",
     move_influences = "list", #"data.frame",
     state_influences = "list",
     age = "units",
@@ -66,9 +71,11 @@ methods::setClass(
     species_id = NA_character_,
     initial_mass = units::set_units(NA, "g"),
     speeds = list(),
+    #costings = list(),
+    cost_par_draws = list(),
     start_point = sf::st_point(),
     end_point = sf::st_point(),
-    mortality_tresh = units::set_units(NA, "g"),
+    mortality_thresh = units::set_units(NA, "g"),
     move_influences = list(),
     state_influences = list(),
     age = units::set_units(NA, ""),
@@ -90,9 +97,10 @@ methods::setClass(
 #' @param speeds a named list, defining movement speed properties for the agent.
 #'   Each element specifies the agent's average speed for a given movement state
 #'   (e.g. flying, swimming, etc). List elements must be of type `<units>`.
+#' @param cost_par_draws a named list bla
 #' @param start_point,end_point objects of class `XY`, the spatial coordinates
 #'   of the agent at the start and end of the simulation, respectively.
-#' @param mortality_tresh `<units>` object, the threshold body mass below which
+#' @param mortality_thresh `<units>` object, the threshold body mass below which
 #'   the agent is assumed to die.
 #' @param move_influences a named list, defining whether the agent is influenced
 #'   by model drivers. Each element corresponds to a `driver_id` (which must be
@@ -130,7 +138,7 @@ methods::setClass(
 #'
 #' * `@initial_mass` is sampled from `Species@body_mass_distr`
 #' * `@speeds` are generated based on `Species@behaviour_profile`
-#' * `@mortality_tresh` is sampled from `Species@mortality_thresh_distr`
+#' * `@mortality_thresh` is sampled from `Species@mortality_thresh_distr`
 #' * `@start_point` and `@end_point` are defined from `ModelConfig@start_sites`
 #' and `ModelConfig@end_sites`. In cases where these slots are empty, the
 #' agent's start/end locations are randomly assigned within the AOC area based
@@ -145,10 +153,12 @@ methods::setClass(
 AgentProperties <- function(species_id = NA_character_,
                             initial_mass = NULL,
                             speeds = list(),
+                            #costings = list(),
+                            cost_par_draws = list(),
                             start_point = sf::st_point(),
                             end_point = sf::st_point(),
-                            mortality_tresh = NULL,
-                            move_influences = list(), #data.frame(driver_id = NA, affected = NA),
+                            mortality_thresh = NULL,
+                            move_influences = list(),
                             state_influences = list(),
                             age = NULL,
                             sex = c("f", "m"),
@@ -156,34 +166,83 @@ AgentProperties <- function(species_id = NA_character_,
                             species = NULL,
                             model_config = NULL){
 
-  # TODO: unit-testing!!!
-
   if (is.null(species) || is_empty(species)) {
 
+    # NULL handling
     initial_mass <- initial_mass %||% units::set_units(NA, "g")
-    mortality_tresh <- mortality_tresh %||% units::set_units(NA, "g")
-    age <- age %||% units::set_units(NA, "") # currenty ignored
+    mortality_thresh <- mortality_thresh %||% units::set_units(NA, "g")
+    age <- age %||% units::set_units(NA, "") # currently ignored
     sex <- NA_character_  # currently ignored
 
   } else{
 
     if( is.null(model_config) ){
-      cli::cli_abort("{.arg model_config} must be provided when {.arg species} is specified.")
+      cli::cli_abort("{.arg model_config} must be provided when {.arg species} is provided")
     }
 
     # input checking
     check_class(species, "Species")
     check_class(model_config, "ModelConfig")
 
+    # get relevant IDs
     species_id <- species@id
-    initial_mass <- generate(species@body_mass_distr)
-    mortality_tresh <- generate(species@mortality_thresh_distr)
+    state_ids <- lapply(species@states_profile, \(s) s@id) |> unlist()
 
-    # generate speeds
-    states_ids <- lapply(species@states_profile, \(s) s@id) |> unlist()
-    speeds <- lapply(species@states_profile, \(s) generate(s@speed))
-    names(speeds) <- states_ids
-    speeds[sapply(speeds, is.na)] <- NULL
+    # Sample values for randomly distributed variables ----------------------
+
+    ## NOTE: These are assumed to be drawn from species-level distributions. As
+    ## it stands, values sampled here are kept constant across the simulation.
+    ## In other words, each agent gets one random draw of these quantities (e.g.
+    ## flight speed) which remain unchanged throughout the simulation.
+
+    initial_mass <- generate(species@body_mass_distr)
+    mortality_thresh <- generate(species@mortality_thresh_distr)
+
+    # speeds
+    speeds <- lapply(species@states_profile, \(s) generate(s@speed)) |>
+      setNames(state_ids)
+    speeds[sapply(speeds, is.na)] <- NULL # drop states without speed specification
+
+    # # generate costing functions
+    # costings <- purrr::map2(species@states_profile, state_ids, function(s, id){
+    #   if(is(s@energy_cost, "VarFn")){
+    #     #build_cost_fn(s@energy_cost)
+    #     100
+    #   } else{
+    #     #browser()
+    #
+    #     # wraps the sampled value in a function, with the same arguments as the
+    #     # function manufactured by build_cost_fn(), for streamlined calling
+    #     # during simulation
+    #     y <- generate(s@energy_cost)
+    #
+    #     # rlang::new_function(
+    #     #   rlang::exprs(agent = NULL, drivers = NULL),
+    #     #   rlang::expr(!!y)
+    #     # )
+    #
+    #     #test_build(y)
+    #     y
+    #   }
+    # }) |> setNames(state_ids)
+
+    cost_par_draws <- purrr::map2(species@states_profile, state_ids, function(s, id){
+      if(is(s@energy_cost, "VarFn")){
+        #browser()
+
+        lapply(s@energy_cost@args_spec, function(arg){
+          if(arg@type == "random"){
+            distributional::generate(arg@distr, 1)[[1]] |>
+              units::set_units(arg@units, mode = "standard")
+          }
+        }) |> purrr::compact()
+
+      } else{
+        #browser()
+        generate(s@energy_cost)
+      }
+    }) |> setNames(state_ids)
+
 
     # starting and ending points
     start_point <- get_endpoint(model_config@start_sites, model_config@aoc_bbx)
@@ -200,9 +259,8 @@ AgentProperties <- function(species_id = NA_character_,
         infl <- distributional::dist_bernoulli(p) |>
           distributional::generate(1) |>
           unlist()
-        #list(p = p, influenced = influenced)
+        #list(p = p, infl = infl)
         data.frame(p, infl)
-        #influenced
       }else{
         NULL
       }
@@ -236,15 +294,17 @@ AgentProperties <- function(species_id = NA_character_,
   }
 
 
-  # construct a new instance of <Agent> ----------
+  # construct a new instance of <AgentProperties> --------------------------
   new(
     "AgentProperties",
     species_id = species_id,
     initial_mass = initial_mass,
     speeds = speeds,
+    #costings = costings,
+    cost_par_draws = cost_par_draws,
     start_point = start_point,
     end_point = end_point,
-    mortality_tresh = mortality_tresh,
+    mortality_thresh = mortality_thresh,
     move_influences = move_influences,
     state_influences = state_influences,
     age = age,

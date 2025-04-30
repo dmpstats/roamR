@@ -25,8 +25,13 @@ simulation.}
 Each element specifies the agent's average speed for a given movement state
 (e.g. flying, swimming, etc). List elements must be of type \verb{<units>}.}
 
+\item{\code{cost_par_draws}}{a named list bla}
+
 \item{\code{start_point,end_point}}{objects of class \code{XY}, the spatial coordinates
 of the agent at the start and end of the simulation, respectively.
+the agent is assumed to die.}
+
+\item{\code{mortality_thresh}}{\verb{<units>} object, the threshold body mass below which
 the agent is assumed to die.}
 
 \item{\code{move_influences}}{a named list, defining whether the agent is influenced
