@@ -20,6 +20,7 @@ Config/testthat/edition: 3
 Imports: 
     cli,
     distributional,
+    dplyr,
     furrr,
     future,
     methods,
@@ -28,6 +29,7 @@ Imports:
     sf,
     stars,
     terra,
+    tibble,
     units
 Collate: 
     'build_cost_fn.R'
@@ -38,6 +40,7 @@ Collate:
     'class-AgentProperties.R'
     'class-AgentCondition.R'
     'class-Agent.R'
+    'class-ArgSpec.R'
     'class-Driver.R'
     'class-MoveInfluence.R'
     'class-DriverResponse.R'
@@ -46,7 +49,10 @@ Collate:
     'class-IBM.R'
     'class-State.R'
     'class-StateInfluence.R'
+    'class-VarFn.R'
     'data.R'
+    'driver_introspect_stars.R'
+    'get_driver_cell_value.R'
     'rmr_initiate.R'
     'rmr_run.R'
     'roamR-package.R'
