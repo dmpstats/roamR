@@ -6,21 +6,22 @@
 \title{Class \verb{<Driver>}}
 \description{
 \verb{<Driver>} is an S4 class encapsulating habitat-level or man-made features
-that interact with simulated agents, driving and/or affecting their
-spatial movement, distribution, behaviour and physiological condition within
-the IBM's area of calculation (AOC) over the simulated period.
+that interact with simulated agents, driving and/or affecting their spatial
+movement and distribution, behaviour states, energetic costings and
+physiological condition within the IBM's area of calculation (AOC) over the
+simulated period.
 }
 \details{
-The class supports two main categories of drivers:
+The class supports three main categories of drivers:
 \itemize{
 \item \code{"habitat"} - specifying environmental or anthropogenic factors
 that define the habitat's baseline state (e.g. Sea surface temperature,
-salinity, bathymetry, distance from land)
-\item \code{"impact"} - refers to influencers that deviate from the baseline and
+salinity, bathymetry, distance from land).
+\item \code{"impact"} - refers to influencers that deviate from the status-quo and
 evaluated for their effects on the agents' simulated histories (e.g.
 Offshore windfarm footprints, oil rigs, shipping corridors)
 \item \code{"model"} - refers to influencers specified for model operational purposes
-(e.g. AOC bounding box to confine simulated movements)
+(e.g. AOC bounding box to confine simulated movements).
 }
 
 This class is designed to accommodate two types of spatial-based data formats
@@ -29,14 +30,14 @@ framework to specify driver characteristics.
 
 \verb{<Driver>} interacts with the \linkS4class{Species} class to define species-level
 responses of traced agents to the driver, e.g. through a movement
-modification or impact on specific behaviour.
+modification or impact on behaviour states and their energetics costs.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{id}}{character string, a unique identifier for the driver.}
 
-\item{\code{descr}}{character string, general description of the driver.}
+\item{\code{descr}}{descr character string, providing a general description of the driver.}
 
 \item{\code{ann}}{character string, annotation for referencing the driver for
 reporting purposes.}
@@ -48,24 +49,20 @@ Currently supports one of two values: "habitat" or "impact".}
 geometry of the driver, if applicable.}
 
 \item{\code{sf_descr}}{character string, a brief description of data contained in
-\code{sf_obj}}
+\code{sf_obj}.}
 
 \item{\code{stars_obj}}{an object of class \verb{<stars>}, a multidimensional array
-containing grid-type spatio-temporal attributes of the driver, such as e.g
-time-series of raster-type density surfaces, distance surfaces to landscape
-features or man-made structures/impacts. First 2 dimensions are expected to
-provide the spatial-grid properties of the density surfaces. The 3rd
-dimension specifies the temporal resolution of the data, while the 4th
-dimension relates to random draws (e.g. bootstrap samples) of the density
-surfaces.}
+containing grid-type spatio-temporal attributes of the driver. Typical
+examples include time-series of raster-type density surfaces, distance
+layers to landscape features or to man-made structures/impacts.}
 
 \item{\code{stars_descr}}{character string, a brief description of the data
-contained in \code{stars_obj}}
+contained in \code{stars_obj}.}
 
-\item{\code{obj_active}}{character string, specifying whether \code{sf_obj} or \code{stars_obj} is
-active and being used in the simulation.}
+\item{\code{obj_active}}{character string, flagging whether \code{sf_obj} or \code{stars_obj}
+is to be used as the active driver data during simulation.}
 }}
 
 \seealso{
-Helper function \code{\link[=Driver]{Driver()}} to create \verb{<Driver>} objects
+Helper function \code{\link[=Driver]{Driver()}} to create \verb{<Driver>} objects.
 }

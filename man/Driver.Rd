@@ -13,16 +13,17 @@ Driver(
   sf_descr = NA_character_,
   stars_obj = NULL,
   stars_descr = NA_character_,
-  obj_active = c("sf", "stars")
+  obj_active = c("none", "sf", "stars")
 )
 }
 \arguments{
 \item{id}{character string, a unique identifier for the driver.}
 
 \item{type}{character string, the driver type within the context of the IBM.
-Currently supports 3 options: "habitat" (default), "impact" or "model".}
+Currently supports 3 options: "habitat" (default), "impact" or "model" (see
+<\code{\linkS4class{Driver}}>).}
 
-\item{descr}{character string, general description of the driver.}
+\item{descr}{character string, providing a general description of the driver.}
 
 \item{ann}{character string, annotation for referencing the driver for
 reporting purposes.}
@@ -31,28 +32,101 @@ reporting purposes.}
 geometry of the driver, if applicable.}
 
 \item{sf_descr}{character string, a brief description of data contained in
-\code{sf_obj}}
+\code{sf_obj}.}
 
-\item{stars_obj}{stars_obj an object of class \verb{<stars>}, a multidimensional array
-containing grid-type spatio-temporal attributes of the driver, such as e.g
-time-series of raster-type density surfaces, distance surfaces to landscape
-features or man-made structures/impacts. First 2 dimensions are expected to
-provide the spatial-grid properties of the density surfaces. The 3rd
-dimension specifies the temporal resolution of the data, while the 4th
-dimension relates to random draws (e.g. bootstrap samples) of the density
-surfaces.}
+\item{stars_obj}{an object of class \verb{<stars>}, a multidimensional array of
+grid-type spatio-temporal attributes of the driver (e.g. time-series of
+prey-density surfaces, SST, distance surfaces to landscape features or to
+man-made structures/impacts). The \verb{<stars>} object must follow a specific
+structure to be compatible with the model - see the \emph{Details} section
+below for formatting requirements.}
 
-\item{stars_descr}{character string, a brief description of the data
-contained in \code{stars_obj}}
+\item{stars_descr}{character string, providing a brief description of the data
+contained in \code{stars_obj}.}
 
-\item{obj_active}{character string, specifying whether \code{sf_obj} or \code{stars_obj} is
-active and being used in the simulation.}
+\item{obj_active}{character string, flagging whether \code{sf_obj} or \code{stars_obj}
+is to be used as the active driver data during simulation.}
 }
 \value{
 a \verb{<Driver>} S4 object
-
-TODO: examples
 }
 \description{
 Helper function to construct instances of <\code{\linkS4class{Driver}}> objects
+}
+\section{\code{stars_obj} formatting requirements}{
+The \verb{<stars>} object provided to the \code{stars_obj} argument must meet the
+following structural requirements:
+\itemize{
+\item Must contain a \strong{single attribute}, with values mapped to a valid unit of
+measurement.
+\item Must include \strong{two raster dimensions}, comprising the spatial grid-type
+properties of the data.
+\item May include \strong{one temporal dimension} representing the temporal
+resolution or aggregation of the data. When present:
+\itemize{
+\item if dimension values are of type \verb{<character>}, they are assumed to
+represent months and must match valid English month names or abbreviations
+(see \link{month.name} and \link{month.abb}).
+\item if dimension values are of type \verb{<numeric>}, the dimension must be named
+as one of the following its values must conform to the specified ranges:
+\itemize{
+\item \code{"month"}: integer values from 1 to 12;
+\item \code{"year"}: 4-digit integers (e.g., 1998, 2024);
+\item \code{"quarter"}: integers from 1 to 4;
+\item \code{"yearweek"}: integers from 1 to 52 or 53;
+\item \code{"yearday"}: integers from 1 to 365 or 366.
+}
+}
+\item May include \strong{one iteration-type dimension}, typically used to represent
+replicate draws from bootstrap sampling or stochastic simulations. This dimension
+must:
+\itemize{
+\item Contain integer values;
+\item Be named \code{"iter"}, \code{"boot"}, or \code{"sample"}
+}
+\item The full data cube must not exceed \strong{four dimensions} in total: two raster
+dimensions and up to two non-raster dimensions (temporal and/or iterative).
+}
+}
+
+\examples{
+
+library(sf)
+library(stars)
+
+# mocked-up driver defined by an <sf> object
+(d <- Driver(
+  id = "isl",
+  type = "habitat",
+  descr = "A pit-stop island",
+  ann = "Squared Island",
+  sf_obj = st_sf(geom = st_sfc(st_polygon(list(matrix(c(0,0,10,0,10,10,0, 10,0,0), ncol=2, byrow=TRUE))))),
+  sf_descr = "coastline",
+  obj_active = "sf"
+))
+
+plot(d@sf_obj, main = d@ann, col = "lightblue")
+
+
+
+# mocked-up driver defined by a raster-type <start> object
+sst <- array(rlnorm(5*5*3*10), dim = c(5, 5, 3, 10)) |>
+  st_as_stars() |>
+  st_set_dimensions(3, names = "month", values = month.abb[1:3]) |>
+  st_set_dimensions(4, names = "iter") |>
+  setNames("sst") |>
+  dplyr::mutate(sst = units::set_units(sst, "degree_Celsius"))
+
+(s <- Driver(
+  id = "sst",
+  type = "habitat",
+  descr = "Sea Surface Temperature",
+  ann = "SST",
+  stars_obj = sst,
+  obj_active = "stars"
+))
+
+plot(s@stars_obj, main = s@ann)
+
+
 }
