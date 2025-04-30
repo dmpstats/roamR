@@ -37,6 +37,10 @@ methods::setClass(
 )
 
 
+# TODO
+# - Methods
+#   1. A `show` method for <Agent> for neat display: a data frame?
+#   2. A `plot` method
 
 
 #' Create `<Agent>` objects
@@ -85,13 +89,12 @@ Agent <- function(species = NULL, model_config = NULL){
 
     ## State Budgets: initialize budgets (relative time lengths) and standardise
     ## i.e. to be treated as probabilities, adding up to 1
-    stt_bgt <- lapply(species@states_profile, \(s) generate(s@time_budget))
-    bgt_sum <- Reduce("+", stt_bgt)
-    stt_prob <- lapply(stt_bgt, \(b) b/bgt_sum)
+    state_budget <- lapply(species@states_profile, \(s) generate(s@time_budget))
+    budget_sum <- Reduce("+", state_budget)
+    state_prob <- lapply(state_budget, \(b) b/budget_sum)
 
     # Starting at 0 cost
-    stt_cost <- lapply(species@states_profile, \(state) units::set_units(0, kJ/g/h))
-    #stt_cost <- lapply(species@states_profile, \(s) generate(s@energy_cost))
+    states_cost <- lapply(species@states_profile, \(state) units::set_units(0, kJ/g/h))
 
     condition <- new(
       "AgentCondition",
@@ -100,8 +103,8 @@ Agent <- function(species = NULL, model_config = NULL){
       timestep = 0L,
       timestamp = as.POSIXct(model_config@start_date, "UTC"),
       body_mass = properties@initial_mass,
-      states_budget = stt_prob,
-      states_cost = stt_cost,
+      states_budget = state_prob,
+      states_cost = states_cost,
       energy_expenditure = units::set_units(0, "kJ/g"),
       foraging_success = units::set_units(0, "g/day"),
       mass_change_value = units::set_units(0, "g"),
@@ -124,9 +127,7 @@ Agent <- function(species = NULL, model_config = NULL){
 
   }
 
-
   # construct a new instance of <Agent> ---------------------------------------
-
   methods::new(
     Class = "Agent",
     condition = condition,
@@ -135,8 +136,6 @@ Agent <- function(species = NULL, model_config = NULL){
   )
 
 }
-
-
 
 
 
