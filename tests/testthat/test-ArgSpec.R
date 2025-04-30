@@ -1,7 +1,5 @@
 test_that("ArgSpec() works", {
-
   expect_no_error(ArgSpec(name = "i", type = "constant", value = 2))
-
 })
 
 
@@ -12,7 +10,7 @@ test_that("Given inputs, ArgSpec() fails as expected", {
   expect_error(ArgSpec(type = "d"), "`name` is absent but must be supplied")
   expect_error(ArgSpec(name = 1), "Argument `name` must be an object of class")
 
-  # `type`
+  # `type`""
   expect_error(ArgSpec("x", type = "d"), "`type` must be one of")
   expect_error(ArgSpec("x", type = 1),"`type` must be a character vector")
 

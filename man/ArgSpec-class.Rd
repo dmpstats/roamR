@@ -5,47 +5,54 @@
 \alias{ArgSpec-class}
 \title{Class \verb{<ArgSpec>}}
 \description{
-\verb{<ArgSpec>} is an S4 class designed to describe the specification of a
-function argument, including its name, expected type, probability
-distribution (if applicable) and a brief description.
+An S4 class for specifying the characteristics of a function argument.
 }
 \details{
-At a lower level,
-\verb{<ArgSpec>} interacts with the \code{\linkS4class{VarFn}} class to specify the input
-arguments of a user-defined function. At a higher level, it contributes to
-the broader \strong{model definition}, helping to establish interactions between
-the parent function and the model's infrastructure.
+\verb{<ArgSpec>} defines the metadata of a function's argument, including its
+name, expected type, default value, description, and (if applicable) its
+probability distribution and measurement units.
+
+At a lower level,\verb{<ArgSpec>} interacts with the \code{\linkS4class{VarFn}} class to
+define input parameters for a user-defined function. At a higher level, it
+supports \code{{roamR}}'s \strong{IBM definition} by linking functions arguments to the
+broader simulation infrastructure.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{name}}{character, the name of the argument.}
 
-\item{\code{type}}{character, the expected argument type within the \code{{roamR}} context.
-Must be one of:
+\item{\code{type}}{character, the expected type of argument within the \code{{roamR}}
+context. Must be one of:
 \itemize{
-\item \code{"driver"},
-\item \code{"body_mass"},
-\item \code{"time_at_state"},
-\item \code{"constant"},
-\item \code{"random"}
+\item \code{"driver"}: refers to an argument linked to an existing driver.
+\item \code{"body_mass"}: relates to the agent’s body mass.
+\item \code{"time_at_state"}: used for arguments related to the time spent by the agent
+in a given state during the current simulation time step.
+\item \code{"constant"}: the argument has a fixed value across simulations.
+\item \code{"random"}: the argument is drawn from a probability distribution.
 }}
 
-\item{\code{value}}{value}
+\item{\code{value}}{the value assigned to the argument.}
 
-\item{\code{driver_id}}{character, required if \code{type = "driver"}.}
+\item{\code{driver_id}}{character, required if \code{type = "driver"}; specifies the ID
+assigned to a given driver. This assumes the existence of a \verb{<Driver>}
+object with a matching ID during the IBM's initialization phase (via
+\code{rmr_initiate()}). Failing that, initialization will not be successful.}
 
 \item{\code{description}}{character string, a brief explanation of the argument's
 purpose.}
 
-\item{\code{distr}}{an object of class
-\code{\link[distributional:distributional-package]{<distribution>}}. Required if \code{type} is
-set to \code{"random"}. Specifies the distribution of the argument's input,
-representing its expected value and uncertainty/variability.}
+\item{\code{distr}}{Inherited from parent class <\code{\linkS4class{VarDist}}>, an object of
+class \code{\link[distributional:distributional-package]{<distribution>}}. Required if \code{type = "random"}, representing the probability distribution associated with the
+argument's value.}
 
-\item{\code{units}}{a character string, defining the measurement units of the
-argument's input variable. Must be either a name (e.g. \code{"grams"}) or a symbol (e.g. \code{"m/s"})
-that recognized is by the "udunits" database (see
-\code{\link[units:valid_udunits]{units::valid_udunits()}}).}
+\item{\code{units}}{Inherited from parent class <\code{\linkS4class{VarDist}}>. A character
+string defining the measurement unit for the argument, either as a name
+(e.g. \code{"grams"}) or a symbol (e.g. \code{"m/s"}).  Units must be recognized by
+the \code{\link[units:valid_udunits]{units::valid_udunits()}} database.}
 }}
 
+\seealso{
+Helper function \code{\link[=ArgSpec]{ArgSpec()}} to construct \verb{<ArgSpec>} objects
+}

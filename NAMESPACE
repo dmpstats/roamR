@@ -3,6 +3,7 @@
 export(Agent)
 export(AgentCondition)
 export(AgentProperties)
+export(ArgSpec)
 export(Driver)
 export(DriverResponse)
 export(IBM)

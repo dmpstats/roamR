@@ -1,36 +1,52 @@
 #' Class `<ArgSpec>`
 #'
-#' `<ArgSpec>` is an S4 class designed to describe the specification of a
-#' function argument, including its name, expected type, probability
-#' distribution (if applicable) and a brief description.
+#' An S4 class for specifying the characteristics of a function argument.
 #'
-#' At a lower level,
-#' `<ArgSpec>` interacts with the [`VarFn-class`] class to specify the input
-#' arguments of a user-defined function. At a higher level, it contributes to
-#' the broader **model definition**, helping to establish interactions between
-#' the parent function and the model's infrastructure.
+#' `<ArgSpec>` defines the metadata of a function's argument, including its
+#' name, expected type, default value, description, and (if applicable) its
+#' probability distribution and measurement units.
+#'
+#' At a lower level,`<ArgSpec>` interacts with the [`VarFn-class`] class to
+#' define input parameters for a user-defined function. At a higher level, it
+#' supports `{roamR}`'s **IBM definition** by linking functions arguments to the
+#' broader simulation infrastructure.
+#'
 #'
 #' @slot name character, the name of the argument.
-#' @slot type character, the expected argument type within the `{roamR}` context.
-#'  Must be one of:
-#'    - `"driver"`,
-#'    - `"body_mass"`,
-#'    - `"time_at_state"`,
-#'    - `"constant"`,
-#'    - `"random"`
-#' @slot value value
-#' @slot driver_id character, required if `type = "driver"`.
+#'
+#' @slot type character, the expected type of argument within the `{roamR}`
+#'   context. Must be one of:
+#'    - `"driver"`: refers to an argument linked to an existing driver.
+#'    - `"body_mass"`: relates to the agent’s body mass.
+#'    - `"time_at_state"`: used for arguments related to the time spent by the agent
+#'     in a given state during the current simulation time step.
+#'    - `"constant"`: the argument has a fixed value across simulations.
+#'    - `"random"`: the argument is drawn from a probability distribution.
+#'
+#' @slot value the value assigned to the argument.
+#'
+#' @slot driver_id character, required if `type = "driver"`; specifies the ID
+#'   assigned to a given driver. This assumes the existence of a `<Driver>`
+#'   object with a matching ID during the IBM's initialization phase (via
+#'   `rmr_initiate()`). Failing that, initialization will not be successful.
 #'
 #' @slot description character string, a brief explanation of the argument's
 #'   purpose.
-#' @slot distr an object of class
-#'   [`<distribution>`][distributional::distributional]. Required if `type` is
-#'   set to `"random"`. Specifies the distribution of the argument's input,
-#'   representing its expected value and uncertainty/variability.
-#' @slot units a character string, defining the measurement units of the
-#'   argument's input variable. Must be either a name (e.g. `"grams"`) or a symbol (e.g. `"m/s"`)
-#'   that recognized is by the "udunits" database (see
-#'   [units::valid_udunits()]).
+#'
+#' @slot distr Inherited from parent class <[`VarDist-class`]>, an object of
+#'   class [`<distribution>`][distributional::distributional]. Required if `type
+#'   = "random"`, representing the probability distribution associated with the
+#'   argument's value.
+#'
+#' @slot units Inherited from parent class <[`VarDist-class`]>. A character
+#'   string defining the measurement unit for the argument, either as a name
+#'   (e.g. `"grams"`) or a symbol (e.g. `"m/s"`).  Units must be recognized by
+#'   the [units::valid_udunits()] database.
+#'
+#'
+#' @seealso
+#' Helper function [ArgSpec()] to construct `<ArgSpec>` objects
+#'
 #' @include class-VarDist.R
 #'
 methods::setClass(
@@ -57,19 +73,61 @@ methods::setClass(
 
 #' Create a `<ArgSpec>` object
 #'
+#' Helper function to construct an instance of a <[`ArgSpec-class`]> object,
+#' which defines the metadata of a function's argument, including its name,
+#' expected type, default value, description, and (if applicable) its
+#' probability distribution and measurement units.
 #'
-#' @param name character if an empty string `""` (value), an empty `<ArgSpec>` object
-#'   is returned, regardless of the remaining inputs.
+#' @param name character, the name of the argument. If an empty string (`""`), an
+#'   empty `<ArgSpec>` object is returned, regardless of other inputs.
 #'
-#' @param distr a `<distributional>` object, specifying bla bla. Note: input is
-#'   ignored if `type` is set to anything other than `"random"`.
+#' @param type character, the expected type of argument within the `{roamR}` context.
+#'  Must be one of:
+#'    - `"driver"`: refers to an argument linked to an existing driver.
+#'    - `"body_mass"`: relates to the agent’s body mass.
+#'    - `"time_at_state"`: used for arguments related to the time spent by the agent
+#'     in a given state during the current simulation time step.
+#'    - `"constant"`: the argument has a fixed value across simulations.
+#'    - `"random"`: the argument is drawn from a probability distribution.
 #'
-#' @param units blabla. Defaults to:
-#'  * "grams" if `type == "body_mass"`
-#'  * "minutes" if `type == "time_at_state"`
+#' @param distr a `<distributional>` object describing the probability
+#'   distribution of the argument's values. Required only if `type = "random"`.
 #'
-#' @param driver_id blabla... it's forced as NA if `type` is anything other than "driver"
+#' @param value the fixed value assigned to the argument. Required only if `type
+#'   = "constant"`.
 #'
+#' @param units  character string defining the measurement unit for the
+#'   argument, either by name (e.g. `"grams"`) or symbol (e.g. `"m/s"`).  Units
+#'   must be recognized by the [units::valid_udunits()] database. Defaults to:
+#'  * "grams" if `type = "body_mass"`
+#'  * "minutes" if `type = "time_at_state"`.
+#'
+#' @param driver_id character string, the ID of a driver associated with the argument
+#'   (used when `type = "driver"`). This must match the ID of a `<Driver>` object
+#'   available during model initialization via `rmr_initiate()`. If not defined,
+#'   defaults to `name`. For all other types, the associated slot `@driver_id` is
+#'   set to `NA`.
+#'
+#' @param description character string, a brief explanation of the argument's
+#'   purpose.
+#'
+#'
+#' @examples
+#'
+#' # driver ID set to `name` by default
+#' ArgSpec("sst", "driver")
+#'
+#' # linking argument name to a given driver ID
+#' ArgSpec("x", "driver", driver_id = "sst", units = "Degrees_celsius")
+#'
+#' # argument referring to agents' body mass, in kilograms
+#' ArgSpec("b", "body_mass", units = "kg")
+#'
+#' # argument whose input values follow a Bernoulli distribution
+#' ArgSpec("x", "random", distr = distributional::dist_bernoulli(0.1), units = "m")
+#'
+#'
+#' @export
 ArgSpec <- function(name,
                     type = c("driver", "body_mass", "time_at_state", "constant", "random"),
                     distr = NULL,
@@ -176,8 +234,6 @@ methods::setValidity("ArgSpec", function(object) {
         err <- c(err, msg)
       }
     }
-
-
   }
 
 

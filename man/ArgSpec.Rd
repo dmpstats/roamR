@@ -15,20 +15,61 @@ ArgSpec(
 )
 }
 \arguments{
-\item{name}{character if an empty string \code{""} (value), an empty \verb{<ArgSpec>} object
-is returned, regardless of the remaining inputs.}
+\item{name}{character, the name of the argument. If an empty string (\code{""}), an
+empty \verb{<ArgSpec>} object is returned, regardless of other inputs.}
 
-\item{distr}{a \verb{<distributional>} object, specifying bla bla. Note: input is
-ignored if \code{type} is set to anything other than \code{"random"}.}
-
-\item{units}{blabla. Defaults to:
+\item{type}{character, the expected type of argument within the \code{{roamR}} context.
+Must be one of:
 \itemize{
-\item "grams" if \code{type == "body_mass"}
-\item "minutes" if \code{type == "time_at_state"}
+\item \code{"driver"}: refers to an argument linked to an existing driver.
+\item \code{"body_mass"}: relates to the agent’s body mass.
+\item \code{"time_at_state"}: used for arguments related to the time spent by the agent
+in a given state during the current simulation time step.
+\item \code{"constant"}: the argument has a fixed value across simulations.
+\item \code{"random"}: the argument is drawn from a probability distribution.
 }}
 
-\item{driver_id}{blabla... it's forced as NA if \code{type} is anything other than "driver"}
+\item{distr}{a \verb{<distributional>} object describing the probability
+distribution of the argument's values. Required only if \code{type = "random"}.}
+
+\item{value}{the fixed value assigned to the argument. Required only if \code{type = "constant"}.}
+
+\item{units}{character string defining the measurement unit for the
+argument, either by name (e.g. \code{"grams"}) or symbol (e.g. \code{"m/s"}).  Units
+must be recognized by the \code{\link[units:valid_udunits]{units::valid_udunits()}} database. Defaults to:
+\itemize{
+\item "grams" if \code{type = "body_mass"}
+\item "minutes" if \code{type = "time_at_state"}.
+}}
+
+\item{driver_id}{character string, the ID of a driver associated with the argument
+(used when \code{type = "driver"}). This must match the ID of a \verb{<Driver>} object
+available during model initialization via \code{rmr_initiate()}. If not defined,
+defaults to \code{name}. For all other types, the associated slot \verb{@driver_id} is
+set to \code{NA}.}
+
+\item{description}{character string, a brief explanation of the argument's
+purpose.}
 }
 \description{
-Create a \verb{<ArgSpec>} object
+Helper function to construct an instance of a <\code{\linkS4class{ArgSpec}}> object,
+which defines the metadata of a function's argument, including its name,
+expected type, default value, description, and (if applicable) its
+probability distribution and measurement units.
+}
+\examples{
+
+# driver ID set to `name` by default
+ArgSpec("sst", "driver")
+
+# linking argument name to a given driver ID
+ArgSpec("x", "driver", driver_id = "sst", units = "Degrees_celsius")
+
+# argument referring to agents' body mass, in kilograms
+ArgSpec("b", "body_mass", units = "kg")
+
+# argument whose input values follow a Bernoulli distribution
+ArgSpec("x", "random", distr = distributional::dist_bernoulli(0.1), units = "m")
+
+
 }
