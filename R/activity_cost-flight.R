@@ -10,7 +10,11 @@
 #' @examples TBD
 flight_cost_fn <- function(species){
 
-  generate(species@states_profile$flight@energy_cost, 1)
+  rand_par <- generate(species@states_profile$flight@energy_cost, 1) |>
+    units::drop_units()
+
+  (max(rand_par, 1)) |>
+    units::set_units("kJ/h")
 
 }
 
