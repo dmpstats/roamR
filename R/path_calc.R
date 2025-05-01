@@ -18,8 +18,7 @@ path_calc <- function(density_map, agent) {
   path_line <- spaths::shortest_paths(terra::rast(density_map), origins = finish, destinations = start, output = "lines") %>%
     sf::st_as_sf()
 
-  move_pts <- sf::st_line_sample(path_line$geometry, n = 32, type = "regular") %>%
-    sf::st_jitter(amount = 500)
+  move_pts <- sf::st_line_sample(path_line$geometry, n = 32, type = "regular")
 
   move_pts
 
