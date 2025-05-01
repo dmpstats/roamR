@@ -62,31 +62,3 @@ test_that("Class-level input validation works as expected", {
   )
 
 })
-
-
-n_iter <- 10
-n_vals <- n_xy*2
-dim_sizes <- c(n_xy, n_xy)
-dim_names <- c("x", "y")
-
-
-#' #'
-#' # generate mock SST surface across a set of months, for a set of replicates
-#' sst <- array(rlnorm(5*5*3*10), dim = c(5, 5, 3, 10)) |>
-#'   st_as_stars() |>
-#'   st_set_dimensions(3, names = "month", values = month.abb[1:3]) |>
-#'   st_set_dimensions(4, names = "iter") |>
-#'   setNames("sst") |>
-#'   dplyr::mutate(sst = units::set_units(sst, "ppm"))
-#'
-#'
-#' (s <- Driver(
-#'   id = "sst",
-#'   type = "habitat",
-#'   descr = "Sea Surface Temperature",
-#'   ann = "SST",
-#'   stars_obj = sst,
-#'   obj_active = "stars"
-#' ))
-#'
-#' plot(s@stars_obj, main = s@ann)
