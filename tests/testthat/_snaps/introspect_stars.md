@@ -111,7 +111,7 @@
       Error in `.f()`:
       ! Issue found in dimension "quarter" of `dt`.
       x Dimension contains values outside the accepted range.
-      x Quarter of the year must be represented by integer numbers between 1 and 4 (inclusive).
+      x Quarters of the year must be represented by integer numbers between 1 and 4 (inclusive).
 
 ---
 
@@ -121,7 +121,7 @@
       Error in `Driver()`:
       ! Issue found in dimension "quarter" of `stars_obj`.
       x Dimension contains values outside the accepted range.
-      x Quarter of the year must be represented by integer numbers between 1 and 4 (inclusive).
+      x Quarters of the year must be represented by integer numbers between 1 and 4 (inclusive).
 
 ---
 
