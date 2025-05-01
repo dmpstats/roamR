@@ -23,7 +23,7 @@ test_that("errors raised when discrepancies between drivers and driver-related c
 
   # Unavailable raster data
   d <- rover_drivers
-  stars_obj(d$drv_sst) <- stars::st_as_stars(matrix(NA))
+  d$drv_sst@stars_obj <- stars::st_as_stars(matrix(NA))
 
   expect_error(
     init_check_consistency(rover, d),
