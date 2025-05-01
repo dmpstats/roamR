@@ -1,3 +1,9 @@
+test_that("VarFn() creates a <VarFn> S4 object", {
+  expect_s4_class(VarFn(), class = "VarFn")
+})
+
+
+
 test_that("VarFn() defaults to 'empty' <VarFn>", {
 
   out <- VarFn()
