@@ -41,7 +41,7 @@
 #'   containing grid-type spatio-temporal attributes of the driver. Typical
 #'   examples include time-series of raster-type density surfaces, distance
 #'   layers to landscape features or to man-made structures/impacts.
-#' @stars_meta a list object containing metadata about `stars_obj` required for
+#' @slot stars_meta a list object containing metadata about `stars_obj` required for
 #'   modelling purposes
 #' @slot stars_descr character string, a brief description of the data
 #'   contained in `stars_obj`.
