@@ -56,6 +56,9 @@ containing grid-type spatio-temporal attributes of the driver. Typical
 examples include time-series of raster-type density surfaces, distance
 layers to landscape features or to man-made structures/impacts.}
 
+\item{\code{stars_meta}}{a list object containing metadata about \code{stars_obj} required for
+modelling purposes}
+
 \item{\code{stars_descr}}{character string, a brief description of the data
 contained in \code{stars_obj}.}
 
