@@ -20,12 +20,11 @@ test_that("application to single-argument function works as expected", {
   mnf_fn <- build_cost_fn(state_cost)
 
   expected <- rover_drivers$drv_sst@stars_obj |>
-    dplyr::filter(months == "December") |>
+    dplyr::filter(months == lubridate::month(a@condition@timestamp, label = TRUE, abbr = FALSE)) |>
     stars::st_extract(sf::st_coordinates(location(a))) |>
     as.numeric() |>
     #units::drop_units() |>
     usr_fn()
-
 
   output <- mnf_fn(a, rover_drivers) |> as.numeric()
   expect_equal(output, expected)
@@ -94,7 +93,7 @@ test_that("application to multi-argument works as expected", {
   location(a) <- location(a) + 2 # hack: relocate to get non-NA SST value
 
   deg <- rover_drivers$drv_sst@stars_obj |>
-    dplyr::filter(months == "December") |>
+    dplyr::filter(months == lubridate::month(a@condition@timestamp, label = TRUE, abbr = FALSE)) |>
     stars::st_extract(sf::st_coordinates(location(a))) |>
     units::drop_units() |>
     as.numeric()
@@ -149,7 +148,7 @@ test_that("application to multiple random arguments works as expected", {
   location(a) <- location(a) + 2 # hack: relocate to get non-NA SST value
 
   deg <- rover_drivers$drv_sst@stars_obj |>
-    dplyr::filter(months == "December") |>
+    dplyr::filter(months == lubridate::month(a@condition@timestamp, label = TRUE, abbr = FALSE)) |>
     stars::st_extract(sf::st_coordinates(location(a))) |>
     units::drop_units() |>
     as.numeric()
@@ -189,7 +188,7 @@ test_that("application to multi-argument works as expected", {
   location(a) <- location(a) + 2 # hack: relocate to get non-NA SST value
 
   deg <- rover_drivers$drv_sst@stars_obj |>
-    dplyr::filter(months == "December") |>
+    dplyr::filter(months == lubridate::month(a@condition@timestamp, label = TRUE, abbr = FALSE)) |>
     stars::st_extract(sf::st_coordinates(location(a))) |>
     dplyr::pull(1) |>
     units::set_units("Fahrenheit") |>  # convert Celsius to Fahren
@@ -229,8 +228,6 @@ test_that("fails as expected", {
     mnf_fn(a, rover_drivers),
     "Can't find energy cost parameter for state ID"
   )
-
-
 })
 
 
