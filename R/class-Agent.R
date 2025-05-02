@@ -148,7 +148,7 @@ Agent <- function(species = NULL, model_config = NULL){
 
 ## Accessors ----
 
-### @body_mass
+### @AgentCondition@body_mass
 setMethod("body_mass", "Agent", function(x) x@condition@body_mass)
 setMethod("body_mass<-", "Agent", function(x, value) {
   x@condition@body_mass <- value
@@ -157,11 +157,32 @@ setMethod("body_mass<-", "Agent", function(x, value) {
 })
 
 
-### @location
+### @AgentCondition@location
 setMethod("location", "Agent", function(x) x@condition@location)
 setMethod("location<-", "Agent", function(x, value) {
   x@condition@location <- value
   validObject(x@condition)
+  x
+})
+
+
+### @history
+
+# decided against defining getter via a Generic to avoid recurrent message on load_all()
+history <- function(x){
+  if(!is(x, "Agent")){
+    cli::cli_abort("{.arg x} must be an object of class {.cls Agent}")
+  }
+  x@history
+}
+
+# setGeneric("history", function(x) standardGeneric("history"))
+# setMethod("history", "Agent", function(x) x@history)
+
+setGeneric("history<-", function(x, value) standardGeneric("history<-"))
+setMethod("history<-", "Agent", function(x, value) {
+  x@history <- value
+  validObject(x)
   x
 })
 
