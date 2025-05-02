@@ -4,7 +4,7 @@
 \alias{rmr_run}
 \title{Top-line function to run the IBM}
 \usage{
-rmr_run(IBM, verbose)
+rmr_run(ibm, .parallel_plan = future::sequential())
 }
 \description{
 Prototyping Version
