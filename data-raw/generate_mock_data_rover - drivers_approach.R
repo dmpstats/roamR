@@ -674,12 +674,6 @@ bla <- Species(
 )
 
 
-rmr_initiate(
-  model_config = your_config,
-  species = bla,
-  drivers = coast_drv
-  )
-
 
 
 # -------------------------------------------------- #
@@ -724,7 +718,7 @@ ggplot() +
 
 
 ibm_config_rover <- ModelConfig(
-  n_agents = 1000,
+  n_agents = 100,
   ref_sys = st_crs(4326),
   aoc_bbx = mock_bbox,
   delta_x = 0.1,
@@ -736,10 +730,15 @@ ibm_config_rover <- ModelConfig(
 )
 
 
-
-
 ## Set as {raomR} data ---------------------------------------
 usethis::use_data(ibm_config_rover, overwrite = TRUE, compress = "xz")
+
+
+# Initialize IBM: build <IBM> object ----------------------------------------------
+rover_ibm <- rmr_initiate(ibm_config_rover, rover, rover_drivers)
+
+## Set as {raomR} data
+usethis::use_data(rover_ibm, overwrite = TRUE, compress = "xz")
 
 
 
