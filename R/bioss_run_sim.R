@@ -114,6 +114,8 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
     if(lubridate::month(new_time) != lubridate::month(current_time)) {
 
+      current_month <- lubridate::month(current_time)
+
       current_density <- in_density |>
         dplyr::filter(month == current_month)
 
