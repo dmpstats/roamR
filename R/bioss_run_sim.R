@@ -49,6 +49,9 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
   }
 
+  in_sst <- stars::st_extract(sst_map,
+                              sf::st_sfc(in_agent@condition@location,
+                                         crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
 
   current_density <- in_density |>
     dplyr::filter(month == current_month)
@@ -67,9 +70,11 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
     new_time <- current_time + step_duration
 
-    in_sst <- stars::st_extract(sst_map,
+    sst_query <- stars::st_extract(sst_map,
                          sf::st_sfc(in_agent@condition@location,
                                     crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
+
+    if(!is.na(sst_query)){in_sst <- sst_query}
 
     if(lubridate::date(new_time) != lubridate::date(current_time)) {
 
