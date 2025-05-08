@@ -56,7 +56,8 @@ Collate:
     'rmr_initiate.R'
     'rmr_run.R'
     'roamR-package.R'
-    'simulate_agent.r'
+    'run_disnbs.R'
+    'simulate_agent_disnbs.r'
     'update_agent.r'
     'velocity_ou.R'
 VignetteBuilder: knitr
