@@ -56,7 +56,9 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
     movement = MoveInfluence(
       prob = VarDist(1),  # all agents to be influenced (p = 1)
       fn = \(x) ifelse(x <= 0, 1, 0), # binary influencer with cut-off at bbox's border (i.e. 0m)
-      type = "repulsion"
+      type = "repulsion",
+      mode = "vector-field",
+      sim_stage = "baseline-and-impact"
     )
   )
 
@@ -88,21 +90,25 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
     )
 
 
-  ### Compute vector fields for movement influencers ----------------
-  if(!quiet) cli::cli_progress_step("Calculate vector fields for movement drivers")
+  ### Handle movement-influencing drivers ----------------
+  if(!quiet) cli::cli_progress_step("Handling movement-influencing drivers")
 
-  # IDs of drivers influencing movement
-  drvmv_ids <- species@driver_responses |>
+  # extract ids of drivers influencing movement
+  mv_drvids <- species@driver_responses |>
     purrr::keep(\(x) !is_empty(x@movement@prob)) |> # driver doesn't affect movement if @prob in <MoveInfluence> is empty
     purrr::map_chr(\(x) x@driver_id)
 
 
-  if(length(drvmv_ids) > 0){
-    # For each geom-based movement driver: (i) calculate surface of
-    # cell-distances (AOC grid); (ii)  update driver
+  if(length(mv_drvids) > 0){
+
+    #### sf-based drivers: derive cell-distance surfaces  ------
+
+    # For each movement-influencing driver without raster-type data:
+    # (i) calculate surface of distances from sf object to AOC grid-cells;
+    # (ii) update driver's slots accordingly
     drivers <- drivers |>
      purrr::modify_if(
-       \(d) d@id %in% drvmv_ids && is_stars_empty(stars_obj(d)) ,
+       \(d) d@id %in% mv_drvids && is_stars_empty(stars_obj(d)) ,
        function(d, grid = aoc_grid) {
          # forcing unioning to get single vector of grid-point distances when
          # driver contains multiple geoms
@@ -115,24 +121,29 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
        }
      )
 
-    # add vector fields for movement-affecting drivers
-    drivers <- drivers |>
-      purrr::modify_if(
-        \(d) d@id %in% drvmv_ids,
-        function(d) {
-          stars_obj(d) <- compute_vector_fields(stars_obj(d))
-          d
-        },
-        .progress = TRUE
-      )
+    #### Compute vector fields solely where required ------
+    vf_drvids <- species@driver_responses |>
+      purrr::keep(\(x) x@driver_id %in% mv_drvids && x@movement@mode == "vector-field") |>
+      purrr::map_chr(\(x) x@driver_id)
 
-  }else{
-     cli::cli_alert_warning("Skipping vector field computation as none of the specified drivers affect movement")
+
+    if(length(vf_drvids) > 0){
+      if(!quiet) cli::cli_progress_step("Calculate vector fields for drivers {.val {vf_drvids}}.")
+
+      drivers <- drivers |>
+        purrr::modify_if(
+          \(d) d@id %in% vf_drvids,
+          function(d) {
+            stars_obj(d) <- compute_vector_fields(stars_obj(d))
+            d
+          },
+          .progress = TRUE
+        )
+    }
   }
 
-
   ## Species/States processing  ------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Processing States")
+  if(!quiet) cli::cli_progress_step("Processing Activity States")
 
   ### Compile user-defined functions for state's energy costs
   if(length(species@states_profile) > 0){
