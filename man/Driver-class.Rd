@@ -5,32 +5,34 @@
 \alias{Driver-class}
 \title{Class \verb{<Driver>}}
 \description{
-\verb{<Driver>} is an S4 class encapsulating habitat-level or man-made features
-that interact with simulated agents, driving and/or affecting their spatial
-movement and distribution, behaviour states, energetic costings and
+\verb{<Driver>} is an S4 class representing spatially explicit environmental or
+anthropogenic features that interact with simulated agents. These drivers
+influence agents’ movement, behavioural states, energetic expenditure, and
 physiological condition within the IBM's area of calculation (AOC) over the
-simulated period.
+course of a simulation.
 }
 \details{
-The class supports three main categories of drivers:
+The class supports four main categories of drivers:
 \itemize{
-\item \code{"habitat"} - specifying environmental or anthropogenic factors
-that define the habitat's baseline state (e.g. Sea surface temperature,
-salinity, bathymetry, distance from land).
-\item \code{"impact"} - refers to influencers that deviate from the status-quo and
+\item \code{"habitat"} - represents baseline environmental or anthropogenic conditions
+that define habitat characteristics (e.g. Sea surface temperature, salinity,
+bathymetry, distance from land).
+\item \code{"resource"}: captures the spatial distribution and availability of resources
+or proxies of ecological suitability (e.g. species density maps, energy
+intake surfaces).
+\item \code{"disturbance"} - refers to influencers that deviate from the status-quo and
 evaluated for their effects on the agents' simulated histories (e.g.
-Offshore windfarm footprints, oil rigs, shipping corridors)
+offshore windfarm footprints, oil rigs, shipping corridors).
 \item \code{"model"} - refers to influencers specified for model operational purposes
 (e.g. AOC bounding box to confine simulated movements).
 }
 
-This class is designed to accommodate two types of spatial-based data formats
-(simple features and multidimensional datacubes) providing a flexible
-framework to specify driver characteristics.
+\verb{<Driver>} supports two types of spatial data: vector-based simple features
+(\verb{<sf>}) and gridded spatio-temporal data cubes (\verb{<stars>}), providing
+flexibility for representing diverse inputs.
 
-\verb{<Driver>} interacts with the \linkS4class{Species} class to define species-level
-responses of traced agents to the driver, e.g. through a movement
-modification or impact on behaviour states and their energetics costs.
+This class interacts with the \code{\linkS4class{Species}} to define how agents respond to drivers,
+such as modifying movement patterns or altering behavioural energy costs.
 }
 \section{Slots}{
 
