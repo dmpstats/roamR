@@ -59,7 +59,7 @@ dns_srf_grd <- expand_grid(
 
 plot(dns_srf_grd)
 
-# set monts and nr of samples
+# set months and nr of samples
 month <- month.abb[1:4]
 n_samples <- 5
 
@@ -69,8 +69,8 @@ set.seed(1979)
 # generate surfaces for hotspots in each month
 rvr_dns_hot <- tibble(
   month,
-  month_mu_x = c(-2, 0, -1, 1.5),
-  month_mu_y = c(54, 60, 53.3, 56)
+  month_mu_x = c(-2, 0, -1, 1.5), #, 1, 3),
+  month_mu_y = c(54, 60, 53.3, 56)#, 50, 61)
 ) |>
   expand_grid(hotspot_id = 1:3) |>
   mutate(
@@ -263,7 +263,6 @@ yumyum_dens <- st_as_stars(prey_dens) |>
 plot(yumyum_dens, axes = TRUE, mfrow = c(2, 6))
 
 
-
 # construct driver
 drv_prey <- Driver(
   id = "prey_distr",
@@ -393,7 +392,7 @@ ggplot() +
 # construct driver
 drv_owfs <- Driver(
   id = "owf_foot",
-  type = "impact",
+  type = "disturbance",
   descr = "OWF Footprints",
   sf_obj = owf_foots,
   obj_active = "sf"
@@ -435,7 +434,7 @@ ggplot() +
 # construct driver
 drv_trawling <- Driver(
   id = "trawling_area",
-  type = "impact",
+  type = "disturbance",
   descr = "Fishing Restricted Area for Trawling",
   sf_obj = fra_foot,
   obj_active = "sf"
@@ -535,7 +534,9 @@ resp_land <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = exp_decay,
-    type = "repulsion"
+    type = "repulsion",
+    mode = "vector-field",
+    sim_stage = "baseline-and-impact"
   )
 )
 
@@ -546,7 +547,9 @@ resp_spdist <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = function(x) x,
-    type = "attraction"
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "baseline-and-impact"
   )
 )
 
@@ -557,7 +560,9 @@ resp_sst <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = function(x) x,
-    type = "attraction"
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "baseline-and-impact"
   ),
   condition = "DEE"
 )
@@ -570,7 +575,9 @@ resp_sst <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = function(x) x,
-    type = "attraction"
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "baseline-and-impact"
   )
 )
 
@@ -583,7 +590,9 @@ resp_owf <- new(
   movement = MoveInfluence(
     prob = VarDist(dist_beta(2, 8)),
     fn = exp_decay,
-    type = "repulsion"
+    type = "repulsion",
+    mode = "vector-field",
+    sim_stage = "impact"
   ),
   states = list(
     StateInfluence(
@@ -603,7 +612,9 @@ resp_trawling <- new(
   movement = MoveInfluence(
     prob = VarDist(dist_beta(2, 8)),
     fn = exp_decay,
-    type = "attraction"
+    type = "attraction",
+    mode = "vector-field",
+    sim_stage = "impact"
   ),
   states = list(
     StateInfluence(
@@ -641,37 +652,6 @@ rover <- Species(
 ## Set as {raomR} data ---------------------------------------
 usethis::use_data(rover, overwrite = TRUE, compress = "xz")
 
-
-
-
-
-coast_drv <- Driver(
-  id = "land",
-  type = "habitat",
-  descr = "land",
-  sf_obj = coastline,
-  sf_descr = "UK Coastline"
-)
-
-
-bla <- Species(
-  id = "bla",
-  common_name = "blabla",
-  scientific_name = "blablacocous",
-  body_mass_distr = VarDist(),
-  mortality_thresh_distr = VarDist(),
-  states_profile = list(State(), State()),
-  driver_responses = list(
-    DriverResponse(
-      driver_id = "land",
-      movement = MoveInfluence(
-        prob = VarDist(distributional::dist_degenerate(1)),
-        fn = \(x) x,
-        type = "repulsion"
-      )
-    )
-  )
-)
 
 
 
