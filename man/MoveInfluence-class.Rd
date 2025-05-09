@@ -32,5 +32,20 @@ expressing the magnitude of the influence, should be bounded between 0 (no influ
 \item{\code{type}}{A \code{character} string, specifying the type of influence being applied
 (e.g., "attraction", "repulsion"). This allows for categorization of
 movement influence.}
+
+\item{\code{mode}}{A \code{character} string, specifying how the driver is to be applied
+by the movement model. Currently supports 2 options:
+\itemize{
+\item "vector-field" (default): TODO
+\item "cell-value": TODO
+}}
+
+\item{\code{sim_stage}}{A \code{character} string, specifying at which stage of the simulation is driver applied
+by the movement model. Currently supports three options:
+\itemize{
+\item "baseline" (default): TODO
+\item "impact": TODO
+\item "baseline-and-impact": TODO
+}}
 }}
 
