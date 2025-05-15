@@ -12,3 +12,31 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(roamR)
 ```
+
+# Overview: `roamR`
+
+* DisNBS project and associated credits
+* Objectives
+
+## Installation 
+
+## Rationale
+
+## Example scenarios
+
+
+# Package/class hierarchy
+
+* Class overview (pix)
+* Agents
+* Environment
+
+
+
+## `ibm`
+
+## `species`
+
+## `agent`
+
+
