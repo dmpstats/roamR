@@ -133,7 +133,9 @@ as_vardist <- function(x, units){
 #'
 slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
 
+  # TODO: check issue with slicing dimensions of type <Date> and <Posixt>
   # TODO: unit-testing
+
 
   # Note: as noted in the package documentation, `<stars>` subsetting using the
   # "[" operator need to take into account that the first argument selects
@@ -175,4 +177,35 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
   eval(rlang::expr(strs[!!!indices]))
   #do.call("[", c(list(strs), indices))
 }
+
+
+
+#' ----------------------------------------------------------------------------
+#' helper to get element of list of S4 objects using it's slot `@id`. Applicable
+#' to e.g. `IBM@drivers` or `Species@states_profile`
+#'
+#' @param l a list containing S4 class objects as elements, each of which must contain a slot @id
+#' @param id character, the name assigned to @id
+#'
+#'
+#' @examples
+#' pluck_s4(rover@states_profile, "water_resting")
+#'
+#' pluck_s4(rover_ibm_disnbs@drivers, "dens")
+#'
+#' # returns NULL if there is no element with specified ID
+#' pluck_s4(rover_ibm_disnbs@drivers, "water_resting")
+#'
+pluck_s4 <- function(l, id){
+
+  idx <- which(purrr::map_lgl(l, \(x) x@id == id))
+
+  if(length(idx) != 0){
+    purrr::pluck(l, idx)
+  } else{
+    NULL
+  }
+}
+
+
 
