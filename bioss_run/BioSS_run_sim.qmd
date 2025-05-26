@@ -15,7 +15,6 @@ Parallelisation, counter-factuals
 
 Input data, species & model configurations etc
 
-
 ### Spatio-temporal inputs
 
 Species, conspecifics and SST. Pre-prepared (clipped to AoC and projected to UTM30).
@@ -89,7 +88,6 @@ sst <- readRDS("data/bioss_sst_stars.rds")
 
 Put these in as `roamR` drivers. Exclude conspecifics for dev.
 
-
 ```{r}
 # Set up IBM drivers ----------------------------------------------------------------------------------------------
 
@@ -149,15 +147,15 @@ guill_drivers <- list(
 )
 ```
 
-
 ### Species and model configurations
+
 These are the elements to be adjusted for the simulations in hand (as initially assuming datacubes are fixed):
 
-* Means/variances of energy cost functions (inside `states` definition list)
-* Mean/variance of bodymass distribution (defined in the `Species` class object)
-* The parameter `p_imp_response` which governs the probability an agent is responsive to an OWF development
+-   Means/variances of energy cost functions (inside `states` definition list)
+-   Mean/variance of bodymass distribution (defined in the `Species` class object)
+-   The parameter `p_imp_response` which governs the probability an agent is responsive to an OWF development
 
-__States__:
+**States**:
 
 ```{r}
 # States specification -------------------------------------------------
@@ -196,8 +194,7 @@ states <- list(
 )
 ```
 
-
-__Species definition (bodymass of interest)__
+**Species definition (bodymass of interest)**
 
 ```{r}
 
@@ -224,7 +221,7 @@ p_imp_response <- 0.67
 
 ```
 
-A series of internal calculations required to initialise the IBM. 
+A series of internal calculations required to initialise the IBM.
 
 ```{r}
 # Initiate Agent  -------------------------------------------------
@@ -260,7 +257,6 @@ agent_list <- list()
 
 The simulation is run for each agent in the list. The `sequent_runs` object is a list of the results for each agent. We'll only run for the first one, for timing and looking at structure. Parallelised using `furrr`.
 
-
 ```{r}
 
 future::plan(future::multisession, workers = 4)
@@ -281,17 +277,13 @@ sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
 
 ```
 
-
 ## Querying the outputs
-
 
 Each of the agents has 3 slots:
 
-* `condition`: this contains the current state of the agent as it progresses through the simulation e.g. position, weight etc. At the end of the simulation it will contain its final state. Elements of this are progressively used to populate the history slot below.
-* `properties`: the over-arching properties governing the agent which are fixed throughout the simulation. Elements of this are derived from the species properties and populated at the initialisation of the agent.
-* `history`: elements of the agent's condition recorded over time. 
-
-
+-   `condition`: this contains the current state of the agent as it progresses through the simulation e.g. position, weight etc. At the end of the simulation it will contain its final state. Elements of this are progressively used to populate the history slot below.
+-   `properties`: the over-arching properties governing the agent which are fixed throughout the simulation. Elements of this are derived from the species properties and populated at the initialisation of the agent.
+-   `history`: elements of the agent's condition recorded over time.
 
 ```{r}
 
@@ -300,7 +292,6 @@ slotNames(sequent_runs[[1]])
 ```
 
 For example, the bodymass of the agent is recorded over time. The stochasticity here is defined at the species-level and as implemented for this example, the agent-level energetics parameters vary over time.
-
 
 ```{r}
 hist_obj <- lapply(sequent_runs, \(x) x@history)
@@ -318,7 +309,6 @@ ggplot(hist_obj) +
   facet_wrap(~agent_id, ncol = 2)
 ```
 
-
 ```{r}
 ggplot(hist_obj, aes(x = timestep, y = units::drop_units(body_mass))) + 
   geom_point(fill = "grey", col = "black", alpha = 0.5) +
@@ -334,8 +324,7 @@ ggplot(hist_obj, aes(x = timestep, y = units::drop_units(body_mass))) +
 
 It is assumed here that there are only a binary comparison of unimpacted and impacted runs. Each agent will create a pair whose starting conditions are identical. This means common random seeds for stochastic components, although they are expected/allowed to deviate over time given the variable pressures applied through impact scenarios.
 
-Here we run a counter-factual set for the previous example agents. Note, only a proportion of agents are deemed responsive to the impacts, but they will all still be subject to the density dependent energy implications of those agents that are responsive. 
-
+Here we run a counter-factual set for the previous example agents. Note, only a proportion of agents are deemed responsive to the impacts, but they will all still be subject to the density dependent energy implications of those agents that are responsive.
 
 ```{r}
 
@@ -357,16 +346,15 @@ sequent_imp_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
 
 ```
 
-
 ### Counter-factual comparisons
 
 Here we summarise the impacts in terms of effects on energetics. Note, by design the agents will attempt to mitigate reductions in feeding success/energy inputs by modifying their activity budgets. The comparisons here are based solely on:
 
-* Comparison of energy expenditure over the simulation/NBS for the impacted/non-impacted.
-* The proportion of time spent in each activity state (flight, dive, active, inactive) over the simulation/NBS, for the impacted/non-impacted.
+-   Comparison of energy expenditure over the simulation/NBS for the impacted/non-impacted.
+-   The proportion of time spent in each activity state (flight, dive, active, inactive) over the simulation/NBS, for the impacted/non-impacted.
 
+Combine the simulations into one DF:
 
-Combine the simulations into one DF: 
 ```{r}
 
 imp_hist_obj <- lapply(sequent_imp_runs, \(x) x@history)
@@ -383,7 +371,6 @@ comp_df <- bind_rows(hist_obj, imp_hist_obj)
 ```
 
 Consider first the cumulative energy expenditure. Note these seem unreasonably variable, but are a natural consequence of the energetics equations and their parameter distributions as currently provided.
-
 
 ```{r}
 
@@ -442,9 +429,3 @@ ggplot(activity_summ) +
   ggtitle("Difference in time spent in activities", "Impacted vs unimpacted") 
  
 ```
-
-
-
-
-
-
