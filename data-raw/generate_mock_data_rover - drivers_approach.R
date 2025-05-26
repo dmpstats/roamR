@@ -468,8 +468,10 @@ usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
 ## Species state profile  ----------------------------------
 
 swim_cost_fn <- function(sst, int){
-  int - (2.75 * sst)
+  x <- int - (2.75 * sst)
+  max(x, 1, na.rm = TRUE) # na.rm also ensures minimum cost if agent lands in cell without SST surface coverage
 }
+
 
 water_rest_cost_fn <- function(b) sqrt(b)
 
@@ -484,13 +486,13 @@ flight_cost_dist <- dist_lognormal(
 rvr_states <- list(
   flight = State(
     id = "flying",
-    energy_cost = VarDist(flight_cost_dist, "kJ/hour/gram"),
+    energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
   ),
   dive = State(
     id = "foraging",
-    energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour/gram"),
+    energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
   ),
   swimming = State(
@@ -498,7 +500,7 @@ rvr_states <- list(
     energy_cost = VarFn(
       swim_cost_fn,
       list(sst = "driver", int = VarDist(dist_normal(113, 22))),
-      units = "kJ/hour/gram"
+      units = "kJ/hour"
     ),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(0, 2), "m/s")
@@ -508,7 +510,7 @@ rvr_states <- list(
     energy_cost = VarFn(
       water_rest_cost_fn,
       list("body_mass"),
-      "kJ/hour/gram"
+      "kJ/hour"
     ),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
   )
@@ -536,7 +538,7 @@ resp_land <- new(
     fn = exp_decay,
     type = "repulsion",
     mode = "vector-field",
-    sim_stage = "baseline-and-impact"
+    sim_stage = "bsln-imp"
   )
 )
 
@@ -549,7 +551,7 @@ resp_spdist <- new(
     fn = function(x) x,
     type = "attraction",
     mode = "cell-value",
-    sim_stage = "baseline-and-impact"
+    sim_stage = "bsln-imp"
   )
 )
 
@@ -562,7 +564,7 @@ resp_sst <- new(
     fn = function(x) x,
     type = "attraction",
     mode = "cell-value",
-    sim_stage = "baseline-and-impact"
+    sim_stage = "bsln-imp"
   ),
   condition = "DEE"
 )
@@ -577,7 +579,7 @@ resp_sst <- new(
     fn = function(x) x,
     type = "attraction",
     mode = "cell-value",
-    sim_stage = "baseline-and-impact"
+    sim_stage = "bsln-imp"
   )
 )
 
@@ -592,7 +594,7 @@ resp_owf <- new(
     fn = exp_decay,
     type = "repulsion",
     mode = "vector-field",
-    sim_stage = "impact"
+    sim_stage = "imp"
   ),
   states = list(
     StateInfluence(
@@ -614,7 +616,7 @@ resp_trawling <- new(
     fn = exp_decay,
     type = "attraction",
     mode = "vector-field",
-    sim_stage = "impact"
+    sim_stage = "imp"
   ),
   states = list(
     StateInfluence(
@@ -638,6 +640,7 @@ rover <- Species(
   common_name = "Rover",
   scientific_name = "Rover Vulgaris",
   body_mass_distr = VarDist(dist_normal(1000, 0.2 * 1000), units = "grams"),
+  energy_to_mass_distr = VarDist(0.072, "g/kJ"),
   mortality_thresh_distr = VarDist(dist_uniform(300, 350), units = "grams"),
   states_profile = rvr_states,
   driver_responses = list(
