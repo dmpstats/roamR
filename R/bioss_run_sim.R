@@ -58,9 +58,14 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
   current_density <- current_density[drop = T]
 
+  noimp_density <- in_ibm@drivers$dens@stars_obj |>
+    dplyr::filter(month == current_month)
+
+  noimp_density <- noimp_density[drop = T]
+
   path_ind <- 1
 
-  mv_path <- roamR::path_calc(current_density, in_agent)
+  mv_path <- roamR::path_calc(density_map = noimp_density, imp_dens = current_density, agent = in_agent)
 
   while(current_time <= in_ibm_config@end_date){
 
@@ -126,7 +131,7 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
       current_density <- current_density[drop = T] #drop unneeded dimensions
 
-      mv_path <- roamR::path_calc(current_density, in_agent)
+      mv_path <- roamR::path_calc(density_map = noimp_density, imp_dens = current_density, agent = in_agent)
 
       path_ind <- 1
 
@@ -151,7 +156,7 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
   }
 
   in_agent@history <- in_agent@history |>
-    dplyr::mutate(body_mass = stats::ksmooth(x = timestep, y = body_mass, kernel = "normal", bandwidth = 14))
+    dplyr::mutate(body_mass = stats::ksmooth(x = timestep, y = body_mass, kernel = "normal", bandwidth = 14)$y)
 
   in_agent
 
