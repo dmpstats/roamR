@@ -4,10 +4,12 @@
 \alias{path_calc}
 \title{Shortest path calc}
 \usage{
-path_calc(density_map, agent)
+path_calc(density_map, imp_dens, agent)
 }
 \arguments{
 \item{density_map}{A raster density map to sample from}
+
+\item{imp_dens}{A raster density map under impact to sample from}
 
 \item{agent}{A roamR agent - mainly for its current location}
 }
