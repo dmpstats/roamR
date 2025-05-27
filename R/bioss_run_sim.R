@@ -85,12 +85,12 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
       if(impact == T){
 
-        impact <- stars::st_extract(impact_map,
+        impact_p <- stars::st_extract(impact_map,
                                     sf::st_sfc(in_agent@condition@location, crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
 
-        impact <- ifelse(is.na(impact), 1, impact) # if foraging in footprint
+        impact_p <- ifelse(is.na(impact_p), 1, impact_p) # if foraging in footprint
 
-        e_intake <- mean_intake * impact
+        e_intake <- mean_intake * impact_p
 
       }
 
