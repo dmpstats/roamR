@@ -296,6 +296,8 @@ For example, the bodymass of the agent is recorded over time. The stochasticity 
 ```{r}
 hist_obj <- lapply(sequent_runs, \(x) x@history)
 
+hist_obj <- lapply(hist_obj, \(x) x |> mutate(body_mass = ksmooth(timestep, body_mass, bandwidth = 7, kernel = "normal")$y))
+
 names(hist_obj) <- paste0("agent_", 1:length(hist_obj))
 
 hist_obj <- bind_rows(hist_obj, .id = "agent_id") |> 
@@ -310,11 +312,11 @@ ggplot(hist_obj) +
 ```
 
 ```{r}
-ggplot(hist_obj, aes(x = timestep, y = units::drop_units(body_mass))) + 
+ggplot(hist_obj, aes(x = timestep, y = body_mass)) + 
   geom_point(fill = "grey", col = "black", alpha = 0.5) +
   xlab("day") +
   ylab("Implied body-mass (g)") +
-  geom_smooth() +
+  geom_line(col = "purple") +
   theme_light() +
   facet_wrap(~agent_id, ncol = 2)
 
@@ -359,6 +361,8 @@ Combine the simulations into one DF:
 
 imp_hist_obj <- lapply(sequent_imp_runs, \(x) x@history)
 
+imp_hist_obj <- lapply(imp_hist_obj, \(x) x |> mutate(body_mass = ksmooth(timestep, body_mass, bandwidth = 7, kernel = "normal")$y))
+
 names(imp_hist_obj) <- paste0("agent_", 1:length(imp_hist_obj))
 
 imp_hist_obj <- bind_rows(imp_hist_obj, .id = "agent_id") |> 
@@ -400,6 +404,28 @@ ggplot(energy_summ) +
 
 
 ```
+
+```{r}
+
+
+wt_summ <- comp_df |> 
+  group_by(agent_id, impact) |>
+  summarise(
+    end_wt = last(body_mass)
+  ) 
+
+
+ggplot(wt_summ) +
+  geom_point(aes(agent_id, end_wt, col = impact), size = 3) +
+  ggthemes::scale_color_fivethirtyeight() +
+  ggtitle("NBS final weight", "Impacted vs unimpacted") +
+  ylab("Final body weight (g)") +
+  theme_light()
+  
+
+
+```
+
 
 Looking crudely at the distribution of activity states for the NBS. Just taking means of proportions for each agent over the NBS, and comparing for their impacted/non-impacted states:
 
