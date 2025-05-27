@@ -313,7 +313,7 @@ ggplot(hist_obj) +
 
 ```{r}
 ggplot(hist_obj, aes(x = timestep, y = body_mass)) + 
-  geom_point(fill = "grey", col = "black", alpha = 0.5) +
+  #geom_point(fill = "grey", col = "black", alpha = 0.5) +
   xlab("day") +
   ylab("Implied body-mass (g)") +
   geom_line(col = "purple") +
@@ -425,7 +425,6 @@ ggplot(wt_summ) +
 
 
 ```
-
 
 Looking crudely at the distribution of activity states for the NBS. Just taking means of proportions for each agent over the NBS, and comparing for their impacted/non-impacted states:
 
