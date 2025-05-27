@@ -150,6 +150,9 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
   }
 
+  in_agent@history <- in_agent@history |>
+    dplyr::mutate(body_mass = stats::ksmooth(x = timestep, y = body_mass, kernel = "normal", bandwidth = 14))
+
   in_agent
 
 } # eof
