@@ -239,7 +239,7 @@ The initiation of the IBM can create an arbitrary number of agents (via `n_agent
 
 ```{r}
 agent_list <- list()
-  n_agents <- 8
+  n_agents <- 100
 
   set.seed(4958)
 
@@ -259,21 +259,35 @@ The simulation is run for each agent in the list. The `sequent_runs` object is a
 
 ```{r}
 
-future::plan(future::multisession, workers = 4)
+# future::plan(future::multisession, workers = 20)
+# 
+# set.seed(34958) # important this be set to allow paired runs with the impacted scenarios
+# 
+# system.time({
+#   
+# sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
+#             in_agent = x, in_ibm = guill_ibm,
+#             in_species = guill, 
+#             in_ibm_config = guill_imb_config,
+#             mean_intake = 543,
+#             impact = F), # OWF information is ignored
+#             .progress = T, .options = furrr::furrr_options(seed = T))
+# 
+# })
+
 
 set.seed(34958) # important this be set to allow paired runs with the impacted scenarios
 
-system.time({
-  
-sequent_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
+
+sequent_runs <- map(agent_list[1:4], \(x) {saveRDS(.Random.seed, "in_seed.rds"); bioss_run_sim(
             in_agent = x, in_ibm = guill_ibm,
             in_species = guill, 
             in_ibm_config = guill_imb_config,
             mean_intake = 543,
-            impact = F), # OWF information is ignored
-            .progress = T, .options = furrr::furrr_options(seed = T))
+            impact = T)}, .progress = T)
 
-})
+
+saveRDS(sequent_runs, "data/sequent_runs.rds")
 
 ```
 
@@ -296,7 +310,7 @@ For example, the bodymass of the agent is recorded over time. The stochasticity 
 ```{r}
 hist_obj <- lapply(sequent_runs, \(x) x@history)
 
-hist_obj <- lapply(hist_obj, \(x) x |> mutate(body_mass = ksmooth(timestep, body_mass, bandwidth = 7, kernel = "normal")$y))
+#hist_obj <- lapply(hist_obj, \(x) x |> mutate(body_mass = ksmooth(timestep, body_mass, bandwidth = 7, kernel = "normal")$y))
 
 names(hist_obj) <- paste0("agent_", 1:length(hist_obj))
 
@@ -330,7 +344,7 @@ Here we run a counter-factual set for the previous example agents. Note, only a 
 
 ```{r}
 
-future::plan(future::multisession, workers = 4)
+future::plan(future::multisession, workers = 20)
 
 set.seed(34958) # seed matches previous run for pairing
 
@@ -345,6 +359,8 @@ sequent_imp_runs <- furrr::future_map(agent_list, \(x) bioss_run_sim(
             .progress = T, .options = furrr::furrr_options(seed = T))
   
 })
+
+saveRDS(sequent_imp_runs, "data/sequent_imp_runs.rds")
 
 ```
 
@@ -361,7 +377,7 @@ Combine the simulations into one DF:
 
 imp_hist_obj <- lapply(sequent_imp_runs, \(x) x@history)
 
-imp_hist_obj <- lapply(imp_hist_obj, \(x) x |> mutate(body_mass = ksmooth(timestep, body_mass, bandwidth = 7, kernel = "normal")$y))
+#imp_hist_obj <- lapply(imp_hist_obj, \(x) x |> mutate(body_mass = ksmooth(timestep, body_mass, bandwidth = 7, kernel = "normal")$y))
 
 names(imp_hist_obj) <- paste0("agent_", 1:length(imp_hist_obj))
 
@@ -371,6 +387,9 @@ imp_hist_obj <- bind_rows(imp_hist_obj, .id = "agent_id") |>
 
 comp_df <- bind_rows(hist_obj, imp_hist_obj) 
   
+
+imp_ind <- lapply(sequent_runs, \(x) x@properties@move_influences$owf_imp) %>% unlist()
+impact_table <- data.frame(agent_id = paste0("agent_", 1:length(sequent_runs)), owf_sensitive = imp_ind)
 
 ```
 
@@ -454,3 +473,37 @@ ggplot(activity_summ) +
   ggtitle("Difference in time spent in activities", "Impacted vs unimpacted") 
  
 ```
+
+
+
+```{r}
+
+
+wt_summ <- comp_df |> 
+  group_by(agent_id, impact) |>
+  summarise(
+    end_wt = last(body_mass)
+  ) %>% 
+  group_by(agent_id) %>% 
+  summarise(diff = end_wt[2] - end_wt[1]) %>% 
+  left_join(impact_table) %>% 
+  mutate(diff = diff, owf_sensitive = factor(owf_sensitive))
+
+wt_summ %>% 
+  ggplot() +
+  geom_histogram(aes(diff, colour = owf_sensitive, fill = owf_sensitive)) +
+  facet_wrap(~owf_sensitive, ncol = 1)
+
+wt_summ %>% 
+  ggplot() +
+  geom_histogram(aes(diff, colour = owf_sensitive, fill = owf_sensitive), alpha = 0.4)
+
+
+wt_summ %>% 
+  group_by(owf_sensitive) %>% 
+  summarise(mean = mean(diff), med = median(diff), sd = sd(diff))
+
+
+
+```
+
