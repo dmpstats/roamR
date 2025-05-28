@@ -51,7 +51,7 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
 
   in_sst <- stars::st_extract(sst_map,
                               sf::st_sfc(in_agent@condition@location,
-                                         crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
+                              crs = in_ibm_config@ref_sys))$sst[which(sst_month == current_month)]
 
   current_density <- in_density |>
     dplyr::filter(month == current_month)
@@ -86,7 +86,8 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
       if(impact == T){
 
         impact_p <- stars::st_extract(impact_map,
-                                    sf::st_sfc(in_agent@condition@location, crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
+                                    sf::st_sfc(in_agent@condition@location,
+                                    crs = in_ibm_config@ref_sys))$density[which(dens_month == current_month)]
 
         impact_p <- ifelse(is.na(impact_p), 1, impact_p) # if foraging in footprint
 
@@ -129,7 +130,12 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
       current_density <- in_density |>
         dplyr::filter(month == current_month)
 
-      current_density <- current_density[drop = T] #drop unneeded dimensions
+      current_density <- current_density[drop = T] # drop unneeded dimensions
+
+      noimp_density <- in_ibm@drivers$dens@stars_obj |>
+        dplyr::filter(month == current_month)
+
+      noimp_density <- noimp_density[drop = T]
 
       mv_path <- roamR::path_calc(density_map = noimp_density, imp_dens = current_density, agent = in_agent)
 
@@ -138,7 +144,6 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
     }
 
     current_time <- new_time
-    #in_agent@condition@location <- st_point(mv_path[[1]][path_ind,])
     in_agent@condition@body_mass <- in_agent@condition@body_mass + wt_gain
     in_agent@condition@timestep <- in_agent@condition@timestep + as.integer(1)
     in_agent@condition@energy_expenditure <- in_agent@condition@energy_expenditure + energy_expenditure
