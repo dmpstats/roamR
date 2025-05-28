@@ -58,6 +58,7 @@ Collate:
     'class-State.R'
     'class-StateInfluence.R'
     'data.R'
+    'e_to_mass_conv.R'
     'path_calc.R'
     'rebalance_states.R'
     'rmr_initiate.R'
