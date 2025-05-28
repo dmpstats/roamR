@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples TBD
-bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_intake, impact){
+bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_intake, impact, conv_c = 0.072){
 
   in_density <- in_ibm@drivers$dens@stars_obj
   impact_map <- in_ibm@drivers$energy_imp@stars_obj
@@ -106,8 +106,6 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
         units::drop_units() |>
         units::set_units("kJ")
 
-      wt_gain <- units::drop_units(energy_expenditure) * 0.072 |>
-        units::set_units("g")
 
       # update activity profile for use in t+1
 
@@ -144,7 +142,6 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
     }
 
     current_time <- new_time
-    in_agent@condition@body_mass <- in_agent@condition@body_mass + wt_gain
     in_agent@condition@timestep <- in_agent@condition@timestep + as.integer(1)
     in_agent@condition@energy_expenditure <- in_agent@condition@energy_expenditure + energy_expenditure
 
@@ -161,7 +158,10 @@ bioss_run_sim <- function(in_agent, in_species, in_ibm, in_ibm_config, mean_inta
   }
 
   in_agent@history <- in_agent@history |>
-    dplyr::mutate(body_mass = stats::ksmooth(x = timestep, y = body_mass, kernel = "normal", bandwidth = 14)$y)
+    dplyr::mutate(body_mass = roamR::e_to_mass_conv(x = timestep, e_vect = energy_expenditure, bw = 14, conv_c = conv_c),
+                  body_mass = units::set_units(body_mass, "g") + in_agent@properties@initial_mass)
+
+  in_agent@condition@body_mass <- dplyr::last(in_agent@history$body_mass) # revise final body mass post-process
 
   in_agent
 
