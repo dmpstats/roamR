@@ -70,6 +70,12 @@ This package assumes at least some minor familiarity with R. Its use for simulat
 * Classes are prescriptive in what they can contain, this means things are more robust but deviations will be rejected e.g. if the data is __required__ to be a `stars` object, you cannot store something else there
 * There are a lot of background checks for conformity (as above), so what you do will be scrutinised at various levels and prevented if  
 
+## Dependencies
+
+The package has been written with the intention of few dependencies on other packages. The dependencies that are needed have been chosen with stability and longevity in mind i.e. they are well maintained and programmed, where differing options are available. Notable examples are:
+
+* The `sf` (simple features) package, which is widely well regarded for spatial work and encompasses much functionality of other packages. 
+* The `stars` packages for dealing with spatiotemporal data structures, which is characteristic of much of the data required for animal movement IBMs.
 
 
 # Package/class hierarchy
@@ -99,6 +105,21 @@ The workflow is in essence:
 
 
 # The high level control (`ModelConfig`, class)
+
+This provides the high-level configurations for the simulation, such as the spatial and temporal boundaries, the spatiotemporal resolution, the number of agents to simulate, the projection of the spatial data, and other general parameters that define the simulation environment. This also includes start and finish points for simulated animals, if that some return-to-colony behaviour is required. Consideration in the setting of these follows.
+
+__Bounding Box__ (`aoc_bbx`) this is a spatial extent over which the agents are constrained to be within. In many cases this will simply dictated by the data, for example a density distribution for the animal being simulated. If the animals have very low probability of being beyond this data, then the bounding box constraint is a logical progression. In other cases it might be set with knowledge of the maximum range of the animal's homerange. 
+
+It is important to note that no movement outside this is permitted - so the box should be sufficiently large that it is not controversially influential i.e. err on the large side given other inputs will dictate travel. It also will bound spatiotemporal inputs, so data inputs are clipped to this region. A potential consequence of making the bounds very large is that large amounts of data be retained needlessly.
+
+__Spatial Resolution__ (`delta_x`, `delta_y`) this defines the resolution of any spatiotemporal datacubes that underpin the IBM. Note, this does not define the resolution of the movements of the agent, just the resolution of data describing its environment. This can simply be set to match the finest scale of the input data, the only cost being the size of data being carried forwards.
+
+__Temporal Bounds__ (`start_date`, `end_date`) a nominal period the simulation applies to. Some care is needed such that input data covers this period. For example, if the simulation is envisaged to be running in the future, temporal inputs should similarly be nominally for this period e.g. if using historic SST data, this needs to be timestamped for the projected simulation period.
+
+__Number of agents__ (`n_agents`) there is no strong guidance on this, but is should be a considered choice. A general rule of thumb is that more would be better (similar to any computer intensive inference) so should be "large". Note, tThe amount of calculation, and hence time to run the simulation, is linear with regards this. Similarly agents are tracked and stored in detail, so may result in non-negligible storage sizes. 
+
+Ultimately the the outputs will be distributions of metrics from the agents, so sufficient are needed to characterise these distributions well/stably. A balance of computation time and accuracy of the distribution shape may be needed, if computation time is large - else just select a large number. The number of agents does _not_ need to match the number of individuals in the population being simulated, they represent a sample of potential realities or animals as for any computer-intensive inference.
+
 
 # Defining the species (`Species` class)
 
