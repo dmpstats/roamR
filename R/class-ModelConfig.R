@@ -58,6 +58,7 @@ methods::setClass(
     delta_x = "numeric",
     delta_y = "numeric",
     time_step = "character",
+    #delta_time = "period",
     start_date = "Date",
     end_date = "Date",
     start_sites = "sf",
@@ -70,6 +71,7 @@ methods::setClass(
     delta_x = NA_real_,
     delta_y = NA_real_,
     time_step = NA_character_,
+    #delta_time = lubridate::period(),
     start_date = as.Date(NA),
     end_date = as.Date(NA),
     start_sites = sf::st_sf(sf::st_sfc()),
@@ -176,7 +178,9 @@ ModelConfig <- function(n_agents = 100L,
                         start_sites = NULL,
                         end_sites = NULL){
 
-  # TODO: (i) examples; (ii) unit-tests
+  # TODO:
+  # (i) examples;
+  # (ii) unit-tests
 
   # Null input handling --------------------------------------------------------
   start_sites <- start_sites %||% sf::st_sf(sf::st_sfc())
@@ -221,6 +225,7 @@ ModelConfig <- function(n_agents = 100L,
     delta_x = delta_x,
     delta_y = delta_y,
     time_step = time_step,
+    #delta_time = lubridate::period(),
     start_date = start_date,
     end_date = end_date,
     start_sites = start_sites,
@@ -233,6 +238,8 @@ ModelConfig <- function(n_agents = 100L,
 
 # Validator -----------------------------------------------------
 methods::setValidity("ModelConfig", function(object) {
+
+  # TODO:
 
   err <- c()
 
