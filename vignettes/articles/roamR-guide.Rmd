@@ -116,12 +116,26 @@ __Spatial Resolution__ (`delta_x`, `delta_y`) this defines the resolution of any
 
 __Temporal Bounds__ (`start_date`, `end_date`) a nominal period the simulation applies to. Some care is needed such that input data covers this period. For example, if the simulation is envisaged to be running in the future, temporal inputs should similarly be nominally for this period e.g. if using historic SST data, this needs to be timestamped for the projected simulation period.
 
-__Number of agents__ (`n_agents`) there is no strong guidance on this, but is should be a considered choice. A general rule of thumb is that more would be better (similar to any computer intensive inference) so should be "large". Note, tThe amount of calculation, and hence time to run the simulation, is linear with regards this. Similarly agents are tracked and stored in detail, so may result in non-negligible storage sizes. 
+__Number of agents__ (`n_agents`) there is no strong guidance on this, but is should be a considered choice. A general rule of thumb is that more would be better (similar to any computer intensive inference) so should be "large". Note, the amount of calculation, and hence time to run the simulation, is linear with regards this. Similarly agents are tracked and stored in detail, so may result in non-negligible storage sizes. 
 
 Ultimately the the outputs will be distributions of metrics from the agents, so sufficient are needed to characterise these distributions well/stably. A balance of computation time and accuracy of the distribution shape may be needed, if computation time is large - else just select a large number. The number of agents does _not_ need to match the number of individuals in the population being simulated, they represent a sample of potential realities or animals as for any computer-intensive inference.
 
 
 # Defining the species (`Species` class)
+
+This provides the general features that are realised in the agents, either stochastically (e.g. initial body mass) and/or functional relationships with the environment (e.g. how SST affects energy expenditure). It has been named _species_ but could be considered a population depending on the context e.g. if there are parameters known down to a colony level, and potentially different from other colonies.
+
+[Note `varDist` class is defined for a common interface in setting stochasticity, based on the `distributional` package]
+
+ __Labels__ (`id`, `common_name`, `scientific_name`) these are used to identify the species in the simulation, and can be used to query the simulation results. They are not used in any functional way, but are useful for labelling outputs and queries.
+ __Body mass__ (`body_mass_distr`) this is a distribution of the initial body mass of the agents, which can be defined as a `VarDist` object. This is used to initialise the agents with a body mass that reflects the population being simulated. The distribution can be defined using any of the supported distributions in `VarDist`, such as normal, log-normal, or gamma distributions.
+ __Mortality Threshold__  (`mortality_thresh_distr`) defines thresholds where agents are considered to have died, based on their body mass.
+ __Population Size__ (`pop_size`) this is a nominal size of the population being simulated, which can be used to optionally scale the results of the simulation. 
+__Activity States__ (`activity_states`) this is a list of `ActivityState` objects, which define the different states that the agents can be in, such as foraging, resting, or flying. Each state has a name, a distribution of body mass loss, and a distribution of flight speed. The states can be defined with different distributions for different species, and can be used to model the behaviour of the agents in the simulation.
+__Response to Environment__ (`driver_responses`) these are custom defined functions that relate species (and therefore agent) behaviour with regards their environment, as represented by the `Driver` class. These are a very flexible element of the simulation, so expanded upon below.
+
+## Driver responses
+
 
 # Defining the environment (`Driver` class)
 
