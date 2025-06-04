@@ -3,20 +3,26 @@
 #'
 #' Prototyping Version
 
-rmr_run <- function(IBM, verbose){
+rmr_run <- function(ibm,
+                    .parallel_plan = future::sequential()
+                    ){
 
-  ## 1. Input Validation
+  step_period <- lubridate::period(ibm@model_config@time_step)
+
+  ## Simulate agents, individually over time
+  future::plan(.parallel_plan)
+
+  furrr::future_map(
+    agents,
+    ~simulate_agent(),
+    .options = furrr::furrr_options(seed = TRUE)
+  )
 
 
-  ## 2. Model Initialization - generate starting state
+
+  ## Collect and summarise results
 
 
-  ## 3. Run simulations
-
-
-  ## 4. Collect and summarise results
-
-
-  ## 5. Output results
+  ## Output results
 
 }

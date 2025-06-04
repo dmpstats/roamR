@@ -59,7 +59,7 @@ dns_srf_grd <- expand_grid(
 
 plot(dns_srf_grd)
 
-# set monts and nr of samples
+# set months and nr of samples
 month <- month.abb[1:4]
 n_samples <- 5
 
@@ -69,8 +69,8 @@ set.seed(1979)
 # generate surfaces for hotspots in each month
 rvr_dns_hot <- tibble(
   month,
-  month_mu_x = c(-2, 0, -1, 1.5),
-  month_mu_y = c(54, 60, 53.3, 56)
+  month_mu_x = c(-2, 0, -1, 1.5), #, 1, 3),
+  month_mu_y = c(54, 60, 53.3, 56)#, 50, 61)
 ) |>
   expand_grid(hotspot_id = 1:3) |>
   mutate(
@@ -263,7 +263,6 @@ yumyum_dens <- st_as_stars(prey_dens) |>
 plot(yumyum_dens, axes = TRUE, mfrow = c(2, 6))
 
 
-
 # construct driver
 drv_prey <- Driver(
   id = "prey_distr",
@@ -393,7 +392,7 @@ ggplot() +
 # construct driver
 drv_owfs <- Driver(
   id = "owf_foot",
-  type = "impact",
+  type = "disturbance",
   descr = "OWF Footprints",
   sf_obj = owf_foots,
   obj_active = "sf"
@@ -435,7 +434,7 @@ ggplot() +
 # construct driver
 drv_trawling <- Driver(
   id = "trawling_area",
-  type = "impact",
+  type = "disturbance",
   descr = "Fishing Restricted Area for Trawling",
   sf_obj = fra_foot,
   obj_active = "sf"
@@ -469,8 +468,10 @@ usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
 ## Species state profile  ----------------------------------
 
 swim_cost_fn <- function(sst, int){
-  int - (2.75 * sst)
+  x <- int - (2.75 * sst)
+  max(x, 1, na.rm = TRUE) # na.rm also ensures minimum cost if agent lands in cell without SST surface coverage
 }
+
 
 water_rest_cost_fn <- function(b) sqrt(b)
 
@@ -485,13 +486,13 @@ flight_cost_dist <- dist_lognormal(
 rvr_states <- list(
   flight = State(
     id = "flying",
-    energy_cost = VarDist(flight_cost_dist, "kJ/hour/gram"),
+    energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
   ),
   dive = State(
     id = "foraging",
-    energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour/gram"),
+    energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
   ),
   swimming = State(
@@ -499,7 +500,7 @@ rvr_states <- list(
     energy_cost = VarFn(
       swim_cost_fn,
       list(sst = "driver", int = VarDist(dist_normal(113, 22))),
-      units = "kJ/hour/gram"
+      units = "kJ/hour"
     ),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(0, 2), "m/s")
@@ -509,9 +510,21 @@ rvr_states <- list(
     energy_cost = VarFn(
       water_rest_cost_fn,
       list("body_mass"),
-      "kJ/hour/gram"
+      "kJ/hour"
     ),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
+  )
+)
+
+
+State(
+  id = "flying",
+  energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
+  time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
+  speed = VarFn(
+    fn = \(min, max) runif(1, min, max),
+    args_spec = list(min = 10, max = 20),
+    units = "m/s"
   )
 )
 
@@ -535,7 +548,9 @@ resp_land <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = exp_decay,
-    type = "repulsion"
+    type = "repulsion",
+    mode = "vector-field",
+    sim_stage = "bsln-imp"
   )
 )
 
@@ -546,7 +561,9 @@ resp_spdist <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = function(x) x,
-    type = "attraction"
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "bsln-imp"
   )
 )
 
@@ -557,7 +574,9 @@ resp_sst <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = function(x) x,
-    type = "attraction"
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "bsln-imp"
   ),
   condition = "DEE"
 )
@@ -570,7 +589,9 @@ resp_sst <- new(
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
     fn = function(x) x,
-    type = "attraction"
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "bsln-imp"
   )
 )
 
@@ -583,7 +604,9 @@ resp_owf <- new(
   movement = MoveInfluence(
     prob = VarDist(dist_beta(2, 8)),
     fn = exp_decay,
-    type = "repulsion"
+    type = "repulsion",
+    mode = "vector-field",
+    sim_stage = "imp"
   ),
   states = list(
     StateInfluence(
@@ -603,7 +626,9 @@ resp_trawling <- new(
   movement = MoveInfluence(
     prob = VarDist(dist_beta(2, 8)),
     fn = exp_decay,
-    type = "attraction"
+    type = "attraction",
+    mode = "vector-field",
+    sim_stage = "imp"
   ),
   states = list(
     StateInfluence(
@@ -627,6 +652,7 @@ rover <- Species(
   common_name = "Rover",
   scientific_name = "Rover Vulgaris",
   body_mass_distr = VarDist(dist_normal(1000, 0.2 * 1000), units = "grams"),
+  energy_to_mass_distr = VarDist(0.072, "g/kJ"),
   mortality_thresh_distr = VarDist(dist_uniform(300, 350), units = "grams"),
   states_profile = rvr_states,
   driver_responses = list(
@@ -642,43 +668,6 @@ rover <- Species(
 usethis::use_data(rover, overwrite = TRUE, compress = "xz")
 
 
-
-
-
-coast_drv <- Driver(
-  id = "land",
-  type = "habitat",
-  descr = "land",
-  sf_obj = coastline,
-  sf_descr = "UK Coastline"
-)
-
-
-bla <- Species(
-  id = "bla",
-  common_name = "blabla",
-  scientific_name = "blablacocous",
-  body_mass_distr = VarDist(),
-  mortality_thresh_distr = VarDist(),
-  states_profile = list(State(), State()),
-  driver_responses = list(
-    DriverResponse(
-      driver_id = "land",
-      movement = MoveInfluence(
-        prob = VarDist(distributional::dist_degenerate(1)),
-        fn = \(x) x,
-        type = "repulsion"
-      )
-    )
-  )
-)
-
-
-rmr_initiate(
-  model_config = your_config,
-  species = bla,
-  drivers = coast_drv
-  )
 
 
 
@@ -724,7 +713,7 @@ ggplot() +
 
 
 ibm_config_rover <- ModelConfig(
-  n_agents = 1000,
+  n_agents = 100,
   ref_sys = st_crs(4326),
   aoc_bbx = mock_bbox,
   delta_x = 0.1,
@@ -736,10 +725,15 @@ ibm_config_rover <- ModelConfig(
 )
 
 
-
-
 ## Set as {raomR} data ---------------------------------------
 usethis::use_data(ibm_config_rover, overwrite = TRUE, compress = "xz")
+
+
+# Initialize IBM: build <IBM> object ----------------------------------------------
+rover_ibm <- rmr_initiate(ibm_config_rover, rover, rover_drivers)
+
+## Set as {raomR} data
+usethis::use_data(rover_ibm, overwrite = TRUE, compress = "xz")
 
 
 

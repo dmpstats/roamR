@@ -21,7 +21,7 @@
 #'   across the different behavioural/activity states during the time-step. Each
 #'   element (of type `<units>`) is named after a specific state and stores the
 #'   duration (e.g. hours) the agent spent in that state.
-#' @slot states_cost a named list, specifying the energy costs (e.g. KJ/hr/g)
+#' @slot states_cost a named list, specifying the energy costs (e.g. KJ/hr)
 #'   associated with each state defined in `state_budget`. List elements are of
 #'   type `<units>`.
 #' @slot energy_expenditure a `<units>` object, representing the total energy
@@ -100,7 +100,7 @@ methods::setClass(
 #'   across the different behavioural/activity states during the time-step. Each
 #'   element (of type `<units>`) is named after a specific state and stores the
 #'   duration (e.g. hours) the agent spent in that state.
-#' @param states_cost a named list, specifying the energy costs (e.g. KJ/hr/g)
+#' @param states_cost a named list, specifying the energy costs (e.g. KJ/hr)
 #'   associated with each state defined in `state_budget`. List elements are of
 #'   type `<units>`.
 #' @param energy_expenditure a `<units>` object, representing the total energy
@@ -136,13 +136,13 @@ AgentCondition <- function(location = sf::st_point(),
 
   # construct a new instance of <AgentProperties> ----------
   new(
-    "AgentCondition"#,
+    "AgentCondition",
     # location = location,
     # grid_cell = grid_cell,
     # timestep = timestep,
     # timestamp = timestamp,
     # body_mass =  body_mass,
-    # states_budget = states_budget,
+    states_budget = states_budget
     # states_cost = states_cost,
     # mortality_prob = mortality_prob,
     # alive = alive,
@@ -156,6 +156,24 @@ AgentCondition <- function(location = sf::st_point(),
 
 
 # Methods -----------------------------------------------------
+# Validator -----------------------------------------------------
+methods::setValidity("AgentCondition", function(object) {
+  errors <- character()
+
+  # states_budget must add up to one
+  if( length(object@states_budget) > 0){
+
+    cmltv_budget <- Reduce("+", object@states_budget)
+    units(cmltv_budget) <- NULL
+
+    if(isFALSE(all.equal(cmltv_budget, 1))){
+      msg <- cli::format_inline("\n - slot @states_budget elements must add up to 1" )
+      errors <- c(errors, msg)
+    }
+  }
+
+  if(length(errors) == 0) TRUE else do.call(paste, list(errors, collapse = " "))
+})
 
 
 ## Accessors ----
@@ -179,6 +197,19 @@ setMethod("location", "AgentCondition", function(x) x@location)
 setGeneric("location<-", function(x, ...) standardGeneric("location<-"))
 setMethod("location<-", "AgentCondition", function(x, value) {
   x@location <- value
+  validObject(x)
+  x
+})
+
+
+
+### @states_budget
+setGeneric("states_budget", function(x) standardGeneric("states_budget"))
+setMethod("states_budget", "AgentCondition", function(x) x@states_budget)
+
+setGeneric("states_budget<-", function(x, ...) standardGeneric("states_budget<-"))
+setMethod("states_budget<-", "AgentCondition", function(x, value) {
+  x@states_budget <- value
   validObject(x)
   x
 })

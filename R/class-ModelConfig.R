@@ -14,8 +14,9 @@
 #' @slot delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
 #' @slot time_step character string, defines the temporal resolution of the
-#'   model. Refer to the `by` argument in [`seq.Date()`] for string-based
-#'   specification of time increments.
+#'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
+#'   optionally be preceded by a positive integer and a space, and followed by
+#'   "s".
 #' @slot start_date;end_date Date, respectively, defines the start and end
 #'   dates for the simulation period.
 #' @slot start_sites an `<sf>` object, defining the sites where agents start the
@@ -28,8 +29,10 @@
 #'    If `start_sites` are not provided, agents are assigned to random locations
 #'    within the AOC.
 #'
-#' @slot end_sites an `<sf>` object, analogous to `start_sites`, specifying the
-#'   sites to which agents must return at the end of the simulation.
+#' @slot end_sites an `<sf>` object, analogous to `start_sites`, but specifying
+#'   the sites to which agents must return to at the end of the simulation. If
+#'   `NULL` (the default), end locations are not forced upon agent. **Note:**
+#'   This parameter is currently inactive and will be ignored.
 #'
 #' @details
 #'
@@ -55,6 +58,7 @@ methods::setClass(
     delta_x = "numeric",
     delta_y = "numeric",
     time_step = "character",
+    #delta_time = "period",
     start_date = "Date",
     end_date = "Date",
     start_sites = "sf",
@@ -67,6 +71,7 @@ methods::setClass(
     delta_x = NA_real_,
     delta_y = NA_real_,
     time_step = NA_character_,
+    #delta_time = lubridate::period(),
     start_date = as.Date(NA),
     end_date = as.Date(NA),
     start_sites = sf::st_sf(sf::st_sfc()),
@@ -91,8 +96,9 @@ methods::setClass(
 #' @param delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
 #' @param time_step character string, defines the temporal resolution of the
-#'   model. Refer to the `by` argument in [`seq.Date()`] for string-based
-#'   specification of time increments.
+#'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
+#'   optionally be preceded by a positive integer and a space, and followed by
+#'   "s".
 #' @param start_date;end_date Date, respectively, defines the start and end
 #'   dates for the simulation period.
 #' @param start_sites an `<sf>` object, defining the sites where agents start the
@@ -105,8 +111,9 @@ methods::setClass(
 #'    If `NULL` (the default), agents start at random locations within the AOC.
 #'
 #' @param end_sites an `<sf>` object, analogous to `start_sites`, specifying the
-#'   sites to which agents must return to at the end of the simulation. If `NULL`
-#'   (the default), end locations are not forced upon agents.
+#'   sites to which agents must return to at the end of the simulation. If
+#'   `NULL` (the default), end locations are not forced upon agent. **Note:**
+#'   This parameter is currently inactive and will be ignored.
 #'
 #'
 #' @details
@@ -171,7 +178,9 @@ ModelConfig <- function(n_agents = 100L,
                         start_sites = NULL,
                         end_sites = NULL){
 
-  # TODO: (i) examples; (ii) unit-tests
+  # TODO:
+  # (i) examples;
+  # (ii) unit-tests
 
   # Null input handling --------------------------------------------------------
   start_sites <- start_sites %||% sf::st_sf(sf::st_sfc())
@@ -216,6 +225,7 @@ ModelConfig <- function(n_agents = 100L,
     delta_x = delta_x,
     delta_y = delta_y,
     time_step = time_step,
+    #delta_time = lubridate::period(),
     start_date = start_date,
     end_date = end_date,
     start_sites = start_sites,
@@ -228,6 +238,8 @@ ModelConfig <- function(n_agents = 100L,
 
 # Validator -----------------------------------------------------
 methods::setValidity("ModelConfig", function(object) {
+
+  # TODO:
 
   err <- c()
 

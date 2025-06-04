@@ -364,4 +364,22 @@ test_that("returns NA if agents data outside range of temporal-type dimension", 
 
 
 
+test_that("ignores vector field attributes, when present", {
+
+  d <- Driver(id = "d", stars_obj = generate_mock_stars(attr_name = "sst", attr_units = "g"))
+  stars_obj(d)$slope <- {stars_obj(d)$sst * runif(25)} |> units::set_units("kg")
+
+  a <- Agent()
+  location(a) <- sf::st_point(c(2, 2))
+
+  expected <- d@stars_obj |>
+    stars::st_extract(at = sf::st_coordinates(location(a))) |>
+    dplyr::pull(sst)
+
+  expect_equal(get_driver_cell_value(d, a), expected)
+
+})
+
+
+
 

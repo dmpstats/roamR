@@ -11,6 +11,7 @@ ArgSpec(
   value = NULL,
   units = NULL,
   driver_id = NULL,
+  state_id = NULL,
   description = NA_character_
 )
 }
@@ -47,6 +48,11 @@ must be recognized by the \code{\link[units:valid_udunits]{units::valid_udunits(
 available during model initialization via \code{rmr_initiate()}. If not defined,
 defaults to \code{name}. For all other types, the associated slot \verb{@driver_id} is
 set to \code{NA}.}
+
+\item{state_id, }{character, required if \code{type = "time_at_state"}; specifies
+the ID of the referred state. Assumes the existence of a \verb{<State>}
+object with a matching ID during the IBM's initialization phase (via
+\code{rmr_initiate()}).}
 
 \item{description}{character string, a brief explanation of the argument's
 purpose.}

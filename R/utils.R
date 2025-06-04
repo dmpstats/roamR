@@ -2,6 +2,9 @@
 `%notin%` <- Negate(`%in%`)
 
 
+# the inverse of is.null
+not_null <- Negate(is.null)
+
 
 #'
 #' helper to check validity of probability distribution names
@@ -21,7 +24,7 @@ check_dist <- function(dist){
 
 
 
-# units checker
+# units checker for character specification
 check_units <- function(units_chr,
                         call = rlang::caller_env(),
                         arg = rlang::caller_arg(units_chr)){
@@ -46,6 +49,57 @@ check_units <- function(units_chr,
   # return nothing if check is passed
   invisible()
 }
+
+
+
+#' Check if units of an object are those expected under a specific context
+#'
+#' @param x, an object that inherits the class <units>
+#' @param context character, the expected unit context of the object
+#'
+check_units_contextual <- function(x,
+                                   context = c("length", "weight", "energy", "energy-time", "speed"),
+                                   arg = rlang::caller_arg(x),
+                                   call = rlang::caller_env()){
+
+  stopifnot(inherits(x, "units"))
+
+  context <- rlang::arg_match(context)
+
+  if(context == "length"){
+    ctx_units <- "meters"
+    ctx_text <- "length"
+  } else if(context == "weight"){
+    ctx_units <- "g"
+    ctx_text <- "weight"
+  } else if(context == "energy"){
+    ctx_units <- "kJ"
+    ctx_text <- "energy"
+  } else if(context == "energy-time"){
+    ctx_units <- "kJ/hr"
+    ctx_text <- "energy per unit-of-time"
+  } else if(context == "speed"){
+    ctx_units <- "km/hr"
+    ctx_text <- "speed"
+  }
+
+
+  if(!units::ud_are_convertible(units(x), ctx_units)){
+
+    cli::cli_abort(c(
+      "Input values in {.arg {arg}} are expected to carry a valid unit of {ctx_text}.",
+      x = "{.val {units::deparse_unit(x)}} is not a recognized {ctx_text} unit.",
+      i = "Use e.g., {.val {ctx_units}} instead."
+    ),
+    call = call)
+  }
+
+  # return nothing if check is passed
+  invisible()
+}
+
+
+
 
 
 
@@ -133,7 +187,9 @@ as_vardist <- function(x, units){
 #'
 slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
 
+  # TODO: check issue with slicing dimensions of type <Date> and <Posixt>
   # TODO: unit-testing
+
 
   # Note: as noted in the package documentation, `<stars>` subsetting using the
   # "[" operator need to take into account that the first argument selects
@@ -175,4 +231,53 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
   eval(rlang::expr(strs[!!!indices]))
   #do.call("[", c(list(strs), indices))
 }
+
+
+
+
+#' Get element of list of S4 objects
+#'
+#'  Helper to get element of list of S4 objects using it's slot `@id`.
+#'  Applicable to e.g. `IBM@drivers` or `Species@states_profile`
+#'
+#' @param l a list containing S4 class objects as elements, each of which must contain a slot @id
+#' @param id character, the name assigned to @id
+#'
+#'
+#' @examples
+#' pluck_s4(rover@states_profile, "water_resting")
+#'
+#' pluck_s4(rover_ibm_disnbs@drivers, "dens")
+#'
+#' # returns NULL if there is no element with specified ID
+#' pluck_s4(rover_ibm_disnbs@drivers, "water_resting")
+#'
+pluck_s4 <- function(l, id){
+
+  idx <- which(purrr::map_lgl(l, \(x) x@id == id))
+
+  if(length(idx) != 0){
+    purrr::pluck(l, idx)
+  } else{
+    NULL
+  }
+}
+
+
+
+
+
+create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
+
+  stopifnot(xmin < xmax)
+  stopifnot(ymin < ymax)
+
+  structure(
+    c(xmin, ymin, xmax, ymax),
+    names = c("xmin", "ymin", "xmax", "ymax"),
+    class = "bbox",
+    crs = crs)
+
+}
+
 

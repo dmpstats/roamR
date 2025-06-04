@@ -73,12 +73,33 @@ test_that("application to single-argument function works as expected", {
     args_spec = list(ArgSpec(name = "eta", "constant", value = 6))
   )
 
-  mnf_fn <- build_cost_fn(state_cost, rover_drivers)
+  mnf_fn <- build_cost_fn(state_cost)
 
   output <- mnf_fn(a, rover_drivers, details = TRUE)
 
   expect_equal(output$input$eta, 6)
   expect_equal(output$output, usr_fn(6) )
+
+
+
+  # dependent on a "time_at_sate" term - eta
+  a <- Agent(rover, ibm_config_rover)
+
+  usr_fn <- function(lambda){ lambda/2 }
+  state_cost <- VarFn(
+    fn = usr_fn,
+    args_spec = list(ArgSpec(name = "lambda", "time_at_state", state_id = "foraging"))
+  )
+
+  mnf_fn <- build_cost_fn(state_cost, step_duration = ibm_config_rover@time_step)
+
+  output <- mnf_fn(a, rover_drivers, details = TRUE)
+
+  tm_at_stt <-units::set_units(a@condition@states_budget$foraging * units::as_units(ibm_config_rover@time_step), "min") |>
+    units::drop_units()
+
+  expect_equal( output$input$lambda, tm_at_stt)
+  expect_equal(output$output, usr_fn(tm_at_stt) )
 
 })
 

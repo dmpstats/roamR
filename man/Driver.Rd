@@ -6,7 +6,7 @@
 \usage{
 Driver(
   id = NA_character_,
-  type = c("habitat", "impact", "model"),
+  type = c("habitat", "resource", "disturbance", "model"),
   descr = NA_character_,
   ann = id,
   sf_obj = NULL,

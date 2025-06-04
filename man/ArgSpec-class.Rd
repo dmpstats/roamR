@@ -40,6 +40,11 @@ assigned to a given driver. This assumes the existence of a \verb{<Driver>}
 object with a matching ID during the IBM's initialization phase (via
 \code{rmr_initiate()}). Failing that, initialization will not be successful.}
 
+\item{\code{state_id,}}{character, required if \code{type = "time_at_state"}; specifies
+the ID of the referred state. Assumes the existence of a \verb{<State>}
+object with a matching ID during the IBM's initialization phase (via
+\code{rmr_initiate()}).}
+
 \item{\code{description}}{character string, a brief explanation of the argument's
 purpose.}
 

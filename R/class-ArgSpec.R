@@ -30,6 +30,11 @@
 #'   object with a matching ID during the IBM's initialization phase (via
 #'   `rmr_initiate()`). Failing that, initialization will not be successful.
 #'
+#' @slot state_id, character, required if `type = "time_at_state"`; specifies
+#'   the ID of the referred state. Assumes the existence of a `<State>`
+#'   object with a matching ID during the IBM's initialization phase (via
+#'   `rmr_initiate()`).
+#'
 #' @slot description character string, a brief explanation of the argument's
 #'   purpose.
 #'
@@ -57,6 +62,7 @@ methods::setClass(
     type = "character",
     value = "ANY",
     driver_id = "character",
+    state_id = "character",
     description = "character"
   ),
   prototype = list(
@@ -64,6 +70,7 @@ methods::setClass(
     type = NA_character_,
     value = NULL,
     driver_id = NA_character_,
+    state_id = NA_character_,
     description = NA_character_
   )
 )
@@ -108,6 +115,11 @@ methods::setClass(
 #'   defaults to `name`. For all other types, the associated slot `@driver_id` is
 #'   set to `NA`.
 #'
+#' @param state_id, character, required if `type = "time_at_state"`; specifies
+#'   the ID of the referred state. Assumes the existence of a `<State>`
+#'   object with a matching ID during the IBM's initialization phase (via
+#'   `rmr_initiate()`).
+#'
 #' @param description character string, a brief explanation of the argument's
 #'   purpose.
 #'
@@ -134,6 +146,7 @@ ArgSpec <- function(name,
                     value = NULL,
                     units = NULL,
                     driver_id = NULL,
+                    state_id = NULL,
                     description = NA_character_){
 
 
@@ -149,6 +162,7 @@ ArgSpec <- function(name,
   ## NULL handling
   units <- units %||% ""
   driver_id <- driver_id %||% NA_character_
+  state_id <- state_id %||% NA_character_
 
 
   # input validation: 1st checks -----------------------------------------------
@@ -183,9 +197,22 @@ ArgSpec <- function(name,
     if(is.null(value)) cli::cli_abort("{.arg value} must be provided when {.code type = \"constant\"}.")
   }
 
-  ## Set default units for `type` "body_mass" and "time_at_state"
+  ## Set default units for `type` "body_mass"
   if(type == "body_mass" && units == "") units <- "g"
-  if(type == "time_at_state" && units == "") units <- "min"
+
+
+  if(type == "time_at_state"){
+
+    if(is.na(state_id)) cli::cli_abort("{.arg state_id} must be provided when {.code type = \"time_at_state\"}.")
+
+    # default units for
+    if(units == "") units <- "min"
+  } else{
+    # force state_id to NA for any other type
+    state_id <- NA_character_
+  }
+
+
 
 
   if(type == "driver"){
@@ -206,6 +233,7 @@ ArgSpec <- function(name,
     value = value,
     units = units,
     driver_id = driver_id,
+    state_id = state_id,
     description = description
   )
 
@@ -231,6 +259,13 @@ methods::setValidity("ArgSpec", function(object) {
     if(object@type == "random"){
       if(is.na(object@distr)){
         msg <- cli::format_inline("\n - @distr must be provided when @type is {.val random}")
+        err <- c(err, msg)
+      }
+    }
+
+    if(object@type == "time_at_state"){
+      if(is.na(object@state_id)){
+        msg <- cli::format_inline("\n - @state_id must be provided when @type is {.val time_at_state}")
         err <- c(err, msg)
       }
     }

@@ -21,6 +21,8 @@
 #'   the agent is assumed to die.
 #' @slot mortality_thresh `<units>` object, the threshold body mass below which
 #'   the agent is assumed to die.
+#' @slot energy_to_mass a `<units>` object, providing the agent's
+#'   energy-to-bodymass conversion rate (e.g. g/kJ).
 #' @slot move_influences a named list, defining whether the agent is influenced
 #'   by model drivers. Each element corresponds to a `driver_id` (which must be
 #'   defined in the model's [Driver-class] object) and contains a single-row
@@ -62,6 +64,7 @@ methods::setClass(
     start_point = "XY",
     end_point = "XY",
     mortality_thresh = "units",
+    energy_to_mass = "units",
     move_influences = "list", #"data.frame",
     state_influences = "list",
     age = "units",
@@ -76,6 +79,7 @@ methods::setClass(
     start_point = sf::st_point(),
     end_point = sf::st_point(),
     mortality_thresh = units::set_units(NA, "g"),
+    energy_to_mass = units::set_units(NA, "g/kJ"),
     move_influences = list(),
     state_influences = list(),
     age = units::set_units(NA, ""),
@@ -102,6 +106,8 @@ methods::setClass(
 #'   of the agent at the start and end of the simulation, respectively.
 #' @param mortality_thresh `<units>` object, the threshold body mass below which
 #'   the agent is assumed to die.
+#' @param energy_to_mass a `<units>` object, providing the agent's
+#'   energy-to-bodymass conversion rate (e.g. g/kJ).
 #' @param move_influences a named list, defining whether the agent is influenced
 #'   by model drivers. Each element corresponds to a `driver_id` (which must be
 #'   defined in the model's [Driver-class] object) and contains a single-row
@@ -158,6 +164,7 @@ AgentProperties <- function(species_id = NA_character_,
                             start_point = sf::st_point(),
                             end_point = sf::st_point(),
                             mortality_thresh = NULL,
+                            energy_to_mass = NULL,
                             move_influences = list(),
                             state_influences = list(),
                             age = NULL,
@@ -171,6 +178,7 @@ AgentProperties <- function(species_id = NA_character_,
     # NULL handling
     initial_mass <- initial_mass %||% units::set_units(NA, "g")
     mortality_thresh <- mortality_thresh %||% units::set_units(NA, "g")
+    energy_to_mass <- energy_to_mass %||% units::set_units(NA, "g/kJ")
     age <- age %||% units::set_units(NA, "") # currently ignored
     sex <- NA_character_  # currently ignored
 
@@ -197,11 +205,27 @@ AgentProperties <- function(species_id = NA_character_,
 
     initial_mass <- generate(species@body_mass_distr)
     mortality_thresh <- generate(species@mortality_thresh_distr)
+    energy_to_mass <- generate(species@energy_to_mass_distr)
 
     # speeds
     speeds <- lapply(species@states_profile, \(s) generate(s@speed)) |>
       setNames(state_ids)
-    speeds[sapply(speeds, is.na)] <- NULL # drop states without speed specification
+    #speeds[sapply(speeds, is.na)] <- NULL # drop states without speed specification
+
+#     speeds <- lapply(species@states_profile, function(s){
+#       #browser()
+#       if(is(s@speed, "VarFn")){
+#         # TODO - COMEBAK: probably needs a dedicated compiler function? or perhaps
+#         # generalize the function compiler?
+#         s@speed@cmp_f
+#       }else{
+#         generate(s@speed)
+#       }
+#     }) |>
+#       setNames(state_ids)
+
+
+
 
     # # generate costing functions
     # costings <- purrr::map2(species@states_profile, state_ids, function(s, id){
@@ -245,8 +269,8 @@ AgentProperties <- function(species_id = NA_character_,
 
 
     # starting and ending points
-    start_point <- get_endpoint(model_config@start_sites, model_config@aoc_bbx)
-    end_point <- get_endpoint(model_config@end_sites, model_config@aoc_bbx)
+    start_point <- get_point_in_site(model_config@start_sites, model_config@aoc_bbx)
+    end_point <- get_point_in_site(model_config@end_sites, model_config@aoc_bbx)
 
     driver_ids <- sapply(species@driver_responses, \(resp) resp@driver_id)
 
@@ -305,6 +329,7 @@ AgentProperties <- function(species_id = NA_character_,
     start_point = start_point,
     end_point = end_point,
     mortality_thresh = mortality_thresh,
+    energy_to_mass = energy_to_mass,
     move_influences = move_influences,
     state_influences = state_influences,
     age = age,
@@ -383,7 +408,7 @@ methods::setValidity("AgentProperties", function(object) {
 
 
 # Helpers ---------------------------------------------------------------------
-get_endpoint <- function(sites, aoc_bbox){
+get_point_in_site <- function(sites, aoc_bbox){
   sites_sfc <- sf::st_geometry(sites)
   if (length(sites_sfc) == 0) {
     return(sf::st_sample(aoc_bbox, 1)[[1]])

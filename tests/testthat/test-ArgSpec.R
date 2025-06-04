@@ -17,6 +17,8 @@ test_that("Given inputs, ArgSpec() fails as expected", {
   expect_error(ArgSpec("x", type = "random"), "`distr` must be provided when")
   expect_error(ArgSpec("x", type = "constant"), "`value` must be provided when")
 
+  expect_error(ArgSpec("x", type = "time_at_state"), "`state_id` must be provided when")
+
 })
 
 
@@ -70,13 +72,13 @@ test_that("Argument dependencies work as expected", {
   ## defaults to "grams" and "minutes" when type is "body_mass" and "time_at_state", respectively
   out <- ArgSpec(name = "arg1", type = "body_mass")
   expect_equal(out@units, "g")
-  out <- ArgSpec(name = "arg1", type = "time_at_state")
+  out <- ArgSpec(name = "arg1", type = "time_at_state", state_id = "bla")
   expect_equal(out@units, "min")
 
   ## but take user-defined value if specified
   out <- ArgSpec(name = "arg1", type = "body_mass", units = "kg")
   expect_equal(out@units, "kg")
-  out <- ArgSpec(name = "arg1", type = "time_at_state", units = "days/week")
+  out <- ArgSpec(name = "arg1", type = "time_at_state", state_id = "bla", units = "days/week")
   expect_equal(out@units, "days/week")
 
 })

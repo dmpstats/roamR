@@ -22,6 +22,10 @@ drivers, and population size.
 \item{\code{body_mass_distr}}{an object of class \linkS4class{VarDist}, defining the
 distribution of body mass for the species.}
 
+\item{\code{energy_to_mass_distr}}{a \linkS4class{VarDist} object, providing the
+energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determines
+how gained or lost energy translates into changes in body mass.}
+
 \item{\code{states_profile}}{a list of \linkS4class{State} objects, defining the
 behavioural/activity states for the species to consider in the model.}
 

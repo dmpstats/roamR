@@ -1,31 +1,36 @@
 #' Class `<Driver>`
 #'
-#' `<Driver>` is an S4 class encapsulating habitat-level or man-made features
-#' that interact with simulated agents, driving and/or affecting their spatial
-#' movement and distribution, behaviour states, energetic costings and
+#' `<Driver>` is an S4 class representing spatially explicit environmental or
+#' anthropogenic features that interact with simulated agents. These drivers
+#' influence agents’ movement, behavioural states, energetic expenditure, and
 #' physiological condition within the IBM's area of calculation (AOC) over the
-#' simulated period.
+#' course of a simulation.
 #'
-#' The class supports three main categories of drivers:
+#' The class supports four main categories of drivers:
 #'
-#'  - `"habitat"` - specifying environmental or anthropogenic factors
-#'    that define the habitat's baseline state (e.g. Sea surface temperature,
-#'    salinity, bathymetry, distance from land).
+#'  - `"habitat"` - represents baseline environmental or anthropogenic conditions
+#'  that define habitat characteristics (e.g. Sea surface temperature, salinity,
+#'  bathymetry, distance from land).
 #'
-#'  - `"impact"` - refers to influencers that deviate from the status-quo and
-#'    evaluated for their effects on the agents' simulated histories (e.g.
-#'    Offshore windfarm footprints, oil rigs, shipping corridors)
+#' - `"resource"`: captures the spatial distribution and availability of resources
+#' or proxies of ecological suitability (e.g. species density maps, energy
+#' intake surfaces).
+#'
+#'  - `"disturbance"` - refers to influencers that deviate from the status-quo and
+#'  evaluated for their effects on the agents' simulated histories (e.g.
+#'  offshore windfarm footprints, oil rigs, shipping corridors).
 #'
 #'  - `"model"` - refers to influencers specified for model operational purposes
 #'  (e.g. AOC bounding box to confine simulated movements).
 #'
-#' This class is designed to accommodate two types of spatial-based data formats
-#' (simple features and multidimensional datacubes) providing a flexible
-#' framework to specify driver characteristics.
 #'
-#' `<Driver>` interacts with the [Species-class] class to define species-level
-#' responses of traced agents to the driver, e.g. through a movement
-#' modification or impact on behaviour states and their energetics costs.
+#' `<Driver>` supports two types of spatial data: vector-based simple features
+#' (`<sf>`) and gridded spatio-temporal data cubes (`<stars>`), providing
+#' flexibility for representing diverse inputs.
+#'
+#'
+#' This class interacts with the [`Species-class`] to define how agents respond to drivers,
+#' such as modifying movement patterns or altering behavioural energy costs.
 #'
 #' @slot id character string, a unique identifier for the driver.
 #' @slot descr descr character string, providing a general description of the driver.
@@ -190,7 +195,7 @@ methods::setClass(
 #'
 #' @export
 Driver <- function(id = NA_character_,
-                   type = c("habitat", "impact", "model"),
+                   type = c("habitat", "resource", "disturbance", "model"),
                    descr = NA_character_,
                    ann = id,
                    sf_obj = NULL,
