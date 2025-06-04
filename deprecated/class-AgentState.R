@@ -3,7 +3,7 @@
 #' @description
 #' `AgentState` is an S4 class for specifying an agent's current state in terms
 #' of spatio-temporal activity and physiological condition at the end of the
-#' current simulation `time_step` (e.g. end of day). It stores information such
+#' current simulation `delta_time` (e.g. end of day). It stores information such
 #' as body mass, activity budgets, energy expenditure metrics, survival status,
 #' etc
 #'
@@ -118,7 +118,7 @@ setMethod("body_mass", "AgentState", function(x) x@body_mass)
 #' #' `AgentState()` is a helper function to construct instances of
 #' #' `[AgentState-class]` objects, which stores an agent's current state in terms
 #' #' of spatio-temporal activity and physiological condition at the end of the
-#' #' current simulation `time_step` (e.g. end of day).
+#' #' current simulation `delta_time` (e.g. end of day).
 #' #'
 #' #' @slot location object of class `XY`, specifying the agent's current location
 #' #'   (units/projection: TBD).

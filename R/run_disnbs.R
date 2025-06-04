@@ -179,13 +179,13 @@ run_disnbs <- function(ibm,
 
   # Constraint on minimum model time step for "1 day". Otherwise, computations
   # dependent on daily night fraction, such as state_balance(), fall apart. As
-  # it stands, this is always observed, as <ModelConfig>@time_step forces any
+  # it stands, this is always observed, as <ModelConfig>@delta_time forces any
   # input to be >= "1 day". This is therefore a safeguard for future devs where
-  # time_step is allowed to take shorter time lengths
-  if(lubridate::period(ibm@model_config@time_step) < lubridate::days(1)){
+  # delta_time is allowed to take shorter time lengths
+  if(lubridate::period(ibm@model_config@delta_time) < lubridate::days(1)){
     cli::cli_abort(c(
       "The DisNBS model cannot run on time-steps smaller than 1 day.",
-      i = "Adjust the slot `time_step` of the {.cls ModelConfig} object and re-initialize the model via {.fn rmr_initiate}"
+      i = "Adjust the slot `delta_time` of the {.cls ModelConfig} object and re-initialize the model via {.fn rmr_initiate}"
     ))
   }
 
@@ -442,7 +442,7 @@ create_dnbs_config <- function(dens_drv,
   # COMEBAK: will need revisiting if/when implementing
   # asynchronous agent starting dates. Ideally via further processing inside
   # agents' simulation function
-  time_grid <- seq(ibm_cfg@start_date, ibm_cfg@end_date, by = ibm_cfg@time_step)
+  time_grid <- seq(ibm_cfg@start_date, ibm_cfg@end_date, by = ibm_cfg@delta_time)
 
   # extract non-raster metadata density datacube from its parent driver's object
   dns_nrst_meta <- dens_drv@stars_meta$non_raster
@@ -516,7 +516,7 @@ create_dnbs_config <- function(dens_drv,
     )
   }else{
     # translate bandwidth from literal time to model's time-steps
-    steps_bw <- lubridate::period(bmsm_opts$time_bw)/lubridate::period(ibm_cfg@time_step)
+    steps_bw <- lubridate::period(bmsm_opts$time_bw)/lubridate::period(ibm_cfg@delta_time)
     list(
       apply = TRUE,
       ks_bw = steps_bw * 2
@@ -533,7 +533,7 @@ create_dnbs_config <- function(dens_drv,
         dns_tm_slices = dns_tm_slices, # density datacube: slices of temporal dimension mapping each routing timestep
         dns_itr_dim = dns_itr_dim, # density datacube: iterative dimension
         dns_itr_slices = dns_itr_slices,
-        step_drtn = units::as_units(ibm_cfg@time_step),
+        step_drtn = units::as_units(ibm_cfg@delta_time),
         crs = ibm_cfg@ref_sys,
         aoc_bbx = ibm_cfg@aoc_bbx,
         waypnts_res = waypnts_res,

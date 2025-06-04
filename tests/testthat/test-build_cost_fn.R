@@ -91,11 +91,11 @@ test_that("application to single-argument function works as expected", {
     args_spec = list(ArgSpec(name = "lambda", "time_at_state", state_id = "foraging"))
   )
 
-  mnf_fn <- build_cost_fn(state_cost, step_duration = ibm_config_rover@time_step)
+  mnf_fn <- build_cost_fn(state_cost, step_duration = ibm_config_rover@delta_time)
 
   output <- mnf_fn(a, rover_drivers, details = TRUE)
 
-  tm_at_stt <-units::set_units(a@condition@states_budget$foraging * units::as_units(ibm_config_rover@time_step), "min") |>
+  tm_at_stt <-units::set_units(a@condition@states_budget$foraging * units::as_units(ibm_config_rover@delta_time), "min") |>
     units::drop_units()
 
   expect_equal( output$input$lambda, tm_at_stt)

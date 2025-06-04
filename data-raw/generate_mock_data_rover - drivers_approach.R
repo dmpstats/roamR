@@ -718,7 +718,7 @@ ibm_config_rover <- ModelConfig(
   aoc_bbx = mock_bbox,
   delta_x = 0.1,
   delta_y = 0.1,
-  time_step = "1 day",
+  delta_time = "1 day",
   start_date = as.Date("2022-09-01"),
   end_date = as.Date("2023-04-30"),
   start_sites = sites3

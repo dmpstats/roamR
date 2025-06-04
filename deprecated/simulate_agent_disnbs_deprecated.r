@@ -107,7 +107,7 @@ simulate_agent_disnbs <- function(agent,
   for(step in seq_along(dnbs_cfg$time_grid)){ # t = 1
 
     # re-routing done at "start of the day", i.e. before moving the agent on
-    # current time_step
+    # current delta_time
     if(step %in% dnbs_cfg$routing_timesteps){
 
       # generate new path

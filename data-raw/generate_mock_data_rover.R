@@ -471,7 +471,7 @@ ModelConfig(
   aoc_bbx = c(0, 57, 2,58),
   delta_x = 0.1,
   delta_y = 0.1,
-  time_step = "1 day",
+  delta_time = "1 day",
   start_date = "2022-09-01",
   start_date = "2023-04-31"
 )

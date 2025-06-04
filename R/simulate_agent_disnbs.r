@@ -23,10 +23,6 @@
 #'   trajectory and condition history of the agent over the simulation period,
 #'   based on the provided inputs.
 #'
-#' @return A modified `<Agent>` object containing the agent's full simulated
-#'   trajectory and condition history over the simulation period, based on the
-#'   provided inputs.
-#'
 #' @export
 simulate_agent_disnbs <- function(agent,
                                   drivers,
@@ -128,7 +124,7 @@ simulate_agent_disnbs <- function(agent,
     ## Generate track ---------------------------------------------------------
 
     # re-routing done at "start of the day", i.e. before moving the agent on
-    # current time_step
+    # current delta_time
     if(step %in% dnbs_cfg$routing_timesteps){
 
       #if(track_id == 3) browser()

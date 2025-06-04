@@ -21,7 +21,7 @@ guill_imb_config <- ModelConfig(
   aoc_bbx = isle_may |> st_transform(utm30) |> st_buffer(2.5e5) |>  st_bbox(), #
   delta_x = 1000,
   delta_y = 1000,
-  time_step = "1 day",
+  delta_time = "1 day",
   start_date = Sys.Date(),
   end_date = Sys.Date() + 180, # ~6 months
   start_sites = isle_may |> st_transform(32630)

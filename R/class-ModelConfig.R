@@ -13,7 +13,7 @@
 #'   i.e. the spatial bounding box within which simulation occurs.
 #' @slot delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
-#' @slot time_step character string, defines the temporal resolution of the
+#' @slot delta_time character string, defines the temporal resolution of the
 #'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
 #'   optionally be preceded by a positive integer and a space, and followed by
 #'   "s".
@@ -57,7 +57,7 @@ methods::setClass(
     aoc_bbx = "bbox",
     delta_x = "numeric",
     delta_y = "numeric",
-    time_step = "character",
+    delta_time = "character",
     #delta_time = "period",
     start_date = "Date",
     end_date = "Date",
@@ -70,7 +70,7 @@ methods::setClass(
     aoc_bbx = sf::NA_bbox_,
     delta_x = NA_real_,
     delta_y = NA_real_,
-    time_step = NA_character_,
+    delta_time = NA_character_,
     #delta_time = lubridate::period(),
     start_date = as.Date(NA),
     end_date = as.Date(NA),
@@ -95,7 +95,7 @@ methods::setClass(
 #'   `xmax` and `ymax` values.
 #' @param delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
-#' @param time_step character string, defines the temporal resolution of the
+#' @param delta_time character string, defines the temporal resolution of the
 #'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
 #'   optionally be preceded by a positive integer and a space, and followed by
 #'   "s".
@@ -146,7 +146,7 @@ methods::setClass(
 #'   aoc_bbx = c(0, 0, 5, 5),
 #'   delta_x = 0.25,
 #'   delta_y = 0.25,
-#'   time_step = "1 day",
+#'   delta_time = "1 day",
 #'   start_date = as.Date("2022-09-01"),
 #'   end_date = as.Date("2022-09-30"),
 #'   start_sites = colonies,
@@ -172,7 +172,7 @@ ModelConfig <- function(n_agents = 100L,
                         aoc_bbx = c(0, 0, 10, 10),
                         delta_x = 0.25,
                         delta_y = 0.25,
-                        time_step = "1 day",
+                        delta_time = "1 day",
                         start_date = Sys.Date() - 5,
                         end_date = Sys.Date(),
                         start_sites = NULL,
@@ -224,8 +224,7 @@ ModelConfig <- function(n_agents = 100L,
     aoc_bbx = aoc_bbx,
     delta_x = delta_x,
     delta_y = delta_y,
-    time_step = time_step,
-    #delta_time = lubridate::period(),
+    delta_time = delta_time,
     start_date = start_date,
     end_date = end_date,
     start_sites = start_sites,

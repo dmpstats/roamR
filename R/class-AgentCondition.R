@@ -1,7 +1,7 @@
 #' `<AgentCondition>`
 #'
 #' `<AgentCondition>` is an S4 class describing the status of an agent at the
-#' end of a simulation `time_step` (e.g. end of day). It encapsulates key
+#' end of a simulation `delta_time` (e.g. end of day). It encapsulates key
 #' spatio-temporal and physiological metrics, including location, body mass,
 #' energy expenditure, state budgets, and survival status.
 #'
@@ -85,7 +85,7 @@ methods::setClass(
 #'
 #' `AgentCondition()` is a helper function to construct instances of
 #' `[AgentCondition-class]` objects, which carries the status of an agent at the
-#' end of a simulation `time_step` (e.g. end of day).
+#' end of a simulation `delta_time` (e.g. end of day).
 #'
 #' @param location object of class `XY`, specifying the agent's spatial
 #'   coordinates at the end of the current time-step.
