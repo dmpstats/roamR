@@ -180,6 +180,62 @@ drv_sst
 
 # Species -----------------------------------------------------------------
 
+swim_cost_fn <- function(sst, int){
+  x <- int - (2.75 * sst)
+  max(x, 1, na.rm = TRUE) # na.rm also ensures minimum cost if agent lands in cell without SST surface coverage
+}
+
+
+water_rest_cost_fn <- function(b){
+  sqrt(b)
+}
+
+
+mu_f <- 141
+sigma_f <- 66
+flight_cost_dist <- dist_lognormal(
+  mu = log(mu_f/sqrt(mu_f^2 + sigma_f^2)),
+  sigma = sqrt(log(1 + sigma_f^2/mu_f^2))
+)
+
+
+
+rvr_states_dsnbs <- list(flight = State(
+    id = "flying",
+    energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
+    time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
+    # speed = VarFn(
+    #   fn = \(min, max) runif(1, min, max),
+    #   args_spec = list(min = 5, max = 15),
+    #   units = "m/s"
+    # )
+    speed = VarDist(dist_uniform(6, 12), "m/s")
+  ),
+  dive = State(
+    id = "foraging",
+    energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour"),
+    time_budget = VarDist(dist_uniform(5, 6), "hours/day")
+  ),
+  swimming = State(
+    id = "swimming",
+    energy_cost = VarFn(
+      swim_cost_fn,
+      list(sst = "driver", int = VarDist(dist_normal(113, 22))),
+      units = "kJ/hour"
+    ),
+    time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
+    speed = VarDist(dist_uniform(0, 1), "m/s")
+  ),
+  water_rest = State(
+    id = "water_resting",
+    energy_cost = VarFn(water_rest_cost_fn, list("body_mass"), "kJ/hour"),
+    time_budget = VarDist(dist_uniform(10, 12), "hours/day")
+  )
+)
+
+
+
+
 resp_dens <- DriverResponse(
   driver_id = "dens",
   movement = MoveInfluence(
@@ -208,7 +264,7 @@ spp <- Species(
   body_mass_distr = VarDist(distributional::dist_normal(1000, 0.2 * 1000), units = "grams"),
   energy_to_mass_distr = VarDist(0.072, "g/kJ"),
   mortality_thresh_distr = VarDist(distributional::dist_uniform(300, 350), units = "grams"),
-  states_profile = rvr_states,
+  states_profile = rvr_states_dsnbs,
   driver_responses = list(
     resp_dens,
     resp_imp_dens
@@ -225,6 +281,7 @@ cfg <- ibm_config_rover
 cfg@start_date <- as.Date("2022-10-01")
 cfg@end_date <- as.Date("2023-03-30")
 
+#set.seed(1991)
 rover_ibm_disnbs <- rmr_initiate(
   model_config = cfg,
   species = spp,
@@ -241,5 +298,8 @@ usethis::use_data(rover_ibm_disnbs, overwrite = TRUE, compress = "xz")
 
 
 
+lapply(rover_ibm_disnbs@agents, \(x) x@properties@speeds$flying)
 
-
+rover_ibm_disnbs@agents[[1]]@properties@speeds
+rover_ibm_disnbs@agents[[2]]@properties@speeds
+rover_ibm_disnbs@species@states_profile$flight

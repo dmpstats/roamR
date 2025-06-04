@@ -517,6 +517,18 @@ rvr_states <- list(
 )
 
 
+State(
+  id = "flying",
+  energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
+  time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
+  speed = VarFn(
+    fn = \(min, max) runif(1, min, max),
+    args_spec = list(min = 10, max = 20),
+    units = "m/s"
+  )
+)
+
+
 
 usethis::use_data(rvr_states, overwrite = TRUE, compress = "xz")
 
