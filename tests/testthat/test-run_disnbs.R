@@ -38,7 +38,6 @@ test_that("dev testing", {
 })
 
 
-
 # run_disnbs() Negative Testing ----------------------
 
 test_that("run_disnbs() fails when driver IDs required under specified `scen` are not specified", {
@@ -47,14 +46,14 @@ test_that("run_disnbs() fails when driver IDs required under specified `scen` ar
   expect_snapshot(
     run_disnbs(rover_ibm_disnbs, run_scen = "baseline",
                dens_id = "dens",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
   expect_snapshot(
     run_disnbs(rover_ibm_disnbs, run_scen = "baseline-and-impact",
                dens_id = "dens",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
@@ -62,14 +61,14 @@ test_that("run_disnbs() fails when driver IDs required under specified `scen` ar
   expect_snapshot(
     run_disnbs(rover_ibm_disnbs, run_scen = "impact",
                dens_id = "dens", intake_id = "intake",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
   expect_snapshot(
     run_disnbs(rover_ibm_disnbs, run_scen = "baseline-and-impact",
                dens_id = "dens", intake_id = "intake",
-               feed_state_id = "f", roost_state_id = "ro"
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE
     ),
     error = TRUE
   )
@@ -78,7 +77,7 @@ test_that("run_disnbs() fails when driver IDs required under specified `scen` ar
   expect_snapshot(
     run_disnbs(rover_ibm_disnbs, run_scen = "impact", dens_id = "dens",
                intake_id = "intake", imp_dens_id = "imp_dens",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
@@ -97,7 +96,7 @@ test_that("run_disnbs() fails when baseline and impacted density maps have incon
   expect_snapshot(
     run_disnbs(x, run_scen = "baseline-and-impact", dens_id = "dens", intake_id = "intake",
                imp_intake_id = "imp_intake", imp_dens_id = "imp_dens",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
@@ -111,7 +110,7 @@ test_that("run_disnbs() fails when baseline and impacted density maps have incon
     run_disnbs(x, run_scen = "baseline-and-impact", dens_id = "dens",
                intake_id = "intake", imp_intake_id = "imp_intake",
                imp_dens_id = "imp_dens",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 })
@@ -124,7 +123,7 @@ test_that("run_disnbs() fails when inputs are not specified in expected contextu
   expect_snapshot(
     run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake",
                feed_state_id = "f", roost_state_id = "ro",
-               waypnts_res = units::set_units(2, "g")),
+               waypnts_res = units::set_units(2, "g"), quiet = TRUE),
     error = TRUE
   )
 
@@ -132,7 +131,7 @@ test_that("run_disnbs() fails when inputs are not specified in expected contextu
   expect_snapshot(
     run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake",
                feed_state_id = "f", roost_state_id = "ro",
-               feed_avg_net_energy = units::set_units(2, "km/h")),
+               feed_avg_net_energy = units::set_units(2, "km/h"), quiet = TRUE),
     error = TRUE
   )
 
@@ -140,7 +139,7 @@ test_that("run_disnbs() fails when inputs are not specified in expected contextu
   expect_snapshot(
     run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake",
                feed_state_id = "f", roost_state_id = "ro",
-               target_energy = units::set_units(2, "J/h")),
+               target_energy = units::set_units(2, "J/h"), quiet = TRUE),
     error = TRUE
   )
 
@@ -158,7 +157,7 @@ test_that("run_disnbs() fails when inputs are not specified in expected contextu
 
   expect_snapshot(
     run_disnbs(ibm = x, dens_id = "dens", intake_id = "bla",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
@@ -173,7 +172,7 @@ test_that("run_disnbs() fails when expected: misc", {
   # specified drivers IDs are not present in IBM
   expect_snapshot(
     run_disnbs(ibm = rover_ibm_disnbs, dens_id = "NON-EXISTENT_DRIVER", intake_id = "intake",
-               feed_state_id = "foraging", roost_state_id = "water_resting"),
+               feed_state_id = "foraging", roost_state_id = "water_resting", quiet = TRUE),
     error = TRUE
   )
 
@@ -181,7 +180,7 @@ test_that("run_disnbs() fails when expected: misc", {
     run_disnbs(ibm = rover_ibm_disnbs, run_scen = "baseline-and-impact",
                dens_id = "dens", intake_id = "intake",
                imp_dens_id = "GONE_DRIVER", imp_intake_id = "ABSENT-DRIVER",
-               feed_state_id = "foraging", roost_state_id = "water_resting"),
+               feed_state_id = "foraging", roost_state_id = "water_resting", quiet = TRUE),
     error = TRUE
   )
 
@@ -194,7 +193,7 @@ test_that("run_disnbs() fails when expected: misc", {
     run_disnbs(ibm = x, run_scen = "baseline",
                dens_id = "dens", intake_id = "intake",
                imp_dens_id = "GONE_DRIVER", imp_intake_id = "ABSENT-DRIVER",
-               feed_state_id = "foraging", roost_state_id = "water_resting"),
+               feed_state_id = "foraging", roost_state_id = "water_resting", quiet = TRUE),
     error = TRUE
   )
 
@@ -206,7 +205,7 @@ test_that("run_disnbs() fails when expected: misc", {
     run_disnbs(ibm = x, run_scen = "baseline",
                dens_id = "dens", intake_id = "intake",
                imp_dens_id = "GONE_DRIVER", imp_intake_id = "ABSENT-DRIVER",
-               feed_state_id = "foraging", roost_state_id = "water_resting"),
+               feed_state_id = "foraging", roost_state_id = "water_resting", quiet = TRUE),
     error = TRUE
   )
 
@@ -224,7 +223,7 @@ test_that("run_disnbs() fails when expected: misc", {
 
   expect_snapshot(
     run_disnbs(ibm = x, dens_id = "d", intake_id = "intake",
-               feed_state_id = "foraging", roost_state_id = "water_resting"),
+               feed_state_id = "foraging", roost_state_id = "water_resting", quiet = TRUE),
     error = TRUE
   )
 
@@ -236,7 +235,7 @@ test_that("run_disnbs() fails when expected: misc", {
     run_disnbs(x, run_scen = "baseline-and-impact", dens_id = "dens",
                intake_id = "intake", imp_intake_id = "imp_intake",
                imp_dens_id = "imp_dens",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
@@ -245,14 +244,14 @@ test_that("run_disnbs() fails when expected: misc", {
   expect_snapshot(
     run_disnbs(rover_ibm_disnbs, run_scen = "baseline",
                dens_id = "dens", intake_id = "intake",
-               feed_state_id = "f", roost_state_id = "ro"),
+               feed_state_id = "f", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
   expect_snapshot(
     run_disnbs(rover_ibm_disnbs, run_scen = "baseline",
                dens_id = "dens", intake_id = "intake",
-               feed_state_id = "foraging", roost_state_id = "ro"),
+               feed_state_id = "foraging", roost_state_id = "ro", quiet = TRUE),
     error = TRUE
   )
 
