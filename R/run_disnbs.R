@@ -7,99 +7,214 @@
 #'
 #' @export
 run_disnbs <- function(ibm,
-                       dens_id,
-                       intake_id,
-                       feed_state_id,
-                       roost_state_id,
                        run_scen = c("baseline", "impact", "baseline-and-impact"),
+                       dens_id,
+                       intake_id = NULL,
                        imp_dens_id = NULL,
                        imp_intake_id = NULL,
-                       waypnts_res = 100 # units::set_units(100, "m")
-                       ){
+                       feed_state_id,
+                       roost_state_id,
+                       feed_avg_net_energy = units::set_units(422, "kJ/h"),
+                       target_energy = units::set_units(1, "kJ"),
+                       waypnts_res = 100, # units::set_units(100, "m")
+                       smooth_body_mass = bm_smooth_opts(),
+                       seed = sample(3000, 1),
+                       quiet = FALSE){
 
   # TODO's
-  # - Add constraint on minimum model time step for "1 day". Otherwise,
-  #   computations dependent on daily night fraction, such as state_balance(),
-  #   fall apart.
   # - implement a "disNBS" model_config type object to allow wrapping `rmr_run()`
   #   over this function
   # - Find a better solution for handling which drivers to use under baseline and
   #   impact scenarios
 
-  # Topline input validation -------------------------
+  if(isFALSE(quiet)) cli::cli_h1("Running the DisNBS Individual-Based Model")
+
+  # input validation -------------------------
+  if(isFALSE(quiet)) cli::cli_progress_step("Performing validation checks on inputs and underlying data.")
 
   ## Assert classes
   check_class(ibm, "IBM")
   check_class(dens_id, "character")
-  if(!is.null(imp_dens_id)) check_class(imp_dens_id, "character")
-  if(!is.null(imp_intake_id)) check_class(imp_intake_id, "character")
+  check_class(feed_state_id, "character")
+  check_class(roost_state_id, "character")
+  if(not_null(imp_dens_id)) check_class(imp_dens_id, "character")
+  if(not_null(imp_intake_id)) check_class(imp_intake_id, "character")
 
   if(inherits(waypnts_res, "numeric")) waypnts_res <- units::set_units(waypnts_res, "m")
   check_class(waypnts_res, "units")
 
-
   run_scen <- rlang::arg_match(run_scen)
 
-  if(!units::ud_are_convertible(units(waypnts_res), "m")){
 
-    cli::cli_abort(c(
-      "{.arg waypnts_res} must be specified with a valid unit of length.",
-      x = "{.val {units::deparse_unit(waypnts_res)}} is not recognized as a length unit.",
-      i = "Use e.g., {.val m} or {.val km} instead."
-    ))
+  ## baseline Vs impacted scenarios: check required driver IDs are provided
+  if(run_scen %in% c("baseline", "baseline-and-impact")){
+    if(is.null(intake_id)){
+      cli::cli_abort("{.arg intake_id} must be provided when {.code run_scen = {.val {run_scen}}}")
+    }
+  }
+
+  if(run_scen %in% c("impact", "baseline-and-impact")){
+    if(is.null(imp_dens_id)){
+      cli::cli_abort("{.arg imp_dens_id} must be provided when {.code run_scen = {.val {run_scen}}}")
+    }
+    if(is.null(imp_intake_id)){
+      cli::cli_abort("{.arg imp_intake_id} must be provided when {.code run_scen = {.val {run_scen}}}")
+    }
   }
 
 
   ## check if drivers present in `ibm`
-  drv_ids <- sapply(ibm@drivers, \(x) x@id)
-  input_drv_ids <- c(dens_id, intake_id, imp_dens_id, imp_intake_id)
+  drv_ids <- sapply(ibm@drivers, \(d) d@id)
+  input_drv_ids <- switch(
+    run_scen,
+    baseline = c(dens_id, intake_id),
+    impact = c(dens_id, imp_dens_id, imp_intake_id),
+    'baseline-and-impact' = c(dens_id, intake_id, imp_dens_id, imp_intake_id),
+  )
 
   nonexistent_drvs <- setdiff(input_drv_ids, drv_ids)
 
   if(length(nonexistent_drvs) > 0){
    cli::cli_abort(c(
-     "Driver ID{?s} {.val {nonexistent_drvs}} not found in the provided {.cls IBM} object.",
-     i = "Ensure all specified driver IDs are present in slot {.field @drivers} of the {.arg ibm} object."
+     "Failed to find driver ID{?s} {.val {nonexistent_drvs}} in the provided {.cls IBM} object.",
+     i = "Ensure all required driver IDs are present in slot {.field @drivers} of the {.arg ibm} object."
    ))
   }
 
-
-  # Drivers' @stars_obj must be non-empty and with only one attribute
+  ## Drivers' @stars_obj must be non-empty and with only one attribute
   purrr::walk(
     input_drv_ids,
-    function(id){
+    function(id, call = rlang::caller_env()){
       drv_idx <- match(id, drv_ids)
       drv_strs <- ibm@drivers[[drv_idx]] |> stars_obj()
 
       if(is_stars_empty(drv_strs)){
 
-        cli::cli_abort("Slot @stars_obj of Driver {.val {id}} must contain a populated {.cls stars} object.")
+        cli::cli_abort(
+          "Slot {.code @stars_obj} of Driver {.val {id}} must contain a populated {.cls stars} object.",
+          call = call
+        )
 
       } else if(length(drv_strs) > 1){
-
         cli::cli_abort(c(
-          "Slot @stars_obj of Driver {.val {id}} must have one unique attribute.",
+          "Slot {.code @stars_obj} of Driver {.val {id}} must have one unique attribute.",
           x = "Provided object has {length(drv_strs)} attributes: {.val {names(drv_strs)}}."
-        ))
+        ), call = call)
+      }
+    }
+  )
+
+  ## CRS consistency between model_config used datacubes.
+  ## NOTE: this check is already performed in `rmr_initiate()`, but doing it
+  ## again here for extra safety. Might drop this in the future
+  purrr::walk(
+    input_drv_ids,
+    function(id, call = rlang::caller_env()){
+      drv_strs <- pluck_s4(ibm@drivers, id) |> stars_obj()
+      drv_crs <- sf::st_crs(drv_strs)
+
+      if(drv_crs$proj4string != ref_sys(ibm)$proj4string){
+        cli::cli_abort(c(
+          "Driver {.val {id}} must have the same CRS as specified in slot {.code @model_config} of argument {.arg ibm}.",
+          x = "Detected CRS of {.cls stars} object for {.val {id}}: {.val {drv_crs$Name}} (EPSG: {.val {drv_crs$epsg}})",
+          x = "Expected CRS from {.code ibm@model_config@ref_sys}: {.val {ref_sys(ibm)$Name}} (EPSG: {.val {ref_sys(ibm)$epsg}})"
+        ),
+        call = call, class = "err-crs-mismatch")
       }
     }
   )
 
 
+  ## baseline Vs impacted scenarios: check dimension consistency in density maps
+  if(run_scen %in% c("impact", "baseline-and-impact")){
+
+    # Check consistency of stars objects' dimensions. Required for extracting
+    # slices of densities maps during simulations. Currently the construction of
+    # slices is based on baseline density map, and assumes impact density maps
+    # have identical non-raster dims and format
+    dns_dim <- pluck_s4(ibm@drivers, dens_id) |> stars_obj() |> dim()
+    imp_dns_dim <- pluck_s4(ibm@drivers, imp_dens_id) |> stars_obj() |> dim()
+
+    if(any(dns_dim != imp_dns_dim)){
+      idx <- which(dns_dim != imp_dns_dim)
+      txt_l <- paste(paste(names(dns_dim), dns_dim, sep = ':'), collapse = ", ")
+      txt_r <- paste(paste(names(imp_dns_dim), imp_dns_dim, sep = ':'), collapse = ", ")
+
+      cli::cli_abort(c(
+        "{.cls stars} objects of drivers {.val {c(dens_id, imp_dens_id)}} must have identical dimensions.",
+        x = "Driver {.val {dens_id}} cube dimensions: [{txt_l}]",
+        x = "Driver {.val {imp_dens_id}} cube dimensions: [{txt_r}]",
+        i = "Note: make sure to ru {.fn rmr_initiate} after adjustments made to data contained in drivers."
+      ))
+    }
+  }
+
+
+  ## check if expected units are satisfied
+  check_units_contextual(waypnts_res, context = "length")
+  check_units_contextual(feed_avg_net_energy, context = "energy-time")
+  check_units_contextual(target_energy, context = "energy")
+
+  if(not_null(intake_id)){
+    drv_vals <- stars_obj(pluck_s4(ibm@drivers, intake_id))[[1]]
+    check_units_contextual(drv_vals, context = "energy-time", arg = "intake_id")
+  }
+
+  if(not_null(imp_intake_id)){
+    drv_vals <- stars_obj(pluck_s4(ibm@drivers, imp_intake_id))[[1]]
+    check_units_contextual(drv_vals, context = "energy-time", arg = "imp_intake_id")
+  }
+
+
+  # body mass smoother
+  if(not_null(smooth_body_mass)){
+    if(!inherits(smooth_body_mass, "bm_smooth_opts")){
+      cli::cli_abort(c(
+        "{.arg smooth_body_mass} must be an object f class {.cls bm_smooth_opts}.",
+        i = "Create required object via {.fun bm_smooth_opts}."
+      ))
+    }
+  }
+
+
+  # Constraint on minimum model time step for "1 day". Otherwise, computations
+  # dependent on daily night fraction, such as state_balance(), fall apart. As
+  # it stands, this is always observed, as <ModelConfig>@time_step forces any
+  # input to be >= "1 day". This is therefore a safeguard for future devs where
+  # time_step is allowed to take shorter time lengths
+  if(lubridate::period(ibm@model_config@time_step) < lubridate::days(1)){
+    cli::cli_abort(c(
+      "The DisNBS model cannot run on time-steps smaller than 1 day.",
+      i = "Adjust the slot `time_step` of the {.cls ModelConfig} object and re-initialize the model via {.fn rmr_initiate}"
+    ))
+  }
+
+
+  # feed_state_id and roost_state_id
+  states_ids <- lapply(ibm@species@states_profile, \(s) s@id)
+  nonidentified_states <- setdiff(
+    list(feed_state_id = feed_state_id, roost_state_id = roost_state_id),
+    states_ids
+  )
+
+  if(length(nonidentified_states) > 0){
+    cli::cli_abort(c(
+      "State{?s} ID{?s} {.val {unlist(nonidentified_states)}} {?is/are} not defined in the {.cls IBM} object provided to {.arg ibm}.",
+     i = "Please ensure the input{?s} to {.arg {names(nonidentified_states)}} is listed in {.code ibm@species@states_profile}.",
+     i = "Available state ID{?s} {?is/are} {.val {unlist(states_ids)}}."
+    ))
+  }
+
+
   # Prepare and further check data for simulation  ----------------------------------------
 
-  # TODO:
-  #  - check if dens and imp_dens have consistent dimensions and attribute units
-  #  - CRS consistency between "official" and density and intake datacubes.
-  #   Transform if different?
-  #  - impose check on expected units and convertibility (e.g. energy, time-budget in proportion)
-
+  if(isFALSE(quiet)) cli::cli_progress_step("Preparing and configuring data for simulation.")
 
   # get driver's indices in <IBM>, ordered as dens, intake, impacted dens, impacted intake
   drv_idx <- match(input_drv_ids, drv_ids)
 
   # check if density extent covers all agents' initial locations
-  # TODO: this needs improving as being inside AOC doesn't guarantee a non-NA
+  # TODO: this needs refinement, as being inside AOC doesn't guarantee a non-NA
   # density cell at the agent's starting position, as density maps don't cover
   # the whole extent of the raster
   agents_init_locs <- lapply(ibm@agents, location) |>
@@ -122,8 +237,6 @@ run_disnbs <- function(ibm,
   }
 
 
-
-
   # create config object for the agent simulation function
   cfg <- create_dnbs_config(
     dens_drv = pluck_s4(ibm@drivers, dens_id),
@@ -134,15 +247,15 @@ run_disnbs <- function(ibm,
       intake_id = intake_id,
       imp_dens_id = imp_dens_id,
       imp_intake_id = imp_intake_id,
-      feed_state_id = "foraging",
-      roost_state_id = "water_resting"
-    )
+      feed_state_id = feed_state_id,
+      roost_state_id = roost_state_id
+    ),
+    bmsm_opts = smooth_body_mass
   )
-
 
   # generate datacube with night-time proportions
   night_prop <- derive_night_cube(
-    aoc_strs = pluck_s4(ibm@drivers, "aoc"),
+    aoc_strs = pluck_s4(ibm@drivers, "aoc") |> stars_obj(),
     start_date = ibm@model_config@start_date,
     end_date = ibm@model_config@end_date,
     delta_time = "1 week"
@@ -150,61 +263,100 @@ run_disnbs <- function(ibm,
 
 
 
+  #cli::cli_progress_update()
   # Simulate agents, individually over time  -----------------------------
+
   agents_bsln <- agents_imp <- NULL
 
-  ## baseline run ------------------------
+  ## Baseline run -----------------------------------------
+  if(run_scen %in% c("baseline", "baseline-and-impact")){
 
-  agents_bsln <- if(run_scen %in% c("baseline", "baseline-and-impact")){
+    if(isFALSE(quiet)) cli::cli_progress_step("Simulating agents' journeys under the baseline-case scenario")
 
-    # run agent-level simulation
-    #out_bsln <- furrr::future_map(
-     purrr::map(
-      ibm@agents, # [1:10],
-      function(a){
-        simulate_agent_disnbs(
-          agent = a,
-          drivers,
-          drv_ids,
-          states_profile,
-          scen = "baseline",
-          night_prop,
-          dnbs_cfg
-        )
-      },
-      .progress = TRUE
-      #.options = furrr::furrr_options(seed = TRUE)
+    fmt <- "{cli::symbol$info} Simulating baseline scenario {cli::pb_bar} {cli::pb_current}/{cli::pb_total} Agents | Elapsed: {cli::pb_elapsed} | ETA: {cli::pb_eta}"
+
+    set.seed(seed)
+    agents_bsln <- furrr::future_map(
+      #agents_bsln <- purrr::map(
+      cli::cli_progress_along(1:length(ibm@agents), current = FALSE, format = fmt),
+      sim_agent_wrapper,
+      agents = ibm@agents,
+      drivers = ibm@drivers,
+      states_profile = ibm@species@states_profile,
+      scen = "baseline",
+      night_proportion = night_prop,
+      dnbs_cfg = cfg,
+      feed_avg_net_energy = feed_avg_net_energy,
+      target_energy = target_energy,
+      .options = furrr::furrr_options(
+        seed = TRUE,
+        packages = c("stars", "sf", "purrr", "units", "rlang", "cli", "dplyr", "terra", "spaths", "stats")
+      )
     )
   }
 
-  ## Impact run ------------------------
-  agents_imp <- if(run_scen %in% c("impact", "baseline-and-impact")){
-    # run agent-level simulation
-    #out_bsln <- furrr::future_map(
-    purrr::map(
-      ibm@agents, # [1:10],
-      function(a){
-        simulate_agent_disnbs(
-          agent = a,
-          drivers,
-          drv_ids,
-          states_profile,
-          scen = "impact",
-          night_prop,
-          dnbs_cfg
-        )
-      },
-      .progress = TRUE
-      #.options = furrr::furrr_options(seed = TRUE)
+
+  ## Impact run -------------------------------------------
+  if(run_scen %in% c("impact", "baseline-and-impact")){
+
+    if(isFALSE(quiet)) cli::cli_progress_step("Simulating agents' journeys under the impact-case scenario")
+
+    fmt <- "{cli::symbol$info} Simulating impact scenario {cli::pb_bar} {cli::pb_current}/{cli::pb_total} Agents | Elapsed: {cli::pb_elapsed} | ETA: {cli::pb_eta}"
+
+    set.seed(seed)
+    agents_imp <- furrr::future_map(
+      #agents_imp <- purrr::map(
+      cli::cli_progress_along(1:length(ibm@agents), current = FALSE, format = fmt),
+      sim_agent_wrapper,
+      agents = ibm@agents,
+      drivers = ibm@drivers,
+      states_profile = ibm@species@states_profile,
+      scen = "impact",
+      night_proportion = night_prop,
+      dnbs_cfg = cfg,
+      feed_avg_net_energy = feed_avg_net_energy,
+      target_energy = target_energy,
+      .options = furrr::furrr_options(
+        seed = TRUE,
+        packages = c("stars", "sf", "purrr", "units", "rlang", "cli", "dplyr", "terra", "spaths", "stats")
+      )
     )
-  } else{
-    NULL
   }
 
 
+  ## Wrap up ---------------------------
+  if(isFALSE(quiet)){
+    cli::cli_progress_done()
+    em <- sample(c('chequered', 'flight_arrival', 'tada'), 1)
+    cli::cli_alert_success("Model simulation finished! {emoji::emoji(em)}")
+    #cli::cli_text(cli::style_bold("{cli::symbol$star} Finished the simulation!"))
+  }
 
   list(agents_bsln = agents_bsln, agents_imp = agents_imp)
+}
 
+
+
+
+
+
+
+# wrapper for agent simulating function handle automatic globals detection. In
+# this specific case, failing to do this would export the whole `ibm` object to
+# each of the workers, slowing down performace and increasing memory requirements
+sim_agent_wrapper <- function(i, agents, drivers, states_profile, scen,
+                              night_proportion, dnbs_cfg, feed_avg_net_energy,
+                              target_energy){
+  simulate_agent_disnbs(
+    agent = agents[[i]],
+    drivers = drivers,
+    states_profile = states_profile,
+    scen = scen,
+    night_proportion = night_proportion,
+    dnbs_cfg = dnbs_cfg,
+    feed_avg_net_energy = feed_avg_net_energy,
+    target_energy = target_energy
+  )
 }
 
 
@@ -234,9 +386,9 @@ derive_night_cube <- function(aoc_strs, start_date, end_date, delta_time = "1 we
   }
 
   # value grids for required variables
-  lon <- stars::st_get_dimension_values(aoc_strs, "x")
-  lat <- stars::st_get_dimension_values(aoc_strs, "y")
-  tgrd <- seq(start_date, end_date, by = delta_time)
+  lon <- stars::st_get_dimension_values(aoc_strs, "x", where = "start")
+  lat <- stars::st_get_dimension_values(aoc_strs, "y", where = "start")
+  tgrd <- seq(start_date, end_date + lubridate::period(delta_time), by = delta_time)
 
   # derive night-time proportions for each latitude across time grid
   npr <- sapply(lat, \(x) 1 - geosphere::daylength(x, tgrd)/24)
@@ -264,8 +416,8 @@ derive_night_cube <- function(aoc_strs, start_date, end_date, delta_time = "1 we
 
 
 
-#' Helper to extract data and info required for configuring the DisNBS model
-#'
+#' Helper to extract data and info required for configuring DisNBS's agent
+#' simulation model
 #'
 #' Quick notes, some of them worthy of a reference in details of parent function
 #' `run_disnbs()`:
@@ -284,10 +436,8 @@ create_dnbs_config <- function(dens_drv,
                                ibm_cfg,
                                ids,
                                waypnts_res = units::set_units(100, "m"),
+                               bmsm_opts = bm_smooth_opts(),
                                call = rlang::caller_env()){
-
-  # TODO:
-  # - check on if required IDs are provided on `ids`
 
   # COMEBAK: will need revisiting if/when implementing
   # asynchronous agent starting dates. Ideally via further processing inside
@@ -304,7 +454,7 @@ create_dnbs_config <- function(dens_drv,
   dns_itr_slices <- NULL
   routing_timesteps <- 1
 
-  if(!is.null(dns_nrst_meta)){
+  if(not_null(dns_nrst_meta)){
 
     nrst_tm_idx <- which(dns_nrst_meta$types == "temporal")
     nrst_itr_idx <- which(dns_nrst_meta$types == "iteration")
@@ -353,12 +503,25 @@ create_dnbs_config <- function(dens_drv,
     # process iteration dimension
     if(length(nrst_itr_idx) > 0){
       dns_itr_dim <- dns_nrst_meta$dims[nrst_itr_idx]
-      dns_itr_slices <- 1:dim(dens_drv@stars_obj)[dns_itr_dim]
+      dns_itr_slices <- sample(dim(dens_drv@stars_obj)[dns_itr_dim], length(routing_timesteps), replace = TRUE)
     }
   }
 
 
-  #names(ids) %in% c()
+  # bodymass smoother
+  bm_smooth <- if(is.null(bmsm_opts)){
+    list(
+      apply = FALSE,
+      ks_bw = NA_real_
+    )
+  }else{
+    # translate bandwidth from literal time to model's time-steps
+    steps_bw <- lubridate::period(bmsm_opts$time_bw)/lubridate::period(ibm_cfg@time_step)
+    list(
+      apply = TRUE,
+      ks_bw = steps_bw * 2
+    )
+  }
 
   # return object of class <disnbs_config>
   structure(
@@ -372,7 +535,9 @@ create_dnbs_config <- function(dens_drv,
         dns_itr_slices = dns_itr_slices,
         step_drtn = units::as_units(ibm_cfg@time_step),
         crs = ibm_cfg@ref_sys,
-        waypnts_res = waypnts_res
+        aoc_bbx = ibm_cfg@aoc_bbx,
+        waypnts_res = waypnts_res,
+        bm_smooth = bm_smooth
       ),
       ids
     ),
@@ -380,4 +545,76 @@ create_dnbs_config <- function(dens_drv,
   )
 
 }
+
+
+
+#' Set options for body mass smoother
+#'
+#'
+#' @export
+bm_smooth_opts <- function(time_bw = NULL, smoother = "NW-kernel"){
+
+  if(is.null(time_bw)) return(NULL)
+
+  smoother <- rlang::arg_match(smoother)
+
+  structure(
+    list(
+      time_bw = time_bw,
+      smoother = smoother
+    ),
+    class = "bm_smooth_opts"
+  )
+
+}
+
+
+#  set.seed(seed)
+#  agents_bsln <- furrr::future_map(
+#  #agents_bsln <- purrr::map(
+#    cli::cli_progress_along(ibm@agents, current = FALSE, format = fmt),
+#    function(i){
+#      #browser()
+#      simulate_agent_disnbs(
+#        agent = ibm@agents[[i]],
+#        drivers = ibm@drivers,
+#        states_profile = ibm@species@states_profile,
+#        scen = "baseline",
+#        night_proportion = night_prop,
+#        dnbs_cfg = cfg,
+#        feed_avg_net_energy,
+#        target_energy
+#      )
+#    },
+#    .options = furrr::furrr_options(
+#      seed = TRUE,
+#      packages = c("stars", "sf", "purrr", "units", "rlang", "cli", "dplyr", "terra", "spaths", "stats")
+#      #chunk_size = 5
+#    )
+#  )
+# }
+
+
+# set.seed(seed)
+# agents_imp <- furrr::future_map(
+# #agents_imp <- purrr::map(
+#   cli::cli_progress_along(ibm@agents, current = FALSE, format = fmt),
+#   function(i){
+#     simulate_agent_disnbs(
+#       agent = ibm@agents[[i]],
+#       drivers = ibm@drivers,
+#       states_profile = ibm@species@states_profile,
+#       scen = "impact",
+#       night_proportion = night_prop,
+#       dnbs_cfg = cfg,
+#       feed_avg_net_energy,
+#       target_energy
+#     )
+#   },
+#   .options = furrr::furrr_options(
+#     seed = TRUE,
+#     packages = c("stars", "sf", "purrr", "units", "rlang", "cli", "dplyr", "terra", "spaths", "stats")
+#     #chunk_size = 5
+#   )
+# )
 
