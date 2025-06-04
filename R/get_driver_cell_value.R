@@ -16,14 +16,17 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
   # is a requirement in the <Driver> definition?)
   # - handle NAs returned from st_extract
 
-  driver_stars <- stars_obj(driver) |>
-    dplyr::select(!dplyr::any_of(c("slope", "aspect")))
+  driver_stars <- stars_obj(driver)
 
   if(is_stars_empty(driver_stars)){
     cli::cli_abort(c(
       "No raster-type data available for driver {.val {driver_id}}",
       x = "Unable to extract values of {.val {driver_id}} to pass on to the base function"
     ))
+  }
+
+  if(length(driver_stars) > 1){
+    stars_obj(driver) <- dplyr::select(driver_stars, !dplyr::any_of(c("slope", "aspect")))
   }
 
   # get agent's current time and location
@@ -49,18 +52,18 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
     slice_num <- lapply(nnrst_idxs, function(idx){
       proc <- nnrst_meta$procs[idx]
       dim <- nnrst_meta$dims[idx]
-      vals <- stars::st_get_dimension_values(driver@stars_obj, dim)
+      dimvals <- stars::st_get_dimension_values(driver@stars_obj, dim)
 
       switch (
         proc,
-        nearest = nearest_preceding(vals, tm),
-        draw = sample(vals, 1),
-        month_num = match(lubridate::month(tm), vals),
-        year = match(lubridate::year(tm), vals),
-        quarter = match(lubridate::quarter(tm), vals),
-        week = match(lubridate::week(tm), vals),
-        yday = match(lubridate::yday(tm), vals),
-        month_chr = pmatch(lubridate::month(tm, label = TRUE), vals)
+        nearest = nearest_preceding(dimvals, tm),
+        draw = sample(dimvals, 1),
+        month_num = match(lubridate::month(tm), dimvals),
+        year = match(lubridate::year(tm), dimvals),
+        quarter = match(lubridate::quarter(tm), dimvals),
+        week = match(lubridate::week(tm), dimvals),
+        yday = match(lubridate::yday(tm), dimvals),
+        month_chr = pmatch(lubridate::month(tm, label = TRUE), dimvals)
       )
     })
 
@@ -73,7 +76,6 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
         stars::st_extract(at = loc)
     }
   }
-
 
   # garbage collection
   rm(driver_stars)
