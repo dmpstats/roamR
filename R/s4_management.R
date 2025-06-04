@@ -2,3 +2,6 @@
 setOldClass("units")
 # registering S3 class `<distribution>` from {distributional}
 setOldClass("distribution")
+# registering S3 class `<distribution>` from {distributional}
+setOldClass("period")
+
