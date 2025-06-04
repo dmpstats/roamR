@@ -68,7 +68,13 @@ test_that("VarFn() works as expected", {
 
 
   expect_no_error(
-    VarFn(myfn, list(sst = "driver", alpha = "time_at_state"))
+    VarFn(
+      myfn,
+      list(
+        sst = "driver",
+        ArgSpec(name = "alpha", type = "time_at_state", state_id = "bla")
+      )
+    )
   )
 
 })
@@ -87,7 +93,7 @@ test_that("args_spec list elements are named as expected", {
   )
 
   expect_named(
-    VarFn(myfn, args_spec = list(ArgSpec("sst"), alpha = "time_at_state")) |>
+    VarFn(myfn, args_spec = list(ArgSpec("sst"), alpha = "body_mass")) |>
       slot("args_spec"),
     expected = c("sst", "alpha")
   )
@@ -115,3 +121,26 @@ test_that("args_spec list elements are named as expected", {
   )
 
 })
+
+
+
+
+
+
+# test_that("dev", {
+#
+#   skip()
+#
+#   myfn <- function(mn, sd){
+#     distributional::generate(distributional::dist_normal(mn, sd), 1)[[1]]
+#   }
+#
+#   test <- VarFn(myfn, args_spec = list(mn = 1, sd = 1), units = "m/s")
+#
+#   mn_fn <- build_cost_fn(test)
+#
+#   mn_fn(Agent(), list(Driver()))
+#
+# })
+
+

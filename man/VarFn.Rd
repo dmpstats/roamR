@@ -8,6 +8,9 @@ VarFn(fn = NULL, args_spec = NULL, units = NULL, fn_cmp = NULL)
 }
 \arguments{
 \item{args_spec}{a list}
+
+\item{fn_cmp}{compiled \code{fn}, resulting from applying e.g. \code{build_cost_fn()}
+to \code{fn}}
 }
 \description{
 Create a \verb{<VarFn>} object

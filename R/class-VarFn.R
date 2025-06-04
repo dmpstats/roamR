@@ -30,6 +30,8 @@ setClass(
 #' Create a `<VarFn>` object
 #'
 #' @param args_spec a list
+#' @param fn_cmp compiled `fn`, resulting from applying e.g. `build_cost_fn()`
+#'   to `fn`
 #'
 #' @export
 VarFn <- function(fn = NULL,
@@ -105,7 +107,7 @@ VarFn <- function(fn = NULL,
     } else if(is.character(arg) && arg %in% shortcut_types){
       ArgSpec(name = argname, type = arg)
     } else if(is.numeric(arg)){
-      ArgSpec(name = argname, type = "constant", default = arg)
+      ArgSpec(name = argname, type = "constant", value = arg)
     } else if(is(arg, "VarDist")){
       ArgSpec(name = argname, type = "random", distr = distr(arg), units = units(arg))
     } else{
