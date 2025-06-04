@@ -27,13 +27,18 @@ In brief - `roamR`:
 - defines the environment the animal interacts with, and how this functionally affects its movement or behaviour
 - defines how animals move, with consideration of the environment, behavoural state, or condition
 - defines the behaviours animals may engage in and how these change
-- defines the general characteristics of a type of agent (`class:Species`)
+- defines the general characteristics of a type of agent (a _species_ definition)
 - creates many agents with stochastic properties in line with their species definition
 - runs the agents through the simulated environment over time, for a defined temporal resolution
 - measures the agents throughout the simulation
 - gives tools to query the mass of agents that have been simulated
 
-A principal limitation in IBMs is the level of information you have about how the agents behave. `roamR` is intended to work with very little information, up to very information rich. The 
+A principal limitation in IBMs is the level of information you have about how the agents behave. `roamR` is intended to work with very little information, up to very information rich. The test cases here cover a range of data support:
+
+- Relatively data rich: Guillemots at the Isle of May, which are well studied.
+- Relatively data poor: Red-Throated Divers in the North Sea, which are less understood.
+
+In the more extreme, `roamR` has been developed with the intention of simulating very well known animal populations, for example a population with extensive GPS tagging information, that might suffice for estimation of a Hidden Markov Model. For example those demonstrated in Michelot XXX fitted to Fulmar, which could be subsequently simulated in the momentHMM package.  
 
 
 
