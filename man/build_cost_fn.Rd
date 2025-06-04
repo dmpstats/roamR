@@ -4,7 +4,7 @@
 \alias{build_cost_fn}
 \title{State cost function factory}
 \usage{
-build_cost_fn(vrf, state_id = NULL)
+build_cost_fn(vrf, state_id = NULL, step_duration = NULL)
 }
 \arguments{
 \item{vrf}{an \verb{<VarFn>} object, the user-defined function for calculating the
@@ -12,7 +12,7 @@ energy cost of a given state. It gets wrapped by a function that is usable
 within \code{{roamR}}s infrastructure.}
 }
 \description{
-Function operator for manufacturing functions to calculate energetic costs
+Internal function operator for manufacturing functions to calculate energetic costs
 associated with states based on a user-defined base function. This function
 interprets the arguments of the base function, and works out the features to
 construct a function that can be used in the model. The returned manufactured

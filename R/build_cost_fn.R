@@ -1,6 +1,6 @@
 #' State cost function factory
 #'
-#' Function operator for manufacturing functions to calculate energetic costs
+#' Internal function operator for manufacturing functions to calculate energetic costs
 #' associated with states based on a user-defined base function. This function
 #' interprets the arguments of the base function, and works out the features to
 #' construct a function that can be used in the model. The returned manufactured
@@ -19,10 +19,12 @@
 #'   within `{roamR}`s infrastructure.
 #'
 #' @importFrom rlang !!!
-build_cost_fn <- function(vrf, state_id = NULL){
+build_cost_fn <- function(vrf, state_id = NULL, step_duration = NULL){
 
   force(vrf)
   force(state_id)
+  force(step_duration)
+
 
   # input validation
   check_class(vrf, "VarFn")
@@ -42,6 +44,7 @@ build_cost_fn <- function(vrf, state_id = NULL){
 
       if(arg@type == "driver"){ # driver arg type
 
+
         val <- drivers |>
           purrr::keep(\(d) d@id == arg@driver_id) |>
           purrr::pluck(1) |>
@@ -51,7 +54,7 @@ build_cost_fn <- function(vrf, state_id = NULL){
         val <- switch(
           arg@type,
           body_mass = body_mass(agent),
-          time_at_state = get_time_spent_at_state(agent, state_id),
+          time_at_state = get_time_spent_at_state(agent, arg@state_id, arg@units, step_duration),
           constant = arg@value,
           random = get_drawn_cost_par(agent, state_id, arg_nm)
         )
@@ -84,13 +87,21 @@ build_cost_fn <- function(vrf, state_id = NULL){
 
 
 # placeholder function to compute or extract time spent at state
-get_time_spent_at_state <- function(agent, state_id){
-  runif(1)
+get_time_spent_at_state <- function(agent, state_id, units, step_duration){
+
+  if(is.null(step_duration)){
+    cli::cli_abort("`step_duration` must be non-null")
+  }
+
+  x <- agent@condition@states_budget[[state_id]] * units::as_units(step_duration)
+
+  units::set_units(x, units, mode = "standard")
+
 }
 
 
 
-# helper to check if a cost parameter value has been drawn for state_id
+# helper to get the cost parameter value that has been drawn for state_id
 get_drawn_cost_par <- function(agent, state_id, arg_nm){
 
   state_ids <- names(agent@properties@cost_par_draws)
