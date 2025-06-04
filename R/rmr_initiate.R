@@ -58,7 +58,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
       fn = \(x) ifelse(x <= 0, 1, 0), # binary influencer with cut-off at bbox's border (i.e. 0m)
       type = "repulsion",
       mode = "vector-field",
-      sim_stage = "baseline-and-impact"
+      sim_stage = "bsln-imp"
     )
   )
 
@@ -192,8 +192,8 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
   if(!quiet){
     cli::cli_progress_done()
-    #cli::cli_alert_success("All DONE! {emoji::emoji('thumbsup')}")
-    cli::cli_text(cli::style_bold("{cli::symbol$star} Initialization DONE!"))
+    cli::cli_alert_success("Initialization Done! {emoji::emoji('rocket')}")
+    #cli::cli_text(cli::style_bold("{cli::symbol$star} Initialization DONE!"))
   }
 
   ibm
@@ -216,6 +216,11 @@ init_check_consistency <- function(species,
                                    drivers,
                                    model_config = NULL,
                                    call = rlang::caller_env()){
+
+  # TODO:
+  # - Check if essential slots are populated. E.g. Species@energy_mass_conversion
+  #   must be provided
+
   ## fetch driver IDs
   drv_ids <- sapply(drivers, \(x) x@id)
 
@@ -306,6 +311,9 @@ init_check_consistency <- function(species,
       })
     }
   })
+
+
+  ## TODO: State-dependent energy cost functions - ArgSpec@type = "time-at-state"
 
 
 
