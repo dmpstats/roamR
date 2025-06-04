@@ -88,13 +88,21 @@ Agent <- function(species = NULL, model_config = NULL){
     mortality_prob <- NA_real_
 
     ## State Budgets: initialize budgets (relative time lengths) and standardise
-    ## i.e. to be treated as probabilities, adding up to 1
+    ## i.e. proportions adding up to 1
     state_budget <- lapply(species@states_profile, \(s) generate(s@time_budget))
     budget_sum <- Reduce("+", state_budget)
-    state_prob <- lapply(state_budget, \(b) b/budget_sum)
+    state_props <- lapply(state_budget, \(b) b/budget_sum)
 
     # Starting at 0 cost
-    states_cost <- lapply(species@states_profile, \(state) units::set_units(0, kJ/g/h))
+    #states_cost <- lapply(species@states_profile, \(state) units::set_units(0, kJ/h))
+    states_cost <- lapply(species@states_profile, function(state){
+      units::set_units(0, state@energy_cost@units, mode = "standard")
+    })
+
+    # set list element names to actual state@id
+    state_ids <- sapply(species@states_profile, \(state) state@id)
+    names(state_props) <- state_ids
+    names(states_cost) <- state_ids
 
     condition <- new(
       "AgentCondition",
@@ -103,9 +111,9 @@ Agent <- function(species = NULL, model_config = NULL){
       timestep = 0L,
       timestamp = as.POSIXct(model_config@start_date, "UTC"),
       body_mass = properties@initial_mass,
-      states_budget = state_prob,
+      states_budget = state_props,
       states_cost = states_cost,
-      energy_expenditure = units::set_units(0, "kJ/g"),
+      energy_expenditure = units::set_units(0, "kJ"),
       foraging_success = units::set_units(0, "g/day"),
       mass_change_value = units::set_units(0, "g"),
       mortality_prob = mortality_prob,
