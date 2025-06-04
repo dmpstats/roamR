@@ -47,3 +47,14 @@ IBM <- function(agents = list(),
   )
 
 }
+
+
+
+# Methods-----------------------------------------------------------------
+
+## Accessors ------------------------------------
+### @model_config@ref_sys
+#### getter
+setGeneric("ref_sys", function(x) standardGeneric("ref_sys"))
+setMethod("ref_sys", "IBM", function(x) x@model_config@ref_sys)
+
