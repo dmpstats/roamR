@@ -32,8 +32,9 @@ occurs. If numeric, expects a 4-length vector specifying \code{xmin}, \code{ymin
 dimensions, respectively. Assumed to take the same units as \code{ref_sys}.}
 
 \item{time_step}{character string, defines the temporal resolution of the
-model. Refer to the \code{by} argument in \code{\link[=seq.Date]{seq.Date()}} for string-based
-specification of time increments.}
+model. Must be one of "day", "week", "month", "quarter" or "year", and can
+optionally be preceded by a positive integer and a space, and followed by
+"s".}
 
 \item{start_sites}{an \verb{<sf>} object, defining the sites where agents start the
 simulation. Apart from the sites' geometry, this object must contain the
@@ -47,8 +48,9 @@ in this column must sum to 1.
 If \code{NULL} (the default), agents start at random locations within the AOC.}
 
 \item{end_sites}{an \verb{<sf>} object, analogous to \code{start_sites}, specifying the
-sites to which agents must return to at the end of the simulation. If \code{NULL}
-(the default), end locations are not forced upon agents.}
+sites to which agents must return to at the end of the simulation. If
+\code{NULL} (the default), end locations are not forced upon agent. \strong{Note:}
+This parameter is currently inactive and will be ignored.}
 
 \item{start_date;end_date}{Date, respectively, defines the start and end
 dates for the simulation period.}

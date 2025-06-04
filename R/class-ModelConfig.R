@@ -14,8 +14,9 @@
 #' @slot delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
 #' @slot time_step character string, defines the temporal resolution of the
-#'   model. Refer to the `by` argument in [`seq.Date()`] for string-based
-#'   specification of time increments.
+#'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
+#'   optionally be preceded by a positive integer and a space, and followed by
+#'   "s".
 #' @slot start_date;end_date Date, respectively, defines the start and end
 #'   dates for the simulation period.
 #' @slot start_sites an `<sf>` object, defining the sites where agents start the
@@ -28,8 +29,10 @@
 #'    If `start_sites` are not provided, agents are assigned to random locations
 #'    within the AOC.
 #'
-#' @slot end_sites an `<sf>` object, analogous to `start_sites`, specifying the
-#'   sites to which agents must return at the end of the simulation.
+#' @slot end_sites an `<sf>` object, analogous to `start_sites`, but specifying
+#'   the sites to which agents must return to at the end of the simulation. If
+#'   `NULL` (the default), end locations are not forced upon agent. **Note:**
+#'   This parameter is currently inactive and will be ignored.
 #'
 #' @details
 #'
@@ -91,8 +94,9 @@ methods::setClass(
 #' @param delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
 #' @param time_step character string, defines the temporal resolution of the
-#'   model. Refer to the `by` argument in [`seq.Date()`] for string-based
-#'   specification of time increments.
+#'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
+#'   optionally be preceded by a positive integer and a space, and followed by
+#'   "s".
 #' @param start_date;end_date Date, respectively, defines the start and end
 #'   dates for the simulation period.
 #' @param start_sites an `<sf>` object, defining the sites where agents start the
@@ -105,8 +109,9 @@ methods::setClass(
 #'    If `NULL` (the default), agents start at random locations within the AOC.
 #'
 #' @param end_sites an `<sf>` object, analogous to `start_sites`, specifying the
-#'   sites to which agents must return to at the end of the simulation. If `NULL`
-#'   (the default), end locations are not forced upon agents.
+#'   sites to which agents must return to at the end of the simulation. If
+#'   `NULL` (the default), end locations are not forced upon agent. **Note:**
+#'   This parameter is currently inactive and will be ignored.
 #'
 #'
 #' @details
