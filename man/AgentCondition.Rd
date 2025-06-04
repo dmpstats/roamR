@@ -37,7 +37,7 @@ across the different behavioural/activity states during the time-step. Each
 element (of type \verb{<units>}) is named after a specific state and stores the
 duration (e.g. hours) the agent spent in that state.}
 
-\item{states_cost}{a named list, specifying the energy costs (e.g. KJ/hr/g)
+\item{states_cost}{a named list, specifying the energy costs (e.g. KJ/hr)
 associated with each state defined in \code{state_budget}. List elements are of
 type \verb{<units>}.}
 
