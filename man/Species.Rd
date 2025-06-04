@@ -9,10 +9,11 @@ Species(
   common_name = NA_character_,
   scientific_name = NA_character_,
   body_mass_distr = VarDist(),
+  energy_to_mass_distr = VarDist(),
   mortality_thresh_distr = VarDist(),
-  pop_size = NA_real_,
   states_profile = list(),
-  driver_responses = list()
+  driver_responses = list(),
+  pop_size = NA_real_
 )
 }
 \arguments{
@@ -25,12 +26,13 @@ Species(
 \item{body_mass_distr}{an object of class \linkS4class{VarDist}, defining the
 distribution of body mass for the species.}
 
+\item{energy_to_mass_distr}{a \linkS4class{VarDist} object, providing the
+energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determines
+how gained or lost energy translates into changes in body mass.}
+
 \item{mortality_thresh_distr}{an object of class \linkS4class{VarDist}, specifying
 the values of agent's condition (e.g. body mass), below which it is
 assumed to have died (\emph{Note: parameter may require further generalization})}
-
-\item{pop_size}{numeric, the population size (i.e., number of individuals)
-within the area of calculation (AOC).}
 
 \item{states_profile}{a list of \linkS4class{State} objects, defining the
 behavioural/activity states for the species to consider in the model.}
@@ -40,6 +42,9 @@ the species’ responses to predefined model drivers, such as environmental
 pressures, biological influences, and human-induced impacts affecting
 movement and behaviour/activity states. See the Details section below and
 \linkS4class{DriverResponse} for further information.}
+
+\item{pop_size}{numeric, the population size (i.e., number of individuals)
+within the area of calculation (AOC).}
 }
 \description{
 Helper function to construct instances of \linkS4class{Species} objects, representing

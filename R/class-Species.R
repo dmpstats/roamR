@@ -10,6 +10,9 @@
 #' @slot scientific_name character string, the scientific name of the species.
 #' @slot body_mass_distr an object of class [VarDist-class], defining the
 #'   distribution of body mass for the species.
+#' @slot energy_to_mass_distr a [VarDist-class] object, providing the
+#'   energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determines
+#'   how gained or lost energy translates into changes in body mass.
 #' @slot states_profile a list of [State-class] objects, defining the
 #'   behavioural/activity states for the species to consider in the model.
 #' @slot driver_responses list of [DriverResponse-class] objects, specifying the
@@ -47,11 +50,13 @@ methods::setClass(
     id = "character",
     common_name = "character",
     scientific_name = "character",
-    pop_size = "numeric",
     body_mass_distr = "VarDist",
+    energy_to_mass_distr = "VarDist", # (g/Kj)
     states_profile = "list",
     driver_responses = "list",
-    mortality_thresh_distr = "VarDist"
+    mortality_thresh_distr = "VarDist",
+    pop_size = "numeric"
+    #energy_intake = "VarFn"
   ),
   prototype = list(
     id = NA_character_,
@@ -81,6 +86,9 @@ methods::setClass(
 #' @param scientific_name character string, the scientific name of the species.
 #' @param body_mass_distr an object of class [VarDist-class], defining the
 #'   distribution of body mass for the species.
+#' @param energy_to_mass_distr a [VarDist-class] object, providing the
+#'   energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determines
+#'   how gained or lost energy translates into changes in body mass.
 #' @param states_profile a list of [State-class] objects, defining the
 #'   behavioural/activity states for the species to consider in the model.
 #' @param driver_responses a list of [DriverResponse-class] objects, specifying
@@ -171,10 +179,11 @@ Species <- function(id = NA_character_,
                     common_name = NA_character_,
                     scientific_name = NA_character_,
                     body_mass_distr = VarDist(),
+                    energy_to_mass_distr = VarDist(),
                     mortality_thresh_distr = VarDist(),
-                    pop_size = NA_real_,
                     states_profile = list(),
-                    driver_responses = list()){
+                    driver_responses = list(),
+                    pop_size = NA_real_){
 
   # allow for unlisted objects assigned to `states_profile` and `impact_responses`, if of the correct class
   if(is(states_profile, "State")) states_profile <- list(states_profile)
@@ -185,6 +194,7 @@ Species <- function(id = NA_character_,
   check_class(id, "character")
   check_class(common_name, "character")
   check_class(body_mass_distr, "VarDist")
+  check_class(energy_to_mass_distr, "VarDist")
   check_class(mortality_thresh_distr, "VarDist")
   if(length(states_profile) > 0) check_class(states_profile, "State", inlist = TRUE)
   if(length(driver_responses) > 0) check_class(driver_responses, "DriverResponse", inlist = TRUE)
@@ -203,6 +213,7 @@ Species <- function(id = NA_character_,
     common_name = common_name,
     scientific_name = scientific_name,
     body_mass_distr = body_mass_distr,
+    energy_to_mass_distr = energy_to_mass_distr,
     mortality_thresh_distr = mortality_thresh_distr,
     pop_size = pop_size,
     states_profile = states_profile,
