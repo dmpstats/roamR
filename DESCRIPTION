@@ -15,19 +15,24 @@ RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
 Imports: 
     cli,
     distributional,
     dplyr,
+    emoji,
     furrr,
     future,
+    geosphere,
     methods,
     purrr,
     rlang,
     sf,
+    spaths,
     stars,
+    stats,
     terra,
     tibble,
     units
@@ -57,7 +62,7 @@ Collate:
     'rmr_run.R'
     'roamR-package.R'
     'run_disnbs.R'
-    'simulate_agent_disnbs.r'
+    'simulate_agent_disnbs.R'
     'update_agent.r'
     'velocity_ou.R'
 VignetteBuilder: knitr
