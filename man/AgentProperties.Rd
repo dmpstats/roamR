@@ -12,6 +12,7 @@ AgentProperties(
   start_point = sf::st_point(),
   end_point = sf::st_point(),
   mortality_thresh = NULL,
+  energy_to_mass = NULL,
   move_influences = list(),
   state_influences = list(),
   age = NULL,
@@ -38,6 +39,9 @@ of the agent at the start and end of the simulation, respectively.}
 
 \item{mortality_thresh}{\verb{<units>} object, the threshold body mass below which
 the agent is assumed to die.}
+
+\item{energy_to_mass}{a \verb{<units>} object, providing the agent's
+energy-to-bodymass conversion rate (e.g. g/kJ).}
 
 \item{move_influences}{a named list, defining whether the agent is influenced
 by model drivers. Each element corresponds to a \code{driver_id} (which must be
