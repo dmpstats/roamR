@@ -2,8 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{pluck_s4}
 \alias{pluck_s4}
-\title{helper to get element of list of S4 objects using it's slot \verb{@id}. Applicable
-to e.g. \code{IBM@drivers} or \code{Species@states_profile}}
+\title{Get element of list of S4 objects}
 \usage{
 pluck_s4(l, id)
 }
@@ -13,8 +12,8 @@ pluck_s4(l, id)
 \item{id}{character, the name assigned to @id}
 }
 \description{
-helper to get element of list of S4 objects using it's slot \verb{@id}. Applicable
-to e.g. \code{IBM@drivers} or \code{Species@states_profile}
+Helper to get element of list of S4 objects using it's slot \verb{@id}.
+Applicable to e.g. \code{IBM@drivers} or \code{Species@states_profile}
 }
 \examples{
 pluck_s4(rover@states_profile, "water_resting")
