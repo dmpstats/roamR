@@ -1,7 +1,12 @@
 ---
 title: "`roamR` - User guide"
-toc: 
-  toc_depth: 2  
+output: 
+  html_document:
+    number_sections: true
+    theme: cerulean
+    toc: yes
+    toc_float:
+      collapsed: true
 ---
 
 ```{r, include = FALSE}
@@ -15,24 +20,24 @@ knitr::opts_chunk$set(
 library(roamR)
 ```
 
-# Overview: `roamR`
+# Overview
+
+`roamR` is an R package that offers a toolset and framework for running Individual Based Models (IBMs - or Agent-Based Models). It was created as part of the DisNBS project (Distribution of seabirds in the Non-Breeding Season) which was a project within the Off-shore Renewables Joint Industry Partnership programme ([ORJIP](http://www.orjip.org.uk/)). While the project has specific goals in relation to Off-shore Wind Farms (OWF) and their potential effects on seabirds, the problem is quite general. This package can help build animal movement simulations, with the general problem broken down into logical components and imposes a level of transparent formality, such that the computational components are on a common footing, leaving focus on parametrisation and inputs/data.
+
+
+## Project
 
 * DisNBS project and associated credits
 * Objectives
 
-## Installation 
 
-`roamR` is not currently on CRAN - installation is direct from github. You can use devtools to install:
+## A scenario
 
-```{r, eval=FALSE}
+IBMs are simple in principle - they simulate the movement of individual animals in response to their environment and measure properties from them e.g. their body-mass. They are particularly useful where analytical modelling is difficult and where "what-if" scenarios are sought, where the system can be examined with/without a speculative perturbation. They also accommodate stochasticity/uncertainty quite naturally. Typically many are run such that uncertainty in the inputs are reflected in any measured outputs, so conclusions are tempered accordingly.
 
-devtools::install_github("....")
-```
+The DisNBS project serves as a motivating example. ... etc OWF blah
 
-
-## Rationale
-
-`roamR` is an R package that offers a toolset and framework for running Individual Based Models (IBMs - or Agent-Based Models). It was created as part of the DisNBS project (Distribution of seabirds in the Non-Breeding Season) which was a project within the Off-shore Renewables Joint Industry Partnership programme ([ORJIP](http://www.orjip.org.uk/)). While the project has specific goals in relation to Off-shore Wind Farms (OWF) and their potential effects on seabirds, the problem is quite general. This package can help build animal movement simulations, with the general problem broken down into logical components and imposes a level of transparent formality, such that the computational components are on a common footing, leaving focus on parametrisation and inputs/data.
+## Package overview
 
 `roamR` is written in S4 and has been structured/implemented such that the simulations are well defined, but with a lot of flexibility in what the components can do. Animal IBMs are spatio-temporal and can be based on very disparate data sources - so `roamR` is particular in its treatment of space (projections etc), time and units generally (as found in the `units` package). The package was written with animals in mind (indeed one of the main classes is `Species`), but we'll use the agnostic term __agent__.
 
@@ -73,17 +78,49 @@ A great deal of thought has gone into the hierarchical structure, which means ma
 
 ![figure 1](images/roamR_schema.png)
 
+Key elements of this are discussed in turn, and examples are given in the associated test scenarios. Four main areas are covered:
+
+* The simulation engine and wrapper - offering high-level controls, like the number of agents, spatial/temporal boundaries (e.g. a bounding box, as distinct to environmental constraints of the simulation, fundamental spatial coordinate system
+* The species - properties of the population being simulated e.g. distributions of initial body mass, flying speeds. These are often distributional, as agents/individuals will be generate from these. 
+* The environment - spatiotemporal descriptions of the agent's environment within the simulation frame e.g. natural boundaries (coast), the Sea Surface Temperature (SST) over time, man-made structures (e.g. OWF)
+* The agents - the basic simulation element, largely defined from higher components, but the basis of monitoring the simulation and any counterfactuals 
+
+The workflow is in essence:
+
+1. Configure the simulation at a high-level, including the spatial and temporal boundaries, projections, number of agents etc.
+1. Define the species, for example initial body mass distributions, flight speed distributions, activity states and their energetic implications, functional relationships between the species and the environment e.g. how SST affects energy, how OWFs influence movement/distribution.
+1. Define the environment, essentially anything spatio-temporal that the animals are thought to respond to - coastline, man-made structures (e.g. OWF), prey distributions, SST, bathymetry etc
+1. Combine components into an IBM object
+1. Run a simulation, which creates agents, moves them through the environment, and records their properties over time
+1. Alter simulation elements to reflect a perturbation (presence of OWF)
+1. Re-run the simulation with the perturbation
+1. Query simulated animals, with counterfactuals as needed based on within-agent comparisons over perturbation scenarios
 
 
-* Agents
-* Environment
+
+# The high level control (`ModelConfig`, class)
+
+# Defining the species (`Species` class)
+
+# Defining the environment (`Driver` class)
+
+# The basic unit (`Agent` class)
+
+# Moving agents, running the simulation (`IBM` class)
+
+# Querying the simulation, counterfactuals
 
 
+# Installation 
 
-## `ibm`
+`roamR` is not currently on CRAN - installation is direct from github. You can use devtools to install:
 
-## `species`
+```{r, eval=FALSE}
 
-## `agent`
+devtools::install_github("....")
+```
 
 
+# References
+
+* momentHMM
