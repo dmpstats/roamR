@@ -1,8 +1,8 @@
 ---
 title: "`roamR` - User guide"
 output:
-  word_document:
-    toc: true
+  # word_document:
+  #   toc: true
   html_document:
     number_sections: true
     theme: cerulean
@@ -175,11 +175,90 @@ Generally animals are not simply responsive to their immediate environment, for 
 
 # The basic unit (`Agent` class)
 
-The agents within the simulation are treated as self-contained entities, that are moved and measured through the environment subject to their individual properties. 
+The agents within the simulation are treated as self-contained entities, that are moved and measured through the environment subject to their individual properties. The specified number of agents are created at the start of the simulation, with their properties defined by the `Species` class. Initialisation of the agents is done by sampling from the distributions defined in the `Species` class, such as initial body mass, flight speed, and activity state.
+
+## Agent properties
+At initialisation, the following (non-exhaustive) properties are generated for each agent. These are fixed throughout the simulation, being fundamental to the agent for a season:
+
+__species_id__ character, the identifier code for the agent's species.
+
+__initial_mass__ ⁠`units`⁠ object, the agent's body mass at the start of the simulation.
+
+__speeds__ a named list, defining movement speed properties for the agent. Each element specifies the agent's average speed for a given movement state (e.g. flying, swimming, etc). List elements must be of type ⁠`units`⁠.
+
+__start_point__, __end_point__ objects of class XY, the spatial coordinates of the agent at the start and end of the simulation, respectively.
+
+__mortality_thresh__ ⁠`units`⁠ object, the threshold body mass below which the agent is assumed to die.
+
+__move_influences__ a named list, defining whether the agent is influenced by model drivers. Each element corresponds to a driver_id (which must be defined in the model's Driver object) and contains a single-row data.frame with columns:
+
+* p: numeric, providing the probability that the agent is influenced by the named driver.
+* infl: logical, whether the agent is influenced by the driver. It should be determined via a Bernoulli trial with probability p.
+
+__state_influences__ a named list, defining whether agent states are influenced by model drivers. Each element, named after a driver_id, contains a data.frame with columns:
+
+* state_id: character string, the unique identifier of an agent's state.
+* p: numeric, the probability that the agent's state_id is influenced by the driver.
+* infl: logical, whether the agent's state_id is influenced by the driver. It should be determined via a Bernoulli trial with probability p.
+* ext: ⁠`units`⁠ value, the extent of the influence on the agent's state_id.
+
+
+The AgentProperties object is then populated using the provided ⁠`Species`⁠ and ⁠`ModelConfig`⁠ objects. Specifically:
+
+* ⁠@initial_mass⁠ is sampled from Species@body_mass_distr
+* ⁠@speeds⁠ are generated based on Species@behaviour_profile
+* ⁠@mortality_tresh⁠ is sampled from Species@mortality_thresh_distr
+* ⁠@start_point⁠ and ⁠@end_point⁠ are defined from ModelConfig@start_sites and ModelConfig@end_sites. In cases where these slots are empty, the agent's start/end locations are randomly assigned within the AOC area based on slot ModelConfig@aoc_bbox.
+* ⁠@move_influences⁠ and state_influences are generated from Species@driver_responses.
+
+
+## Agent condition 
+The agent's condition is a dynamic aspect of the simulation, which is updated at each time-step. It includes the agent's current location, body mass, activity states, and other properties that change over time. The condition is updated based on the agent's movement, activity states, and interactions with the environment:
+
+__location__ object of class XY, specifying the agent's spatial coordinates at the end of the current time-step.
+
+__grid_cell__ object of class XY, representing the AOC's grid-cell occupied by the agent.
+
+__timestep__ integer, indicating the current simulation time-step index.
+
+__timestamp__ a ⁠`POSIXct`⁠ object, the date-time at the end of the current time-step.
+
+__body_mass__ a ⁠`units`⁠ object, defining the agent's body mass at the end of the current time-step.
+
+__states_budget__ a named list, detailing the agent's time allocation across the different behavioural/activity states during the time-step. Each element (of type ⁠`units`⁠) is named after a specific state and stores the duration (e.g. hours) the agent spent in that state.
+
+__states_cost__ a named list, specifying the energy costs (e.g. KJ/hr/g) associated with each state defined in state_budget. List elements are of type ⁠`units`⁠.
+
+__mortality_prob__ numeric, the probability of the agent dying within the the current time-step (currently ignored).
+
+__alive__ a logical value (TRUE if alive, FALSE if dead), indicating whether the agent has survived the time-step.
+
+__track__ object of class sf, storing a time-series of location points tracking the agent's movement within the current time-step.
+
+__energy_expenditure__ a ⁠`units`⁠ object, representing the total energy (e.g. KJ/g) expended across all states during the time-step.
+
+__foraging_success__ a ⁠`units`⁠ object, the mass of prey (e.g. grams) consumed by the agent in the current time-step.
+
+__mass_change_value__ a ⁠`units`⁠ object, capturing the net change in the agent’s body mass (e.g., grams) over the current time-step.
+
+## Agent history
+
+The agent's condition is generally dynamic throughout the simulation and can be sufficient to answer questions motivating the IBM e.g. body-mass at the end of season. More generally however, a full record may be sought so the agent class contains a history component which stores the agent's condition in a spatiotemporal data structure. This allows examination of movement, time spent in behaviour states, physical condition etc at any point in time.
+
 
 # Moving agents, running the simulation (`IBM` class)
 
+Fundamental to the IBM is the movement of agents. Currently `roamR` supports two movement models, which have different data/input requirements: one relatively simple requiring only basic knowledge of an animals speed of movement, the other a more demanding correlated random walk that would require detailed tracking data and parameter estimation from a Hidden Markov Model (HMM). 
+
 ## Movement models
+
+Two agent movement methods are supported, presented here in order of complexity/data requirements.
+
+__Density informed__ this method uses density information to generate stochastic destinations for the agents, which are combined with activity budgets and basic speed information to give travel paths. The process is:
+
+1. Use the species' density information in a likelihood fashion to generate a target destination for an agent i.e. high density areas are relatively more likely to be chosen. Determine a feasible path from the current location to the destination - _feasible_ here meaning that the path does not cross any barriers (e.g. OWF, coastlines) and is within the bounding box of the simulation. The agents travel along the path is constrained/dictated by the agent's speed properties and activity budget over time, for example an hour of flying within a day coupled with an average speed is used to calculate expected travel distances, under assumed random walk properties.
+
+__Correlated Random Walk (CRW)__
 
 ## Agent evaluations
 
