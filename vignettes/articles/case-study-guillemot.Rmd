@@ -14,14 +14,12 @@ knitr::opts_chunk$set(
 # install.packages("pak")
 # pak::pkg_install("dmpstats/roamR")
 
-# install.packages("remotes")
-# remotes::install_github("dmpstats/roamR")
-
 library(roamR)
 library(sf)
 #library(stars)
 library(tidyverse)
 library(distributional)
+library(stars)
 ```
 
 # Overview
@@ -59,7 +57,7 @@ which will be a) described in detail and b) specified in `{roamR}` forms in the 
 
 ## IBM configuration
 
-The broad configuration of the IBM is specified via the function `ModelConfig()`.In the interest of speed, the example simulation here will not be large in terms of the number of agents to run - we'll opt for 100 agents (`n_agents`). The non-breeding season for these animals runs from approximately start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform 1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on the UTM 30N coordinate system (`ref_sys`). This will be the basis of ingesting and aligning the general spatial inputs. Note: the package currently requires all spatial inputs (e.g. density maps) to be provided in a common CRS projection ^[functionality to homogenise CRSs across spatial inputs during model initialization is expected to be implemented in `{roamR}` in the near future]. The `{sf}` package is generally used for dealing with spatial data (and the interlinked `{stars}` package for spatio-temporal).
+The broad configuration of the IBM is specified via the function `ModelConfig()`.In the interest of speed, the example simulation here will not be large in terms of the number of agents to run - we'll opt for 10 agents (`n_agents`). The non-breeding season for these animals runs from approximately start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform 1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on the UTM 30N coordinate system (`ref_sys`). This will be the basis of ingesting and aligning the general spatial inputs. Note: the package currently requires all spatial inputs (e.g. density maps) to be provided in a common CRS projection ^[functionality to homogenise CRSs across spatial inputs during model initialization is expected to be implemented in `{roamR}` in the near future]. The `{sf}` package is generally used for dealing with spatial data (and the interlinked `{stars}` package for spatio-temporal).
 
 
 ```{r}
@@ -68,9 +66,8 @@ utm30 <- st_crs(32630)
 
 ```
 
-The definition of start/finish locations of agents (`start_sites`, `end_sites`) is required to be provided as an `sf` object(s), which must contain columns `id` () and `prop` 
+Agent start and end locations (`start_sites`, `end_sites`) must be supplied as `sf` objects containing two required columns: `id` (a unique site identifier) and `prop` (the proportion of agents assigned to each site). In this example, we use the Isle of May as the sole starting location, specified by its geographic coordinates (longitude/latitude). Note that `end_sites` is currently ignored by the simulation, as the movement model assumes agents remain at their final locations once the simulation ends. As noted earlier, the site must be reprojected to the common UTM Zone 30N coordinate reference system.
 
-The location of the isle of may colony is simply defined here in long/lat by the island's location, which then needs to be re-projected into the common UTM 30N CRS.
 
 ```{r}
 # location of colony in long/lat degrees - start/finish locations
@@ -86,7 +83,7 @@ isle_may <- st_transform(isle_may, crs = utm30)
 ```
 
 
-In terms of bounding the entire simulation spatially, we've opted for a bounding box from X to X. Note this a hard boundary in terms of simulations - data outside this will have no influence. The resulting configuration (a `ModelConfig` object called `guill_ibm_config`) is:
+In terms of bounding the entire simulation spatially, we've opted for a bounding box from a previous study applied to this species [?REFERENCE]. Note this a hard boundary in terms of simulations - data outside this will have no influence. 
 
 ```{r}
 # AoC in UTM. Exact figures come from a previous lat/lon example
@@ -94,15 +91,14 @@ AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609)
 ```
 
 
-Start and end sites are well defined here, as we are operating on the IoM colony. The completed IBM configuration is:
-
+Passing the above configuration inputs to `ModelConfig()` creates a `<ModelConfig>` object, which we assigned to `guill_ibm_config`:
 
 ```{r}
 
 # IBM Settings - assume fixed for these simulations
 
 guill_ibm_config <- ModelConfig(
-  n_agents = 100,
+  n_agents = 10,
   ref_sys = utm30,
   aoc_bbx = AoC, 
   delta_x = 1000,
@@ -110,16 +106,101 @@ guill_ibm_config <- ModelConfig(
   delta_time = "1 day",
   start_date = date("2025-07-01"),
   end_date = date("2025-07-01") + 270, 
-  start_sites = isle_may ,
-  end_sites = isle_may
+  start_sites = isle_may
 )
 
+class(guill_ibm_config)
 
 ```
 
-
-
 ## Driver information
+
+Drivers define the environment that agents may interact with or respond, with
+each driver being specified via the `Driver()` function. In this application to
+the common guillemot, the following drivers are required - all provided as
+spatio-temporal datacubes (rasters):
+
+* Monthly species density surfaces, for both baseline and impacted scenarios
+* Monthly energy intake maps (kJ/h), for both baseline and impacted scenarios
+* Monthly average Sea Surface Temperature (SST) maps
+
+`{roamR}` enforces a strict requirement that all input variables be accompanied
+by appropriate measurement units. This ensures that all computations performed
+during simulation are unit-aware, allowing for accurate operations and
+conversions.
+
+We begin by uploading these datacubes, assigning measurement units where they are missing.
+
+ 
+```{r}
+# driver spatial surfaces
+
+spec_map <- readRDS("data/bioss_spec_map.rds") |> 
+   mutate(density =  units::set_units(density, "counts"))
+
+spec_imp_map <- readRDS("data/bioss_spec_imp_map.rds") |> 
+   mutate(density =  units::set_units(density, "counts"))
+
+intake_map <- readRDS("data/guill_energy_intake_map.rds")
+
+imp_intake_map <- readRDS("data/guill_impacted_energy_intake_map.rds")
+
+sst_map <- readRDS("data/bioss_sst_stars.rds") |> 
+  mutate(sst =  units::set_units(sst, "degree_Celsius"))
+
+```
+
+And now specify the corresponding drivers
+
+```{r}
+# Set up IBM drivers 
+
+dens_drv <- Driver(
+  id = "dens",
+  type = "resource",
+  descr = "species dens map",
+  stars_obj = spec_map
+)
+
+dens_imp_drv <- Driver(
+  id = "dens_imp",
+  type = "resource",
+  descr = "species redist map",
+  stars_obj = spec_imp_map
+)
+
+energy_drv <- Driver(
+  id = "energy",
+  type = "resource",
+  descr = "energy map",
+  stars_obj = intake_map
+)
+
+imp_energy_drv <- Driver(
+  id = "imp_energy",
+  type = "resource",
+  descr = "energy impact map",
+  stars_obj = imp_intake_map
+)
+
+
+sst_drv <- Driver(
+  id = "sst",
+  type = "habitat",
+  descr = "Sea Surface Temperature",
+  stars_obj = sst_map
+)
+
+
+# store as list for initialisation
+guill_drivers <- list(
+  dens = dens_drv,
+  imp_dens = dens_imp_drv,
+  energy = energy_drv,
+  imp_energy = imp_energy_drv,
+  sst = sst_drv
+)
+```
 
 
 ## Species information
