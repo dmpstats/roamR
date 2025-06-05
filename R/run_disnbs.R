@@ -5,6 +5,8 @@
 #'   of simulated agents. Either a `<numeric>` value, expressed in meters, or an
 #'   `<units>` object with a valid length units.
 #'
+#' @include simulate_agent_disnbs.R
+#'
 #' @export
 run_disnbs <- function(ibm,
                        run_scen = c("baseline", "impact", "baseline-and-impact"),
