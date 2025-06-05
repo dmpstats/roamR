@@ -10,7 +10,7 @@ ModelConfig(
   aoc_bbx = c(0, 0, 10, 10),
   delta_x = 0.25,
   delta_y = 0.25,
-  time_step = "1 day",
+  delta_time = "1 day",
   start_date = Sys.Date() - 5,
   end_date = Sys.Date(),
   start_sites = NULL,
@@ -31,7 +31,7 @@ occurs. If numeric, expects a 4-length vector specifying \code{xmin}, \code{ymin
 \item{delta_x, delta_y}{numeric, the cell (pixel) size in the x and y
 dimensions, respectively. Assumed to take the same units as \code{ref_sys}.}
 
-\item{time_step}{character string, defines the temporal resolution of the
+\item{delta_time}{character string, defines the temporal resolution of the
 model. Must be one of "day", "week", "month", "quarter" or "year", and can
 optionally be preceded by a positive integer and a space, and followed by
 "s".}
@@ -40,7 +40,7 @@ optionally be preceded by a positive integer and a space, and followed by
 simulation. Apart from the sites' geometry, this object must contain the
 following columns:
 \itemize{
-\item \code{site_id}: a unique identifier for each site.
+\item \code{id}: a unique identifier for each site.
 \item \code{prop}: the proportion of \code{n_agents} allocated at each site. The values
 in this column must sum to 1.
 }
@@ -91,7 +91,7 @@ config <- ModelConfig(
   aoc_bbx = c(0, 0, 5, 5),
   delta_x = 0.25,
   delta_y = 0.25,
-  time_step = "1 day",
+  delta_time = "1 day",
   start_date = as.Date("2022-09-01"),
   end_date = as.Date("2022-09-30"),
   start_sites = colonies,

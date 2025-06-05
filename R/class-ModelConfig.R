@@ -22,7 +22,7 @@
 #' @slot start_sites an `<sf>` object, defining the sites where agents start the
 #'   simulation. Apart from the sites' geometry, this object must contain the
 #'   following columns:
-#'    * `site_id`: a unique identifier for each site.
+#'    * `id`: a unique identifier for each site.
 #'    * `prop`: the proportion of `n_agents` allocated at each site. The values
 #'     in this column must sum to 1.
 #'
@@ -104,7 +104,7 @@ methods::setClass(
 #' @param start_sites an `<sf>` object, defining the sites where agents start the
 #'   simulation. Apart from the sites' geometry, this object must contain the
 #'   following columns:
-#'    * `site_id`: a unique identifier for each site.
+#'    * `id`: a unique identifier for each site.
 #'    * `prop`: the proportion of `n_agents` allocated at each site. The values
 #'     in this column must sum to 1.
 #'

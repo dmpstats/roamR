@@ -34,7 +34,7 @@ i.e. the spatial bounding box within which simulation occurs.}
 \item{\code{delta_x,delta_y}}{numeric, the cell (pixel) size in the x and y
 dimensions, respectively. Assumed to take the same units as \code{ref_sys}.}
 
-\item{\code{time_step}}{character string, defines the temporal resolution of the
+\item{\code{delta_time}}{character string, defines the temporal resolution of the
 model. Must be one of "day", "week", "month", "quarter" or "year", and can
 optionally be preceded by a positive integer and a space, and followed by
 "s".}
@@ -46,7 +46,7 @@ dates for the simulation period.}
 simulation. Apart from the sites' geometry, this object must contain the
 following columns:
 \itemize{
-\item \code{site_id}: a unique identifier for each site.
+\item \code{id}: a unique identifier for each site.
 \item \code{prop}: the proportion of \code{n_agents} allocated at each site. The values
 in this column must sum to 1.
 }

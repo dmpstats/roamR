@@ -1,7 +1,6 @@
 ---
-title: "Case Study: guillemot Isle of May"
-resource_files:
-  - images/roamR_schema.png
+title: 'Case Study: guillemot Isle of May'
+resource_files: images/roamR_schema.png
 ---
 
 ```{r, include = FALSE}
@@ -12,15 +11,23 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+# install.packages("pak")
+# pak::pkg_install("dmpstats/roamR")
+
+# install.packages("remotes")
+# remotes::install_github("dmpstats/roamR")
+
 library(roamR)
 library(sf)
+#library(stars)
 library(tidyverse)
+library(distributional)
 ```
 
 # Overview
-Here we use `roamR` to simulate the movement and energetics for a population of common guillemot (_Uria aalge_) on the Isle of May. For details on the `romaR` package, refer to the general guide (XX), with the general achitecture repeated here:
+Here we use `{roamR}` to simulate the movement and energetics for a population of common guillemot (_Uria aalge_) on the Isle of May. For details on the `{roamR}` package, refer to the general guide (XX), with the general achitecture repeated here:
 
-![roamR arhitecture](/images/roamR_schema.png)
+![{roamR} arhitecture](images/roamR_schema.png)
 
 
 The simulations here cover the non-breeding season (some 9 months from X to X) under two broad scenarios:
@@ -28,56 +35,58 @@ The simulations here cover the non-breeding season (some 9 months from X to X) u
 * An environment free of Off-Shore Windfarms (OWFs) - nominally the status quo
 * An environment with many synthetic OWF developments 
 
-The overall intention is to quantify the effects of potential displacement from these developments, based on counter-factual comparisons of animal's condition under these scenarios. In keeping with the architecture of the `roamR` package, the following main components will be populated:
+The overall intention is to quantify the effects of potential displacement from these developments, based on counter-factual comparisons of animal's condition under these scenarios. In keeping with the architecture of the `{roamR}` package, the following main components will be populated:
 
-* __IBM general settings__ (`ModelConfig`) sundry high-level controls for the simulation, such as the number of agents, broad spatial boundaries, spatial projections, time-steps, start & finish dates.
-* __Species-level information__ (`Species`) such as distributions governing initial bodymass, what behavioural states are possible, movement parameters, and how agents respond to their environment e.g.  avoidance of windfarms or landmass, costs associated with activity.
-* __Drivers__ (`Driver`) descriptions/data that define the environment that agents may interact with or respond to e.g. sea surface temperatures, locations of windfarms, coastlines, prey fields etc.
+* __IBM general settings__ (`<ModelConfig>`) sundry high-level controls for the simulation, such as the number of agents, broad spatial boundaries, spatial projections, time-steps, start & finish dates.
+* __Species-level information__ (`<Species>`) such as distributions governing initial bodymass, what behavioural states are possible, movement parameters, and how agents respond to their environment e.g.  avoidance of windfarms or landmass, costs associated with activity.
+* __Drivers__ (`<Driver>`) descriptions/data that define the environment that agents may interact with or respond to e.g. sea surface temperatures, locations of windfarms, coastlines, prey fields etc.
 
-The extent to which these can be populated will obviously vary, with the guillemot chosen here as a population that is relatively well studied. `roamR` is intentionally general and has substantial functionality that will not be used in a simulation. We will populate various elements of the simulation in turn, before turning to running the simulation and post-processing the results.
+The extent to which these can be populated will obviously vary, with the guillemot chosen here as a population that is relatively well studied. `{roamR}` is intentionally general and has substantial functionality that will not be used in a simulation. We will populate various elements of the simulation in turn, before turning to running the simulation and post-processing the results.
 
 
 # Input data
-As a relatively well-studied species/population, there are many `roamR` elements to populate. Mainly these are
+As a relatively well-studied species/population, there are many `{roamR}` elements to populate. Mainly these are:
 
 * Density maps
 * SST
 * Activity data
 * Energetics
-* Redistribution rates
 * Bodyweight
-* Mortality
 * Bodymass conversion
 
-which will be a) described in detail and b) specified in `roamR` forms in the following sections. `roamR` can be run with very little data (an example of a more data sparse species is given in the test study XX), with the results being correspondingly less informative and stochastic.
+which will be a) described in detail and b) specified in `{roamR}` forms in the following sections. `{roamR}` can be run with very little data (an example of a more data sparse species is given in the test study XX), with the results being correspondingly less informative and stochastic.
 
 
 ## IBM configuration
 
-In the interest of speed, the example simulation here will not be large in terms of the number of agents to run - we'll opt for 10 agents (`n_agents`). The non-breeding season for these animals runs from approximately start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform 1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on the UTM 30N coordinate system (`ref_sys`). Note, this will be the basis of ingesting and aligning the general spatial inputs e.g. spatio-temporal density maps will be converted to 1km^2 UTM 30N data-cubes when initialising the IBM. The `sf` package is generally used for dealing with spatial data (and the interlinked `stars` package for spatio-temporal).
+The broad configuration of the IBM is specified via the function `ModelConfig()`.In the interest of speed, the example simulation here will not be large in terms of the number of agents to run - we'll opt for 100 agents (`n_agents`). The non-breeding season for these animals runs from approximately start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform 1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on the UTM 30N coordinate system (`ref_sys`). This will be the basis of ingesting and aligning the general spatial inputs. Note: the package currently requires all spatial inputs (e.g. density maps) to be provided in a common CRS projection ^[functionality to homogenise CRSs across spatial inputs during model initialization is expected to be implemented in `{roamR}` in the near future]. The `{sf}` package is generally used for dealing with spatial data (and the interlinked `{stars}` package for spatio-temporal).
 
 
 ```{r}
-# UTM zone 30N
+# Set UTM zone 30N
 utm30 <- st_crs(32630)
 
 ```
 
-The location of the isle of may colony is simply defined here in lat/long by the island's location:
+The definition of start/finish locations of agents (`start_sites`, `end_sites`) is required to be provided as an `sf` object(s), which must contain columns `id` () and `prop` 
 
+The location of the isle of may colony is simply defined here in long/lat by the island's location, which then needs to be re-projected into the common UTM 30N CRS.
 
 ```{r}
-# location of colony - start/finish locations
+# location of colony in long/lat degrees - start/finish locations
 isle_may <- st_sf(
   id = "Isle of May",
   prop = 1,
   geom = st_sfc(st_point(c(-2.5667, 56.1833))),
-  crs = 4326
-)
+  crs = 4326) 
+
+# re-project to UTM 30N
+isle_may <- st_transform(isle_may, crs = utm30)
+
 ```
 
 
-In terms of bounding the entire simulation spatially, we've opted for a bounding box from X to X. Note this a hard boundary in terms of simulations - data outside this will have no influence. The resulting configuration (a `ModelConfig` object called `guill_ibm-config`) is:
+In terms of bounding the entire simulation spatially, we've opted for a bounding box from X to X. Note this a hard boundary in terms of simulations - data outside this will have no influence. The resulting configuration (a `ModelConfig` object called `guill_ibm_config`) is:
 
 ```{r}
 # AoC in UTM. Exact figures come from a previous lat/lon example
@@ -93,16 +102,16 @@ Start and end sites are well defined here, as we are operating on the IoM colony
 # IBM Settings - assume fixed for these simulations
 
 guill_ibm_config <- ModelConfig(
-  n_agents = 10,
+  n_agents = 100,
   ref_sys = utm30,
   aoc_bbx = AoC, 
   delta_x = 1000,
   delta_y = 1000,
-  time_step = "1 day",
+  delta_time = "1 day",
   start_date = date("2025-07-01"),
   end_date = date("2025-07-01") + 270, 
-  start_sites = isle_may |> st_transform(utm30),
-  end_sites = isle_may |> st_transform(utm30)
+  start_sites = isle_may ,
+  end_sites = isle_may
 )
 
 

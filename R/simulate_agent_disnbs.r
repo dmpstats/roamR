@@ -22,8 +22,6 @@
 #' @returns A modified `<Agent>` object containing the complete simulated
 #'   trajectory and condition history of the agent over the simulation period,
 #'   based on the provided inputs.
-#'
-#' @export
 simulate_agent_disnbs <- function(agent,
                                   drivers,
                                   states_profile,
@@ -352,7 +350,6 @@ extract_dns_layer <- function(dns_strs, cfg, timestep){
 #' @param imp_dens TODO
 #'
 #' @returns A track
-#' @export
 #'
 #' @examples TBD
 
