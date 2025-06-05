@@ -30,10 +30,6 @@ agent. Used to simulate energetic dynamics.}
 A modified \verb{<Agent>} object containing the complete simulated
 trajectory and condition history of the agent over the simulation period,
 based on the provided inputs.
-
-A modified \verb{<Agent>} object containing the agent's full simulated
-trajectory and condition history over the simulation period, based on the
-provided inputs.
 }
 \description{
 Executes an individual-based simulation for a single \verb{<Agent>} object under
