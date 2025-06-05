@@ -150,7 +150,7 @@ sst_map <- readRDS("data/bioss_sst_stars.rds") |>
 
 ```
 
-And now specify the corresponding drivers
+Next we specify the corresponding drivers, and stored the as a list of `<Driver>` objects.
 
 ```{r}
 # Set up IBM drivers 
@@ -204,6 +204,86 @@ guill_drivers <- list(
 
 
 ## Species information
+
+Species-level information is defined using the `Species()` function, which
+depends on a set of input objects. For clarity and modularity, these inputs
+should be prepared and specified beforehand.
+
+### States Profile
+
+We begin by defining the behavioural states to include in the model. Each state
+represents a specific activity, characterized by parameters such as energy
+expenditure, time allocation, and movement speed.
+
+States are created using the `State()` function. `{roamR}` supports flexible
+specification of state properties, allowing the incorporation of stochastic
+variation at both the population and individual (agent) level.
+
+Here we include 4 states:
+* flight
+* diving
+* active on water (swimming)
+* inactive on water (resting)
+
+
+We start with the flight state. For the current simulation, we assume the
+energetic cost of flying for each agent varies throughout the simulation,
+following a Normal distribution with mean `507.6 kJ/h` and standard deviation of
+`237.6 kJ/h`. On the other hand, the average speed of each agent is fixed over
+the simulation, with agents speeds drawn from a uniform distribution, as
+specified below.
+
+```{r}
+flight_cost_fn <- function(mean, sd){
+  e <- rnorm(1, mean, sd)
+  (max(e, 1)) |>
+    units::set_units("kJ/h")
+}
+
+flight <- State(
+  id = "flight", 
+  energy_cost = VarFn(
+    flight_cost_fn, 
+    args_spec = list(mean = 507.6, sd = 237.6), 
+    units = "kJ/hour"
+    ), 
+  time_budget = VarDist(0.056, "hours/day"), 
+  speed = VarDist(dist_uniform(10, 20), "m/s")
+)
+
+```
+
+
+The diving activity.
+
+```{r}
+# 
+# dive_cost_fn <- function(t_dive, species){
+# 
+#   x <- units::drop_units(t_dive)
+# 
+#   rand_par <- generate(species@states_profile$dive@energy_cost, 1) |>
+#     units::drop_units()
+# 
+#   (max(rand_par*sum(1-exp(-x/1.23))/sum(x)*60, 1)) |>
+#     units::set_units("kJ/h")
+# 
+# }
+# 
+#   dive = State(
+#     id = "diving",
+#     energy_cost = VarDist(dist_normal(3.71, 1.3), units = NULL), # from spreadsheet
+#     time_budget = VarDist(dist_degenerate(3.11), "hours/day"), # roughly based on Lila's summaries
+#     speed = VarDist(dist_uniform(0, 1), "m/s") # placeholder, not very relevant
+#   )
+
+
+```
+
+
+### Driver Responses
+
+
 
 
 
