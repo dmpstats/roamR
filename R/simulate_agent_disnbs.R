@@ -233,6 +233,8 @@ simulate_agent_disnbs <- function(agent,
     #   night_prop <- stars::st_extract(night_proportion, step_loc, time_column = "tm")[[1]]
     # }
 
+    if(is.na(net_energy)) browser()
+
     # rebalance states budgets based on energetics
     states_budget(agent@condition) <- rebalance_states(
       states_budget(agent@condition),
@@ -440,7 +442,7 @@ sample_cell <- function(strs, n = 1){
 
   rast_vect <- as.vector(strs[[1]])
 
-  if(any(rast_vect < 0)){
+  if(any(rast_vect < 0, na.rm = TRUE)){
     cli::cli_abort("All values in the first attribute of {.arg x} must be non-negative.")
   }
 
