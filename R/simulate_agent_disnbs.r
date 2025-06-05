@@ -22,8 +22,6 @@
 #' @returns A modified `<Agent>` object containing the complete simulated
 #'   trajectory and condition history of the agent over the simulation period,
 #'   based on the provided inputs.
-#'
-#' @export
 simulate_agent_disnbs <- function(agent,
                                   drivers,
                                   states_profile,
