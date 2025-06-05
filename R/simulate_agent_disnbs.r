@@ -352,7 +352,6 @@ extract_dns_layer <- function(dns_strs, cfg, timestep){
 #' @param imp_dens TODO
 #'
 #' @returns A track
-#' @export
 #'
 #' @examples TBD
 
