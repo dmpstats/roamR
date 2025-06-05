@@ -16,10 +16,11 @@ knitr::opts_chunk$set(
 
 library(roamR)
 library(sf)
-#library(stars)
 library(tidyverse)
 library(distributional)
 library(stars)
+library(FNN) # dependency for stars::st_warp()
+library(future)
 ```
 
 # Overview
@@ -173,9 +174,10 @@ intake_map <- readRDS("data/guill_energy_intake_map.rds")
 imp_intake_map <- readRDS("data/guill_impacted_energy_intake_map.rds")
 
 sst_map <- readRDS("data/bioss_sst_stars.rds") |> 
-  mutate(sst =  units::set_units(sst, "degree_Celsius"))
+  mutate(sst =  units::set_units(sst, "degree_Celsius")) |> 
+  stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
 
-#stars::st_warp(sst_map, crs = sf::st_crs(spec_map),threshold  = 20000) 
+#plot(sst_map)
 
 ```
 
@@ -448,9 +450,31 @@ guill_ibm <- rmr_initiate(
 
 ```
 
-
-
 ## Running the simulation
+
+
+```{r}
+
+
+
+run_disnbs(
+  ibm = guill_ibm,
+  run_scen = "baseline-and-impact", 
+  dens_id = "dens", 
+  intake_id = "energy", 
+  imp_dens_id = "dens_imp", 
+  imp_intake_id = "imp_energy", 
+  feed_state_id = "diving", 
+  roost_state_id = "inactive_on_water", 
+  feed_avg_net_energy = units::set_units(422, "kJ/h"), 
+  target_energy = units::set_units(1, "kJ"), 
+  smooth_body_mass = bm_smooth_opts(time_bw = "7 days"), 
+  waypnts_res = 1000, 
+  seed = 1990
+)
+
+
+```
 
 
 
