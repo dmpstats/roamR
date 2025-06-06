@@ -591,7 +591,7 @@ p_activity <- guill_history |>
   scale_fill_brewer(palette = "Set3", direction = -1) +
   facet_wrap(~scenario, ncol = 1) +
   theme(legend.position = "bottom") +
-  labs(y = "Activity budget (day proportion)", x = "timestep", title = "Susceptible Agent")
+  labs(y = "Activity budget (day proportion)", x = "timestep", title = "Sensitive Agent")
   
 p_activity
 
@@ -616,7 +616,7 @@ p_activity <- guill_history |>
   scale_fill_brewer(palette = "Set3", direction = -1) +
   facet_wrap(~scenario, ncol = 1) +
   theme(legend.position = "bottom") +
-  labs(y = "Activity budget (day proportion)", x = "timestep", title = "Non-susceptible Agent")
+  labs(y = "Activity budget (day proportion)", x = "timestep", title = "Non-sensitive Agent")
   
 p_activity
 
