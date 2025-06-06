@@ -445,6 +445,7 @@ guill <- Species(
 ## Initialisation
 
 ```{r}
+set.seed(1009)
 guill_ibm <- rmr_initiate(
   model_config = guill_ibm_config,
   species = guill,
@@ -528,7 +529,7 @@ p_bdm <- guill_history |>
   
 p_bdm
 
-#ggsave("images/bodymass.png", p_bdm, width = 12, height = 12)
+ggsave("images/bodymass.png", p_bdm, width = 12, height = 12)
   
 ```
 
@@ -539,11 +540,11 @@ p_bdm
 
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
-  filter(suscep == FALSE, agent == 3) |> 
+  filter(suscep == FALSE) |> 
+  filter(agent == last(agent)) |> 
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario)) +
-  #scale_color_brewer(palette = "Set1") +
   scale_color_brewer(palette = "Set1") +
   scale_fill_distiller(palette = "Greys", direction = 1) +
   facet_wrap(~month, ncol = 3) +
@@ -551,7 +552,7 @@ p_tracks <- guill_history |>
   
 p_tracks
 
-#ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 15)
+ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 15)
 
 ```
 
@@ -560,7 +561,8 @@ p_tracks
 
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
-  filter(suscep == TRUE, agent == 1) |> 
+  filter(suscep == TRUE) |> 
+  filter(agent == last(agent)) |> 
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario)) +
@@ -580,7 +582,8 @@ Activity budget
 ```{r}
 p_activity <- guill_history |> 
   drop_na(timestamp) |> 
-  filter(suscep == TRUE, agent == 1) |> 
+  filter(suscep == TRUE) |> 
+  filter(agent == last(agent)) |> 
   rename(
     flight = states_budget.flight,
     diving = states_budget.diving,
@@ -605,7 +608,8 @@ ggsave("images/activity_susceptile_agent.png", p_activity, width = 10, height = 
 ```{r}
 p_activity <- guill_history |> 
   drop_na(timestamp) |> 
-  filter(suscep == FALSE, agent == 3) |> 
+  filter(suscep == FALSE) |> 
+  filter(agent == last(agent)) |>  
   rename(
     flight = states_budget.flight,
     diving = states_budget.diving,
