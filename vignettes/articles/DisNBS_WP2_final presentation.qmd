@@ -1,15 +1,33 @@
 ---
 title: "DisNBS pres"
 author: "DMP"
+execute:
+  echo: true
 editor: visual
 format:
   revealjs: 
     theme: dark
+    include-in-header:
+      - file: zoom-in-out.html
 ---
 
-# DisNBS
+# DisNBS work-package 2
 
 Distribution of Seabirds in the Non-Breeding Season
+
+## Outline {.scrollable}
+
+- Project overview/recap
+- `roamR` 
+  - package structure
+  - workflow
+  - delve into components
+- Break
+- Case study: Guillemot Isle of May
+  - IBM setup and population
+  - small scale run
+  - examination of outputs
+- Questions
 
 ## Project Overview
 
@@ -21,17 +39,81 @@ Distribution of Seabirds in the Non-Breeding Season
 
 ## WP1 design
 
+![](images/WP1_schema_nocap.svg)
+
 <!-- ================================================================================================ -->
 
 # Package `roamR`
 
-R package of tools to support IBMs
+R package of tools and framework to support IBMs
 
 ## `roamR` solution
 
--   Framework and toolset
--   Generality
--   Checks e.g. units
+-   Framework and toolset - forces an abstract structure on the problem
+-   Emphasis on generality - the data and mechanics of simulation for different species can be markedly different 
+-   Standardises inputs/outputs and performs checks
+
+Standarises inputs/outputs and performs checks
+Focus can be made on how things relate to one another
+Removes issues with continually rewriting similar funcitonality
+
+
+## Architecture overview
+
+We've created an IBM structure that ought to cover all contingencies. An IBM consists of:
+
+- The simulation engine and wrapper
+- The species
+- The environment
+- The agents
+- Layers of stochasticity 
+- [perturbation, matched runs]
+- Post-processing
+
+## Architecture overview: wrapper
+
+The simulation engine and wrapper - high-level controls:
+
+- the number of agents, 
+- spatial/temporal boundaries e.g. a bounding box, simulation period
+- fundamental spatial coordinate system
+- agent movement methods
+- parallelisation
+
+## Architecture overview: species
+
+"Species" is the population being simulated i.e. can be a colony, which will have population level properties e.g.:
+
+- distributions of initial body mass, flying speeds
+- behavioural states (e.g. foraging, resting, flying)
+- functional responses to the environment (e.g. move towards prey, avoid OWF)
+- energetics of behavoural states
+
+
+## Architecture overview: environment
+
+The spatiotemporal descriptions of the agent’s environment within the simulation frame e.g. 
+
+  - natural boundaries (coast), 
+  - the Sea Surface Temperature (SST) over time, 
+  - man-made structures (e.g. OWF)
+  - prey fields, energy maps
+
+## Architecture overview: agent
+
+The agents: 
+
+- the basic simulation element 
+- largely defined from higher components 
+- are moved through and respond to their environment
+- have properties monitored e.g. net energy intake, location, behavioural states etc
+- the basis of monitoring the simulation and any counterfactuals
+
+## Architecture
+The `roamR` design scheme
+
+![](images/roamR_schema.png)
+
 
 ## Architecture
 
@@ -56,11 +138,25 @@ R package of tools to support IBMs
 
 ## Movement models
 
--   Stochaist
+
 
 <!-- ================================================================================================ -->
 
 # `roamR` workflow
+
+## Workflow {.scrollable}
+
+::: {.incremental}
+1. ___Configure simulation___ at a high-level, including the spatial and temporal boundaries, projections, number of agents etc.
+1. ___Define species___, for example initial body mass distributions, flight speed distributions, activity states and their energetic implications, functional relationships between the species and the environment e.g. how SST affects energy, how OWFs influence movement/distribution.
+1. ___Define environment___, essentially anything spatio-temporal that the animals are thought to respond to 1. coastline, man-made structures (e.g. OWF), prey distributions, SST, bathymetry etc.
+1. ___Combine components___ into an IBM object.
+1. ___Run simulation___, which creates agents, parallelises calculations, moves agents through the environment, and records their properties over time.
+1. ___Alter simulation___ elements to reflect a perturbation (presence of OWF).
+1. ___Re-run___ the simulation with the perturbation.
+1. ___Query simulated animals___, with counterfactuals based on within-agent comparisons over perturbation scenarios.
+::: 
+
 
 ## `ModelConfig`
 
@@ -80,15 +176,318 @@ R package of tools to support IBMs
 
 # Case study
 
-Guillemot Isle of May (data rich)
+Guillemot Isle of May
 
 ## Overview
 
-## Input data sources
 
-## Set up `roamR`
+## Simulation level config
+
+```{r}
+#| eval: false
+# Set UTM zone 30N
+utm30 <- st_crs(32630)
+
+# location of colony in long/lat degrees - start/finish locations
+isle_may <- st_sf(
+  id = "Isle of May",
+  prop = 1,
+  geom = st_sfc(st_point(c(-2.5667, 56.1833))),
+  crs = 4326) 
+
+# re-project to UTM 30N
+isle_may <- st_transform(isle_may, crs = utm30)
+
+# AoC in UTM. Exact figures come from a previous lat/lon example
+AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
+```
+
+## Simulation level config
+
+Passing the above configuration inputs to `ModelConfig()` creates a `<ModelConfig>` object, which we assigned to `guill_ibm_config`:
+
+```{r}
+#| eval: false
+  
+# IBM Settings - assume fixed for these simulations
+
+guill_ibm_config <- ModelConfig(
+  n_agents = 10,
+  ref_sys = utm30,
+  aoc_bbx = AoC, 
+  delta_x = 1000,
+  delta_y = 1000,
+  delta_time = "1 day",
+  start_date = date("2025-07-01"),
+  end_date = date("2025-07-01") + 270, 
+  start_sites = isle_may
+)
+
+class(guill_ibm_config)
+
+```
+
+## Input data sources {.scrollable}
+
+```{r}
+#| eval: false
+
+# Set up IBM drivers 
+
+dens_drv <- Driver(
+  id = "dens",
+  type = "resource",
+  descr = "species dens map",
+  stars_obj = spec_map,
+  obj_active = "stars"
+)
+
+dens_imp_drv <- Driver(
+  id = "dens_imp",
+  type = "resource",
+  descr = "species redist map",
+  stars_obj = spec_imp_map,
+  obj_active = "stars"
+)
+
+energy_drv <- Driver(
+  id = "energy",
+  type = "resource",
+  descr = "energy map",
+  stars_obj = intake_map,
+  obj_active = "stars"
+)
+
+imp_energy_drv <- Driver(
+  id = "imp_energy",
+  type = "resource",
+  descr = "energy impact map",
+  stars_obj = imp_intake_map,
+  obj_active = "stars"
+)
+
+
+sst_drv <- Driver(
+  id = "sst",
+  type = "habitat",
+  descr = "Sea Surface Temperature",
+  stars_obj = sst_map,
+  obj_active = "stars"
+)
+
+
+# store as list for initialisation
+guill_drivers <- list(
+  dens = dens_drv,
+  imp_dens = dens_imp_drv,
+  energy = energy_drv,
+  imp_energy = imp_energy_drv,
+  sst = sst_drv
+)
+```
+
+## Define species {.scrollable}
+
+
+```{r}
+#| eval: false
+
+# user-defined function returning the energy cost of flying
+flight_cost_fn <- function(mean, sd){
+  e <- rnorm(1, mean, sd)
+  (max(e, 1)) |>
+    units::set_units("kJ/h")
+}
+
+flight <- State(
+  id = "flight", 
+  energy_cost = VarFn(
+    flight_cost_fn, 
+    args_spec = list(mean = 507.6, sd = 237.6), 
+    units = "kJ/hour"
+    ), 
+  time_budget = VarDist(0.056, "hours/day"), 
+  speed = VarDist(dist_uniform(10, 20), "m/s")
+)
+
+```
+
+
+## Define species
+
+```{r}
+#| eval: false
+
+guill_states <- list(
+  flight = flight,
+  dive = dive,
+  active = active,
+  inactive = inactive
+)
+```
+
+## Define species
+
+
+```{r}
+#| eval: false
+
+# define costing function
+dive_cost_fn <- function(t_dive, alpha_mean, alpha_sd){
+  alpha <- rnorm(1, alpha_mean, alpha_sd)
+  (max(alpha*sum(1-exp(-t_dive/1.23))/sum(t_dive)*60, 1)) |>
+    units::set_units("kJ/h")
+}
+
+# Construct <State> object
+dive <- State(
+  id = "diving", 
+  energy_cost = VarFn(
+    dive_cost_fn, 
+    args_spec = list(t_dive = 1.05, alpha_mean = 3.71, alpha_sd = 1.3), 
+    units = "kJ/hour"
+    ), 
+  time_budget = VarDist(3.11, "hours/day"), 
+  speed = VarDist(dist_uniform(0, 1), "m/s")
+)
+
+```
+
+## Define species
+
+```{r}
+#| eval: false
+
+active_water_cost_fn <- function(sst, int_mean, int_sd){
+  int <- rnorm(1, int_mean, int_sd)
+  (max(int-(2.75*sst), 1)) |>
+    units::set_units("kJ/h")
+}
+
+
+# Construct <State> object
+active <- State(
+  id = "active_on_water", 
+  energy_cost = VarFn(
+    active_water_cost_fn, 
+    args_spec = list(sst = "driver", int_mean = 113, int_sd = 22), 
+    units = "kJ/hour"
+  ), 
+  time_budget = VarDist(10.5, "hours/day"), 
+  speed = VarDist(dist_uniform(0, 1), "m/s")
+)
+```
+
+## Define species
+
+```{r}
+#| eval: false
+
+inactive_water_cost_fn <- function(sst, int_mean, int_sd){
+  int <- rnorm(1, int_mean, int_sd)
+  (max(int-(2.75*sst), 1)) |>
+    units::set_units("kJ/h")
+}
+
+
+inactive <- State(
+  id = "inactive_on_water", 
+  energy_cost = VarFn(
+    active_water_cost_fn, 
+    args_spec = list(sst = "driver", int_mean = 72.2, int_sd = 22), 
+    units = "kJ/hour"
+  ), 
+  time_budget = VarDist(10.3, "hours/day"), 
+  speed = VarDist(dist_uniform(0, 1), "m/s")
+)
+
+```
+
+## Define species {.scrollable}
+
+In addition to the parameters defined above, we set the remaining species-level
+properties, including the body mass distribution (used to initialise each
+agent’s body mass) and the energy-to-mass conversion rate, which is assumed
+constant across agents and simulated time steps.
+
+```{r}
+#| eval: false
+  
+guill <- Species(
+  id = "guill",
+  common_name = "guillemot",
+  scientific_name = "Uria Aalge",
+  body_mass_distr = VarDist(dist_normal(mean = 929, sd = 56), "g"),
+  energy_to_mass_distr = VarDist(0.072, "g/kJ"),
+  states_profile = guill_states,
+  driver_responses = list(resp_dens, resp_imp_dens)
+)
+
+```
+
+## Define species {.scrollable}
+
+```{r}
+#| eval: false
+
+resp_dens <- DriverResponse(
+  driver_id = "dens",
+  movement = MoveInfluence(
+    prob = VarDist(distributional::dist_degenerate(1)),
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "bsln"
+  )
+)
+
+resp_imp_dens <- DriverResponse(
+  driver_id = "dens_imp",
+  movement = MoveInfluence(
+    prob = VarDist(distributional::dist_normal(0.67, sd = 0.061)),
+    type = "attraction",
+    mode = "cell-value",
+    sim_stage = "imp"
+  )
+)
+```
+
+## Prep the IBM
+
+```{r}
+#| eval: false
+
+guill_ibm <- rmr_initiate(
+  model_config = guill_ibm_config,
+  species = guill,
+  drivers = guill_drivers
+)
+```
 
 ## Run `roamR`
+
+```{r}
+#| eval: false
+  
+plan(multisession, workers = future::availableCores() - 2)
+
+guill_results <- run_disnbs(
+  ibm = guill_ibm,
+  run_scen = "baseline-and-impact", 
+  dens_id = "dens", 
+  intake_id = "energy", 
+  imp_dens_id = "dens_imp", 
+  imp_intake_id = "imp_energy", 
+  feed_state_id = "diving", 
+  roost_state_id = "inactive_on_water", 
+  feed_avg_net_energy = units::set_units(422, "kJ/h"), 
+  target_energy = units::set_units(1, "kJ"), 
+  smooth_body_mass = bm_smooth_opts(time_bw = "7 days"), 
+  waypnts_res = 1000, 
+  seed = 1990
+)
+
+
+```
 
 ## Output overview
 
@@ -100,11 +499,7 @@ Guillemot Isle of May (data rich)
 
 ## Counterfactuals
 
-# Ultility
-
-## Example use: PVA
-
-<!-- ================================================================================================ -->
+# Utility
 
 # User Interface
 
