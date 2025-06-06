@@ -277,6 +277,7 @@ simulate_agent_disnbs <- function(agent,
 
     location(agent) <- sf::st_geometry(step_loc)[[1]]
     agent@condition@timestep <- step
+    agent@condition@timestamp <- as.POSIXct(dnbs_cfg$time_grid[step], "UTC")
     agent@condition@energy_expenditure <- units::set_units(net_energy, "kJ")
     agent@condition@states_cost <- lapply(state_unit_costs, units::set_units, "kJ/h")
 
