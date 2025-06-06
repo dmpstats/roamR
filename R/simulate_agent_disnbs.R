@@ -98,6 +98,7 @@ simulate_agent_disnbs <- function(agent,
   # rmr_initiate()
   hist_0 <- sf::st_sf(
     timestep = 0L,
+    timestamp = as.POSIXct(NA),
     track_id = track_id,
     body_mass = body_mass(agent),
     states_budget = agent@condition@states_budget,
@@ -226,14 +227,7 @@ simulate_agent_disnbs <- function(agent,
     # get night-time fraction at current step
     night_prop <- stars::st_extract(night_proportion, step_loc, time_column = "tm")[[1]]
 
-    # # hack to deal with NAs in night_prop
-    # if(is.na(night_prop)){
-    #   #browser()
-    #   step_loc <- nudge_pnt_into_bbox(step_loc, sf::st_bbox(night_proportion))
-    #   night_prop <- stars::st_extract(night_proportion, step_loc, time_column = "tm")[[1]]
-    # }
-
-    if(is.na(net_energy)) browser()
+    #if(is.na(net_energy)) browser()
 
     # rebalance states budgets based on energetics
     states_budget(agent@condition) <- rebalance_states(
@@ -287,6 +281,7 @@ simulate_agent_disnbs <- function(agent,
 
     hist[[ step ]] <- sf::st_sf(
       timestep = agent@condition@timestep,
+      timestamp = agent@condition@timestamp,
       track_id = track_id,
       body_mass = body_mass(agent),
       states_budget = agent@condition@states_budget,
