@@ -43,9 +43,9 @@ by the movement model. Currently supports 2 options:
 \item{\code{sim_stage}}{A \code{character} string, specifying at which stage of the simulation is driver applied
 by the movement model. Currently supports three options:
 \itemize{
-\item "baseline" (default): TODO
-\item "impact": TODO
-\item "baseline-and-impact": TODO
+\item "bsln" (default): TODO
+\item "imp": TODO
+\item "bsln-imp": TODO
 }}
 }}
 

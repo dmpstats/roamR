@@ -27,9 +27,9 @@
 #'    - "cell-value": TODO
 #' @slot sim_stage A `character` string, specifying at which stage of the simulation is driver applied
 #'   by the movement model. Currently supports three options:
-#'    - "baseline" (default): TODO
-#'    - "impact": TODO
-#'    - "baseline-and-impact": TODO
+#'    - "bsln" (default): TODO
+#'    - "imp": TODO
+#'    - "bsln-imp": TODO
 #'
 #' @include class-VarDist.R
 #'
@@ -73,16 +73,16 @@ methods::setClass(
 #'    - "cell-value": TODO
 #' @param sim_stage A `character` string, specifying at which stage of the simulation is driver applied
 #'   by the movement model. Currently supports three options:
-#'    - "baseline" (default): TODO
-#'    - "impact": TODO
-#'    - "baseline-and-impact": TODO
+#'    - "bsln" (default): TODO
+#'    - "imp": TODO
+#'    - "bsln-imp": TODO
 #'
 #' @export
 MoveInfluence <- function(prob = VarDist(),
                           fn = function(x) 0,
                           type = c("null", "attraction", "repulsion"),
                           mode = c("vector-field", "cell-value"),
-                          sim_stage = c("baseline", "impact", "baseline-and-impact")
+                          sim_stage = c("bsln", "imp", "bsln-imp")
                           ){
   # input validation
   type <- rlang::arg_match(type)
