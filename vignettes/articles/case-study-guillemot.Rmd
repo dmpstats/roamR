@@ -521,12 +521,14 @@ guill_history
 
 p_bdm <- guill_history |> 
   ggplot() +
-  geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), size = 1) +
+  geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
   scale_color_brewer(palette = "Set1") +
   theme(legend.position = "bottom") +
   facet_wrap(~agent, ncol = 2, scales = "free")
   
-ggsave("images/bodymass.png", p_bdm, width = 12, height = 12)
+p_bdm
+
+#ggsave("images/bodymass.png", p_bdm, width = 12, height = 12)
   
 ```
 
@@ -549,7 +551,7 @@ p_tracks <- guill_history |>
   
 p_tracks
 
-ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 15)
+#ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 15)
 
 ```
 
@@ -558,7 +560,7 @@ ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 
 
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
-  filter(suscep == TRUE, agent == 2) |> 
+  filter(suscep == TRUE, agent == 1) |> 
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario)) +
@@ -578,7 +580,7 @@ Activity budget
 ```{r}
 p_activity <- guill_history |> 
   drop_na(timestamp) |> 
-  filter(suscep == TRUE, agent == 2) |> 
+  filter(suscep == TRUE, agent == 1) |> 
   rename(
     flight = states_budget.flight,
     diving = states_budget.diving,
