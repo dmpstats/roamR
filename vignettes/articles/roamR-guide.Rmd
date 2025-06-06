@@ -334,7 +334,7 @@ As a mass-agent IBM, these are not single values, but distributions representing
 
 ```{r, eval=FALSE}
 
-devtools::install_github(“dmpstats/roamR”, ref = "master")
+devtools::install_github("dmpstats/roamR", ref = "master")
 ```
 
 Noting an authorisation token may be required if the repository is not yet public.

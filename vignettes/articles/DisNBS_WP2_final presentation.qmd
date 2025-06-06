@@ -1,6 +1,6 @@
 ---
-title: "DisNBS pres"
-author: "DMP"
+# title: "DisNBS WP2"
+# author: "DMP"
 execute:
   echo: true
 editor: visual
@@ -29,19 +29,30 @@ Distribution of Seabirds in the Non-Breeding Season
   - examination of outputs
 - Questions
 
-## Project Overview
 
-## DisNBS brief
+## The DisNBS IBM 
 
--   blah
+For WP2:
 
-## Objectives
+- Seeking to develop an IBM that can explore impact scenarios for UK seabirds in the non-breeding season
+- A complement to seaBORD, which is an IBM restricted to the breeding season
+- Should be general as possible, so that it can be applied to a range of species and scenarios
+- Note: Species can have markedly different levels of information
 
 ## WP1 design
+The IBM components were established in work package 1
 
 ![](images/WP1_schema_nocap.svg)
 
 <!-- ================================================================================================ -->
+
+## WP1 design
+
+- The IBM was programmed in R (open-source, transparent)
+- It is a package, which is more robust and maintainable than a series of scripts
+- Is customisable where needed, with tools to assist this
+- It formalises many of the repeated elements in an IBM, leaving focus on clearly defined customisable components i.e. mainly how species interact with the environment
+
 
 # Package `roamR`
 
@@ -52,15 +63,13 @@ R package of tools and framework to support IBMs
 -   Framework and toolset - forces an abstract structure on the problem
 -   Emphasis on generality - the data and mechanics of simulation for different species can be markedly different 
 -   Standardises inputs/outputs and performs checks
-
-Standarises inputs/outputs and performs checks
-Focus can be made on how things relate to one another
-Removes issues with continually rewriting similar funcitonality
+- Focus can be made on how things relate to one another
+- Removes issues with continually rewriting similar IBM functionality
 
 
 ## Architecture overview
 
-We've created an IBM structure that ought to cover all contingencies. An IBM consists of:
+We've created an IBM structure that ought to cover all contingencies, which consists of:
 
 - The simulation engine and wrapper
 - The species
@@ -80,6 +89,7 @@ The simulation engine and wrapper - high-level controls:
 - agent movement methods
 - parallelisation
 
+
 ## Architecture overview: species
 
 "Species" is the population being simulated i.e. can be a colony, which will have population level properties e.g.:
@@ -98,6 +108,14 @@ The spatiotemporal descriptions of the agent’s environment within the simulati
   - the Sea Surface Temperature (SST) over time, 
   - man-made structures (e.g. OWF)
   - prey fields, energy maps
+  
+## Architecture overview: environment
+
+Note large scale influences are accommodated through vector fields:
+
+![](images/vectorplot_small.png)
+
+Note `roamR` will calculate these from inputs where required.
 
 ## Architecture overview: agent
 
@@ -115,29 +133,45 @@ The `roamR` design scheme
 ![](images/roamR_schema.png)
 
 
-## Architecture
-
--   Species
--   Drivers
--   Agents
--   Sundry
-
-## Drivers
-
--   Environment
--   Derived environment
-
-## Species
-
--   State
--   Driver responses
-    -   `MoveInfluence`
-    -   `StateInfluence`
-
-## Example/scope `MoveInfluence`
-
 ## Movement models
 
+Two agent movement methods are supported with complexity/data requirements.
+
+- "Density informed" uses density information for preferred locations, coupled with activity budgets and basic speed information to give travel paths.
+- Correlated Random Walk (CRW) stochastic direction and steps, informed by environment.
+
+## Movement models - density informed
+
+The process is:
+1.	Species’ density information gives stochasti destinations i.e. high density areas are relatively more likely to be travelled to
+2.	Determine a feasible path (e.g. OWF, coastlines, bounding box)
+3.	Travel on the path is constrained WRT speed properties and activity budget
+4.	Iteratively regenerate destinations and paths
+
+## Movement models - Correlated Random Walk (CRW)
+
+- Iterative generation of stochastic movement directions, then making a stochastic step. 
+- can impose dependencies to provide a directed random walk, and when related to local drivers, be functionally responsive to the environment. 
+
+![](images/crw.png)
+
+## Movement models - Correlated Random Walk (CRW)
+
+The process is primarily:
+1.	Select a stochastic movement direction (wrapped Normal in roamR - parameters can relate to enviroment)
+2.	Select a stochastic step length based on a distribution (e.g. gamma).
+3.	Iterate.
+
+Can be state dependent e.g. flying (fast and directed), resting (stationary) - depending on the species definition.
+
+## States: activity budgets and rebalancing
+
+- daily activity budget (time spent in each state) is not fixed, and can be responsive to environment and agent condition. 
+- `roamR` allows a “state rebalancing” on a daily basis - agents will attempt to compensate for poor foraging by increasing the amount of time dedicated to feeding.
+- state distribution can be made dependent the previous day’s net energy intake 
+- Balancing is not be exact, as the daily energy intake achieved is subject to stochastic elements.
+•	The changes in activity to seek energy balance are primarily through increasing/decreasing feeding and resting times.
+•	Agents are constrained to rest overnight, based on day length calculations for the agent’s location and time.
 
 
 <!-- ================================================================================================ -->
@@ -148,25 +182,16 @@ The `roamR` design scheme
 
 ::: {.incremental}
 1. ___Configure simulation___ at a high-level, including the spatial and temporal boundaries, projections, number of agents etc.
-1. ___Define species___, for example initial body mass distributions, flight speed distributions, activity states and their energetic implications, functional relationships between the species and the environment e.g. how SST affects energy, how OWFs influence movement/distribution.
-1. ___Define environment___, essentially anything spatio-temporal that the animals are thought to respond to 1. coastline, man-made structures (e.g. OWF), prey distributions, SST, bathymetry etc.
+1. ___Define species___,  initial body mass distributions, speed distributions, activity states and their energetic implications, functional relationships between the species and the environment e.g. how SST affects energy, how OWFs influence movement/distribution.
+1. ___Define environment___, essentially anything spatio-temporal that the animals are thought to respond to: coastline, man-made structures (e.g. OWF), prey distributions, SST, bathymetry etc.
 1. ___Combine components___ into an IBM object.
-1. ___Run simulation___, which creates agents, parallelises calculations, moves agents through the environment, and records their properties over time.
+1. ___Run simulation___, create agents, parallelises calculations, move agents through the environment, records properties over time.
 1. ___Alter simulation___ elements to reflect a perturbation (presence of OWF).
-1. ___Re-run___ the simulation with the perturbation.
-1. ___Query simulated animals___, with counterfactuals based on within-agent comparisons over perturbation scenarios.
+1. ___Re-run___ simulate withperturbation.
+1. ___Query simulated animals___, counterfactuals based on within-agent comparisons over perturbation scenarios.
 ::: 
 
 
-## `ModelConfig`
-
-## Species definitions
-
-## Driver definitions
-
-## Agent definitions
-
-## Post processing
 
 <!-- ================================================================================================ -->
 
@@ -180,6 +205,14 @@ Guillemot Isle of May
 
 ## Overview
 
+- Isle of May Guillemots
+- A full non-breeding season simulation (set to 9 months)
+- A single perturbation scenario, where many synthetic OWFs are placed in the simulation area
+
+## Overview
+The Area of Calculation (AoC) and synthetic OWF
+
+![](images/guill_OWF_scenario.png)
 
 ## Simulation level config
 
@@ -204,7 +237,7 @@ AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609)
 
 ## Simulation level config
 
-Passing the above configuration inputs to `ModelConfig()` creates a `<ModelConfig>` object, which we assigned to `guill_ibm_config`:
+Use `ModelConfig()` to create `<ModelConfig>` object, called `guill_ibm_config`:
 
 ```{r}
 #| eval: false
@@ -228,6 +261,8 @@ class(guill_ibm_config)
 ```
 
 ## Input data sources {.scrollable}
+
+Data for defining the environment - these are all spatiotemporal datacubes ($x$ & $y$ at $t$)
 
 ```{r}
 #| eval: false
@@ -287,7 +322,7 @@ guill_drivers <- list(
 ```
 
 ## Define species {.scrollable}
-
+Species specific functions (energetics, environmental) for example:
 
 ```{r}
 #| eval: false
@@ -314,20 +349,7 @@ flight <- State(
 
 
 ## Define species
-
-```{r}
-#| eval: false
-
-guill_states <- list(
-  flight = flight,
-  dive = dive,
-  active = active,
-  inactive = inactive
-)
-```
-
-## Define species
-
+Extended to all states:
 
 ```{r}
 #| eval: false
@@ -354,6 +376,7 @@ dive <- State(
 ```
 
 ## Define species
+Extended to all states:
 
 ```{r}
 #| eval: false
@@ -379,6 +402,7 @@ active <- State(
 ```
 
 ## Define species
+Extended to all states:
 
 ```{r}
 #| eval: false
@@ -403,29 +427,22 @@ inactive <- State(
 
 ```
 
-## Define species {.scrollable}
-
-In addition to the parameters defined above, we set the remaining species-level
-properties, including the body mass distribution (used to initialise each
-agent’s body mass) and the energy-to-mass conversion rate, which is assumed
-constant across agents and simulated time steps.
+## Define species
+State definitions are combined to pass into the species definition:
 
 ```{r}
 #| eval: false
-  
-guill <- Species(
-  id = "guill",
-  common_name = "guillemot",
-  scientific_name = "Uria Aalge",
-  body_mass_distr = VarDist(dist_normal(mean = 929, sd = 56), "g"),
-  energy_to_mass_distr = VarDist(0.072, "g/kJ"),
-  states_profile = guill_states,
-  driver_responses = list(resp_dens, resp_imp_dens)
-)
 
+guill_states <- list(
+  flight = flight,
+  dive = dive,
+  active = active,
+  inactive = inactive
+)
 ```
 
 ## Define species {.scrollable}
+Define interactions between the species and environment (spatiotemporal drivers), for example:
 
 ```{r}
 #| eval: false
@@ -451,7 +468,27 @@ resp_imp_dens <- DriverResponse(
 )
 ```
 
+## Define species {.scrollable}
+
+Other species level definitions - noting these populate agents:
+
+```{r}
+#| eval: false
+  
+guill <- Species(
+  id = "guill",
+  common_name = "guillemot",
+  scientific_name = "Uria Aalge",
+  body_mass_distr = VarDist(dist_normal(mean = 929, sd = 56), "g"),
+  energy_to_mass_distr = VarDist(0.072, "g/kJ"),
+  states_profile = guill_states,
+  driver_responses = list(resp_dens, resp_imp_dens)
+)
+
+```
+
 ## Prep the IBM
+Combine all the components (config, species, environment/drivers), perform checks and __create agents__
 
 ```{r}
 #| eval: false
@@ -464,6 +501,8 @@ guill_ibm <- rmr_initiate(
 ```
 
 ## Run `roamR`
+
+Supports parallelisation. Moves all agents through the simulated environment for the specified time, records states in agent __history__
 
 ```{r}
 #| eval: false
@@ -491,17 +530,61 @@ guill_results <- run_disnbs(
 
 ## Output overview
 
-## Specific results
+- Ultimately creates a list of agents, with detailed history of their simulations, including:
+  - body mass, 
+  - energy intake, 
+  - activity states, 
+  - movement paths, 
+  - and more.
 
-## Impact scenario
+These can all be queried with minimal effort.  
+
+## Specific results - tracks
+
+
+![](images/tracks.png)
+
+
+## Specific results - bodymass
+
+![](images/bodymass.png)
+
+## Specific results - bodymass
+![](images/agent_wts.png)
+
+## Specific results - bodymass
+![](images/diff_plot.png)
+
 
 ## `roamR` run
-
-## Counterfactuals
+....
 
 # Utility
 
-# User Interface
+## Use of counterfactals
+
+Quantification of the impact of the perturbation can be done on any of the defined agent condition (and/or history), but likely to be differences in:
+
+- Cumulative net energy
+- Season-end body mass or mass change
+- Distributions of activity/behavioural states
+- Minimum body-mass over the season
+- relatedly) Mortality
+
+## Use of counterfactals
+
+- These are not single values, but distributions representing the variability in the simulated populations
+- Directly informative at a population level, and tangible for down-stream calculations. For example, passed to Population Viability Analyses (PVAs) where counterfactuals may use:
+
+  - Increases in mortality/proportional reductions in population size
+  - Relationships between body mass and reproductive success, to alter PVA demographic parameters
+
+
+## User Interface
+
+- Currently use of `romaR` is through markdown template i.e. a series of descriptions and code exemplars that are modified for user needs
+- The package is well-formed, so would form a solid basis for a shiny interface
+
 
 <!-- ================================================================================================ -->
 
