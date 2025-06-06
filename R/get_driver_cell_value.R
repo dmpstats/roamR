@@ -14,7 +14,6 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
   # - extract value of correct attribute (currently the complement of
   # c(aspect, slope), but maybe make it specific to driver_id instead, once that
   # is a requirement in the <Driver> definition?)
-  # - handle NAs returned from st_extract
 
   driver_stars <- stars_obj(driver)
 
@@ -54,6 +53,9 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
       dim <- nnrst_meta$dims[idx]
       dimvals <- stars::st_get_dimension_values(driver@stars_obj, dim)
 
+      # convert agent's timestamp to Date if dimension is of type Date
+      if(nnrst_meta$cls[idx] == "Date")  tm <- as.Date(tm)
+
       switch (
         proc,
         nearest = nearest_preceding(dimvals, tm),
@@ -75,6 +77,12 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
         slice_strs(nnrst_dims, !!!slice_num, .drop = TRUE) |> # bang-bang-bang required for appropriate one-to-many replacement to slice_strs
         stars::st_extract(at = loc)
     }
+  }
+
+  # HACK - NA handling: if extracted value is NA, return the median of the
+  # attribute across all the dimensions
+  if(is.na(val)){
+    val <- median(driver@stars_obj[[1]], na.rm = TRUE)
   }
 
   # garbage collection
