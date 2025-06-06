@@ -21,6 +21,7 @@ library(distributional)
 library(stars)
 library(FNN) # dependency for stars::st_warp()
 library(future)
+library(units)
 ```
 
 # Overview
@@ -455,9 +456,9 @@ guill_ibm <- rmr_initiate(
 
 ```{r}
 
+plan(multisession, workers = future::availableCores() - 10)
 
-
-run_disnbs(
+guill_results <- run_disnbs(
   ibm = guill_ibm,
   run_scen = "baseline-and-impact", 
   dens_id = "dens", 
@@ -481,12 +482,42 @@ run_disnbs(
 # Digesting the results
 
 
+Output manipulation for plotting.
+
+```{r}
+guill_history <- map(guill_results, function(scn){
+  map(scn, ~.x@history) |> 
+  setNames(1:10) |> 
+  list_rbind(names_to = "agent") #|> 
+  #mutate(scen = "status-quo")
+}) |> 
+  setNames(c("status-quo", "impact")) |> 
+  list_rbind(names_to = "scenario") |> 
+  mutate(
+    Date = as.Date(timestamp), 
+    agent = as.numeric(agent)
+  )
+  
+table(guill_history$scenario)
+```
 
 
 
+Bodymass traces
+
+```{r}
+
+guill_history |> 
+  ggplot() +
+  theme_light() +
+  geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), size = 1) +
+  scale_color_brewer(palette = "Set1") +
+  facet_wrap(~agent, ncol = 2)
+  
+```
 
 
-
+Agent tracks
 
 
 
