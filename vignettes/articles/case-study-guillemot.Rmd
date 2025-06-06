@@ -22,6 +22,8 @@ library(stars)
 library(FNN) # dependency for stars::st_warp()
 library(future)
 library(units)
+
+theme_set(theme_light())
 ```
 
 # Overview
@@ -485,40 +487,65 @@ guill_results <- run_disnbs(
 Output manipulation for plotting.
 
 ```{r}
+
+# gather history from all agents, under the 2 scenarios, into one data frame
 guill_history <- map(guill_results, function(scn){
   map(scn, ~.x@history) |> 
   setNames(1:10) |> 
-  list_rbind(names_to = "agent") #|> 
-  #mutate(scen = "status-quo")
+  list_rbind(names_to = "agent") 
 }) |> 
   setNames(c("status-quo", "impact")) |> 
   list_rbind(names_to = "scenario") |> 
   mutate(
     Date = as.Date(timestamp), 
-    agent = as.numeric(agent)
+    agent = as.numeric(agent),
+    month = lubridate::month(timestamp)
   )
-  
-table(guill_history$scenario)
+
+# add information on whether agents are susceptible to be influenced by the impact
+infl <- tibble(
+  agent = 1:10,
+  suscep = purrr::map_lgl(guill_ibm@agents, ~.x@properties@move_influences$dens_imp$infl) == TRUE
+)
+
+guill_history <- left_join(guill_history, infl, by = "agent") |> st_as_sf()
+
 ```
 
 
 
-Bodymass traces
+## Bodymass traces
 
 ```{r}
 
-guill_history |> 
+p_bdm <- guill_history |> 
   ggplot() +
-  theme_light() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), size = 1) +
   scale_color_brewer(palette = "Set1") +
-  facet_wrap(~agent, ncol = 2)
+  theme(legend.position = "bottom") +
+  facet_wrap(~agent, ncol = 2, scales = "free")
+  
+ggsave("images/bodymass.png", p_bdm, width = 12, height = 12)
   
 ```
 
 
-Agent tracks
+## Agent tracks
 
+```{r}
+
+p_tracks <- guill_history |> 
+  drop_na(timestamp) |> 
+  filter(agent == 1) |> 
+  ggplot() +
+  stars::geom_stars(data = spec_imp_map) +
+  geom_sf(aes(col = scenario)) +
+  scale_color_brewer(palette = "Set1") +
+  facet_wrap(~month, ncol = 3)
+
+ggsave("images/tracks.png", p_tracks, width = 15, height = 15)
+
+```
 
 
 
