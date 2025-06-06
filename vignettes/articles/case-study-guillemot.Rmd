@@ -510,6 +510,7 @@ infl <- tibble(
 
 guill_history <- left_join(guill_history, infl, by = "agent") |> st_as_sf()
 
+guill_history
 ```
 
 
@@ -536,17 +537,88 @@ ggsave("images/bodymass.png", p_bdm, width = 12, height = 12)
 
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
-  filter(agent == 1) |> 
+  filter(suscep == FALSE, agent == 3) |> 
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario)) +
+  #scale_color_brewer(palette = "Set1") +
   scale_color_brewer(palette = "Set1") +
-  facet_wrap(~month, ncol = 3)
+  scale_fill_distiller(palette = "Greys", direction = 1) +
+  facet_wrap(~month, ncol = 3) +
+  labs(title = "Monthtly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+  
+p_tracks
 
-ggsave("images/tracks.png", p_tracks, width = 15, height = 15)
+ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 15)
 
 ```
 
 
+```{r}
+
+p_tracks <- guill_history |> 
+  drop_na(timestamp) |> 
+  filter(suscep == TRUE, agent == 2) |> 
+  ggplot() +
+  stars::geom_stars(data = spec_imp_map) +
+  geom_sf(aes(col = scenario)) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_distiller(palette = "Greys", direction = 1) +
+  facet_wrap(~month, ncol = 3) +
+  labs(title = "Monthtly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+
+p_tracks
+
+ggsave("images/tracks_susceptile_agent.png", p_tracks, width = 15, height = 15)
+
+```
+
+Activity budget
+
+```{r}
+p_activity <- guill_history |> 
+  drop_na(timestamp) |> 
+  filter(suscep == TRUE, agent == 2) |> 
+  rename(
+    flight = states_budget.flight,
+    diving = states_budget.diving,
+    water_active = states_budget.active_on_water,
+    water_inactive = states_budget.inactive_on_water,
+  ) |> 
+  pivot_longer(cols = flight:water_inactive, names_to = "activity", values_to = "budget") |> 
+  ggplot() +
+  geom_col(aes(x = factor(timestep), y = budget, fill = activity)) +
+  scale_fill_brewer(palette = "Set3", direction = -1) +
+  facet_wrap(~scenario, ncol = 1) +
+  theme(legend.position = "bottom") +
+  labs(y = "Activity budget (day proportion)", x = "timestep", title = "Susceptible Agent")
+  
+p_activity
+
+ggsave("images/activity_susceptile_agent.png", p_activity, width = 10, height = 10)
+```
 
 
+
+```{r}
+p_activity <- guill_history |> 
+  drop_na(timestamp) |> 
+  filter(suscep == FALSE, agent == 3) |> 
+  rename(
+    flight = states_budget.flight,
+    diving = states_budget.diving,
+    water_active = states_budget.active_on_water,
+    water_inactive = states_budget.inactive_on_water,
+  ) |> 
+  pivot_longer(cols = flight:water_inactive, names_to = "activity", values_to = "budget") |> 
+  ggplot() +
+  geom_col(aes(x = factor(timestep), y = budget, fill = activity)) +
+  scale_fill_brewer(palette = "Set3", direction = -1) +
+  facet_wrap(~scenario, ncol = 1) +
+  theme(legend.position = "bottom") +
+  labs(y = "Activity budget (day proportion)", x = "timestep", title = "Non-susceptible Agent")
+  
+p_activity
+
+ggsave("images/activity_nonsusceptile_agent.png", p_activity, width = 10, height = 10)
+```
