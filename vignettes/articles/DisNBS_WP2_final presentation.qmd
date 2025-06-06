@@ -1,0 +1,113 @@
+---
+title: "DisNBS pres"
+author: "DMP"
+editor: visual
+format:
+  revealjs: 
+    theme: dark
+---
+
+# DisNBS
+
+Distribution of Seabirds in the Non-Breeding Season
+
+## Project Overview
+
+## DisNBS brief
+
+-   blah
+
+## Objectives
+
+## WP1 design
+
+<!-- ================================================================================================ -->
+
+# Package `roamR`
+
+R package of tools to support IBMs
+
+## `roamR` solution
+
+-   Framework and toolset
+-   Generality
+-   Checks e.g. units
+
+## Architecture
+
+-   Species
+-   Drivers
+-   Agents
+-   Sundry
+
+## Drivers
+
+-   Environment
+-   Derived environment
+
+## Species
+
+-   State
+-   Driver responses
+    -   `MoveInfluence`
+    -   `StateInfluence`
+
+## Example/scope `MoveInfluence`
+
+## Movement models
+
+-   Stochaist
+
+<!-- ================================================================================================ -->
+
+# `roamR` workflow
+
+## `ModelConfig`
+
+## Species definitions
+
+## Driver definitions
+
+## Agent definitions
+
+## Post processing
+
+<!-- ================================================================================================ -->
+
+# Break
+
+<!-- ================================================================================================ -->
+
+# Case study
+
+Guillemot Isle of May (data rich)
+
+## Overview
+
+## Input data sources
+
+## Set up `roamR`
+
+## Run `roamR`
+
+## Output overview
+
+## Specific results
+
+## Impact scenario
+
+## `roamR` run
+
+## Counterfactuals
+
+# Ultility
+
+## Example use: PVA
+
+<!-- ================================================================================================ -->
+
+# User Interface
+
+<!-- ================================================================================================ -->
+
+# Questions?
