@@ -42,13 +42,13 @@ For WP2:
 ## WP1 design
 The IBM components were established in work package 1
 
-![](images/WP1_schema_nocap.svg)
+![](images/WP1_schema.png)
 
 <!-- ================================================================================================ -->
 
-## WP1 design
+## WP1 design implementation
 
-- The IBM was programmed in R (open-source, transparent)
+- The IBM design was implemented in R (open-source, transparent)
 - It is a package, which is more robust and maintainable than a series of scripts
 - Is customisable where needed, with tools to assist this
 - It formalises many of the repeated elements in an IBM, leaving focus on clearly defined customisable components i.e. mainly how species interact with the environment
@@ -61,16 +61,19 @@ R package of tools and framework to support IBMs
 ## `roamR` solution
 
 -   Framework and toolset - forces an abstract structure on the problem
+
+::: {.incremental}
 -   Emphasis on generality - the data and mechanics of simulation for different species can be markedly different 
 -   Standardises inputs/outputs and performs checks
-- Focus can be made on how things relate to one another
+- Effort can be focused on how things relate to one another
 - Removes issues with continually rewriting similar IBM functionality
-
+:::
 
 ## Architecture overview
 
 We've created an IBM structure that ought to cover all contingencies, which consists of:
 
+::: {.incremental}
 - The simulation engine and wrapper
 - The species
 - The environment
@@ -78,27 +81,30 @@ We've created an IBM structure that ought to cover all contingencies, which cons
 - Layers of stochasticity 
 - [perturbation, matched runs]
 - Post-processing
+::: 
 
 ## Architecture overview: wrapper
 
 The simulation engine and wrapper - high-level controls:
 
+::: {.incremental}
 - the number of agents, 
 - spatial/temporal boundaries e.g. a bounding box, simulation period
 - fundamental spatial coordinate system
 - agent movement methods
 - parallelisation
-
+:::
 
 ## Architecture overview: species
 
 "Species" is the population being simulated i.e. can be a colony, which will have population level properties e.g.:
 
+::: {.incremental}
 - distributions of initial body mass, flying speeds
 - behavioural states (e.g. foraging, resting, flying)
 - functional responses to the environment (e.g. move towards prey, avoid OWF)
 - energetics of behavoural states
-
+:::
 
 ## Architecture overview: environment
 
@@ -122,10 +128,13 @@ Note `roamR` will calculate these from inputs where required.
 The agents: 
 
 - the basic simulation element 
+
+::: {.incremental}
 - largely defined from higher components 
 - are moved through and respond to their environment
 - have properties monitored e.g. net energy intake, location, behavioural states etc
 - the basis of monitoring the simulation and any counterfactuals
+:::
 
 ## Architecture
 The `roamR` design scheme
@@ -143,10 +152,13 @@ Two agent movement methods are supported with complexity/data requirements.
 ## Movement models - density informed
 
 The process is:
+
+::: {.incremental}
 1.	Species’ density information gives stochasti destinations i.e. high density areas are relatively more likely to be travelled to
 2.	Determine a feasible path (e.g. OWF, coastlines, bounding box)
 3.	Travel on the path is constrained WRT speed properties and activity budget
 4.	Iteratively regenerate destinations and paths
+::: 
 
 ## Movement models - Correlated Random Walk (CRW)
 
@@ -158,21 +170,26 @@ The process is:
 ## Movement models - Correlated Random Walk (CRW)
 
 The process is primarily:
+
+::: {.incremental}
 1.	Select a stochastic movement direction (wrapped Normal in roamR - parameters can relate to enviroment)
 2.	Select a stochastic step length based on a distribution (e.g. gamma).
 3.	Iterate.
+:::
 
 Can be state dependent e.g. flying (fast and directed), resting (stationary) - depending on the species definition.
 
-## States: activity budgets and rebalancing
+## States: activity budgets and rebalancing {.scrollable}
 
 - daily activity budget (time spent in each state) is not fixed, and can be responsive to environment and agent condition. 
-- `roamR` allows a “state rebalancing” on a daily basis - agents will attempt to compensate for poor foraging by increasing the amount of time dedicated to feeding.
-- state distribution can be made dependent the previous day’s net energy intake 
-- Balancing is not be exact, as the daily energy intake achieved is subject to stochastic elements.
-•	The changes in activity to seek energy balance are primarily through increasing/decreasing feeding and resting times.
-•	Agents are constrained to rest overnight, based on day length calculations for the agent’s location and time.
+- `roamR` allows a “state rebalancing” on a daily basis - agents will attempt to compensate for poor foraging by increasing the amount of time dedicated to feeding:
 
+::: {.incremental}
+  - state distribution can be made dependent the previous day’s net energy intake 
+  - Balancing is not be exact, as the daily energy intake achieved is subject to stochastic elements.
+  - The changes in activity to seek energy balance are primarily through increasing/decreasing feeding and resting times.
+  - Agents are constrained to rest overnight, based on day length calculations for the agent’s location and time.
+:::
 
 <!-- ================================================================================================ -->
 
@@ -500,7 +517,7 @@ guill_ibm <- rmr_initiate(
 )
 ```
 
-## Run `roamR`
+## Run `roamR`  {.scrollable}
 
 Supports parallelisation. Moves all agents through the simulated environment for the specified time, records states in agent __history__
 
@@ -582,7 +599,7 @@ Quantification of the impact of the perturbation can be done on any of the defin
 
 ## User Interface
 
-- Currently use of `romaR` is through markdown template i.e. a series of descriptions and code exemplars that are modified for user needs
+- Currently use of `roamR` is through markdown template i.e. a series of descriptions and code exemplars that are modified for user needs
 - The package is well-formed, so would form a solid basis for a shiny interface
 
 
