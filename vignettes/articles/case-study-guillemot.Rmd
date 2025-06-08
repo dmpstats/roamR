@@ -1,6 +1,16 @@
 ---
 title: 'Case Study: guillemot Isle of May'
 resource_files: images/roamR_schema.png
+output:
+  # word_document:
+  #   toc: true
+  html_document:
+    number_sections: true
+    theme: cerulean
+    toc: true
+    toc_float:
+      collapsed: true
+bibliography: disnbs_references.bib  
 ---
 
 ```{r, include = FALSE}
@@ -27,7 +37,7 @@ theme_set(theme_light())
 ```
 
 # Overview
-Here we use `{roamR}` to simulate the movement and energetics for a population of common guillemot (_Uria aalge_) on the Isle of May. For details on the `{roamR}` package, refer to the general guide (XX), with the general achitecture repeated here:
+Here we use `{roamR}` to simulate the movement and energetics for a population of common guillemot (_Uria aalge_) on the Isle of May. For broad-scale details on the `{roamR}` package, refer to the general guide, with the general architecture repeated here:
 
 ![{roamR} arhitecture](images/roamR_schema.png)
 
@@ -37,17 +47,18 @@ The simulations here cover the non-breeding season (some 9 months, from July to 
 * An environment free of Off-Shore Windfarms (OWFs) - nominally the status quo
 * An environment with many synthetic OWF developments 
 
+
+![Synthetic windfarms within North Sea, against a predicted guillemot density surface. Density is clipped to the AoC, windfarms are the grey boxes.](images/guill_OWF_scenario.png)
+
+
 The overall intention is to quantify the effects of potential displacement from these developments, based on counter-factual comparisons of animal's condition under these scenarios. In keeping with the architecture of the `{roamR}` package, the following main components will be populated:
 
 * __IBM general settings__ (`<ModelConfig>`) sundry high-level controls for the simulation, such as the number of agents, broad spatial boundaries, spatial projections, time-steps, start & finish dates.
 * __Species-level information__ (`<Species>`) such as distributions governing initial bodymass, what behavioural states are possible, movement parameters, and how agents respond to their environment e.g.  avoidance of windfarms or landmass, costs associated with activity.
 * __Drivers__ (`<Driver>`) descriptions/data that define the environment that agents may interact with or respond to e.g. sea surface temperatures, locations of windfarms, coastlines, prey fields etc.
 
-The extent to which these can be populated will obviously vary, with the
-guillemot chosen here as a population that is relatively well studied. `{roamR}`
-is intentionally general and has substantial functionality that will not be used
-in a simulation. We will populate various elements of the simulation in turn,
-before turning to running the simulation and post-processing the results.
+The extent to which these can be populated will obviously vary, with the guillemot chosen here as a population that is relatively well studied. `{roamR}`
+is intentionally general and has substantial functionality that will not be used in a simulation. We will populate various elements of the simulation in turn, before turning to running the simulation and post-processing the results.
 
 
 # Input data
@@ -61,27 +72,14 @@ As a relatively well-studied species/population, there are many `{roamR}` elemen
 * Bodyweight
 * Bodymass conversion
 
-which will be a) described in detail and b) specified in `{roamR}` forms in the
-following sections. `{roamR}` can be run with very little data (an example of a
-more data sparse species is given in the test study XX), with the results being
-correspondingly less informative and stochastic.
+which will be a) described in detail and b) specified in `{roamR}` forms in the following sections. `{roamR}` can be run with very little data (an example of a more data sparse species is given in the alternative test case of red-throated divers), with the results being correspondingly less informative and more stochastic.
 
 
 ## IBM configuration
 
-The broad configuration of the IBM is specified via the function
-`ModelConfig()`.In the interest of speed, the example simulation here will not
-be large in terms of the number of agents to run - we'll opt for 10 agents
-(`n_agents`). The non-breeding season for these animals runs from approximately
-start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform
-1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on
-the UTM 30N coordinate system (`ref_sys`). This will be the basis of ingesting
-and aligning the general spatial inputs. Note: the package currently requires
-all spatial inputs (e.g. density maps) to be provided in a common CRS projection
-^[functionality to homogenise CRSs across spatial inputs during model
-initialization is expected to be implemented in `{roamR}` in the near future].
-The `{sf}` package is generally used for dealing with spatial data (and the
-interlinked `{stars}` package for spatio-temporal).
+The broad configuration of the IBM is specified via the function `ModelConfig()`.In the interest of speed, the example simulation here will not
+be large in terms of the number of agents to run - we'll opt for 10 agents (`n_agents`). The non-breeding season for these animals runs from approximately
+start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform 1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on the UTM 30N coordinate system (`ref_sys`). This will be the basis of ingesting and aligning the general spatial inputs. Note: the package currently requires all spatial inputs (e.g. density maps) to be provided in a common CRS projection ^[functionality to homogenise CRSs across spatial inputs during model initialization is expected to be implemented in `{roamR}` in the near future]. The `{sf}` package is generally used for dealing with spatial data (and the interlinked `{stars}` package for spatio-temporal).
 
 
 ```{r}
@@ -90,14 +88,8 @@ utm30 <- st_crs(32630)
 
 ```
 
-Agent start and end locations (`start_sites`, `end_sites`) must be supplied as
-`sf` objects containing two required columns: `id` (a unique site identifier)
-and `prop` (the proportion of agents assigned to each site). In this example, we
-use the Isle of May as the sole starting location, specified by its geographic
-coordinates (longitude/latitude). Note that `end_sites` is currently ignored by
-the simulation, as the movement model assumes agents remain at their final
-locations once the simulation ends. As noted earlier, the site must be
-reprojected to the common UTM Zone 30N coordinate reference system.
+Agent start and end locations (`start_sites`, `end_sites`) must be supplied as`sf` objects containing two required columns: `id` (a unique site identifier)
+and `prop` (the proportion of agents assigned to each site). In this example, we use the Isle of May as the sole starting location, specified by its geographic coordinates (longitude/latitude). Note that `end_sites` is currently ignored by the simulation, meaning the movement model assumes agents remain at their final locations once the simulation ends. As noted earlier, the site must be re-projected to the common UTM Zone 30N coordinate reference system.
 
 
 ```{r}
@@ -113,14 +105,13 @@ isle_may <- st_transform(isle_may, crs = utm30)
 
 ```
 
-
-In terms of bounding the entire simulation spatially, we've opted for a bounding box from a previous study applied to this species [?REFERENCE]. Note this a hard boundary in terms of simulations - data outside this will have no influence. 
+In terms of bounding the entire simulation spatially, we've opted for a semi-arbitrary bounding box aorund the Isle of May that encompasses a large swathe of the North Sea and far to the west of the UK, which covers the bulk of the guillemot density maps. Note this a hard boundary in terms of simulations - data outside this will have no influence. 
 
 ```{r}
-# AoC in UTM. Exact figures come from a previous lat/lon example
-AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
-```
 
+AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
+
+```
 
 Passing the above configuration inputs to `ModelConfig()` creates a `<ModelConfig>` object, which we assigned to `guill_ibm_config`:
 
@@ -144,21 +135,18 @@ class(guill_ibm_config)
 
 ```
 
-## Driver information
+## Driver information - specifying the environment
 
-Drivers define the environment that agents may interact with or respond, with
-each driver being specified via the `Driver()` function. In this application to
-the common guillemot, the following drivers are required - all provided as
-spatio-temporal datacubes (rasters):
+Drivers define the environment that agents may interact with or respond, with each driver being specified via the `Driver()` function. The scope of these will be defined by the level of knowledge for the species in hand. Any environmental component that can/will be functionally linked to the animals behaviour (activity states or movement) or their energetics, must be included in the defintiion of the environment via the drivers.
+
+
+In this application to the common guillemot, the following drivers are required - all provided as spatio-temporal datacubes (rasters):
 
 * Monthly species density surfaces, for both baseline and impacted scenarios
 * Monthly energy intake maps (kJ/h), for both baseline and impacted scenarios
 * Monthly average Sea Surface Temperature (SST) maps
 
-`{roamR}` enforces a strict requirement that all input variables be accompanied
-by appropriate measurement units. This ensures that all computations performed
-during simulation are unit-aware, allowing for accurate operations and
-conversions.
+`{roamR}` enforces a strict requirement that all input variables be accompanied by appropriate measurement units. This ensures that all computations performed uring simulation are unit-aware, allowing for accurate operations and conversions.
 
 We begin by uploading these datacubes, assigning measurement units where they are missing.
 
@@ -180,7 +168,6 @@ sst_map <- readRDS("data/bioss_sst_stars.rds") |>
   mutate(sst =  units::set_units(sst, "degree_Celsius")) |> 
   stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
 
-#plot(sst_map)
 
 ```
 
@@ -242,20 +229,17 @@ guill_drivers <- list(
 ```
 
 
-## Species information
+## Species information - properties that inform individual agents
 
-Species-level information is defined using the `Species()` function, which
-depends on a set of input objects. For clarity and modularity, these inputs
+Species-level information is defined using the `Species()` function, which depends on a set of input objects. For clarity and modularity, these inputs
 should be prepared and specified beforehand.
 
 ### States Profile
 
-We begin by defining the behavioural states to include in the model. Each state
-represents a specific activity, characterized by parameters such as energy
+We begin by defining the behavioural states to include in the model. Each state represents a specific activity, characterized by parameters such as energy
 expenditure, time allocation, and movement speed.
 
-States are created using the `State()` function. `{roamR}` supports flexible
-specification of state properties, allowing the incorporation of stochastic
+States are created using the `State()` function. `{roamR}` supports flexible specification of state properties, allowing the incorporation of stochastic
 variation at both the population and individual (agent) level.
 
 Here we include 4 states:
@@ -265,12 +249,10 @@ Here we include 4 states:
 * active on water (i.e. swimming)
 * inactive on water (i.e. resting)
 
-We start with the 'flight' state. For the current simulation, we assume the
-energetic cost of flying for each agent varies throughout the simulation,
-following a Normal distribution with mean `507.6 kJ/h` and standard deviation of
-`237.6 kJ/h`. On the other hand, the average speed of each agent is fixed over
-the simulation, with agents speeds drawn from a uniform distribution, as
-specified below.
+We start with the 'flight' state. For the current simulation, we assume the energetic cost of flying for each agent varies throughout the simulation,
+following a Normal distribution with mean `507.6 kJ/h` and standard deviation of`237.6 kJ/h`. The source for these figures are @elliot-2013
+
+On the other hand, the average speed of each agent is fixed over the simulation, with agents speeds drawn from a uniform distribution, as specified below.
 
 ```{r}
 # user-defined function returning the energy cost of flying
@@ -294,7 +276,7 @@ flight <- State(
 ```
 
 
-The state representing the 'diving' activity.
+The state representing the 'diving' activity [@elliot-2013]
 
 ```{r}
 # define costing function
@@ -321,7 +303,7 @@ dive <- State(
 
 ```
 
-State representing 'active on water'.
+State representing 'active on water' [@buckingham-2023].
 
 ```{r}
 
@@ -348,7 +330,7 @@ active <- State(
 
 
 
-State for 'inactive on water'.
+State for 'inactive on water' [@buckingham-2023].
 
 ```{r}
 
@@ -387,15 +369,11 @@ guill_states <- list(
 ### Driver Responses
 
 
-In this section, we define species-level, agent-specific responses to the
-environmental drivers introduced and defined earlier. For the guillemot model,
-we assign the density drivers - identified as `"dens"` (baseline) and
-`"dens_imp"` (impacted) - as the primary determinants of agent movement. For
-each scenario, we also specify the probability that an agent is influenced by
-the respective driver. For driver `"dens_imp"`, this probability reflects how
-likely an agent is to respond to a OWF installation.
+In this section, we define species-level, agent-specific responses to the environmental drivers introduced and defined earlier. For the guillemot model,
+we assign the density drivers - identified as `"dens"` (baseline) and `"dens_imp"` (impacted) - as the primary determinants of agent movement (density maps as per @buckingham-2022). For each scenario, we also specify the probability that an agent is influenced by the respective driver. For driver `"dens_imp"`, this probability reflects how likely an agent is to respond to a OWF installation [@peschko2024cumulative].
 
 ```{r}
+
 resp_dens <- DriverResponse(
   driver_id = "dens",
   movement = MoveInfluence(
@@ -420,10 +398,8 @@ resp_imp_dens <- DriverResponse(
 
 ### Create the `<Species>` object
 
-In addition to the parameters defined above, we set the remaining species-level
-properties, including the body mass distribution (used to initialise each
-agent’s body mass) and the energy-to-mass conversion rate, which is assumed
-constant across agents and simulated time steps.
+In addition to the parameters defined above, we set the remaining species-level properties, including the body mass distribution (used to initialise each
+agent’s body mass) and the energy-to-mass conversion rate [@dunn2022], which is assumed constant across agents and simulated time steps.
 
 ```{r}
 guill <- Species(
@@ -442,7 +418,16 @@ guill <- Species(
 
 # Setting up and running the IBM
 
+Now the key comoponents of the IBM have been specified, `{roamR}` can be used for the initialisation and running of the simulations.
+
+
 ## Initialisation
+
+The intialisation stage performs two main tasks prior to running:
+
+* The checking of inputs for conformity, some adjustments (e.g. clipping to the AoC) and derivation of of vector fields where needed.
+* The generation the `n_agents` as indicated in the model config object.
+
 
 ```{r}
 set.seed(1009)
@@ -456,10 +441,11 @@ guill_ibm <- rmr_initiate(
 
 ## Running the simulation
 
+The running of the simulation involves moving each of the initialised agents through the defined environment, with monitoring of their condition through time and determining their responses to these. Parallelisation is dealt with (and assumed to be generally used) such that individual agents are piped out to indepdent threads of calculation. The `furrr` package handles the parallelisation, and usually the number of workers is slightly less than those avaible to allow scope for other tasks without saturating the computer.
 
 ```{r}
 
-plan(multisession, workers = future::availableCores() - 10)
+plan(multisession, workers = 4)
 
 guill_results <- run_disnbs(
   ibm = guill_ibm,
