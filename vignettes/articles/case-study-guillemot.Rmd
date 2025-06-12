@@ -3,8 +3,8 @@ title: 'Case Study: guillemot Isle of May'
 execute: 
   cache: true
 output:
-  # word_document:
-  #   toc: true
+  word_document:
+    toc: true
   html_document:
     number_sections: true
     theme: cerulean
@@ -18,8 +18,7 @@ bibliography: disnbs_references.bib
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  warning = FALSE, 
-  message = FALSE 
+  warning = FALSE 
 )
 ```
 
@@ -281,10 +280,9 @@ flight <- State(
 The state representing the 'diving' activity [@Elliott2013] as energy output contingent on the amount of diving. Here we are performing day-level calculations, meaning we are far from simulating at the dive level, and can use a mean dive-length without loss of generality. This is `t_dive` and populated later from tag information.
 
 $$
-
-e = 3.71\frac{\sum_i(1-e^{-T_i/1.23}{\sum_iT_i}
-
+e = 3.71\frac{\sum_i(1-e^{-T_i/1.23})}{\sum_iT_i}
 $$
+
 Where $T_i$ is the dive length of dive $i$ in minutes.
 
 
@@ -314,10 +312,7 @@ dive <- State(
 State representing 'active on water' [@Buckingham2023] is a linear function in SST:
 
 $$
-
 e = a-(b*SST)
-
-
 $$
 
 where $a$ has a mean of 113 and SD of 22. $b$ is a constant of 2.75.
@@ -467,6 +462,14 @@ guill_ibm <- xfun::cache_rds({
 
 The running of the simulation involves moving each of the initialised agents through the defined environment, with monitoring of their condition through time and determining their responses to these. Parallelisation is dealt with (and assumed to be generally used) such that individual agents are piped out to independent threads of calculation. The `furrr` package handles the parallelisation, and usually the number of workers is slightly less than those available to allow scope for other tasks without saturating the computer.
 
+Much of the parameterisiation and data from previous sections are encapsulated within the `ibm` object (`guill_ibm`) passed to the simulation. Several additional parameters as per documentation can be entered here as needed. Here we specify:
+
+* What state(s) are feeding states or resting states - the state-balancing calculations (refer main documentation) will increase/decrease these as required
+* `feed_avg_net_energy` the average net energy per unit feeding - here a tuning parameter, caclcuable directly as the energy required to balance the energetics equations for an average agent. 
+* `target_energy` the objective of the state rebalancing in terms of daily energy. Here a modest increase is attempted, based on figures indicating a modest gain over the non-breeding season.
+* `smooth_body_mass` a use-defined function to convert energy time-series to mass. Here mass deposition occurs as a function of the preceding 7 days energy intake.
+
+
 
 ```{r run-sim}
 
@@ -508,7 +511,25 @@ plan(sequential)
 
 These form the basis of any downstream calculations based on the simulation outputs. When there are impact scenarios in play, there will be more than one such list, with agents paired over the impact scenarios e.g. baseline versus impact.
 
-##  Output manipulation for plotting.
+We can examine the agent's simulation histories directly - here we have two scenarios, each containing a number of agents:
+
+```{r}
+# two scenarios
+  names(guill_results)
+
+# several agents within each
+  length(guill_results$agents_bsln)
+
+# one agents history
+guill_results$agents_bsln[[1]]@history
+  
+```
+
+
+
+##  Comparing scenarios
+
+Here we extract the history from agents under the two scenarios for comparison. All agents over both scenarios are combined into one dataset.
 
 ```{r}
 
@@ -538,7 +559,9 @@ guill_history
 ```
 
 
-## Bodymass traces
+### Bodymass traces
+
+We can examine a small number of agents graphically - here their bodymass histories as implied by the simulated energetics. Note `{roamR}` at its heart simulates energetics, conversion functions from energy to mass are specified by the user.
 
 ```{r}
 
@@ -556,7 +579,9 @@ ggsave("images/bodymass.png", p_bdm, width = 12, height = 12)
 ```
 
 
-## Agent tracks
+### Agent tracks
+
+Similarly movement tracks for select agents over time can be visualised, under the two impact scenarios. Here we separate by a property of the agent - those that were assigned susceptibility to OWF in the agent initialisation - recalling this was a stochastic specification at the species level.
 
 ```{r}
 
@@ -570,7 +595,7 @@ p_tracks <- guill_history |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_distiller(palette = "Greys", direction = 1) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthtly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+  labs(title = "Monthly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
   
 p_tracks
 
@@ -591,7 +616,7 @@ p_tracks <- guill_history |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_distiller(palette = "Greys", direction = 1) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthtly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+  labs(title = "Monthly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
 
 p_tracks
 
@@ -599,3 +624,22 @@ ggsave("images/tracks_susceptile_agent.png", p_tracks, width = 15, height = 15)
 
 ```
 
+## Use of counterfactals
+
+Quantification of the impact of the perturbation can be done on any of the defined agent condition (and/or history), but for consenting the utility is through EIAs that likely use:
+
+- Cumulative net energy
+- Season-end body mass or mass change
+- Distributions of activity/behavioural states
+- Minimum body-mass over the season
+- (relatedly) Mortality
+
+These are not single values, but distributions representing the variability in the simulated populations. While being directly informative at a population level (e.g. the mean %-age of the population lost), the distributions are tangible for down-stream calculations. The most obvious application being in  Population Viability Analyses (PVAs) that are frequently required in EIAs for consenting. There the counterfactuals may use:
+
+  - Increases in mortality/proportional reductions in population size
+  - Relationships between body mass and reproductive success, to alter PVA demographic parameters
+  
+For example, Natural England provide an R PVA toolset here [nepva]<https://github.com/naturalengland/Seabird_PVA_Tool>, frequently used in consenting, where the distributions of productivity can be specified under differing scenarios. The PVAs provide monte-carlo simulations of projected population sizes, which are matched (impact-to-baseline) to give population-level counterfactuals of impacts. The DisNBS simulations can be used to estimate these productivities.    
+
+
+# References
