@@ -1,4 +1,14 @@
 url: ~
 template:
   bootstrap: 5
+articles:
+- title: Main verbs
+  navbar: ~
+  contents:
+  - roamR-guide
 
+- title: Case-studies
+  desc: Examples for the DisNIBS project
+  contents:
+  - case-study-guillemot
+  - case-study-RTD
