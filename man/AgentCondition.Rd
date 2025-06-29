@@ -62,5 +62,5 @@ agent’s body mass (e.g., grams) over the current time-step.}
 \description{
 \code{AgentCondition()} is a helper function to construct instances of
 \verb{[AgentCondition-class]} objects, which carries the status of an agent at the
-end of a simulation \code{time_step} (e.g. end of day).
+end of a simulation \code{delta_time} (e.g. end of day).
 }

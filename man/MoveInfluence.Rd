@@ -9,7 +9,7 @@ MoveInfluence(
   fn = function(x) 0,
   type = c("null", "attraction", "repulsion"),
   mode = c("vector-field", "cell-value"),
-  sim_stage = c("baseline", "impact", "baseline-and-impact")
+  sim_stage = c("bsln", "imp", "bsln-imp")
 )
 }
 \arguments{
@@ -39,9 +39,9 @@ by the movement model. Currently supports 2 options:
 \item{sim_stage}{A \code{character} string, specifying at which stage of the simulation is driver applied
 by the movement model. Currently supports three options:
 \itemize{
-\item "baseline" (default): TODO
-\item "impact": TODO
-\item "baseline-and-impact": TODO
+\item "bsln" (default): TODO
+\item "imp": TODO
+\item "bsln-imp": TODO
 }}
 }
 \description{

@@ -6,7 +6,7 @@
 \title{\verb{<AgentCondition>}}
 \description{
 \verb{<AgentCondition>} is an S4 class describing the status of an agent at the
-end of a simulation \code{time_step} (e.g. end of day). It encapsulates key
+end of a simulation \code{delta_time} (e.g. end of day). It encapsulates key
 spatio-temporal and physiological metrics, including location, body mass,
 energy expenditure, state budgets, and survival status.
 }

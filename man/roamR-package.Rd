@@ -8,6 +8,13 @@
 \description{
 A package for an Individual Based Model (IBM) for simulating seabirds in the non-breeding season in particular. This is in support of the DisNBS project, funded by the Carbon Trust and the Offshore Renewables Joint Industry Partnership (ORJIP)
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://dmpstats.github.io/roamR/}
+}
+
+}
 \author{
 \strong{Maintainer}: Bruno Caneco \email{bruno@dmpstats.co.uk} (\href{https://orcid.org/0009-0009-0124-7156}{ORCID})
 
