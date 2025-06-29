@@ -1,4 +1,10 @@
 url: https://dmpstats.github.io/roamR/
 template:
   bootstrap: 5
-
+reference:
+- title: "Connecting to Spark"
+  desc: >
+    Functions for installing Spark components and managing
+    connections to Spark
+  contents:
+  - Agent
