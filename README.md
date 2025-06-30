@@ -64,17 +64,10 @@ the momentHMM package.
 
 ## Installation
 
-You can install the development version of roamR like so:
+`roamR` is not currently on CRAN - installation is direct from github.
+You can use devtools to install:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
-```
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(roamR)
-## basic example code
+devtools::install_github("dmpstats/roamR", ref = "master")
 ```
