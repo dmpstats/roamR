@@ -1,0 +1,11 @@
+pandoc: '3.4'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  articles/case-study-guillemot: case-study-guillemot.html
+  articles/case-study-RTD: case-study-RTD.html
+  articles/roamR-guide: roamR-guide.html
+last_built: 2025-06-30T16:28Z
+urls:
+  reference: https://dmpstats.github.io/roamR/reference
+  article: https://dmpstats.github.io/roamR/articles
