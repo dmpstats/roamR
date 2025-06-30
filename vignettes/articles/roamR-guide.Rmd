@@ -4,11 +4,14 @@ output:
   # word_document:
   #   toc: true
   html_document:
+    css: styles.css
     number_sections: true
     theme: cerulean
     toc: true
     toc_float:
       collapsed: true
+bibliography: disnbs_references.bib  
+
 ---
 
 ```{r, include = FALSE}
@@ -24,7 +27,7 @@ library(roamR)
 
 # Introduction
 
-`roamR` is an R package that offers a toolset and framework for running Individual Based Models (IBMs - or Agent-Based Models). It was created as part of the DisNBS project (Distribution of seabirds in the Non-Breeding Season) which was a project within the Off-shore Renewables Joint Industry Partnership programme ([ORJIP](http://www.orjip.org.uk/)). While the project has specific goals in relation to Off-shore Wind Farms (OWF) and their potential effects on seabirds, the problem is quite general. This package helps build animal movement simulations, with the general problem broken down into logical components, and imposes a level of transparent formality. This places the computational components on a common footing, leaving focus on the parametrisation and inputs/data.
+`roamR` is an R package that offers a toolset and framework for running Individual Based Models (IBMs - or Agent-Based Models). It was created as part of the DisNBS project (Distribution of seabirds in the Non-Breeding Season) which was a project within the Offshore Renewables Joint Industry Partnership programme ([ORJIP](http://www.orjip.org.uk/)). While the project has specific goals in relation to Offshore Wind Farms (OWF) and their potential effects on seabirds, the problem is quite general. This package helps build animal movement simulations, with the general problem broken down into logical components, and imposes a level of transparent formality. This places the computational components on a common footing, leaving focus on the parametrisation and inputs/data.
 
 IBMs are simple in principle - they simulate the movement of individual animals in response to their environment and measure properties from them e.g. their body-mass. They are particularly useful where analytical modelling is difficult and where "what-if" scenarios are sought, meaning the system can be examined with/without a speculative perturbation. They also accommodate stochasticity/uncertainty quite naturally. Typically many simulated agents are run such that uncertainty in the inputs are reflected in any measured outputs, so conclusions are tempered accordingly.
 
@@ -32,23 +35,24 @@ The DisNBS project is the motivating example for the package development, which 
 
 ## IBM design (DisNBS workpackage 1)
 
-The DisNBS started with a design phase, underpinned by an expert consultation workshop. The resulting generic structure is presented in figure 1, which the `roamR` package seeks to implement. The demography submodel is not formally part of the IBM, but the energetics and bodymass distributions that are generated will inform these down-stream calculations.The following document is a high-level description fo the functionality within the `roamR` package, that encompasses the design elements of figure 1. `
+The DisNBS started with a design phase, underpinned by an expert consultation workshop. The resulting generic structure is presented in figure 1, which the `roamR` package implements. The demography submodel is not formally part of the IBM, but the energetics and body mass distributions that are generated will inform these down-stream calculations.The following document is a high-level description fo the functionality within the `roamR` package, that encompasses the design elements of figure 1. `
+
 
 ![Figure 1 - Schematic of proposed structure of IBM. Types of components: biological/ecological (gold), environmental (purple), OWF related (red) and influence the properties of the agents (blue) leading to final outputs (green)](images/WP1_schema_nocap.svg)
 
 ## Package overview
 
-`roamR` is written in S4 and has been structured/implemented such that the simulations are well defined, but with a lot of flexibility in what the components can do. Animal IBMs are spatio-temporal and can be based on very disparate data sources - so `roamR` is particular in its treatment of space (projections etc), time and units generally (as found in the `units` package). The package was written with animals in mind (indeed one of the main classes is `Species`), but we'll use the agnostic term **agent**.
+`roamR` is written in R using S4 classes (refer [here](https://adv-r.hadley.nz/s4.html) for an overview and later section) and has been structured/implemented such that the simulations are well defined, but with a lot of flexibility in what the components can do. S4 programming imposes a level of formality to the programming that helps make the software more robust. Animal IBMs are spatiotemporal and can be based on very disparate data sources - so `roamR` is particular in its treatment of space (projections etc), time and units generally (as found in the `units` package). The package was written with seabirds as the motivating case, but generally for animals (indeed one of the main classes is `Species`), noting the agnostic term **agent** applies.
 
 In brief - `roamR`:
 
--   defines the environment the animal interacts with, and how this functionally affects its movement or behaviour
+- defines the general characteristics of a type of agent (a *species* definition)
 
--   defines how animals move, with consideration of the environment, behavoural state, or condition
+- defines the environment the agent interacts with, and how this functionally affects its movement or behaviour
+
+-   defines how agents move, with consideration of the environment, behavoural state, or body condition
 
 -   defines the behaviours animals may engage in and how these change
-
--   defines the general characteristics of a type of agent (a *species* definition)
 
 -   creates many agents with stochastic properties in line with their species definition
 
@@ -56,21 +60,19 @@ In brief - `roamR`:
 
 -   measures the agents throughout the simulation
 
--   gives tools to query the mass of agents that have been simulated
+-   gives tools to query the condition of agents that have been simulated
 
-A principal limitation in IBMs is the level of information you have about how the agents behave. `roamR` is intended to work with very little information, up to very information rich. The test cases here cover a range of data support:
+A principal limitation in IBMs is the level of information you have available to parameterize how the agents behave. `roamR` is intended to function well across the data support spectrum (i.e. from information poor to information rich). The test cases here cover a range of data support:
 
 -   Relatively data rich: Guillemots at the Isle of May, which are well studied.
 
 -   Relatively data poor: Red-Throated Divers in the North Sea, which are less understood.
 
-In the more extreme, `roamR` has been developed with the intention of simulating very well known animal populations, for example a population with extensive GPS tagging information, that might suffice for estimation of a Hidden Markov Model. For example those demonstrated in McClintock & Michelot (2018) and subsequently fitted to detailed Fulmar track data.
+At the more extreme information end, `roamR` has been developed to simulate agents at a very detailed level, for example a population with extensive GPS tagging information. The exemplar that guided this was the Hidden Markov Model of McClintock & Michelot (2018) and subsequent fitting to detailed Fulmar track data. 
 
 ## R and S4 programming
 
-This package assumes at least some minor familiarity with R. Its use for simulating birds in the context of OWF is illustrated using markdown in the associated example scenarios - so no deep R programming is required. These examples give the steps required which can be modified and followed for new cases. However, even within this use-case it is unavoidable that user-defined functions will be required: for example the energetics equations for a particular species' activity states. There are a lot of features of the package that extend it well beyond these OWF seabird examples, but will require a deeper understanding of R.
-
-`roamR` is written in S4 and some familiarity with this is useful generally, but particularly if you want to use the package beyond the narrow path for the bird IBMs that motivated the package. However, there is some basic S4 information that is useful to bear in mind:
+This package assumes at least some minor familiarity with R. Its use for simulating birds in the context of OWF is illustrated using markdown in the associated example scenarios - avoiding the need for detailed R programming knowledge. These examples give the steps required which can be modified and followed for new cases. However, even within this use-case it is unavoidable that user-defined functions will be required: for example the energetics equations for a particular species' activity states. There are a lot of features of the package that extend it well beyond these OWF seabird examples, but will require a deeper understanding of R in order to fully use these. In particular some familiarity with S4 is useful if you want to use the package beyond the narrow path for the bird IBMs that motivated the package. Regardless, there is some basic S4 information that is useful to bear in mind:
 
 -   There are well-defined classes for many components of the simulation - the R objects will often contain *slots* that you access by name with the `@` operator, as opposed to the `$` that is common for simple R objects.
 
@@ -90,9 +92,12 @@ The package has been written with the intention of few dependencies on other pac
 
 # Package/class hierarchy
 
-A great deal of thought has gone into the hierarchical structure, which means mainly the classes, how they relate to one another and therefore where data (including parameters) lies within these. This is summarised in the figures below:
+A great deal of thought has gone into the hierarchical structure, which means mainly the classes, how they relate to one another and therefore where data (including parameters) lies within these. This is summarised in the figure below:
 
-![figure 2: general class structure and hierarchy for the `roamR` package](images/roamR_schema.png)
+
+
+<img src="images/roamR_schema.png" class="zoomable" alt="general class structure and hierarchy for the `roamR` package">
+
 
 Key elements of this are discussed in turn, and examples are given in the associated test scenarios. Four main areas are covered:
 
@@ -130,7 +135,7 @@ The key classes that require population in this workflow are expanded upon in tu
 
 This component provides the high-level configurations for the simulation, such as the spatial and temporal boundaries, the spatiotemporal resolution, the number of agents to simulate, the projection of the spatial data, and other general parameters that define the simulation environment. This also includes start and finish points for simulated animals, if that some return-to-colony behaviour is required. Consideration in the setting of these follows.
 
-**Bounding Box** (`aoc_bbx`) this is a spatial extent over which the agents are constrained to be within. In many cases this will simply dictated by the data, for example a density distribution for the animal being simulated. If the animals have very low probability of being beyond this data, then the bounding box constraint is a logical progression. In other cases it might be set with knowledge of the maximum range of the animal's homerange.
+**Bounding Box** (`aoc_bbx`) this is a spatial extent over which the agents are constrained to be within. In many cases this will simply dictated by the data, for example a density distribution for the animal being simulated. If the animals have very low probability of being beyond this data, then the bounding box constraint is a logical progression. In other cases it might be set with knowledge of the maximum range of the animal's home range.
 
 It is important to note that no movement outside this is permitted - so the box should be sufficiently large that it is not controversially influential i.e. err on the large side given other inputs will dictate travel. It also will bound spatiotemporal inputs, so data inputs are clipped to this region. A potential consequence of making the bounds very large is that large amounts of data be retained needlessly.
 
@@ -164,7 +169,7 @@ This provides the general features that are realised in the agents, either stoch
 
 A key element of the IBM is the responsiveness of the agents to their environment, which includes standard biological factors such as prey distributions, bathymetry or coastlines. Treated generally, this also includes anthropogenic factors such as OWF, which are the focus of perturbation scenarios to be explored in the IBM. These are collectively termed **drivers**, as they drive agents behaviour, including movement, activity states and by extension their distribution and energetics.
 
-The drivers are encompassed in the `Driver` class below, which might be themselves general and not species-specific. Here within the `Species` class, the link between the environment is made explicit and species-specific. These are very general, being user-defined functions that relate specific driver information to behaviour. For example:
+The drivers are encompassed in the `Driver` class below, which might be themselves general and not species-specific. Here within the `Species` class, the link between the environment is made explicit and species-specific. These are very broad in what they can encompass, being user-defined. For example:
 
 -   Relationships between movement and proximity to coast. The coast movement driver in this case is distance to coast, calculated internally from coastline polygons. The correlated random walk movement model is fundamentally direction and speed, so a sharply declining driver response influences agents away from coastlines.
 
@@ -258,17 +263,17 @@ The agent's condition is a dynamic aspect of the simulation, which is updated at
 
 ## Agent history
 
-The agent's condition is generally dynamic throughout the simulation and can be sufficient to answer questions motivating the IBM e.g. body-mass at the end of season. More generally however, a full record may be sought so the agent class contains a history component which stores the agent's condition in a spatiotemporal data structure. This allows examination of movement, time spent in behaviour states, physical condition etc at any point in time.
+The agent's condition is generally dynamic throughout the simulation and can be sufficient to answer questions motivating the IBM e.g. body mass at the end of season. More generally however, a full record may be sought so the agent class contains a history component which stores the agent's condition in a spatiotemporal data structure. This allows examination of movement, time spent in behaviour states, physical condition etc at any point in time.
 
 # Moving agents, running the simulation (`IBM` class)
 
-Fundamental to the IBM is the movement of agents. Currently `roamR` supports two movement models, which have different data/input requirements: one relatively simple requiring only basic knowledge of an animals speed of movement, the other a more demanding correlated random walk that would require detailed tracking data and parameter estimation from a Hidden Markov Model (HMM).
+Fundamental to the IBM is the movement of agents. Currently `roamR` supports two movement models, which have different data/input requirements: one relatively simple requiring only basic knowledge of an animals speed of movement, the other a more demanding correlated random walk that would require detailed tracking data and parameter estimation from a Hidden Markov Model (HMM). The choice between these will be clear - if there is not support for a fine-scale movement model, then the simpler model will necessarily be chosen as the turning angle, step length and correlations are not able to be populated. 
 
 ## Movement models
 
 Two agent movement methods are supported, presented here in order of complexity/data requirements.
 
-**Density informed** this method uses density information to generate stochastic destinations for the agents, which are combined with activity budgets and basic speed information to give travel paths. The process is:
+**Density-informed** this method uses density information to generate stochastic destinations for the agents, which are combined with activity budgets and basic speed information to give travel paths. The process is:
 
 1.  Use the species' density information in a likelihood fashion to generate a target destination for an agent i.e. high density areas are relatively more likely to be chosen.
 
@@ -302,13 +307,13 @@ At each movement step the agents are evaluated, which includes simple location, 
 
 -   Direction of travel, speed, depending on movement model.
 
--   Agent body-mass, depending on population of energy-to-mass conversion functions
+-   Agent body mass, depending on population of energy-to-mass conversion functions
 
 Additionally, state transitions for the next step may be calculated - as described in the state balancing section previously, where $t+1$ activity states are related to energy intakes at time $t$.
 
-# Querying the simulation, counterfactuals
+# Outputs
 
-A principal use of the IBM is to run counterfactuals, where the simulation is run with and without a perturbation, such as the presence of an OWF. There are run in `roamR` in a paired fashion: the same agents are used in both scenarios, with changes only imposed on the definitions of the environment. Maintaining the same random seed sequence in both cases means the paired agents will start with the same properties, and subject to the same stochastic influences except where the purturbation creates changes.
+A principal use of the IBM is to run counterfactuals, where the simulation is run with and without a perturbation, such as the presence of an OWF. There are run in `roamR` in a paired fashion: the same agents are used in both scenarios, with changes only imposed on the definitions of the environment. Maintaining the same random seed sequence in both cases means the paired agents will start with the same properties, and subject to the same stochastic influences except where the perturbation creates changes.
 
 Quantification of the impact of the perturbation can be done on any of the defined agent condition (and/or history), but likely to be differences in:
 
@@ -318,9 +323,9 @@ Quantification of the impact of the perturbation can be done on any of the defin
 
 -   Distributions of activity/behavioural states
 
--   Minimum body-mass over the season
+-   Minimum body mass over the season
 
--   (relatedly) Mortality
+-   Mortality
 
 As a mass-agent IBM, these are not single values, but distributions representing the variability in the simulated populations e.g. the distribution of differences in end-of-season body mass from baseline compared to OWF perturbation. These directly informative at a population level, and tangible for down-stream calculations. For example, passed to Population Viability Analyses (PVAs) where counterfactuals may use:
 
@@ -328,16 +333,6 @@ As a mass-agent IBM, these are not single values, but distributions representing
 
 -   Relationships between body mass and reproductive success, to alter PVA demographic parameters
 
-# Installation
-
-`roamR` is not currently on CRAN - installation is direct from github. You can use devtools to install:
-
-```{r, eval=FALSE}
-
-devtools::install_github("dmpstats/roamR", ref = "master")
-```
-
-Noting an authorisation token may be required if the repository is not yet public.
 
 # References
 
