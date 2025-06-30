@@ -55,12 +55,11 @@ cover a range of data support:
 - Relatively data poor: Red-Throated Divers in the North Sea, which are
   less understood.
 
-In the more extreme, `roamR` has been developed with the intention of
-simulating very well known animal populations, for example a population
-with extensive GPS tagging information, that might suffice for
-estimation of a Hidden Markov Model. For example those demonstrated in
-Michelot XXX fitted to Fulmar, which could be subsequently simulated in
-the momentHMM package.
+At the more extreme information end, `roamR` has been developed to
+simulate agents at a very detailed level, for example a population with
+extensive GPS tagging information. The exemplar that guided this was the
+Hidden Markov Model of McClintock & Michelot (2018) and subsequent
+fitting to detailed Fulmar track data.
 
 ## Installation
 
