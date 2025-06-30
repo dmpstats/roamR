@@ -1,0 +1,8 @@
+   .zoomable {
+     transition: transform 0.3s ease; /* Smooth zoom transition */
+   }
+
+   .zoomable:hover {
+     transform: scale(2); /* Zoom to 150% on hover */
+     cursor: pointer; /* Indicate zoomable behavior */
+   }
