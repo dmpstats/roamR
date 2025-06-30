@@ -1,0 +1,40 @@
+url: https://dmpstats.github.io/roamR/
+template:
+  bootstrap: 5
+
+reference:
+- title: IBM setup
+  desc: High-level IBM controls and definitions
+  contents:
+  - matches("IBM")
+- title: Species definitions
+  desc: Species/simulated population level functions
+  contents:
+  - matches("Spec")
+- title: Environment definitions
+  desc: Functions relating to the driver definitions
+  contents:
+  - matches("Driv")
+- title: Classes
+  desc: Class definitions
+  contents:
+  - matches("class")
+- title: Alphabetical
+  desc: Complete list of user-facing functions
+  contents:
+  - matches(".*")
+
+articles:
+- title: Overview
+  desc: High level description of package
+  contents:
+  - articles/roamR-guide
+
+- title: Case studies
+  desc: Applications of roamR
+  contents:
+  - articles/case-study-guillemot
+
+- title: internal
+  contents:
+  - articles/case-study-RTD
