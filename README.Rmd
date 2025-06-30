@@ -44,18 +44,11 @@ In the more extreme, `roamR` has been developed with the intention of simulating
 
 ## Installation
 
-You can install the development version of roamR like so:
+`roamR` is not currently on CRAN - installation is direct from github. You can use devtools to install:
 
-``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+```{r, eval=FALSE}
+
+devtools::install_github("dmpstats/roamR", ref = "master")
 ```
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-library(roamR)
-## basic example code
-```
 
