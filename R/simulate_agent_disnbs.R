@@ -491,8 +491,6 @@ estimate_costs <- function(agent, states_profile, drivers) {
 #' @param feed_avg_net_energy average net energy intake per unit of time feeding (e.g. kJ/hr)
 #' @param target_energy cumulative net energy target (kJ)
 #' @param step_duration duration of the simulation time-step (e.g 1 day)
-#' @param imp_mult multiplier for energy intake if needed e.g. some proportional decrease due to competition
-#' @param body_mass if energy is per unit body weight
 #'
 #' @returns A list of time budgets allocated to each state (as relative proportions)
 #'
@@ -507,23 +505,13 @@ rebalance_states <- function(states_budget,
                              curr_energy,
                              feed_avg_net_energy,
                              target_energy,
-                             step_duration,
-                             imp_mult = 1,
-                             body_mass = NULL){
+                             step_duration){
 
   out_states <- states_budget
 
   # lower and upper bounds of feed budget, as proportion of step duration
   feed_upper <- 1 - night_prop
   feed_lower <- 0
-
-  feed_avg_net_energy <- imp_mult * feed_avg_net_energy
-
-  if(!is.null(body_mass)){
-
-    feed_avg_net_energy <- feed_avg_net_energy * body_mass
-
-  }
 
   # net energy demand
   net_target_energy <- target_energy - curr_energy
