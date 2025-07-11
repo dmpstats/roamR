@@ -16,6 +16,7 @@ run_disnbs <- function(ibm,
                        imp_intake_id = NULL,
                        feed_state_id,
                        roost_state_id,
+                       energy_mass_mult = NULL,
                        feed_avg_net_energy = units::set_units(422, "kJ/h"),
                        target_energy = units::set_units(1, "kJ"),
                        waypnts_res = 100, # units::set_units(100, "m")
@@ -288,6 +289,7 @@ run_disnbs <- function(ibm,
       scen = "baseline",
       night_proportion = night_prop,
       dnbs_cfg = cfg,
+      energy_mass_mult = energy_mass_mult,
       feed_avg_net_energy = feed_avg_net_energy,
       target_energy = target_energy,
       .options = furrr::furrr_options(
@@ -316,6 +318,7 @@ run_disnbs <- function(ibm,
       scen = "impact",
       night_proportion = night_prop,
       dnbs_cfg = cfg,
+      energy_mass_mult = energy_mass_mult,
       feed_avg_net_energy = feed_avg_net_energy,
       target_energy = target_energy,
       .options = furrr::furrr_options(
@@ -347,7 +350,7 @@ run_disnbs <- function(ibm,
 # this specific case, failing to do this would export the whole `ibm` object to
 # each of the workers, slowing down performace and increasing memory requirements
 sim_agent_wrapper <- function(i, agents, drivers, states_profile, scen,
-                              night_proportion, dnbs_cfg, feed_avg_net_energy,
+                              night_proportion, dnbs_cfg, feed_avg_net_energy, energy_mass_mult,
                               target_energy){
   simulate_agent_disnbs(
     agent = agents[[i]],
@@ -356,6 +359,7 @@ sim_agent_wrapper <- function(i, agents, drivers, states_profile, scen,
     scen = scen,
     night_proportion = night_proportion,
     dnbs_cfg = dnbs_cfg,
+    energy_mass_mult = energy_mass_mult,
     feed_avg_net_energy = feed_avg_net_energy,
     target_energy = target_energy
   )

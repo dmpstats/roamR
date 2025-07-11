@@ -1,0 +1,178 @@
+Country,Name,Status,Year,Owner,Turbine_type,Number_turbines,Turbine_model,Proxy_turbine,Turbine_MW,Rotor_radius,Airgap,Data_source
+Belgium,Belwind phase 1,Production,2010,Parkwind NV,Fixed,55,V90-3.0 MW,,3,45,27,https://www.belgianoffshoreplatform.be/en/projects/belwind/
+Belgium,Belwind phase 2 (Nobelwind) (Zone 1),Production,2017,Parkwind NV,Fixed,10,V112-3.3 MW ,,3.3,56,23,https://www.belgianoffshoreplatform.be/en/projects/nobelwind/
+Belgium,Belwind phase 2 (Nobelwind) (Zone 2),Production,2017,Parkwind NV,Fixed,40,V112-3.3 MW ,,3.3,56,23,https://www.belgianoffshoreplatform.be/en/projects/nobelwind/
+Belgium,C-Power (Zone A),Production,2013,C-Power,Fixed,24,Senvion 6.2M126,,6.15,63,31,https://www.belgianoffshoreplatform.be/en/projects/c-power/
+Belgium,C-Power (Zone B),Production,2013,C-Power,Fixed,30,Senvion 6.2M127,,6.15,63,31,https://www.belgianoffshoreplatform.be/en/projects/c-power/
+Belgium,Mermaid,Production,2020,Otary,Fixed,28,SG 8.0-167 DD,,8.4,83.5,24,https://www.otary.be/en/projects/seamade
+Belgium,Norther,Production,2019,Belgian Elicio & Dutch Eneco,Fixed,44,V164-8.3 MW,,8.4,82,16,https://www.belgianoffshoreplatform.be/en/projects/norther/
+Belgium,Northwester 2,Production,2020,Parkwind NV,Fixed,23,V164-9.5,,9.5,82,16,https://www.belgianoffshoreplatform.be/en/projects/northwester-2/
+Belgium,Northwind,Production,2014,Parkwind NV,Fixed,72,MVOW V112 3.0,,3,56,15,https://www.belgianoffshoreplatform.be/en/projects/northwind/
+Belgium,Princess Elisabeth Zone Lot 1,Planned,2029,,Fixed,47,,IEA-15MW-240-RWT,15,120,30,https://economie.fgov.be/en/themes/energy/belgian-offshore-wind-energy
+Belgium,Princess Elisabeth Zone Lot 2.1,Planned,2030,,Fixed,94,,IEA-15MW-240-RWT,15,120,30,https://economie.fgov.be/en/themes/energy/belgian-offshore-wind-energy
+Belgium,Princess Elisabeth Zone Lot 2.2,Planned,2030,,Fixed,47,,IEA-15MW-240-RWT,15,120,30,https://economie.fgov.be/en/themes/energy/belgian-offshore-wind-energy
+Belgium,Princess Elisabeth Zone Lot 3,Planned,2030,,Fixed,47,,IEA-15MW-240-RWT,15,120,30,https://economie.fgov.be/en/themes/energy/belgian-offshore-wind-energy
+Belgium,Rentel,Production,2018,Otary,Fixed,42,SWT-7.0-154,,7.35,77,27,https://www.belgianoffshoreplatform.be/en/projects/rentel/
+Belgium,Seastar,Production,2020,Otary,Fixed,30,SG 8.0-167 DD,,8.4,83.5,24,https://www.otary.be/en/projects/seamade
+Denmark,Frederikshavn,Production,2003,SE Blue Renewables,Fixed,4,,,3,45,,
+Denmark,Frederikshavn Offshore Demo,Planned,2024,European Energy,Fixed,5,V236-15 MW,,15,115,,https://www.offshorewind.biz/2022/10/26/vestas-15-mw-wind-turbines-cleared-for-first-offshore-deployment/ 
+Denmark,Horns Rev I,Production,2002,Ørsted A/S,Fixed,80,V80-2.0 MW,,2,39,,https://powerplants.vattenfall.com/horns-rev/
+Denmark,Horns Rev II,Production,2009,Ørsted A/S,,91,SWT-2.3-93,,2.3,40,23,https://orsted.dk/vores-groenne-loesninger/havvind/vores-havvindmoelleparker
+Denmark,Horns Rev III,Production,2019,Vattenfall AB,Fixed,49,V164-9.5 MW,,8.3,82,,Power plants: Horns Rev 3 - Vattenfall
+Denmark,Jyske Banke,Planned,2028,Ørsted A/S,Fixed,52,,,20,135,24,https://orsted.com/en/media/newsroom/news/2022/10/13662868
+Denmark,Nissum Bredning,Production,2018,Jysk Energi A/S,Fixed,4,SWT-7.0-154,,7,77,,
+Denmark,Nordsren I,Planned,2030,Energinet,Floating,200,,IEA-15MW-240-RWT,15,120,30,https://ens.dk/en/press/dea-issues-permit-preliminary-site-investigations-site-nordsoen-i
+Denmark,Renland,Production,2003,Thyborøn-Harboøre Vindmøllelaug I/S,,8,SWT-2.3-93,,2.3,40,,
+Denmark,Thor - 2020 Tender,Planned,2027,RWE AG,Fixed,72,SG 14-236 DD,,14,118,,https://thor.rwe.com/thor-news/23-04-20-rwe-news
+Denmark,Vesterhav Nord,Approved,2023,Vattenfall Europe AG,,20,SG 8.0-167 DD,,8.4,81.4,,https://group.vattenfall.com/press-and-media/pressreleases/2021/vattenfall-gives-go-ahead-for-vesterhav-syd-and-nord-offshore-wind-farms
+Denmark,Vesterhav Syd,Approved,2023,Vattenfall Europe AG,,21,SG 8.0-167 DD,,8.4,81.4,,https://group.vattenfall.com/press-and-media/pressreleases/2021/vattenfall-gives-go-ahead-for-vesterhav-syd-and-nord-offshore-wind-farms
+France,Dunkerque,Planned,2028,RWE Renewables,Fixed,40,,IEA-15MW-240-RWT,15,120,20,https://parc-eolien-en-mer-de-dunkerque.fr/presentation-du-projet/
+Germany,Albatros,Production,2020,EnBW Energie Baden-Württemberg AG,Fixed,16,SWT-7.0-154,,7.35,77,28,https://www.enbw.com/renewable-energy/wind-energy/our-offshore-wind-farms/hohe-see/
+Germany,Alpha Ventus,Production,2010,EWE AGv,Fixed,12,6 Senvion 5M & 6 Adwen AD 5-116,,5,63,29,https://www.alpha-ventus.de/technik
+Germany,Amrumbank West,Production,2015,RWE Renewables,Fixed,80,SWT-3.6-120,,3.6,58.5,30,https://www.rwe.com/en/the-group/countries-and-locations/amrumbank-west-offshore-wind-farm/
+Germany,BARD Offshore 1,Production,2013,Ocean Breeze Energy GmbH & Co. KG.,Fixed,80,Bard 5.0,,5,61,29,https://www.renewable-technology.com/projects/bard-offshore-i-bo1-north-sea/
+Germany,Borkum Riffgrund 1,Production,2015,Ørsted AS,Fixed,78,SWT-4.0-120,,4,60,30,
+Germany,Borkum Riffgrund 2,Production,2018,Ørsted AS,Fixed,56,V164-8.0 MW,,8,82,,
+Germany,Borkum Riffgrund 3,Approved,2025,Ørsted AS,Fixed,83,SG 11.0-200 DD,,11,100,,
+Germany,Butendiek,Production,2015,OWP Butendiek GmbH & Co. KG,Fixed,80,SWT-3.6-120,,3.6,60,30,http://www.owp-butendiek.de/
+Germany,Dan Tysk,Production,2014,DanTysk Offshore Wind GmbH,Fixed,80,SWT-3.6-120,,3.6,60,30,https://powerplants.vattenfall.com/de/dantysk/
+Germany,Deutsche Bucht,Production,2020,Northland Deutsche Bucht,Fixed,31,V164-8.0 MW,,8,82,,https://www.northlandpower.com/en/assets-and-infrastructure/deutsche-bucht.aspx
+Germany,EnBW He Dreiht,Approved,2025,EnBW Energie Baden-Württemberg AG,Fixed,64,V236-15.0 MW,,15,118,26.5,https://www.enbw.com/renewable-energy/wind-energy/our-offshore-wind-farms/he_dreiht/
+Germany,EnBW Hohe See,Production,2020,EnBW Energie Baden-Württemberg AG,Fixed,71,SWT-7.0-154,,7.35,77,28,EnBW Hohe See and EnBW Albatros | EnBW
+Germany,GlobalTech I,Production,2015,Global Tech I Offshore Wind GmbH,Fixed,80,Adwen AD 5-116,,5,58,34,https://globaltechone.de/power/
+Germany,Gode Wind 01,Production,2016,Ørsted AS,Fixed,55,SWT-6.0-154,,6,77,28,https://orsted.de/gruene-energie/offshore-windenergie/unsere-offshore-windparks-nordsee/gode-wind-1-2
+Germany,Gode Wind 02,Production,2016,Ørsted AS,Fixed,42,SWT-6.0-154,,6,77,28,https://orsted.de/gruene-energie/offshore-windenergie/unsere-offshore-windparks-nordsee/gode-wind-1-2
+Germany,Gode Wind 3,Approved,2024,Ørsted AS,Fixed,23,SG 11.0-200 DD,,11,100,,https://orsted.de/gruene-energie/offshore-windenergie/unsere-offshore-windparks-nordsee/offshore-windpark-gode-wind-3
+Germany,Kaskasi II,Production,2023,RWE Renewables,Fixed,38,SG 8.0-167 DD,,8,83.5,26.5,https://www.rwe.com/en/the-group/countries-and-locations/offshore-wind-farm-kaskasi/
+Germany,Meerwind Sued/Ost,Production,2014,WindMW GmbH,Fixed,80,SWT-3.6-120,,3.6,60,30,https://www.windmw.de/
+Germany,Merkur Offshore (MEG Offshore I),Production,2019,MERKUR Offshore Service GmbH,Fixed,63,Haliade 150-6MW,,6,75,25,https://www.ge.com/renewableenergy/stories/building-merkur-offshore-wind-farm
+Germany,N-10.1,Planned,2030,,Fixed,133,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-10.2,Planned,2030,,Fixed,33,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-11.1,Planned,2030,,Fixed,133,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-12.1,Planned,2030,,Fixed,133,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-12.2,Planned,2030,,Fixed,133,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-3.5,Planned,2028,,Fixed,28,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-3.6,Planned,2028,,Fixed,32,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-3.7,Planned,2026,,Fixed,15,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-3.8,Planned,2026,,Fixed,28,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-6.6,Planned,2028,,Fixed,42,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-6.7,Planned,2028,,Fixed,18,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-7.2,Planned,2027,,Fixed,65,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-9.1,Planned,2029,,Fixed,133,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-9.2,Planned,2029,,Fixed,133,,IEA-15MW-240-RWT,15,120,30,
+Germany,N-9.3,Planned,2029,,Fixed,100,,IEA-15MW-240-RWT,15,120,30,
+Germany,Nordergruende,Production,2017,OWP Nordergründe GmbH & Co,Fixed,18,6.2M126,,6.15,63,32,
+Germany,Nordsee One,Production,2017,Nordsee One GmbH,Fixed,54,6.2M126,,6.15,63,32,http://www.nordseeone.com/
+Germany,Nordsee Ost,Production,2015,RWE Renewables,Fixed,48,6.2M127,,6.15,63,32,
+Germany,Riffgat,Production,2014,EWE AG,Fixed,30,SWT-3.6-120,,3.6,60,30,https://www.ewe.com/en/ewe-group/company/group-structure/offshore-windpark-riffgat
+Germany,Sandbank,Production,2017,Sandbank Offshore Wind GmbH,Fixed,72,SWT-4.0-130,,4,65,,https://powerplants.vattenfall.com/de/sandbank/
+Germany,Trianel Windpark Borkum Phase 1,Production,2015,Trianel Windkraftwerk Borkum GmbH & Co. KG,Fixed,40,M5000-116,,5,58,32,http://www.trianel-borkum.de
+Germany,Trianel Windpark Borkum Phase 2,Production,2020,Trianel Windkraftwerk Borkum GmbH & Co. KG,Fixed,32,6.2M152,,6.15,76,33,
+Germany,Veja Mate,Production,2017,Veja Mate Offshore Project GmbH,Fixed,67,SWT-6.0-154,,6,77,28,http://www.vejamate.de/
+Netherlands,Borssele Kavel I and II,Production,2020,Ørsted A/S,Fixed,94,SG 8.0-167 DD,,8,83.5,,https://orsted.nl/nl/duurzame-energie/wind-op-zee/borssele-1-en-2
+Netherlands,Borssele Kavel III and IV,Production,2020,Blauwwind II Consortium,Fixed,77,V164-9.5 MW,,9.5,82,,https://www.blauwwind.nl/
+Netherlands,Borssele Kavel V,Production,2020,Two Towers BV,Fixed,2,V164-9.5 MW,,9.5,82,,https://www.vanoord.com/en/updates/borssele-wind-farm-site-v-turning-innovations-reality/
+Netherlands,Buitengaats / Gemini I,Production,2017,"Northland Power, Inc.",Fixed,75,SWT-4.0-130,,4,65,,https://geminiwindpark.nl/
+Netherlands,Doordewind,Planned,2030,,Fixed,268,,IEA-15MW-240-RWT,15,120,30,
+Netherlands,HKN Kavel V,Approved,2023,CrossWind C.V.,Fixed,69,SG 11.0-200 DD,,11,100,,https://www.noordzeeloket.nl/en/functions-and-use/offshore-wind-energy/free-passage-shared-use/hollandse-kust-noord-wind-farm-zone-including/
+Netherlands,HKW Kavel VI,Approved,2026,"Shell Wind Energy Ltd, Eneco",Fixed,69,SG 11.0-200 DD,,11,100,30,
+Netherlands,HKW Kavel VII,Approved,2026,Oranje Wind Power II,Fixed,69,SG 11.0-200 DD,,11,100,30,
+Netherlands,HKZ Kavel I,Construction,2023,Vattenfall AB,Fixed,35,SG 11.0-193 DD,,11,96.5,,https://vattenfall-hollandsekust.nl/en/wind-farm/
+Netherlands,HKZ Kavel II,Construction,2023,Vattenfall AB,Fixed,35,SG 11.0-193 DD,,11,96.5,,https://vattenfall-hollandsekust.nl/en/wind-farm/
+Netherlands,HKZ Kavel III,Construction,2023,Vattenfall AB,Fixed,35,SG 11.0-193 DD,,11,96.5,,https://vattenfall-hollandsekust.nl/en/wind-farm/
+Netherlands,HKZ Kavel IV,Construction,2023,Vattenfall AB,Fixed,35,SG 11.0-193 DD,,11,96.5,,https://vattenfall-hollandsekust.nl/en/wind-farm/
+Netherlands,Hollandse Kust west zuiderlijk deel,Planned,2030,,Fixed,43,,IEA-15MW-240-RWT,15,120,30,
+Netherlands,IJmuiden Ver 2021,Planned,2030,,Fixed,200,,IEA-15MW-240-RWT,15,120,30,
+Netherlands,IJmuiden ver Noord,Planned,2030,,Fixed,200,,IEA-15MW-240-RWT,15,120,30,
+Netherlands,Nederwiek noord,Planned,2030,,Fixed,134,,IEA-15MW-240-RWT,15,120,30,
+Netherlands,Nederwiek zuid,Planned,2030,,Fixed,134,,IEA-15MW-240-RWT,15,120,30,
+Netherlands,NSW Offshore windpark Egmond aan Zee,Production,2007,Shell Wind Energy Ltd,Fixed,36,V90-3.0 MW,,3,45,,https://www.noordzeeloket.nl/en/functions-and-use/offshore-wind-energy/free-passage-shared-use/offshore-wind-farm-egmond-aan-zee-owez/
+Netherlands,Prinses Amalia Windparken,Production,2008,Eneco Wind B.V. O&M Base,Fixed,60,V80-2.0 MW,,2,40,20,https://www.noordzeeloket.nl/en/functions-and-use/offshore-wind-energy/free-passage-shared-use/hollandse-kust-noord-wind-farm-zone-including/
+Netherlands,Ten noorden van de Wadden west,Planned,2030,,Fixed,47,,IEA-15MW-240-RWT,15,120,30,
+Netherlands,WP Q10 / Eneco Luchterduinen,Production,2015,Eneco Wind B.V. O&M Base,Fixed,43,V112-3.0 MW,,3,55,26,https://www.eneco.com/what-we-do/sustainable-sources/eneco-luchterduinen-wind-farm/
+Netherlands,ZeeEnergie / Gemini II,Production,2017,"Northland Power, Inc.",Fixed,75,SWT-4.0-130,,4,65,,https://geminiwindpark.nl/
+Norway,Hywind Tampen,Production,2022,Equinor,Floating,11,,,8.8,85,,
+Norway,SorNordsjo II Phase 1,Planned,2030,NVE,Fixed,100,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/sorlige-nordsjo-ii-og-utsira-nord/sorlige-nordsjo-ii/
+Norway,Sorvest F1,Planned,2030,NVE,Fixed,167,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/sorvest-f-inkl-sorlige-nordsjo-ii/
+Norway,Sorvest F2,Planned,2030,NVE,Fixed,167,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/sorvest-f-inkl-sorlige-nordsjo-ii/
+Norway,Sorvest F3,Planned,2030,NVE,Fixed,167,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/sorvest-f-inkl-sorlige-nordsjo-ii/
+Norway,Sorvest F4,Planned,2030,NVE,Fixed,167,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/sorvest-f-inkl-sorlige-nordsjo-ii/
+Norway,Utsira Nord 1,Planned,2030,NVE,Floating,50,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/vestavind-f-inkl-utsira-nord/
+Norway,Utsira Nord 2,Planned,2030,NVE,Floating,50,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/vestavind-f-inkl-utsira-nord/
+Norway,Utsira Nord 3,Planned,2030,NVE,Floating,50,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/vestavind-f-inkl-utsira-nord/
+Norway,Vestavind F1,Planned,2030,NVE,Floating,67,,IEA-15MW-240-RWT,15,120,30,https://veiledere.nve.no/havvind/identifisering-av-utredningsomrader-for-havvind/nye-omrader-for-havvind/vestavind-f-inkl-utsira-nord/
+Sweden,Mareld,Planned,2030,Freja offshore,Floating,167,,,15,130,20,https://mareld.gatsby.qte.nu/wp-content/uploads/2023/03/SamradsunderlagMareldmedbilaga.pdf 
+Sweden,Vastvind,Planned,2029,Eolus,Fixed,50,,,20,135,24,https://www.eolusvind.com/projekt/havsbaserad-vind/vastvind-vindkraftpark/
+United Kingdom,Aberdeen Offshore W/F,Production,2018,Vattenfall,Fixed,11,nine Vestas V164-8.4MW and two V164-8.8MW,,8.8,82,,https://group.vattenfall.com/uk/what-we-do/our-projects/european-offshore-wind-deployment-centre
+United Kingdom,Arven Offshore Wind Farm,Planned,2027,"Mainstream Renewable Power, EDP Renovaveis, Engie",Floating,120,,IEA-15MW-240-RWT,15,120,30,https://www.mainstreamrp.com/markets-projects/europe/united-kingdom/arven-scotwind-wind-farm/
+United Kingdom,Beatrice Offshore Wind Farm,Production,2019,"SSE, Red Rock Power, TRIG, Equitix",Fixed,84,SWT-7.0-154,,7,77,,https://www.beatricewind.com/
+United Kingdom,Bellrock,Planned,2028,"BlueFloat Energy, Renantis",Floating,80,,IEA-15MW-240-RWT,15,120,30,https://www.bellrockwind.co.uk/
+United Kingdom,Berwick Bank Wind Farm,Approved,2028,SSE Renwables,Fixed,154,,IEA-15MW-240-RWT,15,120,30,https://www.berwickbank.com/project
+United Kingdom,Blyth Demo Phase 1,Production,2017,EDF Renewables,Fixed,5,V164-8.0,,8,82,,https://www.power-technology.com/marketdata/power-plant-profile-blyth-offshore-wind-demonstration-site-uk/
+United Kingdom,Blyth Demonstration Phases 2&3,Approved,2025,EDF Renewables,Floating,Four turbines of up to 258 m to tip or five turbines of up to 222 m to tip,,,up to 14,110,,https://www.edfenergy.com/media-centre/news-releases/blyth-offshore-wind-farm-phase-two-expansion-underway-using-floating
+United Kingdom,Broadshore,Planned,2030,BlueFloat Energy & Renantis,Floating,60,,IEA-15MW-240-RWT,15,120,30,
+United Kingdom,Buchan Offshore Wind Farm,Planned,2030,"BW Ideol, Elicio, BayWa r.e.",Floating,64,,IEA-15MW-240-RWT,15,120,30,https://buchanoffshorewind.com/about
+United Kingdom,Caledonia Offshore Wind Farm,Planned,2030,Ocean Winds,Mixed: three quarters fixed,84,,,24,135,,https://www.caledoniaoffshorewind.com/
+United Kingdom,Campion,Planned,2028,ScottishPower and Shell,Floating,100,,,20,135,,https://www.power-technology.com/marketdata/power-plant-profile-campion-wind-offshore-project-uk/
+United Kingdom,Dogger Bank A,Construction,2026,"SSE, Equinor, Vårgrønn",Fixed,95,GE’s Haliade-X,,14,110,,https://www.sserenewables.com/offshore-wind/projects/dogger-bank/
+United Kingdom,Dogger Bank B,Construction,2026,"SSE, Equinor, Vårgrønn",Fixed,95,GE’s Haliade-X,,14,110,,https://www.sserenewables.com/offshore-wind/projects/dogger-bank/
+United Kingdom,Dogger Bank C,Approved,2026,"SSE, Equinor, Vårgrønn",Fixed,87,GE’s Haliade-X,,14,110,,https://www.sserenewables.com/offshore-wind/projects/dogger-bank/
+United Kingdom,Dudgeon,Production,2017,Equinor,Fixed,67,SWT-6.0-154,,6,77,,https://dudgeonoffshorewind.co.uk/
+United Kingdom,Dudgeon Extension,Planned,2027,"Equinor, China Resources, Masdar",Fixed,30,,,13.4,110,,https://www.power-technology.com/marketdata/power-plant-profile-dudgeon-offshore-wind-farm-extension-project-uk/
+United Kingdom,East Anglia ONE,Production,2020,"ScottishPower, Macquarie's Green Investment Group",Fixed,102,SWT-7.0-154,,7,77,,https://www.power-technology.com/projects/east-anglia-one-offshore-wind-farm/
+United Kingdom,East Anglia ONE NORTH,Approved,2026,ScottishPower,Fixed,67,,,12,110,,https://www.power-technology.com/marketdata/east-anglia-one-north-scottishpower-uk/
+United Kingdom,East Anglia THREE,Construction,2026,ScottishPower,Fixed,100,,, 7 - 12,110,,https://www.power-technology.com/projects/east-anglia-three-offshore-wind-farm-uk/
+United Kingdom,East Anglia TWO,Planned,2030,ScottishPower,Fixed,75,,,19,125,,https://www.power-technology.com/projects/east-anglia-two-offshore-wind-farm-north-sea/
+United Kingdom,Five Estuaries,Planned,2030,RWE Renewables UK,Fixed,48-79,,,6.3,77,,https://fiveestuaries.co.uk/about/
+United Kingdom,Forthwind Methil Demonstration,Approved,2030,Cierco wind,Floating,2,2B6,,9,128,25,https://forthwind.co.uk/project
+United Kingdom,Galloper,Production,2018,"RWE Renewables, Siemens Financial Services, ESB, Sumitomo Corporation",Fixed,56,SWT-6.0-154,,6.3,77,,"https://www.power-technology.com/projects/galloper-offshore-wind-farm/#:~:text=Galloper%20offshore%20windfarm%20make%2Dup&text=The%20Galloper%20offshore%20windfarm%20features,total%20generation%20capacity%20of%20353MW."
+United Kingdom,Greater Gabbard,Production,2012,"SSE Renewables, RWE Renewables",Fixed,140,SWT-3.6-107,,3.6,60,,"https://www.power-technology.com/marketdata/power-plant-profile-greater-gabbard-uk/#:~:text=The%20company%20provided%20140%20units,Gabbard%2C%20buy%20the%20profile%20here."
+United Kingdom,Gunfleet Sands Demo,Production,2013,DONG Energy,Fixed,2,Siemens,,6,77,22,https://www.renewable-technology.com/projects/gunfleet-sands-offshore-wind-farm/
+United Kingdom,Gunfleet Sands I,Production,2010,DONG Energy,Fixed,30,SWT-3.6-107,,3.6,53.5,22,https://www.renewable-technology.com/projects/gunfleet-sands-offshore-wind-farm/
+United Kingdom,Gunfleet Sands II,Production,2010,DONG Energy,Fixed,18,SWT-3.6-107,,3.6,53.5,22,https://www.renewable-technology.com/projects/gunfleet-sands-offshore-wind-farm/
+United Kingdom,Hornsea 1 (Centre),Production,2020,Ørsted,Fixed,58,SWT-7.0-154,,7,77,,https://hornseaprojects.co.uk/
+United Kingdom,Hornsea 1 (East),Production,2020,Ørsted,Fixed,58,SWT-7.0-154,,7,77,,https://hornseaprojects.co.uk/
+United Kingdom,Hornsea 1 (West),Production,2020,Ørsted,Fixed,58,SWT-7.0-154,,7,77,,https://hornseaprojects.co.uk/
+United Kingdom,Hornsea Project 2 (HOW02) Wind Farm,Production,2022,Ørsted,Fixed,165,SG 8.0-167 DD,,8,81.4,,https://hornseaprojects.co.uk/hornsea-project-two
+United Kingdom,Hornsea Project Four (HOW04),Planned,2028,Ørsted,Fixed,180,,,14.5,110,,https://hornseaprojects.co.uk/hornsea-project-four/about-the-project-4
+United Kingdom,Hornsea Project Three (HOW03),Approved,2026,Ørsted,Fixed,231,,,12.4,110,,https://hornseaproject3.co.uk/about-the-project
+United Kingdom,Humber Gateway,Production,2015,RWE Renewables,Fixed,73,V112-3.0 MW,,3,55,,https://www.thewindpower.net/windfarm_en_12070_humber-gateway.php
+United Kingdom,Hywind Scotland Pilot Park,Production,2017,Equinor,Floating,5,Siemens direct-drive,,6,77,,https://www.equinor.com/energy/hywind-scotland
+United Kingdom,Inch Cape Offshore Wind Farm,Approved,2025,"Red Rock Power, ESB",Fixed,72,V236-15.0,,15,118,,https://www.inchcapewind.com/the-wind-farm/
+United Kingdom,Inner Dowsing,Production,2008,Centrica,Fixed,27,SWT-3.6-107,,3.6,60,,https://www.power-technology.com/projects/lynnandinnerdowsing/
+United Kingdom,Kentish Flats,Production,2005,Vattenfall,Fixed,30,V90-3.0 MW,,3,45,,https://powerplants.vattenfall.com/kentish-flats/
+United Kingdom,Kentish Flats Extension,Production,2015,Vattenfall,Fixed,15,V112 3.3 MW,,3.3,56,,https://powerplants.vattenfall.com/kentish-flats-extension/
+United Kingdom,Kincardine,Production,2021,Cobra Group,Floating,6,Five Vestas V164-9.5 MW and one V80-2 MW,,"9.5, 2",82,,https://www.principlepower.com/news/kowl-worlds-largest-floating-windfarm-fully-operational
+United Kingdom,Lincs,Production,2013,"Centrica Energy, Siemens project Ventures, DONG Energy",Fixed,75,SWT-3.6-107,,3.6,60,,https://www.renewable-technology.com/projects/lincs-offshore-wind-farm-north-sea/
+United Kingdom,London Array,Production,2013,"RWE, Orsted, Masdar & La Caisse de dépôt et placement du Québec (CDPQ)",Fixed,175,SWT-3.6-120,,3.6,60,,https://londonarray.com/
+United Kingdom,Lynn,Production,2008,Centrica,Fixed,27,SWT-3.6-107,,3.6,60,,https://www.power-technology.com/projects/lynnandinnerdowsing/
+United Kingdom,Marr Bank Wind Farm,Approved,2028,SSE Renwables,Fixed,124,,IEA-15MW-240-RWT,15,120,30,https://www.berwickbank.com/project
+United Kingdom,Marram,Planned,2028,"ScottishPower, Shell",Floating,150,,,20,135,,https://www.power-technology.com/marketdata/power-plant-profile-marram-wind-offshore-project-uk/
+United Kingdom,Methil Demo,Production,2013,Samsung Renewable Energy,Fixed,1,Samsung 7.0-171,,7,85.5,,https://www.thewindpower.net/windfarm_en_16664_fife-energy-park.php
+United Kingdom,Moray Offshore Windfarm (East),Production,2021,OceanWinds,Fixed,100,V164-9.5MW,,9.5,82,,https://www.morayeast.com/
+United Kingdom,Moray West,Approved,2025,OceanWinds,Fixed,60,SG 14-222 DD,,14,111,,https://www.moraywest.com/
+United Kingdom,Morven,Planned,2030,"BP, EnBW",Fixed,194,,IEA-15MW-240-RWT,15,120,30,https://www.power-technology.com/marketdata/power-plant-profile-morven-offshore-wind-project-uk/
+United Kingdom,Muir Mhor Offshore Wind Farm,Planned,2030,Muir Mhòr Offshore Wind Farm Ltd,Floating,54,,IEA-15MW-240-RWT,15,120,30,https://muirmhor.co.uk/about/
+United Kingdom,Neart Na Gaoithe Offshore Wind,Construction,2024,EDF Renewables UK,Fixed,54,SG 8.0-167 DD,,8,81.4,,https://nngoffshorewind.com/about/
+United Kingdom,Norfolk Boreas,Approved,2027,Vattenfall,Fixed,137,SG 14-236 DD,,14,118,,https://www.power-technology.com/projects/norfolk-boreas-offshore-wind-farm-uk/#catfish
+United Kingdom,Norfolk Vanguard Wind Farm,Approved,2027,Vattenfall,Fixed,158,SG 14-236 DD,,14,118,,https://www.power-technology.com/marketdata/power-plant-profile-norfolk-vanguard-uk/
+United Kingdom,North Falls,Approved,2030,"RWE Renewables, SSE Renewables",Fixed,72,,,7,77,,https://www.power-technology.com/marketdata/power-plant-profile-north-falls-offshore-wind-farm-uk/
+United Kingdom,Ossian Offshore Wind Farm,Planned,2028,"SSE Renewables, Marubeni, CIP",Floating,240,,IEA-15MW-240-RWT,15,120,30,https://www.ossianwindfarm.com/
+United Kingdom,Pentland Floating Offshore Wind Farm,Approved,2026,Highland Wind,Floating,6,,,17,120,,https://pentlandfloatingwind.com/the-project/
+United Kingdom,R4 Project 1 (Dogger Bank South West),Planned,2030,RWE,Fixed,150,,,10,82,,https://doggerbanksouth.co.uk/
+United Kingdom,R4 Project 2 (Dogger Bank South East),Planned,2030,RWE,Fixed,150,,,10,82,,https://doggerbanksouth.co.uk/
+United Kingdom,R4 Project 3 (Outer Dowsing),Planned,2030,"Total Energies, Corio Generation, Gulf Energy Developments",Fixed,150,,,10,82,,https://www.outerdowsing.com/
+United Kingdom,Race Bank,Production,2018,Ørsted,Fixed,91,SWT-6.0-154,,6,77,,https://www.nsenergybusiness.com/projects/race-bank-offshore-wind-farm-north-sea-uk/
+United Kingdom,Scroby Sands,Production,2004,RWE Offshore Wind,Fixed,30,V80-2.0 MW,,2,39,,https://www.power-technology.com/projects/scrobysands/
+United Kingdom,Seagreen 1A Offshore Wind Farm,Approved,2030,"TotalEnergies, SSE Renewables",Fixed,36,,,14,110,,
+United Kingdom,Seagreen Phase 1 Windfarm,Construction,2023,"TotalEnergies, SSE Renewables",Fixed,114,V164-10,,10,82,,https://www.sserenewables.com/offshore-wind/projects/seagreen/
+United Kingdom,Sheringham Shoal,Production,2012,Equinor,Fixed,88,Siemens Wind Power 3.6MW turbines,,3.6,53.5,,http://sheringhamshoal.co.uk/about/facts-and-figures.php
+United Kingdom,Sheringham Shoal Extension,Planned,2030,Equinor,Fixed,21,,IEA-15MW-240-RWT,15,120,,https://www.equinor.com/news/uk/sheringham-shoal-and-dudgeon-extensions-secure-pathfinder-status
+United Kingdom,Shetland NE1: map reference 20,Planned,2030,ESB Asset Development,Floating,33,,IEA-15MW-240-RWT,15,120,,https://www.crownestatescotland.com/news/three-shetland-scotwind-projects-announced
+United Kingdom,Sofia,Construction,2026,RWE,Fixed,100,SG 14-222 DD,,14,111,,https://sofiawindfarm.com/
+United Kingdom,Stromar,Planned,2030,"Ørsted, BlueFloat Energy, Renantis ",Floating,67,,IEA-15MW-240-RWT,15,120,30,https://www.stromarwind.co.uk/
+United Kingdom,Teesside,Production,2014,EDF Renewables UK,Fixed,27,SWT-2.3-93,,2.3,40,,https://www.edf-re.uk/our-sites/teesside/
+United Kingdom,Thanet,Production,2010,Vattenfall,Fixed,100,V90-3.0 MW,,3,45,,https://powerplants.vattenfall.com/thanet/
+United Kingdom,Triton Knoll,Production,2022,"RWE, J-Power, Kansai Electric Power",Fixed,90,V164-9.5,,9.5,82,,https://www.tritonknoll.co.uk/
+United Kingdom,West of Orkney Wind Farm,Planned,2029,"Corio, TotalEnergies, RIDG",Fixed,133,,IEA-15MW-240-RWT,15,120,30,https://www.westoforkney.com/
+United Kingdom,Westermost Rough,Production,2015,"Done Energy, Marubeni Corporation, UK Green Investment Bank",Fixed,35,SWT-6.0-154,,6,77,,https://www.power-technology.com/projects/westermost-rough-offshore-wind-farm-yorkshire/

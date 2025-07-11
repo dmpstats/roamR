@@ -29,6 +29,7 @@ simulate_agent_disnbs <- function(agent,
                                   night_proportion,
                                   dnbs_cfg,
                                   feed_avg_net_energy,
+                                  energy_mass_mult,
                                   target_energy = units::set_units(1, "kJ")){
 
   # TODO
@@ -184,6 +185,10 @@ simulate_agent_disnbs <- function(agent,
     unit_gain <- get_driver_cell_value(pluck_s4(drivers, intake_id), agent) |>
       assert_units_to_numeric("kJ/h")
 
+    if(!is.null(energy_mass_mult)){
+      unit_gain <- unit_gain * units::drop_units(body_mass(agent))/1000
+    }
+
     #if(is.na(unit_gain)) browser()
 
     # Current energy intake (kJ), given state budgets from previous step
@@ -223,6 +228,9 @@ simulate_agent_disnbs <- function(agent,
 
     ## Rebalance states   -----------------------------------------------------
     # at start of the step, based on current energetic demands
+
+    # remove need for this to be provided - calc on current view (so accounts for bodymass, SST)
+    feed_avg_net_energy <- unit_gain# + state_costs[[dnbs_cfg$feed_state_id]]
 
     # get night-time fraction at current step
     night_prop <- stars::st_extract(night_proportion, step_loc, time_column = "tm")[[1]]
@@ -509,9 +517,11 @@ rebalance_states <- function(states_budget,
 
   out_states <- states_budget
 
+  night_prop <- 0.05
+
   # lower and upper bounds of feed budget, as proportion of step duration
   feed_upper <- 1 - night_prop
-  feed_lower <- 0
+  feed_lower <- 0.05
 
   # net energy demand
   net_target_energy <- target_energy - curr_energy
