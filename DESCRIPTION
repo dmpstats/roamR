@@ -69,5 +69,8 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)
 LazyData: true
-Config/Needs/website: rmarkdown
+Config/Needs/website: 
+  rmarkdown,
+  tidyverse,
+  FNN
 URL: https://dmpstats.github.io/roamR/
