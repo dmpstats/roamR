@@ -30,7 +30,15 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/case-study-guillemot.html">Case Study: guillemot Isle of May</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Case Study: red-throated diver</a></li>
+    <li><a class="dropdown-item" href="../articles/roamR-guide.html">`roamR` - package overview</a></li>
+    <li><a class="dropdown-item" href="../articles/test-article.html">test-article</a></li>
+  </ul>
+</li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -567,28 +575,28 @@ config object.</li>
 <span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Validating inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[111ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[119ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing the AOC</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing the AOC <span style="color: #B2B2B2;">[5.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Cropping drivers to AOC</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping drivers to AOC <span style="color: #B2B2B2;">[61ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping drivers to AOC <span style="color: #B2B2B2;">[63ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Handling movement-influencing drivers</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Handling movement-influencing drivers <span style="color: #B2B2B2;">[16ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Handling movement-influencing drivers <span style="color: #B2B2B2;">[17ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Calculate vector fields for drivers <span style="color: #0000BB;">"aoc"</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Calculate vector fields for drivers <span style="color: #0000BB;">"aoc"</span>. <span style="color: #B2B2B2;">[2.6s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Calculate vector fields for drivers <span style="color: #0000BB;">"aoc"</span>. <span style="color: #B2B2B2;">[2.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[25ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[773ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[793ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[16ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[17ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialization Done! 🚀</span></span></code></pre></div>
 </div>
@@ -661,22 +669,10 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[2.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; ℹ Simulating baseline scenario <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span> 2/4 Agents | El…</span></span>
-<span><span class="co">#&gt; Loading required package: abind</span></span>
-<span><span class="co">#&gt; Loading required package: sf</span></span>
-<span><span class="co">#&gt; Linking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE</span></span>
-<span><span class="co">#&gt; udunits database from /usr/share/xml/udunits/udunits2.xml</span></span>
-<span><span class="co">#&gt; terra 1.8.54</span></span>
-<span><span class="co">#&gt; Loading required package: abind</span></span>
-<span><span class="co">#&gt; Loading required package: sf</span></span>
-<span><span class="co">#&gt; Linking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE</span></span>
-<span><span class="co">#&gt; udunits database from /usr/share/xml/udunits/udunits2.xml</span></span>
-<span><span class="co">#&gt; terra 1.8.54</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario<span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[1m 0.9s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[57.5s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; ℹ Simulating impact scenario <span style="color: #00BB00;">■■■■■■■■■■■■■■■■                </span> 2/4 Agents | Elap…</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario<span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[58.9s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[53.7s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
