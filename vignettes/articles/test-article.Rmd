@@ -9,9 +9,16 @@ knitr::opts_chunk$set(
 )
 ```
 
-Testing this as not sure is working!
+Testing this as not sure is working! Something else to say.
 
 ```{r setup}
 library(roamR)
 ```
 
+And here goes a plot.
+
+```{r}
+
+plot(1:1000, rnorm(1000), type = "l")
+
+```
