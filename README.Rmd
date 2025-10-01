@@ -47,7 +47,6 @@ At the more extreme information end, `roamR` has been developed to simulate agen
 `roamR` is not currently on CRAN - installation is direct from github. You can use devtools to install:
 
 ```{r, eval=FALSE}
-
 devtools::install_github("dmpstats/roamR", ref = "master")
 ```
 

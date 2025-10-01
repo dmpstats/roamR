@@ -14,6 +14,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
     knitr,
+    quarto,
     rmarkdown,
     testthat (>= 3.0.0),
     withr
@@ -65,7 +66,7 @@ Collate:
     'run_disnbs.R'
     'update_agent.r'
     'velocity_ou.R'
-VignetteBuilder: knitr
+VignetteBuilder: knitr, quarto
 Depends: 
     R (>= 3.5)
 LazyData: true
@@ -73,4 +74,5 @@ Config/Needs/website:
   rmarkdown,
   tidyverse,
   FNN
-URL: https://dmpstats.github.io/roamR/
+URL: https://dmpstats.github.io/roamR/, https://github.com/dmpstats/roamR
+BugReports: https://github.com/dmpstats/roamR/issues

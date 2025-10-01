@@ -1,5 +1,5 @@
 ---
-title: "`roamR` - package overview"
+title: "RoamR Overview"
 output:
   # word_document:
   #   toc: true

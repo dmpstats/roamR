@@ -12,6 +12,8 @@ A package for an Individual Based Model (IBM) for simulating seabirds in the non
 Useful links:
 \itemize{
   \item \url{https://dmpstats.github.io/roamR/}
+  \item \url{https://github.com/dmpstats/roamR}
+  \item Report bugs at \url{https://github.com/dmpstats/roamR/issues}
 }
 
 }

@@ -2,6 +2,29 @@ url: https://dmpstats.github.io/roamR/
 template:
   bootstrap: 5
 
+navbar:
+  structure:
+    left:  [intro, FAQ, reference, articles, news]
+    right: [search, github]
+
+  components:
+    FAQ:
+      text: FAQ
+      href: articles/faq.html
+    articles:
+      text: Articles
+      menu:
+      - text: Overview
+        href: articles/roamR-guide.html
+      - text: -------
+      - text: Case Studies
+      - text: Guillemot in the Isle of May
+        href: articles/case-study-guillemot.html
+      - text: Red-throated Diver
+        href: articles/case-study-RTD.html
+
+
+
 reference:
 - title: IBM setup
   desc: High-level IBM controls and definitions
