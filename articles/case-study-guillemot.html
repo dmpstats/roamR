@@ -29,14 +29,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/faq.html">FAQ</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/case-study-guillemot.html">Case Study: guillemot Isle of May</a></li>
-    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Case Study: red-throated diver</a></li>
-    <li><a class="dropdown-item" href="../articles/roamR-guide.html">`roamR` - package overview</a></li>
-    <li><a class="dropdown-item" href="../articles/test-article.html">test-article</a></li>
+<li><a class="dropdown-item" href="../articles/roamR-guide.html">Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
+    <li><a class="dropdown-item" href="../articles/case-study-guillemot.html">Guillemot in the Isle of May</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Red-throated Diver</a></li>
   </ul>
 </li>
       </ul>
@@ -44,6 +46,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/dmpstats/roamR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -60,7 +63,7 @@
       <h1>Case Study: guillemot Isle of May</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/dmpstats/roamR/blob/master/vignettes/articles/case-study-guillemot.Rmd" class="external-link"><code>vignettes/articles/case-study-guillemot.Rmd</code></a></small>
       <div class="d-none name"><code>case-study-guillemot.Rmd</code></div>
     </div>
 
@@ -575,13 +578,13 @@ config object.</li>
 <span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Validating inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[119ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[118ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing the AOC</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing the AOC <span style="color: #B2B2B2;">[5.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Cropping drivers to AOC</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping drivers to AOC <span style="color: #B2B2B2;">[63ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping drivers to AOC <span style="color: #B2B2B2;">[60ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Handling movement-influencing drivers</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Handling movement-influencing drivers <span style="color: #B2B2B2;">[17ms]</span></span></span>
@@ -590,13 +593,13 @@ config object.</li>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Calculate vector fields for drivers <span style="color: #0000BB;">"aoc"</span>. <span style="color: #B2B2B2;">[2.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[25ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[24ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[793ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[784ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[17ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[16ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialization Done! 🚀</span></span></code></pre></div>
 </div>
@@ -666,13 +669,13 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[24ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[2.9s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[3s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[57.5s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[53.7s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[55.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
