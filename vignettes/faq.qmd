@@ -10,7 +10,40 @@ knitr:
     comment: '#>'
 ---
 
-```{r}
-#| label: setup
-library(roamR)
-```
+## General Questions
+
+### What is roamR?
+
+### What are drivers?
+
+## Model details
+
+## Inputs
+
+### How many agents should I run?
+
+## Outputs
+
+### My agents are the wrong size given what I know about the species (too fat too skinny!) – why?
+
+
+### What are vector fields?
+
+### What is rebalancing?
+
+### What is the energy-to-mass conversion and how do I alter it?
+
+### What movement models are supported?
+
+### What is the Area of Calculation (AoC), how do I set it and how much does it matter?
+
+### How are the energetics equations created and linked to states and inputs?
+
+### I’m getting errors relating to units – why?
+
+### What is the minimum amount of information required to create a roamR IBM?
+
+### How long do these models take to run?
+
+### What support is there for roamR and how do I get it?
+

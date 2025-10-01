@@ -4,7 +4,7 @@ template:
 
 navbar:
   structure:
-    left:  [intro, FAQ, reference, articles, news]
+    left:  [intro, FAQ, reference, articles, forum, news]
     right: [search, github]
 
   components:
@@ -22,6 +22,9 @@ navbar:
         href: articles/case-study-guillemot.html
       - text: Red-throated Diver
         href: articles/case-study-RTD.html
+    forum:
+      text: Forum
+      href: https://github.com/dmpstats/roamR/discussions
 
 
 
