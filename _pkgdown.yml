@@ -1,11 +1,12 @@
 url: https://dmpstats.github.io/roamR/
 template:
   bootstrap: 5
+  light-switch: true
 
 navbar:
   structure:
     left:  [intro, FAQ, reference, articles, forum, news]
-    right: [search, github]
+    right: [search, github, lightswitch]
 
   components:
     FAQ:

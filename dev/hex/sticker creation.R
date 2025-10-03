@@ -141,6 +141,44 @@ sticker_opt3_a
 #usethis::use_logo("dev/hex/roamR_sticker_opt3_a.png")
 
 
+
+
+sticker_opt3_b <- sticker(
+  "dev/hex/logo_option3_no-bg.PNG",
+  package = "",
+  #p_size = 23, p_x = 1, p_y = 1.67, p_color = "gray95", p_family = "audiowide", p_fontface = "bold",
+  s_x = 1.02, s_y = 1.1, s_width = 0.82, s_height = 0.82,
+  url = "roamR", u_size = 25, u_color = "gray30", u_family = "goldman", u_angle = 329,
+  u_x = 0.19, u_y = 0.58,
+  h_color = NA, h_fill = NA,
+  dpi = 400,
+  filename = "dev/hex/roamR_sticker_opt3_b.png")
+
+
+sticker_opt3_b
+# usethis::use_logo("dev/hex/roamR_sticker_opt3_b.png")
+
+
+
+sticker_opt3_c <- sticker(
+  "dev/hex/logo_option3_no-bg_edited.PNG",
+  package = "",
+  #p_size = 23, p_x = 1, p_y = 1.67, p_color = "gray95", p_family = "audiowide", p_fontface = "bold",
+  s_x = 1.02, s_y = 1.1, s_width = 0.89, s_height = 0.89,
+  url = "roamR", u_size = 25, u_color = "gray40", u_family = "goldman", u_angle = 329,
+  u_x = 0.19, u_y = 0.58,
+  h_color = NA, h_fill = NA,
+  dpi = 400,
+  filename = "dev/hex/roamR_sticker_opt3_c.png")
+
+
+sticker_opt3_c
+usethis::use_logo("dev/hex/roamR_sticker_opt3_c.png")
+
+
+
+
+
 # Option 4 ---------------------------------------------
 
 sticker_opt4_a <- sticker(
@@ -188,7 +226,7 @@ sticker_opt6_a <- sticker(
   package = "",
   #p_size = 23, p_x = 1, p_y = 1.67, p_color = "gray95", p_family = "audiowide", p_fontface = "bold",
   s_x = 1.09, s_y = 0.92, s_width = 0.88, s_height = 0.88,
-  url = "roamR", u_size = 26, u_color = "gray20", u_family = "goldman", u_angle = 30,
+  url = "roamR", u_size = 26, u_color = "gray30", u_family = "goldman", u_angle = 30,
   #u_x = 1.1, u_y = 0.52,
   u_x = 0.27, u_y = 1.43,
   h_color = NA, h_fill = NA,
