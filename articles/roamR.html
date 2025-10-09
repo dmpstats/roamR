@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Frequently Asked Questions • roamR</title>
+<title>Getting Started • roamR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -15,9 +15,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="faq_files/libs/quarto-html/popper.min.js"></script><script src="faq_files/libs/quarto-html/tippy.umd.min.js"></script><link href="faq_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="faq_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Frequently Asked Questions">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="roamR_files/libs/quarto-html/popper.min.js"></script><script src="roamR_files/libs/quarto-html/tippy.umd.min.js"></script><link href="roamR_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="roamR_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting Started">
 <meta property="og:image" content="https://dmpstats.github.io/roamR/logo.png">
 </head>
 <body>
@@ -37,8 +37,8 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/roamR.html">Get started</a></li>
-<li class="active nav-item"><a class="nav-link" href="../articles/faq.html">FAQ</a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/roamR.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/faq.html">FAQ</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -73,12 +73,12 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Frequently Asked Questions</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Getting Started</h1>
 
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/dmpstats/roamR/blob/master/vignettes/faq.qmd" class="external-link"><code>vignettes/faq.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dmpstats/roamR/blob/master/vignettes/roamR.qmd" class="external-link"><code>vignettes/roamR.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -87,55 +87,15 @@
 
 
 
-    <section class="level2"><h2 id="general-questions">General Questions<a class="anchor" aria-label="anchor" href="#general-questions"></a>
-</h2>
-<section class="level3"><h3 id="what-is-roamr">What is roamR?<a class="anchor" aria-label="anchor" href="#what-is-roamr"></a>
-</h3>
-<p>roamR is an R package that provides a flexible framework for building and running Individual-Based Models (IBMs), also known as Agent-Based Models. It offers a formal and transparent toolset for defining the logical components underpinning the simulation of animal movement, enabling users to focus on model parametrisation, input data, behavioural and interaction rules rather than programming and implementation details.</p>
-</section><section class="level3"><h3 id="do-i-need-programming-experience-to-use-roamr">Do I need programming experience to use roamR?<a class="anchor" aria-label="anchor" href="#do-i-need-programming-experience-to-use-roamr"></a>
-</h3>
-<p>Some familiarity with R is required, but you don’t need to be an expert programmer. roamR is designed to simplify model building by providing well-defined object classes and functions, so you can get a simulation running with minimal coding, and then refine and extend it as needed.</p>
-</section><section class="level3"><h3 id="what-are-the-main-requirements-of-roamr-from-a-users-perspective">What are the main requirements of roamR from a user’s perspective?<a class="anchor" aria-label="anchor" href="#what-are-the-main-requirements-of-roamr-from-a-users-perspective"></a>
-</h3>
-<p>While roamR provides a well-defined implementation infrastructure, users still need to make key modelling decisions when building an IBM. This includes defining the population and environment of interest, specifying interactions, energetics and behavioural rules, and carefully considering the ecological and biological factors that influence movement. Thoughtful and accurate definition of such elements helps ensure that simulations are as realistic and meaningful as possible.</p>
-</section><section class="level3"><h3 id="by-flexible-framework-do-you-mean-i-can-use-roamr-to-build-any-ibm-i-can-imagine">By flexible framework, do you mean I can use roamR to build any IBM I can imagine?<a class="anchor" aria-label="anchor" href="#by-flexible-framework-do-you-mean-i-can-use-roamr-to-build-any-ibm-i-can-imagine"></a>
-</h3>
-<!-- general constraints  -->
-<p>Not quite! roamR offers flexibility within a structured modelling framework. Model definitions are constrained by of spatial and temporal resolution, and some ecological processes - like energy budgets and associated behaviour-balancing mechanisms - need to follow the package’s core logic.</p>
-<p>Currently the package supports two main types of movement models: density-informed and vector-field-driven. Within these types, you can specify agent characteristics, environmental elements and associated interactions.</p>
-</section><section class="level3"><h3 id="how-do-i-start-building-my-first-model">How do I start building my first model?<a class="anchor" aria-label="anchor" href="#how-do-i-start-building-my-first-model"></a>
-</h3>
-<p>Begin with <code><a href="../articles/roamR.html">vignette("roamR")</a></code> for a simple walk-through on setting up your first IBM.</p>
-<p>Once you’re comfortable, you can explore more detailed use-cases based on real-world scenarios, such as the analysis for <a href="case-study-guillemot.html">Guillemots</a> and <a href="case-study-RTD.html">Red-throated Divers</a> conducted for the <strong>ORJP’s DisNBS</strong> project. In these case-studies, IBMs implemented with roamR were used to investigate displacement effects from offshore windfarms on those seabird populations during the non-breeding season.</p>
-</section><section class="level3"><h3 id="what-support-is-there-for-roamr-and-how-do-i-get-it">What support is there for roamR and how do I get it?<a class="anchor" aria-label="anchor" href="#what-support-is-there-for-roamr-and-how-do-i-get-it"></a>
-</h3>
-<p>In addition to the documentation provided in this webpage, as well as the vignettes and examples included in the package, further support is available through the roamR’s GitHub repository, where you can:</p>
-<ul>
-<li><p>Open an <a href="https://github.com/dmpstats/roamR/issues" class="external-link">Issue</a> if you encounter a bug or need help.</p></li>
-<li><p>Join the <a href="https://github.com/dmpstats/roamR/discussions" class="external-link">Discussion Forum</a> with other users and contributors.</p></li>
-</ul></section></section><section class="level2"><h2 id="modelling-structure-details">Modelling structure details<a class="anchor" aria-label="anchor" href="#modelling-structure-details"></a>
-</h2>
-<p><em>(coming soon)</em></p>
-<!-- ### What are vector fields? -->
-<!-- ### What are drivers? -->
-<!-- ### What is rebalancing? -->
-<!-- ### What is the energy-to-mass conversion and how do I alter it? -->
-<!-- ### What movement models are supported? -->
-<!-- ### How are the energetics equations created and linked to states and inputs? -->
-<!-- ### How long do these models take to run? -->
-</section><section class="level2"><h2 id="model-inputs">Model Inputs<a class="anchor" aria-label="anchor" href="#model-inputs"></a>
-</h2>
-<p><em>(coming soon)</em></p>
-<!-- ### How many agents should I run? -->
-<!-- ### What is the Area of Calculation (AoC), how do I set it and how much does it matter? -->
-<!-- ### What is the minimum amount of information required to create a roamR IBM? -->
-</section><section class="level2"><h2 id="model-outputs">Model Outputs<a class="anchor" aria-label="anchor" href="#model-outputs"></a>
-</h2>
-<p><em>(coming soon)</em></p>
-<!-- ### My agents are the wrong size given what I know about the species (too fat too skinny!) – why? -->
-<!-- ### I'm getting errors relating to units – why? -->
-<!-- ## What support is there for roamR and how do I get it? -->
-</section><script id="quarto-html-after-body" type="application/javascript">
+    <div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dmpstats.github.io/roamR/">roamR</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>[<em>Under Construction</em>]</p>
+
+
+
+<script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -218,8 +178,7 @@
       }
     }
   });
-  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside>
+  </script></main>
 </div>
 
 

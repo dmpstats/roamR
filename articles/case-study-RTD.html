@@ -34,6 +34,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/roamR.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/faq.html">FAQ</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
@@ -85,13 +86,12 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>Here we use <a href="https://dmpstats.github.io/roamR/">roamR</a> to simulate the movement and
-energetics for a population of common RTD (<em>Gavia stellata</em>) in
-the North Sea. For broad-scale details on the <a href="https://dmpstats.github.io/roamR/">roamR</a>
-package, refer to the general guide, with the general architecture
-repeated here:</p>
+<p>Here we use roamR to simulate the movement and energetics for a
+population of common RTD (<em>Gavia stellata</em>) in the North Sea. For
+broad-scale details on the roamR package, refer to the general guide,
+with the general architecture repeated here:</p>
 <div class="float">
-<img src="images/roamR_schema.png" alt="Figure 1: {roamR} arhitecture"><div class="figcaption"><strong>Figure 1: <a href="https://dmpstats.github.io/roamR/">roamR</a>
+<img src="images/roamR_schema.png" alt="Figure 1: roamR arhitecture"><div class="figcaption"><strong>Figure 1: roamR
 arhitecture</strong></div>
 </div>
 <p>The simulations here cover the non-breeding season (some 9 months,
@@ -109,8 +109,8 @@ to the AoC, windfarms are the light blue boxes</strong></div>
 <p>The overall intention is to quantify the effects of potential
 displacement from these developments, based on counter-factual
 comparisons of animal’s condition under these scenarios. In keeping with
-the architecture of the <a href="https://dmpstats.github.io/roamR/">roamR</a> package, the following main
-components will be populated:</p>
+the architecture of the roamR package, the following main components
+will be populated:</p>
 <ul>
 <li>
 <strong>IBM general settings</strong>
@@ -132,16 +132,16 @@ windfarms, coastlines, prey fields etc.</li>
 <p>The extent to which these can be populated will obviously vary, with
 the red-throated chosen here as a population which is not well
 quantified i.e. there is little detail in the inputs required to
-simulated them. <a href="https://dmpstats.github.io/roamR/">roamR</a> is intentionally general and has
-substantial functionality that will not be used in a simulation. We will
-populate various elements of the simulation in turn, before turning to
-running the simulation and post-processing the results.</p>
+simulated them. roamR is intentionally general and has substantial
+functionality that will not be used in a simulation. We will populate
+various elements of the simulation in turn, before turning to running
+the simulation and post-processing the results.</p>
 </div>
 <div class="section level2">
 <h2 id="input-data">Input data<a class="anchor" aria-label="anchor" href="#input-data"></a>
 </h2>
-<p>The following <a href="https://dmpstats.github.io/roamR/">roamR</a> elements will be populated, noting
-that some have very little detail:</p>
+<p>The following roamR elements will be populated, noting that some have
+very little detail:</p>
 <ul>
 <li>Density maps</li>
 <li>SST</li>
@@ -150,12 +150,11 @@ that some have very little detail:</p>
 <li>Bodyweight</li>
 <li>Bodymass conversion</li>
 </ul>
-<p>which will be a) described in detail and b) specified in
-<a href="https://dmpstats.github.io/roamR/">roamR</a> forms in the following sections.
-<a href="https://dmpstats.github.io/roamR/">roamR</a> can be run with very little data (an example of a
-more data sparse species is given in the alternative test case of
-red-throated divers), with the results being correspondingly less
-informative and more stochastic.</p>
+<p>which will be a) described in detail and b) specified in roamR forms
+in the following sections. roamR can be run with very little data (an
+example of a more data sparse species is given in the alternative test
+case of red-throated divers), with the results being correspondingly
+less informative and more stochastic.</p>
 <div class="section level3">
 <h3 id="ibm-configuration">IBM configuration<a class="anchor" aria-label="anchor" href="#ibm-configuration"></a>
 </h3>
@@ -171,9 +170,9 @@ uniform 1km^2 spatial resolution (<code>x_delta</code>,
 coordinate system (<code>ref_sys</code>). This will be the basis of
 ingesting and aligning the general spatial inputs. Note: the package
 currently requires all spatial inputs (e.g. density maps) to be provided
-in a common CRS projection <a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;functionality to homogenise CRSs across spatial inputs
-during model initialization is expected to be implemented in
-&lt;a href="https://dmpstats.github.io/roamR/"&gt;roamR&lt;/a&gt; in the near future&lt;/p&gt;'><sup>1</sup></a>. The <a href="https://r-spatial.github.io/sf/" class="external-link">sf</a> package is generally
+in a common CRS projection <a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;functionality to homogenise CRSs across spatial inputs
+during model initialization is expected to be implemented in roamR in
+the near future&lt;/p&gt;"><sup>1</sup></a>. The <a href="https://r-spatial.github.io/sf/" class="external-link">sf</a> package is generally
 used for dealing with spatial data (and the interlinked
 <a href="https://r-spatial.github.io/stars/" class="external-link">stars</a> package for spatio-temporal).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -254,10 +253,10 @@ scenarios.</li>
 scenarios.</li>
 <li>Monthly average Sea Surface Temperature (SST) maps.</li>
 </ul>
-<p><a href="https://dmpstats.github.io/roamR/">roamR</a> enforces a strict requirement that all input
-variables be accompanied by appropriate measurement units. This ensures
-that all computations performed during simulation are unit-aware,
-allowing for accurate operations and conversions.</p>
+<p>roamR enforces a strict requirement that all input variables be
+accompanied by appropriate measurement units. This ensures that all
+computations performed during simulation are unit-aware, allowing for
+accurate operations and conversions.</p>
 <p>We begin by uploading these datacubes, assigning measurement units
 where they are missing.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -350,10 +349,10 @@ beforehand.</p>
 <p>We begin by defining the behavioural states to include in the model.
 Each state represents a specific activity, characterized by parameters
 such as energy expenditure, time allocation, and movement speed.</p>
-<p>States are created using the <code><a href="../reference/State.html">State()</a></code> function.
-<a href="https://dmpstats.github.io/roamR/">roamR</a> supports flexible specification of state
-properties, allowing the incorporation of stochastic variation at both
-the population and individual (agent) level.</p>
+<p>States are created using the <code><a href="../reference/State.html">State()</a></code> function. roamR
+supports flexible specification of state properties, allowing the
+incorporation of stochastic variation at both the population and
+individual (agent) level.</p>
 <p>Here we include 4 states:</p>
 <ul>
 <li>flying</li>
@@ -562,9 +561,8 @@ bodymass at start of breeding season was drawn/inferred from Duckworth
 <div class="section level2">
 <h2 id="setting-up-and-running-the-ibm">Setting up and running the IBM<a class="anchor" aria-label="anchor" href="#setting-up-and-running-the-ibm"></a>
 </h2>
-<p>Now the key components of the IBM have been specified,
-<a href="https://dmpstats.github.io/roamR/">roamR</a> can be used for the initialisation and running of
-the simulations.</p>
+<p>Now the key components of the IBM have been specified, roamR can be
+used for the initialisation and running of the simulations.</p>
 <div class="section level3">
 <h3 id="initialisation">Initialisation<a class="anchor" aria-label="anchor" href="#initialisation"></a>
 </h3>
@@ -651,10 +649,10 @@ the preceding 7 days energy intake.</li>
 <div class="section level2">
 <h2 id="digesting-the-results">Digesting the results<a class="anchor" aria-label="anchor" href="#digesting-the-results"></a>
 </h2>
-<p><a href="https://dmpstats.github.io/roamR/">roamR</a> records an extensive amount of information from
-its running and monitoring of the agents. The primary output is a list,
-with one element for each agent. The stored agents consist of three main
-components (each their own class, as per the package schema):</p>
+<p>roamR records an extensive amount of information from its running and
+monitoring of the agents. The primary output is a list, with one element
+for each agent. The stored agents consist of three main components (each
+their own class, as per the package schema):</p>
 <ul>
 <li>
 <code>properties</code> - were drawn/set at the intialisation of the
@@ -719,9 +717,9 @@ dataset.</p>
 <h4 id="bodymass-traces">Bodymass traces<a class="anchor" aria-label="anchor" href="#bodymass-traces"></a>
 </h4>
 <p>We can examine a small number of agents graphically - here their
-bodymass histories as implied by the simulated energetics. Note
-<a href="https://dmpstats.github.io/roamR/">roamR</a> at its heart simulates energetics, conversion
-functions from energy to mass are specified by the user.</p>
+bodymass histories as implied by the simulated energetics. Note roamR at
+its heart simulates energetics, conversion functions from energy to mass
+are specified by the user.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">p_bdm</span> <span class="op">&lt;-</span> <span class="va">rtd_history</span> <span class="op">|&gt;</span> </span>
