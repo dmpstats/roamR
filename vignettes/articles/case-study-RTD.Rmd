@@ -38,9 +38,9 @@ theme_set(theme_light())
 ```
 
 # Overview
-Here we use `{roamR}` to simulate the movement and energetics for a population of common RTD (_Gavia stellata_) in the North Sea. For broad-scale details on the `{roamR}` package, refer to the general guide, with the general architecture repeated here:
+Here we use roamR to simulate the movement and energetics for a population of common RTD (_Gavia stellata_) in the North Sea. For broad-scale details on the roamR package, refer to the general guide, with the general architecture repeated here:
 
-![__Figure 1: `{roamR}` arhitecture__](images/roamR_schema.png)
+![__Figure 1: roamR arhitecture__](images/roamR_schema.png)
 
 
 The simulations here cover the non-breeding season (some 9 months, from July to March) under two broad scenarios:
@@ -53,18 +53,18 @@ The simulations here cover the non-breeding season (some 9 months, from July to 
 
 
 
-The overall intention is to quantify the effects of potential displacement from these developments, based on counter-factual comparisons of animal's condition under these scenarios. In keeping with the architecture of the `{roamR}` package, the following main components will be populated:
+The overall intention is to quantify the effects of potential displacement from these developments, based on counter-factual comparisons of animal's condition under these scenarios. In keeping with the architecture of the roamR package, the following main components will be populated:
 
 * __IBM general settings__ (`<ModelConfig>`) sundry high-level controls for the simulation, such as the number of agents, broad spatial boundaries, spatial projections, time-steps, start & finish dates.
 * __Species-level information__ (`<Species>`) such as distributions governing initial bodymass, what behavioural states are possible, movement parameters, and how agents respond to their environment e.g.  avoidance of windfarms or landmass, costs associated with activity.
 * __Drivers__ (`<Driver>`) descriptions/data that define the environment that agents may interact with or respond to e.g. sea surface temperatures, locations of windfarms, coastlines, prey fields etc.
 
-The extent to which these can be populated will obviously vary, with the red-throated chosen here as a population which is not well quantified i.e. there is little detail in the inputs required to simulated them. `{roamR}` is intentionally general and has substantial functionality that will not be used in a simulation. We will populate various elements of the simulation in turn, before turning to running the simulation and post-processing the results.
+The extent to which these can be populated will obviously vary, with the red-throated chosen here as a population which is not well quantified i.e. there is little detail in the inputs required to simulated them. roamR is intentionally general and has substantial functionality that will not be used in a simulation. We will populate various elements of the simulation in turn, before turning to running the simulation and post-processing the results.
 
 
 # Input data
 
-The following `{roamR}` elements will be populated, noting that some have very little detail:
+The following roamR elements will be populated, noting that some have very little detail:
 
 * Density maps
 * SST
@@ -73,14 +73,14 @@ The following `{roamR}` elements will be populated, noting that some have very l
 * Bodyweight
 * Bodymass conversion
 
-which will be a) described in detail and b) specified in `{roamR}` forms in the following sections. `{roamR}` can be run with very little data (an example of a more data sparse species is given in the alternative test case of red-throated divers), with the results being correspondingly less informative and more stochastic.
+which will be a) described in detail and b) specified in roamR forms in the following sections. roamR can be run with very little data (an example of a more data sparse species is given in the alternative test case of red-throated divers), with the results being correspondingly less informative and more stochastic.
 
 
 ## IBM configuration
 
 The broad configuration of the IBM is specified via the function `ModelConfig()`.In the interest of speed, the example simulation here will not
 be large in terms of the number of agents to run - we'll opt for few agents (`n_agents`), whereas a typical run would be 1000s. The non-breeding season for these animals runs from approximately
-start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform 1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on the UTM 30N coordinate system (`ref_sys`). This will be the basis of ingesting and aligning the general spatial inputs. Note: the package currently requires all spatial inputs (e.g. density maps) to be provided in a common CRS projection ^[functionality to homogenise CRSs across spatial inputs during model initialization is expected to be implemented in `{roamR}` in the near future]. The `{sf}` package is generally used for dealing with spatial data (and the interlinked `{stars}` package for spatio-temporal).
+start of July for 9 months (`start_date`, `end_date`). We'll opt for a uniform 1km^2 spatial resolution (`x_delta`, `y_delta`) and have everything operate on the UTM 30N coordinate system (`ref_sys`). This will be the basis of ingesting and aligning the general spatial inputs. Note: the package currently requires all spatial inputs (e.g. density maps) to be provided in a common CRS projection ^[functionality to homogenise CRSs across spatial inputs during model initialization is expected to be implemented in roamR in the near future]. The `{sf}` package is generally used for dealing with spatial data (and the interlinked `{stars}` package for spatio-temporal).
 
 
 ```{r}
@@ -149,7 +149,7 @@ In this application to the common RTD, the following drivers are required - all 
 * Monthly energy intake maps (kJ/h), for both baseline and impacted scenarios.
 * Monthly average Sea Surface Temperature (SST) maps.
 
-`{roamR}` enforces a strict requirement that all input variables be accompanied by appropriate measurement units. This ensures that all computations performed during simulation are unit-aware, allowing for accurate operations and conversions.
+roamR enforces a strict requirement that all input variables be accompanied by appropriate measurement units. This ensures that all computations performed during simulation are unit-aware, allowing for accurate operations and conversions.
 
 We begin by uploading these datacubes, assigning measurement units where they are missing.
 
@@ -240,7 +240,7 @@ Species-level information is defined using the `Species()` function, which depen
 
 We begin by defining the behavioural states to include in the model. Each state represents a specific activity, characterized by parameters such as energy expenditure, time allocation, and movement speed.
 
-States are created using the `State()` function. `{roamR}` supports flexible specification of state properties, allowing the incorporation of stochastic variation at both the population and individual (agent) level.
+States are created using the `State()` function. roamR supports flexible specification of state properties, allowing the incorporation of stochastic variation at both the population and individual (agent) level.
 
 Here we include 4 states:
 
@@ -446,7 +446,7 @@ rtd <- Species(
 
 # Setting up and running the IBM
 
-Now the key components of the IBM have been specified, `{roamR}` can be used for the initialisation and running of the simulations.
+Now the key components of the IBM have been specified, roamR can be used for the initialisation and running of the simulations.
 
 
 ## Initialisation
@@ -517,7 +517,7 @@ plan(sequential)
 
 # Digesting the results
 
-`{roamR}` records an extensive amount of information from its running and monitoring of the agents. The primary output is a list, with one element for each agent. The stored agents consist of three main components (each their own class, as per the package schema):
+roamR records an extensive amount of information from its running and monitoring of the agents. The primary output is a list, with one element for each agent. The stored agents consist of three main components (each their own class, as per the package schema):
 
 * `properties` - were drawn/set at the intialisation of the simulation from the species definition, remain constant throughout
 * `condition` - the specific condition of the agent at any point in the simulation. This will be the final condition at when the simulation completes.
@@ -575,7 +575,7 @@ rtd_history
 
 ### Bodymass traces
 
-We can examine a small number of agents graphically - here their bodymass histories as implied by the simulated energetics. Note `{roamR}` at its heart simulates energetics, conversion functions from energy to mass are specified by the user.
+We can examine a small number of agents graphically - here their bodymass histories as implied by the simulated energetics. Note roamR at its heart simulates energetics, conversion functions from energy to mass are specified by the user.
 
 ```{r}
 

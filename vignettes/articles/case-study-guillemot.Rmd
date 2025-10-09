@@ -440,7 +440,7 @@ Now the key components of the IBM have been specified, `{roamR}` can be used for
 
 ## Initialisation
 
-The intialisation stage performs two main tasks prior to running:
+The initialisation stage performs two main tasks prior to running:
 
 * The checking of inputs for conformity, some adjustments (e.g. clipping to the AoC) and derivation of of vector fields where needed.
 * The generation the `n_agents` as indicated in the model config object.
