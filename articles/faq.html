@@ -43,11 +43,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/roamR-guide.html">Overview</a></li>
+<li><a class="dropdown-item" href="../articles/roamR-guide.html">roamR Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/case-study-guillemot.html">Guillemot in the Isle of May</a></li>
-    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Red-throated Diver</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Red-throated Diver in the North Sea</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/dmpstats/roamR/discussions">Forum</a></li>
@@ -91,22 +91,23 @@
 </h2>
 <section class="level3"><h3 id="what-is-roamr">What is roamR?<a class="anchor" aria-label="anchor" href="#what-is-roamr"></a>
 </h3>
-<p>roamR is an R package that provides a flexible framework for building and running Individual-Based Models (IBMs), also known as Agent-Based Models. It offers a formal and transparent toolset for defining the logical components underpinning the simulation of animal movement, enabling users to focus on model parametrisation, input data, behavioural and interaction rules rather than programming and implementation details.</p>
+<p>roamR is an R package that provides a flexible framework for building and running Individual-Based Models (IBMs), also known as Agent-Based Models. It offers a formal and transparent toolset for defining the logical components underpinning the simulation of animal movement, enabling users to focus on model parametrisation, input data, behavioural states and habitat interaction rules rather than programming and implementation details.</p>
+<p>For an in-depth description of the package, see the article <a href="roamR-guide.html">roamR Overview</a>.</p>
 </section><section class="level3"><h3 id="do-i-need-programming-experience-to-use-roamr">Do I need programming experience to use roamR?<a class="anchor" aria-label="anchor" href="#do-i-need-programming-experience-to-use-roamr"></a>
 </h3>
 <p>Some familiarity with R is required, but you don’t need to be an expert programmer. roamR is designed to simplify model building by providing well-defined object classes and functions, so you can get a simulation running with minimal coding, and then refine and extend it as needed.</p>
 </section><section class="level3"><h3 id="what-are-the-main-requirements-of-roamr-from-a-users-perspective">What are the main requirements of roamR from a user’s perspective?<a class="anchor" aria-label="anchor" href="#what-are-the-main-requirements-of-roamr-from-a-users-perspective"></a>
 </h3>
-<p>While roamR provides a well-defined implementation infrastructure, users still need to make key modelling decisions when building an IBM. This includes defining the population and environment of interest, specifying interactions, energetics and behavioural rules, and carefully considering the ecological and biological factors that influence movement. Thoughtful and accurate definition of such elements helps ensure that simulations are as realistic and meaningful as possible.</p>
+<p>While roamR provides a well-defined implementation infrastructure, users still need to make key modelling decisions when building an IBM. This includes defining the population and environment of interest, specifying interactions, energetics and behavioural states, and carefully considering the ecological and biological factors that influence movement. Thoughtful and accurate definition of such elements helps ensure that simulations are as realistic and meaningful as possible.</p>
 </section><section class="level3"><h3 id="by-flexible-framework-do-you-mean-i-can-use-roamr-to-build-any-ibm-i-can-imagine">By flexible framework, do you mean I can use roamR to build any IBM I can imagine?<a class="anchor" aria-label="anchor" href="#by-flexible-framework-do-you-mean-i-can-use-roamr-to-build-any-ibm-i-can-imagine"></a>
 </h3>
 <!-- general constraints  -->
 <p>Not quite! roamR offers flexibility within a structured modelling framework. Model definitions are constrained by of spatial and temporal resolution, and some ecological processes - like energy budgets and associated behaviour-balancing mechanisms - need to follow the package’s core logic.</p>
-<p>Currently the package supports two main types of movement models: density-informed and vector-field-driven. Within these types, you can specify agent characteristics, environmental elements and associated interactions.</p>
+<p>Currently the package supports two main types of agent movement methods: <strong>Density-informed</strong> and <strong>Correlated Random Walk (CRW)</strong>. Within these types, you can specify agent characteristics, environmental elements and associated interactions.</p>
 </section><section class="level3"><h3 id="how-do-i-start-building-my-first-model">How do I start building my first model?<a class="anchor" aria-label="anchor" href="#how-do-i-start-building-my-first-model"></a>
 </h3>
 <p>Begin with <code><a href="../articles/roamR.html">vignette("roamR")</a></code> for a simple walk-through on setting up your first IBM.</p>
-<p>Once you’re comfortable, you can explore more detailed use-cases based on real-world scenarios, such as the analysis for <a href="case-study-guillemot.html">Guillemots</a> and <a href="case-study-RTD.html">Red-throated Divers</a> conducted for the <strong>ORJP’s DisNBS</strong> project. In these case-studies, IBMs implemented with roamR were used to investigate displacement effects from offshore windfarms on those seabird populations during the non-breeding season.</p>
+<p>Once you’re comfortable, you can explore more detailed use-cases based on real-world scenarios, such as the analysis for <a href="case-study-guillemot.html">Guillemots</a> and <a href="case-study-RTD.html">Red-throated Divers</a> conducted for the <strong>ORJP’s DisNBS</strong> project. In these case-studies, IBMs implemented with roamR were used to investigate displacement effects from speculative offshore windfarms on those seabird populations in the non-breeding season.</p>
 </section><section class="level3"><h3 id="what-support-is-there-for-roamr-and-how-do-i-get-it">What support is there for roamR and how do I get it?<a class="anchor" aria-label="anchor" href="#what-support-is-there-for-roamr-and-how-do-i-get-it"></a>
 </h3>
 <p>In addition to the documentation provided in this webpage, as well as the vignettes and examples included in the package, further support is available through the roamR’s GitHub repository, where you can:</p>

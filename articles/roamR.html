@@ -43,11 +43,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/roamR-guide.html">Overview</a></li>
+<li><a class="dropdown-item" href="../articles/roamR-guide.html">roamR Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/case-study-guillemot.html">Guillemot in the Isle of May</a></li>
-    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Red-throated Diver</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Red-throated Diver in the North Sea</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/dmpstats/roamR/discussions">Forum</a></li>
@@ -87,15 +87,32 @@
 
 
 
-    <div class="cell">
+    <p><em>Page Under Construction</em></p>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dmpstats.github.io/roamR/">roamR</a></span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>[<em>Under Construction</em>]</p>
-
-
-
-<script id="quarto-html-after-body" type="application/javascript">
+<section class="level2"><h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>This article provides a fast-track, hands-on demonstration of how to build an Individual-Based Model (IBM) using roamR. We’ll walk through a mock example featuring an imaginary population in a hypothetical habitat to illustrate the core workflow.</p>
+<p>The goal is to help you quickly familiarise yourself with the main functions, object classes, and features of the package while providing a practical reference for future implementations. For a more detailed description of roamR’s components, see the <a href="articles/roamR-guide.html">roamR Overview</a> article.</p>
+</section><section class="level2"><h2 id="general-workflow">General workflow<a class="anchor" aria-label="anchor" href="#general-workflow"></a>
+</h2>
+<p>The standard workflow to construct and run an IMB in roamR can be summarised in the following steps:</p>
+<ol type="1">
+<li><p><strong>High-level model configuration</strong>: Set the spatial and temporal boundaries, number of agents, and other simulation-level parameters.</p></li>
+<li><p><strong>Specify species features</strong>: e.g. initial body mass, flight speed, activity states and their energetic trade-offs, interactions with environment, etc.</p></li>
+<li><p><strong>Define the environment</strong>: e.g. coastline, man-made structures (e.g. OWF), prey distributions, etc.</p></li>
+<li><p><strong>Combine components into an IBM object</strong>.</p></li>
+<li><p><strong>Run a simulation</strong>: This step creates agents, parallelises calculations, moves agents through the environment, and records their properties over time - optionally including defined perturbation scenarios.</p></li>
+<li><p><strong>Query simulated animals</strong>: investigate results, e.g. within-agent comparisons over perturbation scenarios.</p></li>
+</ol>
+<p>In the following sections, we’ll go over each of these steps and build our own IBM from scratch. Buckle up!</p>
+<!-- ## Our Imaginary scenario -->
+<!-- First, let's define the main characteristics of our imaginary case-scenario! We are also  -->
+</section><section class="level2"><h2 id="model-configuration">1. Model Configuration<a class="anchor" aria-label="anchor" href="#model-configuration"></a>
+</h2>
+</section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -178,7 +195,8 @@
       }
     }
   });
-  </script></main>
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>RoamR Overview • roamR</title>
+<title>roamR Overview • roamR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -15,7 +15,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="RoamR Overview">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="roamR Overview">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -40,11 +40,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/roamR-guide.html">Overview</a></li>
+<li><a class="dropdown-item" href="../articles/roamR-guide.html">roamR Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
     <li><a class="dropdown-item" href="../articles/case-study-guillemot.html">Guillemot in the Isle of May</a></li>
-    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Red-throated Diver</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-RTD.html">Red-throated Diver in the North Sea</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/dmpstats/roamR/discussions">Forum</a></li>
@@ -74,7 +74,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>RoamR Overview</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>roamR Overview</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/dmpstats/roamR/blob/master/vignettes/articles/roamR-guide.Rmd" class="external-link"><code>vignettes/articles/roamR-guide.Rmd</code></a></small>
@@ -86,11 +86,11 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><code>roamR</code> is an R package that offers a toolset and
-framework for running Individual Based Models (IBMs - or Agent-Based
-Models). It was created as part of the DisNBS project (Distribution of
-seabirds in the Non-Breeding Season) which was a project within the
-Offshore Renewables Joint Industry Partnership programme (<a href="http://www.orjip.org.uk/" class="external-link">ORJIP</a>). While the project has
+<p>roamR is an R package that offers a toolset and framework for running
+Individual Based Models (IBMs - or Agent-Based Models). It was created
+as part of the DisNBS project (Distribution of seabirds in the
+Non-Breeding Season) which was a project within the Offshore Renewables
+Joint Industry Partnership programme (<a href="http://www.orjip.org.uk/" class="external-link">ORJIP</a>). While the project has
 specific goals in relation to Offshore Wind Farms (OWF) and their
 potential effects on seabirds, the problem is quite general. This
 package helps build animal movement simulations, with the general
@@ -119,12 +119,12 @@ non-breeding season</p>
 </h3>
 <p>The DisNBS started with a design phase, underpinned by an expert
 consultation workshop. The resulting generic structure is presented in
-figure 1, which the <code>roamR</code> package implements. The
-demography submodel is not formally part of the IBM, but the energetics
-and body mass distributions that are generated will inform these
-down-stream calculations.The following document is a high-level
-description fo the functionality within the <code>roamR</code> package,
-that encompasses the design elements of figure 1. `</p>
+figure 1, which the roamR package implements. The demography submodel is
+not formally part of the IBM, but the energetics and body mass
+distributions that are generated will inform these down-stream
+calculations.The following document is a high-level description fo the
+functionality within the roamR package, that encompasses the design
+elements of figure 1. `</p>
 <div class="float">
 <img src="images/WP1_schema_nocap.svg" alt="Figure 1 - Schematic of proposed structure of IBM. Types of components: biological/ecological (gold), environmental (purple), OWF related (red) and influence the properties of the agents (blue) leading to final outputs (green)"><div class="figcaption">Figure 1 - Schematic of proposed structure of
 IBM. Types of components: biological/ecological (gold), environmental
@@ -135,19 +135,18 @@ IBM. Types of components: biological/ecological (gold), environmental
 <div class="section level3">
 <h3 id="package-overview">Package overview<a class="anchor" aria-label="anchor" href="#package-overview"></a>
 </h3>
-<p><code>roamR</code> is written in R using S4 classes (refer <a href="https://adv-r.hadley.nz/s4.html" class="external-link">here</a> for an overview and
+<p>roamR is written in R using S4 classes (refer <a href="https://adv-r.hadley.nz/s4.html" class="external-link">here</a> for an overview and
 later section) and has been structured/implemented such that the
 simulations are well defined, but with a lot of flexibility in what the
 components can do. S4 programming imposes a level of formality to the
 programming that helps make the software more robust. Animal IBMs are
 spatiotemporal and can be based on very disparate data sources - so
-<code>roamR</code> is particular in its treatment of space (projections
-etc), time and units generally (as found in the <code>units</code>
-package). The package was written with seabirds as the motivating case,
-but generally for animals (indeed one of the main classes is
-<code>Species</code>), noting the agnostic term <strong>agent</strong>
-applies.</p>
-<p>In brief - <code>roamR</code>:</p>
+roamR is particular in its treatment of space (projections etc), time
+and units generally (as found in the <code>units</code> package). The
+package was written with seabirds as the motivating case, but generally
+for animals (indeed one of the main classes is <code>Species</code>),
+noting the agnostic term <strong>agent</strong> applies.</p>
+<p>In brief - roamR:</p>
 <ul>
 <li><p>defines the general characteristics of a type of agent (a
 <em>species</em> definition)</p></li>
@@ -166,21 +165,21 @@ a defined temporal resolution</p></li>
 simulated</p></li>
 </ul>
 <p>A principal limitation in IBMs is the level of information you have
-available to parameterize how the agents behave. <code>roamR</code> is
-intended to function well across the data support spectrum (i.e. from
-information poor to information rich). The test cases here cover a range
-of data support:</p>
+available to parameterize how the agents behave. roamR is intended to
+function well across the data support spectrum (i.e. from information
+poor to information rich). The test cases here cover a range of data
+support:</p>
 <ul>
 <li><p>Relatively data rich: Guillemots at the Isle of May, which are
 well studied.</p></li>
 <li><p>Relatively data poor: Red-Throated Divers in the North Sea, which
 are less understood.</p></li>
 </ul>
-<p>At the more extreme information end, <code>roamR</code> has been
-developed to simulate agents at a very detailed level, for example a
-population with extensive GPS tagging information. The exemplar that
-guided this was the Hidden Markov Model of McClintock &amp; Michelot
-(2018) and subsequent fitting to detailed Fulmar track data.</p>
+<p>At the more extreme information end, roamR has been developed to
+simulate agents at a very detailed level, for example a population with
+extensive GPS tagging information. The exemplar that guided this was the
+Hidden Markov Model of McClintock &amp; Michelot (2018) and subsequent
+fitting to detailed Fulmar track data.</p>
 </div>
 <div class="section level3">
 <h3 id="r-and-s4-programming">R and S4 programming<a class="anchor" aria-label="anchor" href="#r-and-s4-programming"></a>
@@ -244,7 +243,7 @@ well defined. The help files state where these requirements apply.</p>
 which means mainly the classes, how they relate to one another and
 therefore where data (including parameters) lies within these. This is
 summarised in the figure below:</p>
-<p><img src="images/roamR_schema.png" class="zoomable" alt="general class structure and hierarchy for the `roamR` package"></p>
+<p><img src="images/roamR_schema.png" class="zoomable" alt="general class structure and hierarchy for the roamR package"></p>
 <p>Key elements of this are discussed in turn, and examples are given in
 the associated test scenarios. Four main areas are covered:</p>
 <ul>
@@ -267,8 +266,7 @@ counterfactuals</p></li>
 <div class="section level3">
 <h3 id="general-workflow-to-createrun-an-ibm">General workflow to create/run an IBM<a class="anchor" aria-label="anchor" href="#general-workflow-to-createrun-an-ibm"></a>
 </h3>
-<p>The workflow to create/populate a <code>roamR</code> IBM is in
-essence:</p>
+<p>The workflow to create/populate a roamR IBM is in essence:</p>
 <ol style="list-style-type: decimal">
 <li><p>Configure the simulation at a high-level, including the spatial
 and temporal boundaries, projections, number of agents etc.</p></li>
@@ -432,17 +430,16 @@ definition).</p></li>
 <p>The possible activity states of agents are defined within the species
 definition as above. A design element of the IBM is that the daily
 activity budget (time spent in each state) is not fixed, and can be
-responsive to environment and agent condition. <code>roamR</code> allows
-a “state rebalancing” on a daily basis, with the rationale that agents
-will attempt to compensate for poor foraging say, by increasing the
-amount of time dedicated to feeding.</p>
-<p><code>roamR</code> allows for this state distribution to be dependent
-the previous day’s net energy intake. To achieve this, a target daily
-net energy is specified e.g. for a species that is thought to have
-similar weights at beginning and end of the season, this target is zero.
-A day with poor energy intake will attempt to be compensated for, by a
-subsequent increase in time spend feeding. This adjustment is made such
-that:</p>
+responsive to environment and agent condition. roamR allows a “state
+rebalancing” on a daily basis, with the rationale that agents will
+attempt to compensate for poor foraging say, by increasing the amount of
+time dedicated to feeding.</p>
+<p>roamR allows for this state distribution to be dependent the previous
+day’s net energy intake. To achieve this, a target daily net energy is
+specified e.g. for a species that is thought to have similar weights at
+beginning and end of the season, this target is zero. A day with poor
+energy intake will attempt to be compensated for, by a subsequent
+increase in time spend feeding. This adjustment is made such that:</p>
 <ul>
 <li><p>The change in activity budget would on average balance out the
 previous days’ intake against the energy target. Note this will not be
@@ -479,13 +476,12 @@ at time
 </h3>
 <p>Generally animals are not simply responsive to their immediate
 environment, for example favoured feeding grounds that are not
-immediately within their sensory range. <code>roamR</code> includes the
-calculation of vector fields, which give direction and slope for any
-point on a provided surface. In conjunction with the driver response
-functions, this allows the IBM to direct movement through the
-environment towards distant favoured regions, or conversely away.
-Distance and direction to nearest OWF development, or coastline being
-particular examples.</p>
+immediately within their sensory range. roamR includes the calculation
+of vector fields, which give direction and slope for any point on a
+provided surface. In conjunction with the driver response functions,
+this allows the IBM to direct movement through the environment towards
+distant favoured regions, or conversely away. Distance and direction to
+nearest OWF development, or coastline being particular examples.</p>
 </div>
 </div>
 <div class="section level2">
@@ -596,16 +592,15 @@ condition etc at any point in time.</p>
 <div class="section level2">
 <h2 id="moving-agents-running-the-simulation-ibm-class">Moving agents, running the simulation (<code>IBM</code> class)<a class="anchor" aria-label="anchor" href="#moving-agents-running-the-simulation-ibm-class"></a>
 </h2>
-<p>Fundamental to the IBM is the movement of agents. Currently
-<code>roamR</code> supports two movement models, which have different
-data/input requirements: one relatively simple requiring only basic
-knowledge of an animals speed of movement, the other a more demanding
-correlated random walk that would require detailed tracking data and
-parameter estimation from a Hidden Markov Model (HMM). The choice
-between these will be clear - if there is not support for a fine-scale
-movement model, then the simpler model will necessarily be chosen as the
-turning angle, step length and correlations are not able to be
-populated.</p>
+<p>Fundamental to the IBM is the movement of agents. Currently roamR
+supports two movement models, which have different data/input
+requirements: one relatively simple requiring only basic knowledge of an
+animals speed of movement, the other a more demanding correlated random
+walk that would require detailed tracking data and parameter estimation
+from a Hidden Markov Model (HMM). The choice between these will be clear
+- if there is not support for a fine-scale movement model, then the
+simpler model will necessarily be chosen as the turning angle, step
+length and correlations are not able to be populated.</p>
 <div class="section level3">
 <h3 id="movement-models">Movement models<a class="anchor" aria-label="anchor" href="#movement-models"></a>
 </h3>
@@ -639,11 +634,11 @@ directed random walk, and when related to local drivers, be functionally
 responsive to the environment. The process is primarily:</p>
 <ol style="list-style-type: decimal">
 <li><p>Select a stochastic movement direction based on a circular
-distribution (wrapped Normal in <code>roamR</code>). The mean
-(direction) of the distribution may be functionally related to local
-conditions e.g. vector field giving distance and direction to OWF. The
-variance of this distribution imposes the correlation (low variance is
-very directed movements).</p></li>
+distribution (wrapped Normal in roamR). The mean (direction) of the
+distribution may be functionally related to local conditions e.g. vector
+field giving distance and direction to OWF. The variance of this
+distribution imposes the correlation (low variance is very directed
+movements).</p></li>
 <li><p>Select a stochastic step length based on a distribution
 (e.g. gamma).</p></li>
 <li><p>Iterate.</p></li>
@@ -682,12 +677,12 @@ activity states are related to energy intakes at time
 </h2>
 <p>A principal use of the IBM is to run counterfactuals, where the
 simulation is run with and without a perturbation, such as the presence
-of an OWF. There are run in <code>roamR</code> in a paired fashion: the
-same agents are used in both scenarios, with changes only imposed on the
-definitions of the environment. Maintaining the same random seed
-sequence in both cases means the paired agents will start with the same
-properties, and subject to the same stochastic influences except where
-the perturbation creates changes.</p>
+of an OWF. There are run in roamR in a paired fashion: the same agents
+are used in both scenarios, with changes only imposed on the definitions
+of the environment. Maintaining the same random seed sequence in both
+cases means the paired agents will start with the same properties, and
+subject to the same stochastic influences except where the perturbation
+creates changes.</p>
 <p>Quantification of the impact of the perturbation can be done on any
 of the defined agent condition (and/or history), but likely to be
 differences in:</p>
