@@ -67,5 +67,5 @@ fitting to detailed Fulmar track data.
 You can use devtools to install:
 
 ``` r
-devtools::install_github("dmpstats/roamR", ref = "master")
+devtools::install_github("dmpstats/roamR", ref = "master", build_vignettes = TRUE)
 ```

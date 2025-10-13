@@ -371,9 +371,8 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
   }
 
   # logic for impacted scenario
-  #' #' NOTES:
-  #' #' This approach attempts to avoid large deviations in tracks between baseline
-  #' #' and impacted scenarios, by forcing endpoints to be closer
+  # NOTE: This approach attempts to avoid large deviations in tracks between baseline
+  # and impacted scenarios, by forcing endpoints to be closer
   if(impacted){
 
     if(is.null(imp_dens)) cli::cli_abort("imp_dens must be non-null if `impacted`== TRUE")

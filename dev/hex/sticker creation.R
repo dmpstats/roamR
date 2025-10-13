@@ -115,7 +115,7 @@ sticker_opt2_a <- sticker(
 
 sticker_opt2_a
 
-usethis::use_logo("dev/hex/roamR_logo_sticker_option2.png")
+#usethis::use_logo("dev/hex/roamR_logo_sticker_option2.png")
 
 
 
@@ -165,15 +165,15 @@ sticker_opt3_c <- sticker(
   package = "",
   #p_size = 23, p_x = 1, p_y = 1.67, p_color = "gray95", p_family = "audiowide", p_fontface = "bold",
   s_x = 1.02, s_y = 1.1, s_width = 0.89, s_height = 0.89,
-  url = "roamR", u_size = 25, u_color = "gray40", u_family = "goldman", u_angle = 329,
-  u_x = 0.19, u_y = 0.58,
+  url = "roamR", u_size = 25, u_color = "gray50", u_family = "goldman", u_angle = 328,
+  u_x = 0.19, u_y = 0.59,
   h_color = NA, h_fill = NA,
   dpi = 400,
   filename = "dev/hex/roamR_sticker_opt3_c.png")
 
 
 sticker_opt3_c
-usethis::use_logo("dev/hex/roamR_sticker_opt3_c.png")
+# usethis::use_logo("dev/hex/roamR_sticker_opt3_c.png")
 
 
 
@@ -226,12 +226,13 @@ sticker_opt6_a <- sticker(
   package = "",
   #p_size = 23, p_x = 1, p_y = 1.67, p_color = "gray95", p_family = "audiowide", p_fontface = "bold",
   s_x = 1.09, s_y = 0.92, s_width = 0.88, s_height = 0.88,
-  url = "roamR", u_size = 26, u_color = "gray30", u_family = "goldman", u_angle = 30,
+  url = "roamR", u_size = 26, u_color = "gray50", u_family = "goldman", u_angle = 30,
   #u_x = 1.1, u_y = 0.52,
   u_x = 0.27, u_y = 1.43,
   h_color = NA, h_fill = NA,
   dpi = 400,
   filename = "dev/hex/roamR_sticker_opt6_a.png")
+
 
 
 

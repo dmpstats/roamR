@@ -1,5 +1,5 @@
 ---
-title: 'Case Study: red-throated diver'
+title: "Case Study: North Sea's Red-throated Diver"
 execute: 
   cache: true
 output:

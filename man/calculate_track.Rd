@@ -25,7 +25,4 @@ Shortest path calc
 }
 \examples{
 TBD
-#' NOTES:
-#' This approach attempts to avoid large deviations in tracks between baseline
-#' and impacted scenarios, by forcing endpoints to be closer
 }

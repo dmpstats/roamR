@@ -1,11 +1,52 @@
-#' Run the DisNBS model
+#' Run the DisNBS individual-based model
+#'
+#' Run the model developed for the DisNB simulation. This approach is based
+#' on a movement model where tracks are simulated based on density distribution
+#' maps
 #'
 #'
+#' @param ibm an object of class `<IMB>`. Use function [rmr_initiate()] to create
+#'   the required object.
+#' @param run_scenario a character string defining which scenario(s) to run in
+#'   the simulation. Options are:
+#'   * `"baseline"` (default): simulate using data representing the status-quo scenario.
+#'   * `"impact"`: simulate using data representing the impact scenario.
+#'   * `"baseline-and-impact"`: sequentially simulate both baseline and impact scenarios.
+#' @param dens_id character string, the identifier for the `<Driver>` object
+#'   containing the agent's baseline density map. This must always be provided,
+#'   even when `run_scenario` is set to `"impact"`, since impacted movement is
+#'   dependent on baseline movement patterns. See the **Details** section for
+#'   more information.
+#' @param intake_id character string, the identifier for the `<Driver>`
+#'   object containing the agent's baseline energy intake map.
+#' @param imp_dens_id character string, the identifier for the `<Driver>`
+#'   object containing the agent's impacted density map.
+#' @param imp_intake_id character string, the identifier for the `<Driver>`
+#'   object containing the agent's impacted energy intake map.
+#' @param feed_avg_net_energy a `<units>` object, specifying the average net
+#'   energy per unit of feeding time. This is a tuning parameter expressing the
+#'   energy required to balance the energetic equations for an average agent.
+#' @param target_energy a `<units>` object, the target daily net energy. Constitutes
+#'   the objective value used in the agent's state rebalancing process in terms
+#'   of daily energy. This controls the extent agents change their feeding
+#'   behaviour in response to feeding success - low success means more feeding
+#'   the following day.
+#' @param smooth_body_mass an object of class `<bm_smooth_opts>`, specifying
+#'   options for converting energy time-series to body mass. Use [bm_smooth_opts()]
+#'   to define these options.
 #' @param waypnts_res the distance between waypoints defining the movement path
 #'   of simulated agents. Either a `<numeric>` value, expressed in meters, or an
 #'   `<units>` object with a valid length units.
+#' @param seed integer, the random seed to use in do  simulation, for
+#'   reproducibility purposes.
+#' @param quiet logical. If `TRUE`, suppresses messages and progress output
+#'   during the simulation.
 #'
 #' @include simulate_agent_disnbs.R
+#'
+#' @details
+#' (expand dependency of impacted scenario on baseline density surface)
+#'
 #'
 #' @export
 run_disnbs <- function(ibm,
@@ -18,8 +59,8 @@ run_disnbs <- function(ibm,
                        roost_state_id,
                        feed_avg_net_energy = units::set_units(422, "kJ/h"),
                        target_energy = units::set_units(1, "kJ"),
-                       waypnts_res = 100, # units::set_units(100, "m")
                        smooth_body_mass = bm_smooth_opts(),
+                       waypnts_res = 100, # units::set_units(100, "m")
                        seed = sample(3000, 1),
                        quiet = FALSE){
 
@@ -146,7 +187,7 @@ run_disnbs <- function(ibm,
         "{.cls stars} objects of drivers {.val {c(dens_id, imp_dens_id)}} must have identical dimensions.",
         x = "Driver {.val {dens_id}} cube dimensions: [{txt_l}]",
         x = "Driver {.val {imp_dens_id}} cube dimensions: [{txt_r}]",
-        i = "Note: make sure to ru {.fn rmr_initiate} after adjustments made to data contained in drivers."
+        i = "Note: make sure to run {.fn rmr_initiate} after adjustments made to data contained in drivers."
       ))
     }
   }
@@ -172,7 +213,7 @@ run_disnbs <- function(ibm,
   if(not_null(smooth_body_mass)){
     if(!inherits(smooth_body_mass, "bm_smooth_opts")){
       cli::cli_abort(c(
-        "{.arg smooth_body_mass} must be an object f class {.cls bm_smooth_opts}.",
+        "{.arg smooth_body_mass} must be an object of class {.cls bm_smooth_opts}.",
         i = "Create required object via {.fun bm_smooth_opts}."
       ))
     }
@@ -345,7 +386,7 @@ run_disnbs <- function(ibm,
 
 # wrapper for agent simulating function handle automatic globals detection. In
 # this specific case, failing to do this would export the whole `ibm` object to
-# each of the workers, slowing down performace and increasing memory requirements
+# each of the workers, slowing down performance and increasing memory requirements
 sim_agent_wrapper <- function(i, agents, drivers, states_profile, scen,
                               night_proportion, dnbs_cfg, feed_avg_net_energy,
                               target_energy){

@@ -18,8 +18,11 @@ roamR is an R package that provides a flexible framework for building and
 running Individual-Based Models (IBMs), also known as Agent-Based Models. It
 offers a formal and transparent toolset for defining the logical components
 underpinning the simulation of animal movement, enabling users to focus on model
-parametrisation, input data, behavioural and interaction rules rather than
-programming and implementation details.
+parametrisation, input data, behavioural states and habitat interaction rules
+rather than programming and implementation details.
+
+For an in-depth description of the package, see the article [roamR
+Overview](roamR-guide.html).
 
 
 ### Do I need programming experience to use roamR?
@@ -35,7 +38,7 @@ with minimal coding, and then refine and extend it as needed.
 While roamR provides a well-defined implementation infrastructure, users still
 need to make key modelling decisions when building an IBM. This includes
 defining the population and environment of interest, specifying interactions,
-energetics and behavioural rules, and carefully considering the ecological and
+energetics and behavioural states, and carefully considering the ecological and
 biological factors that influence movement. Thoughtful and accurate definition
 of such elements helps ensure that simulations are as realistic and meaningful
 as possible.
@@ -50,9 +53,10 @@ framework. Model definitions are constrained by of spatial and temporal
 resolution, and some ecological processes - like energy budgets and associated
 behaviour-balancing mechanisms - need to follow the package's core logic.
 
-Currently the package supports two main types of movement models:
-density-informed and vector-field-driven. Within these types, you can specify
-agent characteristics, environmental elements and associated interactions.
+Currently the package supports two main types of agent movement methods:
+**Density-informed** and **Correlated Random Walk (CRW)**. Within these types, you can
+specify agent characteristics, environmental elements and associated
+interactions.
 
 
 ### How do I start building my first model?
@@ -63,10 +67,10 @@ setting up your first IBM.
 Once you're comfortable, you can explore more detailed use-cases based on
 real-world scenarios, such as the analysis for
 [Guillemots](case-study-guillemot.html) and [Red-throated
-Divers](case-study-RTD.html) conducted for the **ORJP's DisNBS**
-project. In these case-studies, IBMs implemented with roamR were used to
-investigate displacement effects from offshore windfarms on those seabird
-populations during the non-breeding season.
+Divers](case-study-RTD.html) conducted for the **ORJP's DisNBS** project. In
+these case-studies, IBMs implemented with roamR were used to investigate
+displacement effects from speculative offshore windfarms on those seabird
+populations in the non-breeding season.
 
 
 ### What support is there for roamR and how do I get it?

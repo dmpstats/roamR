@@ -10,9 +10,58 @@ knitr:
     comment: '#>'
 ---
 
+*Page Under Construction*
+
+
 ```{r}
 library(roamR)
 ```
 
+## Introduction
 
-[*Under Construction*]
+This article provides a fast-track, hands-on demonstration of how to build an
+Individual-Based Model (IBM) using roamR. We'll walk through a mock example
+featuring an imaginary population in a hypothetical habitat to illustrate the
+core workflow.
+
+The goal is to help you quickly familiarise yourself with the main functions, object
+classes, and features of the package while providing a practical reference for
+future implementations. For a more detailed description of roamR's
+components, see the [roamR Overview](articles/roamR-guide.html) article.
+
+
+## General workflow
+
+The standard workflow to construct and run an IMB in roamR can be summarised
+in the following steps:
+
+1.  **High-level model configuration**: Set the spatial and temporal boundaries,
+number of agents, and other simulation-level parameters.
+
+2.  **Specify species features**: e.g. initial body mass, flight speed, activity
+states and their energetic trade-offs, interactions with environment, etc.
+
+3.  **Define the environment**: e.g. coastline, man-made structures (e.g. OWF), prey
+distributions, etc.
+
+4.  **Combine components into an IBM object**.
+
+5.  **Run a simulation**: This step creates agents, parallelises calculations,
+moves agents through the environment, and records their properties over time -
+optionally including defined perturbation scenarios.
+
+6.  **Query simulated animals**: investigate results, e.g. within-agent
+comparisons over perturbation scenarios.
+
+In the following sections, we'll go over each of these steps and build our
+own IBM from scratch. Buckle up!
+
+
+<!-- ## Our Imaginary scenario -->
+
+<!-- First, let's define the main characteristics of our imaginary case-scenario! We are also  -->
+
+
+## 1. Model Configuration
+
+

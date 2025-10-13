@@ -15,13 +15,13 @@ navbar:
     articles:
       text: Articles
       menu:
-      - text: Overview
+      - text: roamR Overview
         href: articles/roamR-guide.html
       - text: -------
       - text: Case Studies
       - text: Guillemot in the Isle of May
         href: articles/case-study-guillemot.html
-      - text: Red-throated Diver
+      - text: Red-throated Diver in the North Sea
         href: articles/case-study-RTD.html
     forum:
       text: Forum
