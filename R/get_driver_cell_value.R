@@ -1,5 +1,8 @@
-#' Extract cell values from raster-type drivers
+#' Extract cell values from raster-type drivers for the agent's current location
 #'
+#' @param driver a `<Driver>` object
+#' @param agent an `<Agent>` object
+#' @param vf placeholder
 #' For drivers defined by raster-type data, extracts a cell value of the driver
 #' given the location of the agent. In addition:
 #'    - If a temporal dimension is present, the timestamp to the agent's location
@@ -8,6 +11,8 @@
 #'    randomly chosen layer.
 #'
 #' @importFrom rlang !!!
+#'
+#' @noRd
 get_driver_cell_value <- function(driver, agent, vf = NULL){
 
   # TODO
