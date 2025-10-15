@@ -54,7 +54,7 @@
       ! <stars> objects of drivers "dens" and "imp_dens" must have identical dimensions.
       x Driver "dens" cube dimensions: [x:76, y:56, months:6, iter:5]
       x Driver "imp_dens" cube dimensions: [x:76, y:56, months:6, iter:2]
-      i Note: make sure to ru `rmr_initiate()` after adjustments made to data contained in drivers.
+      i Note: make sure to run `rmr_initiate()` after adjustments made to data contained in drivers.
 
 ---
 
@@ -67,7 +67,7 @@
       ! <stars> objects of drivers "dens" and "imp_dens" must have identical dimensions.
       x Driver "dens" cube dimensions: [x:76, y:56, months:6, iter:5]
       x Driver "imp_dens" cube dimensions: [x:76, y:56, months:2, iter:5]
-      i Note: make sure to ru `rmr_initiate()` after adjustments made to data contained in drivers.
+      i Note: make sure to run `rmr_initiate()` after adjustments made to data contained in drivers.
 
 # run_disnbs() fails when inputs are not specified in expected contextual units
 
@@ -75,12 +75,10 @@
       run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake", feed_state_id = "f",
         roost_state_id = "ro", waypnts_res = units::set_units(2, "g"), quiet = TRUE)
     Condition
-      Error in `map()`:
-      i In index: 1.
-      Caused by error in `map_()`:
-      ! Driver "dens" must have the same CRS as specified in slot `@model_config` of argument `ibm`.
-      x Detected CRS of <stars> object for "dens": "ETRS89 / UTM zone 33N + DHHN92 height" (EPSG: 5556)
-      x Expected CRS from `ibm@model_config@ref_sys`: "WGS 84" (EPSG: 4326)
+      Error in `run_disnbs()`:
+      ! Input values in `waypnts_res` are expected to carry a valid unit of length.
+      x "g" is not a recognized length unit.
+      i Use e.g., "meters" instead.
 
 ---
 
@@ -89,12 +87,10 @@
         roost_state_id = "ro", feed_avg_net_energy = units::set_units(2, "km/h"),
         quiet = TRUE)
     Condition
-      Error in `map()`:
-      i In index: 1.
-      Caused by error in `map_()`:
-      ! Driver "dens" must have the same CRS as specified in slot `@model_config` of argument `ibm`.
-      x Detected CRS of <stars> object for "dens": "ETRS89 / UTM zone 33N + DHHN92 height" (EPSG: 5556)
-      x Expected CRS from `ibm@model_config@ref_sys`: "WGS 84" (EPSG: 4326)
+      Error in `run_disnbs()`:
+      ! Input values in `feed_avg_net_energy` are expected to carry a valid unit of energy per unit-of-time.
+      x "km h-1" is not a recognized energy per unit-of-time unit.
+      i Use e.g., "kJ/hr" instead.
 
 ---
 
@@ -102,12 +98,10 @@
       run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake", feed_state_id = "f",
         roost_state_id = "ro", target_energy = units::set_units(2, "J/h"), quiet = TRUE)
     Condition
-      Error in `map()`:
-      i In index: 1.
-      Caused by error in `map_()`:
-      ! Driver "dens" must have the same CRS as specified in slot `@model_config` of argument `ibm`.
-      x Detected CRS of <stars> object for "dens": "ETRS89 / UTM zone 33N + DHHN92 height" (EPSG: 5556)
-      x Expected CRS from `ibm@model_config@ref_sys`: "WGS 84" (EPSG: 4326)
+      Error in `run_disnbs()`:
+      ! Input values in `target_energy_gain` are expected to carry a valid unit of energy.
+      x "J h-1" is not a recognized energy unit.
+      i Use e.g., "kJ" instead.
 
 ---
 
@@ -198,7 +192,7 @@
     Condition
       Error in `run_disnbs()`:
       ! States IDs "f" and "ro" are not defined in the <IBM> object provided to `ibm`.
-      i Please ensure the inputs to `feed_state_id` and `roost_state_id` is listed in `ibm@species@states_profile`.
+      i Please ensure the inputs to is listed in `ibm@species@states_profile`.
       i Available state IDs are "flying", "foraging", "swimming", and "water_resting".
 
 ---
@@ -210,6 +204,6 @@
     Condition
       Error in `run_disnbs()`:
       ! State ID "ro" is not defined in the <IBM> object provided to `ibm`.
-      i Please ensure the input to `roost_state_id` is listed in `ibm@species@states_profile`.
+      i Please ensure the inputs to is listed in `ibm@species@states_profile`.
       i Available state IDs are "flying", "foraging", "swimming", and "water_resting".
 
