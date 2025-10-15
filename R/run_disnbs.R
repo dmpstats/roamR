@@ -243,7 +243,7 @@ run_disnbs <- function(ibm,
   if(length(nonidentified_states) > 0){
     cli::cli_abort(c(
       "State{?s} ID{?s} {.val {unlist(nonidentified_states)}} {?is/are} not defined in the {.cls IBM} object provided to {.arg ibm}.",
-     i = "Please ensure the input{?s} to {.arg {names(nonidentified_states)}} is listed in {.code ibm@species@states_profile}.",
+     i = "Please ensure the input{?s} to {.arg {names(nonidentified_states)}} are listed in {.code ibm@species@states_profile}.",
      i = "Available state ID{?s} {?is/are} {.val {unlist(states_ids)}}."
     ))
   }
