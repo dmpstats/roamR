@@ -119,6 +119,8 @@ test_that("run_disnbs() fails when baseline and impacted density maps have incon
 
 test_that("run_disnbs() fails when inputs are not specified in expected contextual units", {
 
+  x <- rover_ibm_disnbs
+
   # wrong units for `waypnts_res`
   expect_snapshot(
     run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake",

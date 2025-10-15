@@ -55,7 +55,7 @@ test_that("dev testing", {
 
   history(a) |>
     ggplot(aes(x = timestep)) +
-    geom_point(aes(y = body_mass, col = factor(path_id))) +
+    geom_point(aes(y = body_mass, col = factor(track_id))) +
     geom_line(aes(y = body_mass_smooth))
 
   plot(history(a)["timestep"], pch = 19)
