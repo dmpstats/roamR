@@ -124,7 +124,7 @@ not formally part of the IBM, but the energetics and body mass
 distributions that are generated will inform these down-stream
 calculations.The following document is a high-level description fo the
 functionality within the roamR package, that encompasses the design
-elements of figure 1. `</p>
+elements of figure 1.</p>
 <div class="float">
 <img src="images/WP1_schema_nocap.svg" alt="Figure 1 - Schematic of proposed structure of IBM. Types of components: biological/ecological (gold), environmental (purple), OWF related (red) and influence the properties of the agents (blue) leading to final outputs (green)"><div class="figcaption">Figure 1 - Schematic of proposed structure of
 IBM. Types of components: biological/ecological (gold), environmental
@@ -142,10 +142,11 @@ components can do. S4 programming imposes a level of formality to the
 programming that helps make the software more robust. Animal IBMs are
 spatiotemporal and can be based on very disparate data sources - so
 roamR is particular in its treatment of space (projections etc), time
-and units generally (as found in the <code>units</code> package). The
+and units generally (as found in the <a href="https://r-quantities.github.io/units/" class="external-link">units</a> package). The
 package was written with seabirds as the motivating case, but generally
-for animals (indeed one of the main classes is <code>Species</code>),
-noting the agnostic term <strong>agent</strong> applies.</p>
+for animals (indeed one of the main classes is
+<code>&lt;Species&gt;</code>), noting the agnostic term
+<strong>agent</strong> applies.</p>
 <p>In brief - roamR:</p>
 <ul>
 <li><p>defines the general characteristics of a type of agent (a
@@ -204,8 +205,8 @@ access by name with the <code>@</code> operator, as opposed to the
 <code>$</code> that is common for simple R objects.</p></li>
 <li><p>Classes are prescriptive in what they can contain, this means
 things are more robust but deviations will be rejected e.g. if the data
-is <strong>required</strong> to be a <code>stars</code> object, you
-cannot store something else there</p></li>
+is <strong>required</strong> to be a <code>&lt;stars&gt;</code> object,
+you cannot store something else there</p></li>
 <li><p>There are a lot of background checks for conformity (as above),
 so what you do will be scrutinised at various levels and prevented if
 outside expectations. For example, spatial elements must carry
@@ -222,18 +223,19 @@ with stability and longevity in mind i.e. they are well maintained and
 programmed, where differing options are available. Notable examples
 are:</p>
 <ul>
-<li><p>The <code>sf</code> (simple features) package, which is widely
-well regarded for spatial work and encompasses much functionality of
-other packages.</p></li>
-<li><p>The <code>stars</code> packages for dealing with spatiotemporal
-data structures, which is characteristic of much of the data required
-for animal movement IBMs.</p></li>
+<li><p>The <a href="https://r-spatial.github.io/sf/" class="external-link">sf</a> (simple
+features) package, which is widely well regarded for spatial work and
+encompasses much functionality of other packages.</p></li>
+<li><p>The <a href="https://r-spatial.github.io/stars/" class="external-link">stars</a>
+package for dealing with spatiotemporal data structures, which is
+characteristic of much of the data required for animal movement
+IBMs.</p></li>
 </ul>
-<p><strong>Note:</strong> the <code>units</code> package is used
-heavily. Many parameters and data elements <em>must</em> have their
-units of measurement specified. This is one of several formalities the
-package imposes, to minimise careless errors and make the simulations
-well defined. The help files state where these requirements apply.</p>
+<p><strong>Note:</strong> the units package is used heavily. Many
+parameters and data elements <em>must</em> have their units of
+measurement specified. This is one of several formalities the package
+imposes, to minimise careless errors and make the simulations well
+defined. The help files state where these requirements apply.</p>
 </div>
 </div>
 <div class="section level2">
@@ -293,7 +295,7 @@ upon in turn.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="the-high-level-control-modelconfig-class">The high level control (<code>ModelConfig</code>, class)<a class="anchor" aria-label="anchor" href="#the-high-level-control-modelconfig-class"></a>
+<h2 id="the-high-level-control-modelconfig-class">The high level control (<code>&lt;ModelConfig&gt;</code> class)<a class="anchor" aria-label="anchor" href="#the-high-level-control-modelconfig-class"></a>
 </h2>
 <p>This component provides the high-level configurations for the
 simulation, such as the spatial and temporal boundaries, the
@@ -346,7 +348,7 @@ they represent a sample of potential realities or animals as for any
 computer-intensive inference.</p>
 </div>
 <div class="section level2">
-<h2 id="defining-the-species-species-class">Defining the species (<code>Species</code> class)<a class="anchor" aria-label="anchor" href="#defining-the-species-species-class"></a>
+<h2 id="defining-the-species-species-class">Defining the species (<code>&lt;Species&gt;</code> class)<a class="anchor" aria-label="anchor" href="#defining-the-species-species-class"></a>
 </h2>
 <p>This provides the general features that are realised in the agents,
 either stochastically (e.g. initial body mass) and/or functional
@@ -355,9 +357,9 @@ expenditure). It has been named <em>species</em> but could be considered
 a population depending on the context e.g. if there are parameters known
 down to a colony level, and potentially different from other
 colonies.</p>
-<p><em>[Note the package also has a <code>varDist</code> class, which
-gives a common interface in setting stochasticity, based on the
-<code>distributional</code> package]</em></p>
+<p><em>[Note the package also has a <code>&lt;varDist&gt;</code> class,
+which gives a common interface in setting stochasticity, based on the <a href="https://pkg.mitchelloharawild.com/distributional/" class="external-link">distributional</a>
+package]</em></p>
 <p><strong>Labels</strong> (<code>id</code>, <code>common_name</code>,
 <code>scientific_name</code>) these are used to identify the species in
 the simulation, and can be used to query the simulation results. They
@@ -365,11 +367,11 @@ are not used in any functional way, but are useful for labelling outputs
 and queries.</p>
 <p><strong>Body mass</strong> (<code>body_mass_distr</code>) this is a
 distribution of the initial body mass of the agents, which can be
-defined as a <code>VarDist</code> object. This is used to initialise the
-agents with a body mass that reflects the population being simulated.
-The distribution can be defined using any of the supported distributions
-in <code>VarDist</code>, such as normal, log-normal, or gamma
-distributions.</p>
+defined as a <code>&lt;VarDist&gt;</code> object. This is used to
+initialise the agents with a body mass that reflects the population
+being simulated. The distribution can be defined using any of the
+supported distributions in <code>&lt;VarDist&gt;</code>, such as normal,
+log-normal, or gamma distributions.</p>
 <p><strong>Mortality Threshold</strong>
 (<code>mortality_thresh_distr</code>) defines thresholds where agents
 are considered to have died, based on their body mass. Note, agents are
@@ -390,8 +392,9 @@ behaviour of the agents in the simulation.</p>
 <p><strong>Response to Environment</strong>
 (<code>driver_responses</code>) these are custom defined functions that
 relate species (and therefore agent) behaviour with regards their
-environment, as represented by the <code>Driver</code> class. These are
-a very flexible element of the simulation, so expanded upon below.</p>
+environment, as represented by the <code>&lt;Driver&gt;</code> class.
+These are a very flexible element of the simulation, so expanded upon
+below.</p>
 <div class="section level3">
 <h3 id="driver-responses">Driver responses<a class="anchor" aria-label="anchor" href="#driver-responses"></a>
 </h3>
@@ -403,11 +406,11 @@ perturbation scenarios to be explored in the IBM. These are collectively
 termed <strong>drivers</strong>, as they drive agents behaviour,
 including movement, activity states and by extension their distribution
 and energetics.</p>
-<p>The drivers are encompassed in the <code>Driver</code> class below,
+<p>The drivers are encompassed in <code>&lt;Driver&gt;</code> objects,
 which might be themselves general and not species-specific. Here within
-the <code>Species</code> class, the link between the environment is made
-explicit and species-specific. These are very broad in what they can
-encompass, being user-defined. For example:</p>
+the <code>&lt;Species&gt;</code> class, the link between the environment
+is made explicit and species-specific. These are very broad in what they
+can encompass, being user-defined. For example:</p>
 <ul>
 <li><p>Relationships between movement and proximity to coast. The coast
 movement driver in this case is distance to coast, calculated internally
@@ -456,17 +459,17 @@ probability distribution for the day is maintained).</p></li>
 </div>
 </div>
 <div class="section level2">
-<h2 id="defining-the-environment-driver-class">Defining the environment (<code>Driver</code> class)<a class="anchor" aria-label="anchor" href="#defining-the-environment-driver-class"></a>
+<h2 id="defining-the-environment-driver-class">Defining the environment (<code>&lt;Driver&gt;</code> class)<a class="anchor" aria-label="anchor" href="#defining-the-environment-driver-class"></a>
 </h2>
 <p>Information about the simulated environment which might be
 influential on agent’s behaviour is encapsulated in the
-<code>Driver</code> class. Generally these are spatiotemporal data cubes
-(a data structure here that is effectively a series of maps stacked by
-time), such that the agents can query them for any time and location.
-The actual information contained within the driver can be of varying
-detail (e.g. low spatial resolution, fixed over time, or highly detailed
-spatial information that varies with time) but the interface to this is
-consistent: the agent queries all relevant drivers at location
+<code>&lt;Driver&gt;</code> class. Generally these are spatiotemporal
+data cubes (a data structure here that is effectively a series of maps
+stacked by time), such that the agents can query them for any time and
+location. The actual information contained within the driver can be of
+varying detail (e.g. low spatial resolution, fixed over time, or highly
+detailed spatial information that varies with time) but the interface to
+this is consistent: the agent queries all relevant drivers at location
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
 at time
@@ -485,32 +488,33 @@ nearest OWF development, or coastline being particular examples.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="the-basic-unit-agent-class">The basic unit (<code>Agent</code> class)<a class="anchor" aria-label="anchor" href="#the-basic-unit-agent-class"></a>
+<h2 id="the-basic-unit-agent-class">The basic unit (<code>&lt;Agent&gt;</code> class)<a class="anchor" aria-label="anchor" href="#the-basic-unit-agent-class"></a>
 </h2>
 <p>The agents within the simulation are treated as self-contained
 entities, that are moved and measured through the environment subject to
 their individual properties. The specified number of agents are created
 at the start of the simulation, with their properties defined by the
-<code>Species</code> class. Initialisation of the agents is done by
-sampling from the distributions defined in the <code>Species</code>
-class, such as initial body mass, flight speed, and activity state.</p>
+<code>&lt;Species&gt;</code> class. Initialisation of the agents is done
+by sampling from the distributions defined in the
+<code>&lt;Species&gt;</code> class, such as initial body mass, flight
+speed, and activity state.</p>
 <div class="section level3">
 <h3 id="agent-properties">Agent properties<a class="anchor" aria-label="anchor" href="#agent-properties"></a>
 </h3>
 <p>At initialisation, the following (non-exhaustive) properties are
 generated for each agent. These are fixed throughout the simulation,
 being fundamental to the agent for a simulated season:</p>
-<p><strong>initial_mass</strong> ⁠<code>units</code>⁠ object, the agent’s
-body mass at the start of the simulation.</p>
+<p><strong>initial_mass</strong> <code>&lt;units&gt;</code>⁠ object, the
+agent’s body mass at the start of the simulation.</p>
 <p><strong>speeds</strong> a named list, defining movement speed
 properties for the agent. Each element specifies the agent’s average
 speed for a given movement state (e.g. flying, swimming, etc). List
-elements must be of type ⁠<code>units</code>⁠.</p>
+elements must be of type <code>&lt;units&gt;</code>⁠.</p>
 <p><strong>start_point</strong>, <strong>end_point</strong> objects of
-spatial class <code>XY</code>, the spatial coordinates of the agent at
-the start and end of the simulation, respectively.</p>
-<p><strong>mortality_thresh</strong> ⁠<code>units</code>⁠ object, the
-threshold body mass below which the agent is assumed to die.</p>
+spatial class <code>&lt;XY&gt;</code>, the spatial coordinates of the
+agent at the start and end of the simulation, respectively.</p>
+<p><strong>mortality_thresh</strong> <code>&lt;units&gt;</code>⁠ object,
+the threshold body mass below which the agent is assumed to die.</p>
 <p><strong>move_influences</strong> a named list, defining whether the
 agent is influenced by model drivers. Each element corresponds to a
 driver_id (which must be defined in the model’s Driver object) and
@@ -542,31 +546,32 @@ updated at each time-step. It includes the agent’s current location,
 body mass, activity states, and other properties that change over time.
 The condition is updated based on the agent’s movement, activity states,
 and interactions with the environment:</p>
-<p><strong>location</strong> object of class XY, specifying the agent’s
-spatial coordinates at the end of the current time-step.</p>
-<p><strong>grid_cell</strong> object of class XY, representing the AOC’s
-grid-cell occupied by the agent.</p>
+<p><strong>location</strong> object of class <code>&lt;XY&gt;</code>,
+specifying the agent’s spatial coordinates at the end of the current
+time-step.</p>
+<p><strong>grid_cell</strong> object of class <code>&lt;XY&gt;</code>,
+representing the AOC’s grid-cell occupied by the agent.</p>
 <p><strong>timestep</strong> integer, indicating the current simulation
 time-step index.</p>
-<p><strong>timestamp</strong> a ⁠<code>POSIXct</code>⁠ object, the
+<p><strong>timestamp</strong> a <code>&lt;POSIXct&gt;</code>⁠ object, the
 date-time at the end of the current time-step.</p>
-<p><strong>body_mass</strong> a ⁠<code>units</code>⁠ object, defining the
-agent’s body mass at the end of the current time-step.</p>
+<p><strong>body_mass</strong> a <code>&lt;units&gt;</code>⁠ object,
+defining the agent’s body mass at the end of the current time-step.</p>
 <p><strong>states_budget</strong> a named list, detailing the agent’s
 time allocation across the different behavioural/activity states during
-the time-step. Each element (of type ⁠<code>units</code>⁠) is named after
-a specific state and stores the duration (e.g. hours) the agent spent in
-that state.</p>
+the time-step. Each element (of type <code>&lt;units&gt;</code>⁠) is
+named after a specific state and stores the duration (e.g. hours) the
+agent spent in that state.</p>
 <p><strong>states_cost</strong> a named list, specifying the energy
 costs (e.g. KJ/hr/g) associated with each state defined in state_budget.
-List elements are of type ⁠<code>units</code>⁠.</p>
+List elements are of type <code>&lt;units&gt;</code>⁠.</p>
 <p><strong>mortality_prob</strong> numeric, the probability of the agent
 dying within the the current time-step (currently ignored).</p>
 <p><strong>alive</strong> a logical value (TRUE if alive, FALSE if
 dead), indicating whether the agent has survived the time-step.</p>
-<p><strong>track</strong> object of class sf, storing a time-series of
-location points tracking the agent’s movement within the current
-time-step.</p>
+<p><strong>track</strong> object of class <code>&lt;sf&gt;</code>,
+storing a time-series of location points tracking the agent’s movement
+within the current time-step.</p>
 <p><strong>energy_expenditure</strong> a ⁠<code>units</code>⁠ object,
 representing the total energy (e.g. KJ/g) expended across all states
 during the time-step.</p>
@@ -590,7 +595,8 @@ condition etc at any point in time.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="moving-agents-running-the-simulation-ibm-class">Moving agents, running the simulation (<code>IBM</code> class)<a class="anchor" aria-label="anchor" href="#moving-agents-running-the-simulation-ibm-class"></a>
+<h2 id="moving-agents-running-the-simulation-ibm-class">Moving agents, running the simulation (<code>&lt;IBM&gt;</code>
+class)<a class="anchor" aria-label="anchor" href="#moving-agents-running-the-simulation-ibm-class"></a>
 </h2>
 <p>Fundamental to the IBM is the movement of agents. Currently roamR
 supports two movement models, which have different data/input

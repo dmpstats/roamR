@@ -171,18 +171,35 @@ points within the polygon.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Accessors</span></span></span>
 <span class="r-in"><span><span class="fu">aoc_bbx</span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in aoc_bbx(config):</span> could not find function "aoc_bbx"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> xmin ymin xmax ymax </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0    0    5    5 </span>
 <span class="r-in"><span><span class="fu">start_sites</span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in start_sites(config):</span> could not find function "start_sites"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 3 features and 2 fields</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: POINT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 1 ymin: 1 xmax: 3 ymax: 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geodetic CRS:  WGS 84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id prop        geom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  A  0.3 POINT (1 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  B  0.3 POINT (2 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  C  0.4 POINT (3 3)</span>
 <span class="r-in"><span><span class="fu">end_sites</span><span class="op">(</span><span class="va">config</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in end_sites(config):</span> could not find function "end_sites"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 3 features and 2 fields</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: POINT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 1 ymin: 1 xmax: 3 ymax: 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geodetic CRS:  WGS 84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id prop        geom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  A  0.3 POINT (1 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  B  0.3 POINT (2 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  C  0.4 POINT (3 3)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># vizualizing the AOC's bounding box, the start and end sites</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sfc.html" class="external-link">st_as_sfc</a></span><span class="op">(</span><span class="fu">aoc_bbx</span><span class="op">(</span><span class="va">config</span><span class="op">)</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"orange"</span>, fill <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">start_sites</span><span class="op">(</span><span class="va">config</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">4</span>, colour <span class="op">=</span> <span class="st">"darkgreen"</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">end_sites</span><span class="op">(</span><span class="va">config</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in aoc_bbx(config):</span> could not find function "aoc_bbx"</span>
+<span class="r-plt img"><img src="ModelConfig-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

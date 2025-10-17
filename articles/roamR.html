@@ -94,23 +94,63 @@
 </div>
 <section class="level2"><h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This article provides a fast-track, hands-on demonstration of how to build an Individual-Based Model (IBM) using roamR. We’ll walk through a mock example featuring an imaginary population in a hypothetical habitat to illustrate the core workflow.</p>
-<p>The goal is to help you quickly familiarise yourself with the main functions, object classes, and features of the package while providing a practical reference for future implementations. For a more detailed description of roamR’s components, see the <a href="articles/roamR-guide.html">roamR Overview</a> article.</p>
-</section><section class="level2"><h2 id="general-workflow">General workflow<a class="anchor" aria-label="anchor" href="#general-workflow"></a>
+<p>This article provides a fast-track nahds-on demonstration of how to build an Individual-Based Model (IBM) using roamR. We’ll walk through a mock example featuring an imaginary population in a hypothetical habitat to illustrate the core workflow. In this example, we’ll use the <strong>Density-informed</strong> movement model.</p>
+<p>The aim is to help you quickly familiarise yourself with the package’s main functions, object classes, and features, while providing a practical reference for future implementations. For a more detailed description of roamR’s components, see the <a href="articles/roamR-guide.html">roamR Overview</a> article.</p>
+</section><section class="level2"><h2 id="general-roamr-workflow">General roamR workflow<a class="anchor" aria-label="anchor" href="#general-roamr-workflow"></a>
 </h2>
 <p>The standard workflow to construct and run an IMB in roamR can be summarised in the following steps:</p>
 <ol type="1">
-<li><p><strong>High-level model configuration</strong>: Set the spatial and temporal boundaries, number of agents, and other simulation-level parameters.</p></li>
-<li><p><strong>Specify species features</strong>: e.g. initial body mass, flight speed, activity states and their energetic trade-offs, interactions with environment, etc.</p></li>
-<li><p><strong>Define the environment</strong>: e.g. coastline, man-made structures (e.g. OWF), prey distributions, etc.</p></li>
-<li><p><strong>Combine components into an IBM object</strong>.</p></li>
-<li><p><strong>Run a simulation</strong>: This step creates agents, parallelises calculations, moves agents through the environment, and records their properties over time - optionally including defined perturbation scenarios.</p></li>
-<li><p><strong>Query simulated animals</strong>: investigate results, e.g. within-agent comparisons over perturbation scenarios.</p></li>
+<li><p><strong>High-level model configuration</strong> - Set the spatial and temporal boundaries and resolutions, number of agents, and other simulation-level parameters.</p></li>
+<li><p><strong>Specify species features</strong> - Define attributes such as initial body mass, flight speed, activity states and their energetic trade-offs, and interactions with environment.</p></li>
+<li><p><strong>Define the environment</strong> - Include relevant spatio-temporal layers within the simulated area such as species distributions, coastlines, man-made structures, environmental attributes, etc.</p></li>
+<li><p><strong>Combine components into an IBM object</strong> - Integrate the species and environment definitions into a single simulation-ready object.</p></li>
+<li><p><strong>Run the simulation</strong> - Create agents, parallelise computations, move agents through the environment, and record their properties over time - optionally including defined perturbation scenarios.</p></li>
+<li><p><strong>Query simulated animals</strong> - Investigate results, e.g. by comparing individual responses across baseline and impact scenarios.</p></li>
 </ol>
 <p>In the following sections, we’ll go over each of these steps and build our own IBM from scratch. Buckle up!</p>
-<!-- ## Our Imaginary scenario -->
-<!-- First, let's define the main characteristics of our imaginary case-scenario! We are also  -->
-</section><section class="level2"><h2 id="model-configuration">1. Model Configuration<a class="anchor" aria-label="anchor" href="#model-configuration"></a>
+</section><section class="level2"><h2 id="the-turtwick-ibm-a-baseline-scenario">The <em>Turtwick</em> IBM: a baseline scenario<a class="anchor" aria-label="anchor" href="#the-turtwick-ibm-a-baseline-scenario"></a>
+</h2>
+<p>In this demonstrative example, we’ll focus on a hypothetical species, the <em>Turtwick</em>, which inhabits a grassland area expected to be altered by the introduction of man-made structures. From previous observations, we know that <em>turtwicks</em> tend to avoid such structures, often showing displacement behaviour in response to their presence.</p>
+<p>We also know that the species’ body mass and activity behaviours (here referred to as <strong>states</strong>) are influenced by surface temperature and vegetation index. <em>turtwicks</em> are diurnal: individuals remain completely inactive at night, resting in any nearby, reasonably safe location where they stop by the end of the day.</p>
+<section class="level3"><h3 id="model-configuration">1. Model Configuration<a class="anchor" aria-label="anchor" href="#model-configuration"></a>
+</h3>
+<p>We start by defining the high-level configurations of the IBM for our <em>turtwick</em> population using the <code><a href="../reference/ModelConfig.html">ModelConfig()</a></code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">turtwick_ibm_cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ModelConfig.html">ModelConfig</a></span><span class="op">(</span></span>
+<span>  n_agents <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  ref_sys <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="fl">32630</span><span class="op">)</span>, </span>
+<span>  aoc_bbx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">10000</span>, <span class="fl">10000</span><span class="op">)</span>, </span>
+<span>  delta_x <span class="op">=</span> <span class="fl">250</span>, </span>
+<span>  delta_y <span class="op">=</span> <span class="fl">250</span>, </span>
+<span>  delta_time <span class="op">=</span> <span class="st">"1 day"</span>, </span>
+<span>  start_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2025-01-01"</span><span class="op">)</span>, </span>
+<span>  end_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2025-02-01"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>In plain terms, this configuration defines a model in which we:</p>
+<ul>
+<li>track the movement and life history of <strong>100</strong> <em>turtwicks</em> (<code>n_agents</code>)</li>
+<li>use the <strong>UTM 30N</strong> coordinate reference system (<code>ref_sys</code>)</li>
+<li>constrain movement within a <strong>10x10 km</strong> area of calculation with origin at <strong>(0,0)</strong>, using a spatial resolution of <strong>250x250 m</strong> cells (<code>delta_x</code> and <code>delta_y</code>)</li>
+<li>simulate the population from 1 January to 1 February 2025, in daily time steps (<code>delta_time</code>, <code>start_date</code>, <code>end_date</code>)</li>
+</ul>
+<p>You can inspect the configuration details by calling the created <code>turtwick_ibm_cfg</code> object:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">turtwick_ibm_cfg</span></span>
+<span><span class="co">#&gt; ModelConfig instance with:</span></span>
+<span><span class="co">#&gt;   AOC bounding box:</span></span>
+<span><span class="co">#&gt;    xmin  ymin  xmax  ymax </span></span>
+<span><span class="co">#&gt;     0     0 10000 10000</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="species-definition">2. Species Definition<a class="anchor" aria-label="anchor" href="#species-definition"></a>
+</h3>
+<p>babababa bbababa maldodsdf sjaf kfodhf OHDFOH FOhf ofh ohfdhf odhfo godhgo goshg [ojf j] pdsgj pgjpjgpdojg pjg</p>
+</section><section class="level3"><h3 id="environment-specification">2. Environment Specification<a class="anchor" aria-label="anchor" href="#environment-specification"></a>
+</h3>
+<p>babababa bbababa maldodsdf sjaf kfodhf OHDFOH FOhf ofh ohfdhf odhfo godhgo goshg [ojf j] pdsgj pgjpjgpdojg pjg</p>
+</section></section><section class="level2"><h2 id="disturbing-turtwegs-baseline-vs-impact-scenarios">Disturbing <em>Turtwegs</em>: baseline Vs impact scenarios<a class="anchor" aria-label="anchor" href="#disturbing-turtwegs-baseline-vs-impact-scenarios"></a>
 </h2>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
