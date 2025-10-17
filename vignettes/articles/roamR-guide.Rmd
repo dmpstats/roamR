@@ -35,14 +35,14 @@ The DisNBS project is the motivating example for the package development, which 
 
 ## IBM design (DisNBS workpackage 1)
 
-The DisNBS started with a design phase, underpinned by an expert consultation workshop. The resulting generic structure is presented in figure 1, which the roamR package implements. The demography submodel is not formally part of the IBM, but the energetics and body mass distributions that are generated will inform these down-stream calculations.The following document is a high-level description fo the functionality within the roamR package, that encompasses the design elements of figure 1. `
+The DisNBS started with a design phase, underpinned by an expert consultation workshop. The resulting generic structure is presented in figure 1, which the roamR package implements. The demography submodel is not formally part of the IBM, but the energetics and body mass distributions that are generated will inform these down-stream calculations.The following document is a high-level description fo the functionality within the roamR package, that encompasses the design elements of figure 1.
 
 
 ![Figure 1 - Schematic of proposed structure of IBM. Types of components: biological/ecological (gold), environmental (purple), OWF related (red) and influence the properties of the agents (blue) leading to final outputs (green)](images/WP1_schema_nocap.svg)
 
 ## Package overview
 
-roamR is written in R using S4 classes (refer [here](https://adv-r.hadley.nz/s4.html) for an overview and later section) and has been structured/implemented such that the simulations are well defined, but with a lot of flexibility in what the components can do. S4 programming imposes a level of formality to the programming that helps make the software more robust. Animal IBMs are spatiotemporal and can be based on very disparate data sources - so roamR is particular in its treatment of space (projections etc), time and units generally (as found in the `units` package). The package was written with seabirds as the motivating case, but generally for animals (indeed one of the main classes is `Species`), noting the agnostic term **agent** applies.
+roamR is written in R using S4 classes (refer [here](https://adv-r.hadley.nz/s4.html) for an overview and later section) and has been structured/implemented such that the simulations are well defined, but with a lot of flexibility in what the components can do. S4 programming imposes a level of formality to the programming that helps make the software more robust. Animal IBMs are spatiotemporal and can be based on very disparate data sources - so roamR is particular in its treatment of space (projections etc), time and units generally (as found in the [units](https://r-quantities.github.io/units/) package). The package was written with seabirds as the motivating case, but generally for animals (indeed one of the main classes is `<Species>`), noting the agnostic term **agent** applies.
 
 In brief - roamR:
 
@@ -76,7 +76,7 @@ This package assumes at least some minor familiarity with R. Its use for simulat
 
 -   There are well-defined classes for many components of the simulation - the R objects will often contain *slots* that you access by name with the `@` operator, as opposed to the `$` that is common for simple R objects.
 
--   Classes are prescriptive in what they can contain, this means things are more robust but deviations will be rejected e.g. if the data is **required** to be a `stars` object, you cannot store something else there
+-   Classes are prescriptive in what they can contain, this means things are more robust but deviations will be rejected e.g. if the data is **required** to be a `<stars>` object, you cannot store something else there
 
 -   There are a lot of background checks for conformity (as above), so what you do will be scrutinised at various levels and prevented if outside expectations. For example, spatial elements must carry coordinate references systems and projections, units must be specified for many inputs.
 
@@ -84,11 +84,11 @@ This package assumes at least some minor familiarity with R. Its use for simulat
 
 The package has been written with the intention of few dependencies on other packages. The dependencies that are needed have been chosen with stability and longevity in mind i.e. they are well maintained and programmed, where differing options are available. Notable examples are:
 
--   The `sf` (simple features) package, which is widely well regarded for spatial work and encompasses much functionality of other packages.
+-   The [sf](https://r-spatial.github.io/sf/) (simple features) package, which is widely well regarded for spatial work and encompasses much functionality of other packages.
 
--   The `stars` packages for dealing with spatiotemporal data structures, which is characteristic of much of the data required for animal movement IBMs.
+-   The [stars](https://r-spatial.github.io/stars/) package for dealing with spatiotemporal data structures, which is characteristic of much of the data required for animal movement IBMs.
 
-**Note:** the `units` package is used heavily. Many parameters and data elements *must* have their units of measurement specified. This is one of several formalities the package imposes, to minimise careless errors and make the simulations well defined. The help files state where these requirements apply.
+**Note:** the units package is used heavily. Many parameters and data elements *must* have their units of measurement specified. This is one of several formalities the package imposes, to minimise careless errors and make the simulations well defined. The help files state where these requirements apply.
 
 # Package/class hierarchy
 
@@ -131,7 +131,7 @@ The workflow to create/populate a roamR IBM is in essence:
 
 The key classes that require population in this workflow are expanded upon in turn.
 
-# The high level control (`ModelConfig`, class)
+# The high level control (`<ModelConfig>` class)
 
 This component provides the high-level configurations for the simulation, such as the spatial and temporal boundaries, the spatiotemporal resolution, the number of agents to simulate, the projection of the spatial data, and other general parameters that define the simulation environment. This also includes start and finish points for simulated animals, if that some return-to-colony behaviour is required. Consideration in the setting of these follows.
 
@@ -147,15 +147,15 @@ It is important to note that no movement outside this is permitted - so the box 
 
 Ultimately the the outputs will be distributions of metrics from the agents, so sufficient are needed to characterise these distributions well/stably. A balance of computation time and accuracy of the distribution shape may be needed, if computation time is large - else just select a large number. The number of agents does *not* need to match the number of individuals in the population being simulated, they represent a sample of potential realities or animals as for any computer-intensive inference.
 
-# Defining the species (`Species` class)
+# Defining the species (`<Species>` class)
 
 This provides the general features that are realised in the agents, either stochastically (e.g. initial body mass) and/or functional relationships with the environment (e.g. how SST affects energy expenditure). It has been named *species* but could be considered a population depending on the context e.g. if there are parameters known down to a colony level, and potentially different from other colonies.
 
-*[Note the package also has a `varDist` class, which gives a common interface in setting stochasticity, based on the `distributional` package]*
+*[Note the package also has a `<varDist>` class, which gives a common interface in setting stochasticity, based on the [distributional](https://pkg.mitchelloharawild.com/distributional/) package]*
 
 **Labels** (`id`, `common_name`, `scientific_name`) these are used to identify the species in the simulation, and can be used to query the simulation results. They are not used in any functional way, but are useful for labelling outputs and queries.
 
-**Body mass** (`body_mass_distr`) this is a distribution of the initial body mass of the agents, which can be defined as a `VarDist` object. This is used to initialise the agents with a body mass that reflects the population being simulated. The distribution can be defined using any of the supported distributions in `VarDist`, such as normal, log-normal, or gamma distributions.
+**Body mass** (`body_mass_distr`) this is a distribution of the initial body mass of the agents, which can be defined as a `<VarDist>` object. This is used to initialise the agents with a body mass that reflects the population being simulated. The distribution can be defined using any of the supported distributions in `<VarDist>`, such as normal, log-normal, or gamma distributions.
 
 **Mortality Threshold** (`mortality_thresh_distr`) defines thresholds where agents are considered to have died, based on their body mass. Note, agents are nominally tracked through the simulation even if marked as dead. This allows other post-processing relationships to be explored, such as defining fatality as a function of time spent below a %-age of starting body mass.
 
@@ -163,13 +163,13 @@ This provides the general features that are realised in the agents, either stoch
 
 **Activity States** (`activity_states`) this is a list of `ActivityState` objects, which define the different states that the agents can be in, such as foraging, resting, or flying. Each state has a name, a distribution of body mass loss, and a distribution of flight speed. The states can be defined with different distributions for different species, and can be used to model the behaviour of the agents in the simulation.
 
-**Response to Environment** (`driver_responses`) these are custom defined functions that relate species (and therefore agent) behaviour with regards their environment, as represented by the `Driver` class. These are a very flexible element of the simulation, so expanded upon below.
+**Response to Environment** (`driver_responses`) these are custom defined functions that relate species (and therefore agent) behaviour with regards their environment, as represented by the `<Driver>` class. These are a very flexible element of the simulation, so expanded upon below.
 
 ## Driver responses
 
 A key element of the IBM is the responsiveness of the agents to their environment, which includes standard biological factors such as prey distributions, bathymetry or coastlines. Treated generally, this also includes anthropogenic factors such as OWF, which are the focus of perturbation scenarios to be explored in the IBM. These are collectively termed **drivers**, as they drive agents behaviour, including movement, activity states and by extension their distribution and energetics.
 
-The drivers are encompassed in the `Driver` class below, which might be themselves general and not species-specific. Here within the `Species` class, the link between the environment is made explicit and species-specific. These are very broad in what they can encompass, being user-defined. For example:
+The drivers are encompassed in `<Driver>` objects, which might be themselves general and not species-specific. Here within the `<Species>` class, the link between the environment is made explicit and species-specific. These are very broad in what they can encompass, being user-defined. For example:
 
 -   Relationships between movement and proximity to coast. The coast movement driver in this case is distance to coast, calculated internally from coastline polygons. The correlated random walk movement model is fundamentally direction and speed, so a sharply declining driver response influences agents away from coastlines.
 
@@ -191,29 +191,29 @@ roamR allows for this state distribution to be dependent the previous day's net 
 
 
 
-# Defining the environment (`Driver` class)
+# Defining the environment (`<Driver>` class)
 
-Information about the simulated environment which might be influential on agent's behaviour is encapsulated in the `Driver` class. Generally these are spatiotemporal data cubes (a data structure here that is effectively a series of maps stacked by time), such that the agents can query them for any time and location. The actual information contained within the driver can be of varying detail (e.g. low spatial resolution, fixed over time, or highly detailed spatial information that varies with time) but the interface to this is consistent: the agent queries all relevant drivers at location $x$, $y$ at time $t$.
+Information about the simulated environment which might be influential on agent's behaviour is encapsulated in the `<Driver>` class. Generally these are spatiotemporal data cubes (a data structure here that is effectively a series of maps stacked by time), such that the agents can query them for any time and location. The actual information contained within the driver can be of varying detail (e.g. low spatial resolution, fixed over time, or highly detailed spatial information that varies with time) but the interface to this is consistent: the agent queries all relevant drivers at location $x$, $y$ at time $t$.
 
 ## Vector fields
 
 Generally animals are not simply responsive to their immediate environment, for example favoured feeding grounds that are not immediately within their sensory range. roamR includes the calculation of vector fields, which give direction and slope for any point on a provided surface. In conjunction with the driver response functions, this allows the IBM to direct movement through the environment towards distant favoured regions, or conversely away. Distance and direction to nearest OWF development, or coastline being particular examples.
 
-# The basic unit (`Agent` class)
+# The basic unit (`<Agent>` class)
 
-The agents within the simulation are treated as self-contained entities, that are moved and measured through the environment subject to their individual properties. The specified number of agents are created at the start of the simulation, with their properties defined by the `Species` class. Initialisation of the agents is done by sampling from the distributions defined in the `Species` class, such as initial body mass, flight speed, and activity state.
+The agents within the simulation are treated as self-contained entities, that are moved and measured through the environment subject to their individual properties. The specified number of agents are created at the start of the simulation, with their properties defined by the `<Species>` class. Initialisation of the agents is done by sampling from the distributions defined in the `<Species>` class, such as initial body mass, flight speed, and activity state.
 
 ## Agent properties
 
 At initialisation, the following (non-exhaustive) properties are generated for each agent. These are fixed throughout the simulation, being fundamental to the agent for a simulated season:
 
-**initial_mass** ⁠`units`⁠ object, the agent's body mass at the start of the simulation.
+**initial_mass** `<units>`⁠ object, the agent's body mass at the start of the simulation.
 
-**speeds** a named list, defining movement speed properties for the agent. Each element specifies the agent's average speed for a given movement state (e.g. flying, swimming, etc). List elements must be of type ⁠`units`⁠.
+**speeds** a named list, defining movement speed properties for the agent. Each element specifies the agent's average speed for a given movement state (e.g. flying, swimming, etc). List elements must be of type `<units>`⁠.
 
-**start_point**, **end_point** objects of spatial class `XY`, the spatial coordinates of the agent at the start and end of the simulation, respectively.
+**start_point**, **end_point** objects of spatial class `<XY>`, the spatial coordinates of the agent at the start and end of the simulation, respectively.
 
-**mortality_thresh** ⁠`units`⁠ object, the threshold body mass below which the agent is assumed to die.
+**mortality_thresh** `<units>`⁠ object, the threshold body mass below which the agent is assumed to die.
 
 **move_influences** a named list, defining whether the agent is influenced by model drivers. Each element corresponds to a driver_id (which must be defined in the model's Driver object) and contains a single-row data.frame with columns:
 
@@ -235,25 +235,25 @@ At initialisation, the following (non-exhaustive) properties are generated for e
 
 The agent's condition is a dynamic aspect of the simulation, which is updated at each time-step. It includes the agent's current location, body mass, activity states, and other properties that change over time. The condition is updated based on the agent's movement, activity states, and interactions with the environment:
 
-**location** object of class XY, specifying the agent's spatial coordinates at the end of the current time-step.
+**location** object of class `<XY>`, specifying the agent's spatial coordinates at the end of the current time-step.
 
-**grid_cell** object of class XY, representing the AOC's grid-cell occupied by the agent.
+**grid_cell** object of class `<XY>`, representing the AOC's grid-cell occupied by the agent.
 
 **timestep** integer, indicating the current simulation time-step index.
 
-**timestamp** a ⁠`POSIXct`⁠ object, the date-time at the end of the current time-step.
+**timestamp** a `<POSIXct>`⁠ object, the date-time at the end of the current time-step.
 
-**body_mass** a ⁠`units`⁠ object, defining the agent's body mass at the end of the current time-step.
+**body_mass** a `<units>`⁠ object, defining the agent's body mass at the end of the current time-step.
 
-**states_budget** a named list, detailing the agent's time allocation across the different behavioural/activity states during the time-step. Each element (of type ⁠`units`⁠) is named after a specific state and stores the duration (e.g. hours) the agent spent in that state.
+**states_budget** a named list, detailing the agent's time allocation across the different behavioural/activity states during the time-step. Each element (of type `<units>`⁠) is named after a specific state and stores the duration (e.g. hours) the agent spent in that state.
 
-**states_cost** a named list, specifying the energy costs (e.g. KJ/hr/g) associated with each state defined in state_budget. List elements are of type ⁠`units`⁠.
+**states_cost** a named list, specifying the energy costs (e.g. KJ/hr/g) associated with each state defined in state_budget. List elements are of type `<units>`⁠.
 
 **mortality_prob** numeric, the probability of the agent dying within the the current time-step (currently ignored).
 
 **alive** a logical value (TRUE if alive, FALSE if dead), indicating whether the agent has survived the time-step.
 
-**track** object of class sf, storing a time-series of location points tracking the agent's movement within the current time-step.
+**track** object of class `<sf>`, storing a time-series of location points tracking the agent's movement within the current time-step.
 
 **energy_expenditure** a ⁠`units`⁠ object, representing the total energy (e.g. KJ/g) expended across all states during the time-step.
 
@@ -265,7 +265,7 @@ The agent's condition is a dynamic aspect of the simulation, which is updated at
 
 The agent's condition is generally dynamic throughout the simulation and can be sufficient to answer questions motivating the IBM e.g. body mass at the end of season. More generally however, a full record may be sought so the agent class contains a history component which stores the agent's condition in a spatiotemporal data structure. This allows examination of movement, time spent in behaviour states, physical condition etc at any point in time.
 
-# Moving agents, running the simulation (`IBM` class)
+# Moving agents, running the simulation (`<IBM>` class)
 
 Fundamental to the IBM is the movement of agents. Currently roamR supports two movement models, which have different data/input requirements: one relatively simple requiring only basic knowledge of an animals speed of movement, the other a more demanding correlated random walk that would require detailed tracking data and parameter estimation from a Hidden Markov Model (HMM). The choice between these will be clear - if there is not support for a fine-scale movement model, then the simpler model will necessarily be chosen as the turning angle, step length and correlations are not able to be populated. 
 

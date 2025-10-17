@@ -115,7 +115,6 @@ methods::setClass(
 #'   `NULL` (the default), end locations are not forced upon agent. **Note:**
 #'   This parameter is currently inactive and will be ignored.
 #'
-#'
 #' @details
 #'
 #'  ## `start_sites` and `end_sites`
@@ -298,23 +297,26 @@ val_sites <- function(sites, aoc_bbx){
 
 
 
-# Methods-----------------------------------------------------------------
+# Methods  ---------------------------------------------------------------
 
 ## Accessors ------------------------------------
 ### @start_sites
 #### getter
+#' @export
 setGeneric("start_sites", function(x) standardGeneric("start_sites"))
 setMethod("start_sites", "ModelConfig", function(x) x@start_sites)
 
 
 ### @end_sites
 #### getter
+#' @export
 setGeneric("end_sites", function(x) standardGeneric("end_sites"))
 setMethod("end_sites", "ModelConfig", function(x) x@end_sites)
 
 
 ### @aoc_bbx
 #### getter
+#' @export
 setGeneric("aoc_bbx", function(x) standardGeneric("aoc_bbx"))
 setMethod("aoc_bbx", "ModelConfig", function(x) x@aoc_bbx)
 
@@ -323,3 +325,32 @@ setMethod("aoc_bbx", "ModelConfig", function(x) x@aoc_bbx)
 # plot(st_as_sfc(config@aoc_bbx), axes = TRUE, col = NA, border = "blue", lwd = 1.5)
 # plot(start_sites(config)["id"], pch = 19, col = "darkgreen", add = TRUE, cex = 1.5)
 # plot(end_sites(config)["id"], pch = 19, col = "red", add = TRUE)
+
+
+## Show ------------------------------------
+setMethod("show", "ModelConfig", function(object) {
+  # cat(is(object)[[1]], " instance with:\n",
+  #     "  Nr of Agents: ", object@n_agents, "\n",
+  #     "  AOC Bounding Box:  ", object@aoc_bbx, "\n",
+  #     sep = ""
+  # )
+
+  object@n_agents
+
+  cli::cat_line(is(object)[[1]], " instance with:")
+  cli::cat_line("  AOC bounding box:")
+  cat("  ")
+  show(turtwick_ibm_cfg@aoc_bbx)
+
+#   cli::cli_text("Some more text.")
+#   cli::cli_end()
+#   cli::cli_par()
+#   cli::cli_text("Already a new paragraph.")
+#
+#   cli::cat_line("This is ", "a ", "line of text.", col = "red")
+})
+
+
+#cli::cli_text("{names(turtwick_ibm_cfg@aoc_bbx)}")
+
+

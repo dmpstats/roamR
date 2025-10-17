@@ -34,6 +34,7 @@ reference:
   desc: High-level IBM controls and definitions
   contents:
   - matches("IBM")
+  - matches("ModelConfig")
 - title: Species definitions
   desc: Species/simulated population level functions
   contents:

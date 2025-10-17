@@ -6,6 +6,8 @@
 \alias{roamR-package}
 \title{roamR: Seabird IBM For Non-Breeding Season}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 A package for an Individual Based Model (IBM) for simulating seabirds in the non-breeding season in particular. This is in support of the DisNBS project, funded by the Carbon Trust and the Offshore Renewables Joint Industry Partnership (ORJIP)
 }
 \seealso{
