@@ -2,7 +2,7 @@
 #'
 #' @param driver a `<Driver>` object
 #' @param agent an `<Agent>` object
-#' @param vf placeholder
+#' @param vector_field placeholder
 #' For drivers defined by raster-type data, extracts a cell value of the driver
 #' given the location of the agent. In addition:
 #'    - If a temporal dimension is present, the timestamp to the agent's location
@@ -13,7 +13,7 @@
 #' @importFrom rlang !!!
 #'
 #' @noRd
-get_driver_cell_value <- function(driver, agent, vf = NULL){
+get_driver_cell_value <- function(driver, agent, vector_field = NULL){
 
   # TODO
   # - extract value of correct attribute (currently the complement of
@@ -34,43 +34,43 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
   }
 
   # get agent's current time and location
-  loc <- sf::st_coordinates(location(agent)) # matrix format
-  tm <- agent@condition@timestamp
+  agent_location <- sf::st_coordinates(location(agent)) # matrix format
+  agent_timestamp <- agent@condition@timestamp
 
   # get non-raster metadata of driver's <stars> data
-  nnrst_meta <- driver@stars_meta$non_raster
+  non_raster_metadata <- driver@stars_meta$non_raster
 
-  if(is.null(nnrst_meta)){ # extract from a raster-only <stars>
+  if(is.null(non_raster_metadata)){ # extract from a raster-only <stars>
 
-    val <- stars::st_extract(driver@stars_obj, at = loc)
+    val <- stars::st_extract(driver@stars_obj, at = agent_location)
 
   } else { # extract from a <stars> with additional non-raster dimensions
 
     # ensure slicing done for the first dimension of each type
-    nnrst_idxs <- which(!duplicated(nnrst_meta$types))
+    non_raster_indices <- which(!duplicated(non_raster_metadata$types))
 
     # non-raster dimensions to slice
-    nnrst_dims <- nnrst_meta$dims[nnrst_idxs]
+    non_raster_dimensions <- non_raster_metadata$dims[non_raster_indices]
 
     # slice number for each non-raster dimension
-    slice_num <- lapply(nnrst_idxs, function(idx){
-      proc <- nnrst_meta$procs[idx]
-      dim <- nnrst_meta$dims[idx]
+    slice_num <- lapply(non_raster_indices, function(idx){
+      proc <- non_raster_metadata$procs[idx]
+      dim <- non_raster_metadata$dims[idx]
       dimvals <- stars::st_get_dimension_values(driver@stars_obj, dim)
 
       # convert agent's timestamp to Date if dimension is of type Date
-      if(nnrst_meta$cls[idx] == "Date")  tm <- as.Date(tm)
+      if(non_raster_metadata$cls[idx] == "Date")  agent_timestamp <- as.Date(agent_timestamp)
 
       switch (
         proc,
-        nearest = nearest_preceding(dimvals, tm),
+        nearest = nearest_preceding(dimvals, agent_timestamp),
         draw = sample(dimvals, 1),
-        month_num = match(lubridate::month(tm), dimvals),
-        year = match(lubridate::year(tm), dimvals),
-        quarter = match(lubridate::quarter(tm), dimvals),
-        week = match(lubridate::week(tm), dimvals),
-        yday = match(lubridate::yday(tm), dimvals),
-        month_chr = pmatch(lubridate::month(tm, label = TRUE), dimvals)
+        month_num = match(lubridate::month(agent_timestamp), dimvals),
+        year = match(lubridate::year(agent_timestamp), dimvals),
+        quarter = match(lubridate::quarter(agent_timestamp), dimvals),
+        week = match(lubridate::week(agent_timestamp), dimvals),
+        yday = match(lubridate::yday(agent_timestamp), dimvals),
+        month_chr = pmatch(lubridate::month(agent_timestamp, label = TRUE), dimvals)
       )
     })
 
@@ -79,8 +79,8 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
       val <- NA_real_
     }else{
       val <- driver@stars_obj |>
-        slice_strs(nnrst_dims, !!!slice_num, .drop = TRUE) |> # bang-bang-bang required for appropriate one-to-many replacement to slice_strs
-        stars::st_extract(at = loc)
+        slice_strs(non_raster_dimensions, !!!slice_num, .drop = TRUE) |> # bang-bang-bang required for appropriate one-to-many replacement to slice_strs
+        stars::st_extract(at = agent_location)
     }
   }
 

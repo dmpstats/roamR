@@ -94,12 +94,12 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   if(!quiet) cli::cli_progress_step("Handling movement-influencing drivers")
 
   # extract ids of drivers influencing movement
-  mv_drvids <- species@driver_responses |>
+  movement_driver_ids <- species@driver_responses |>
     purrr::keep(\(x) !is_empty(x@movement@prob)) |> # driver doesn't affect movement if @prob in <MoveInfluence> is empty
     purrr::map_chr(\(x) x@driver_id)
 
 
-  if(length(mv_drvids) > 0){
+  if(length(movement_driver_ids) > 0){
 
     #### sf-based drivers: derive cell-distance surfaces  ------
 
@@ -108,34 +108,34 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
     # (ii) update driver's slots accordingly
     drivers <- drivers |>
      purrr::modify_if(
-       \(d) d@id %in% mv_drvids && is_stars_empty(stars_obj(d)) ,
-       function(d, grid = aoc_grid) {
+       \(driver) driver@id %in% movement_driver_ids && is_stars_empty(stars_obj(driver)) ,
+       function(driver, grid = aoc_grid) {
          # forcing unioning to get single vector of grid-point distances when
          # driver contains multiple geoms
-         grid$drv_dist <- sf::st_distance(grid, sf::st_union(d@sf_obj))
-         stars_obj(d) <- stars::st_rasterize(grid)["drv_dist"]
-         d@stars_descr <- paste0("Distance to ", d@sf_descr)
-         d@obj_active <- "stars"
-         validObject(d)
-         return(d)
+         grid$drv_dist <- sf::st_distance(grid, sf::st_union(driver@sf_obj))
+         stars_obj(driver) <- stars::st_rasterize(grid)["drv_dist"]
+         driver@stars_descr <- paste0("Distance to ", driver@sf_descr)
+         driver@obj_active <- "stars"
+         validObject(driver)
+         return(driver)
        }
      )
 
     #### Compute vector fields solely where required ------
-    vf_drvids <- species@driver_responses |>
-      purrr::keep(\(x) x@driver_id %in% mv_drvids && x@movement@mode == "vector-field") |>
+    vector_field_driver_ids <- species@driver_responses |>
+      purrr::keep(\(x) x@driver_id %in% movement_driver_ids && x@movement@mode == "vector-field") |>
       purrr::map_chr(\(x) x@driver_id)
 
 
-    if(length(vf_drvids) > 0){
-      if(!quiet) cli::cli_progress_step("Calculate vector fields for drivers {.val {vf_drvids}}.")
+    if(length(vector_field_driver_ids) > 0){
+      if(!quiet) cli::cli_progress_step("Calculate vector fields for drivers {.val {vector_field_driver_ids}}.")
 
       drivers <- drivers |>
         purrr::modify_if(
-          \(d) d@id %in% vf_drvids,
-          function(d) {
-            stars_obj(d) <- compute_vector_fields(stars_obj(d))
-            d
+          \(driver) driver@id %in% vector_field_driver_ids,
+          function(driver) {
+            stars_obj(driver) <- compute_vector_fields(stars_obj(driver))
+            driver
           },
           .progress = TRUE
         )
@@ -163,9 +163,9 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   if(!quiet) cli::cli_progress_step("Initialize Agents")
 
   if (model_config@n_agents > 100 && !is_empty(species)) {
-    n_wk <- future::availableCores() - 3
-    cli::cli_alert_info("Parallelizing agent initialization across {n_wk} workers")
-    future::plan(future::multisession(), workers = n_wk)
+    num_workers <- future::availableCores() - 3
+    cli::cli_alert_info("Parallelizing agent initialization across {num_workers} workers")
+    future::plan(future::multisession(), workers = num_workers)
   } else {
     future::plan(future::sequential())
   }
@@ -222,16 +222,16 @@ init_check_consistency <- function(species,
   #   must be provided
 
   ## fetch driver IDs
-  drv_ids <- sapply(drivers, \(x) x@id)
+  driver_ids <- sapply(drivers, \(x) x@id)
 
   ## check driver_id uniqueness
-  drv_id_dup <- unique(drv_ids[duplicated(drv_ids)])
+  duplicate_driver_ids <- unique(driver_ids[duplicated(driver_ids)])
 
-  if(length(drv_id_dup) > 0){
+  if(length(duplicate_driver_ids) > 0){
 
-    error_msg_items <- lapply(drv_id_dup, function(x, nm){
-      dup_pos <- which(drv_ids == x)
-      cli::format_inline("Driver ID {.val {x}} found at positions {.field {dup_pos}} in {.arg drivers}.")
+    error_msg_items <- lapply(duplicate_driver_ids, function(x, nm){
+      duplicate_positions <- which(driver_ids == x)
+      cli::format_inline("Driver ID {.val {x}} found at positions {.field {duplicate_positions}} in {.arg drivers}.")
     }) |> purrr::set_names("x")
 
     cli::cli_abort(c(
@@ -244,13 +244,13 @@ init_check_consistency <- function(species,
 
 
   ## Ensure driver-responses specified for existent drivers
-  drv_resp_ids <- sapply(species@driver_responses, \(d) d@driver_id)
-  missing_resp_drvs <- drv_resp_ids[drv_resp_ids %notin% drv_ids]
+  driver_response_ids <- sapply(species@driver_responses, \(d) d@driver_id)
+  missing_response_drivers <- driver_response_ids[driver_response_ids %notin% driver_ids]
 
-  if(length(missing_resp_drvs) > 0){
+  if(length(missing_response_drivers) > 0){
     cli::cli_abort(c(
       "Driver responses specified in {.arg species@driver_responses} must refer to valid driver IDs in {.arg drivers}.",
-      x = "Driver ID{?s} {.val {missing_resp_drvs}} not found in {.cls Driver} objects whithin {.arg drivers}.",
+      x = "Driver ID{?s} {.val {missing_response_drivers}} not found in {.cls Driver} objects whithin {.arg drivers}.",
       i = "Check if {.arg @driver_id}s in {.cls DriverResponse} objects listed under {.arg species@driver_responses} match those defined in {.arg drivers}."
     ),
     call = call, class = "err-nonexistent-driverid")
@@ -258,24 +258,24 @@ init_check_consistency <- function(species,
 
 
   ## Driver-dependent energy cost functions
-  purrr::walk(species@states_profile, function(st){
-    if(is(st@energy_cost, "VarFn")){
-      lapply(st@energy_cost@args_spec, function(arg){
+  purrr::walk(species@states_profile, function(state){
+    if(is(state@energy_cost, "VarFn")){
+      lapply(state@energy_cost@args_spec, function(arg){
         #browser()
         if(arg@type == "driver"){
 
           # 1. check presence of driver_id in provided `drivers`
-          if(arg@driver_id %notin% drv_ids){
+          if(arg@driver_id %notin% driver_ids){
             cli::cli_abort(c(
-              "Inconsistency detected in energy cost function for state {.val {st@id}}.",
+              "Inconsistency detected in energy cost function for state {.val {state@id}}.",
               x = "Function's argument {.arg {arg@name}} is dependent on driver ID {.val {arg@driver_id}}.",
               x = "Can't find driver ID'd as {.val {arg@driver_id}} in {.arg drivers}.",
-              i = "Valid driver IDs are: {.val {vec_style(drv_ids)}}."
+              i = "Valid driver IDs are: {.val {vec_style(driver_ids)}}."
             ),
             call = call, class = "err-nonexistent-driverid")
           }
 
-          drv <- purrr::keep(drivers, \(d) d@id == arg@driver_id) |>
+          driver <- purrr::keep(drivers, \(d) d@id == arg@driver_id) |>
             purrr::pluck(1) |>
             stars_obj() |>
             #dplyr::pull(1) |>
@@ -283,9 +283,9 @@ init_check_consistency <- function(species,
 
 
           # 2. check if raster data is available
-          if(is_stars_empty(drv)){
+          if(is_stars_empty(driver)){
             cli::cli_abort(c(
-              "Inconsistency detected in energy cost function for state {.val {st@id}}.",
+              "Inconsistency detected in energy cost function for state {.val {state@id}}.",
               x = "The function's argument {.arg {arg@name}} is dependent on driver ID {.val {arg@driver_id}}.",
               x = "Driver ID {.val {arg@driver_id}} is present in {.arg drivers}, but no raster-type data was found in associated {.cls Driver} object.",
               i = "Currently, arguments based on drivers in energy cost functions can only be used with raster-type data."
@@ -296,13 +296,13 @@ init_check_consistency <- function(species,
           # 3. check if units specified in both ends are convertible
           if(arg@units != ""){
 
-            drv_units <- as.character(units(drv[[1]]))
+            driver_units <- as.character(units(driver[[1]]))
 
-            if(!units::ud_are_convertible(drv_units, arg@units)){
+            if(!units::ud_are_convertible(driver_units, arg@units)){
               cli::cli_abort(c(
-                "Inconsistency detected in energy cost function for state {.val {st@id}}.",
+                "Inconsistency detected in energy cost function for state {.val {state@id}}.",
                 x = "Units specified for {.arg {arg@name}} are incompatible with the units of driver ID {.val {arg@driver_id}} provided in {.arg drivers}.",
-                x = "Convertion from {.val {arg@units}} to {.val {drv_units}} in not possible."
+                x = "Convertion from {.val {arg@units}} to {.val {driver_units}} in not possible."
               ),
               call = call, class = "err-noncovertible-units")
             }
@@ -322,73 +322,73 @@ init_check_consistency <- function(species,
 
   if(any(driver_not_empty)){
 
-    lapply(drivers, function(d){
+    lapply(drivers, function(driver){
 
       ### CRS: Check if driver and nodel_config have matching reference system
       # isolate driver's active spatial object
-      drv_obj <- slot(d, paste0(d@obj_active, "_obj"))
-      drv_crs <- sf::st_crs(drv_obj)
+      driver_object <- slot(driver, paste0(driver@obj_active, "_obj"))
+      driver_crs <- sf::st_crs(driver_object)
 
-      if(drv_crs$proj4string != model_config@ref_sys$proj4string){
+      if(driver_crs$proj4string != model_config@ref_sys$proj4string){
         cli::cli_abort(c(
-          "Driver {.val {d@id}} must have the same coordinate reference system (CRS) as specified in {.arg model_config}.",
-          x = "CRS of active spatial object for {.val {d@id}}: {.val {drv_crs$Name}} (EPSG: {.val {drv_crs$epsg}})",
+          "Driver {.val {driver@id}} must have the same coordinate reference system (CRS) as specified in {.arg model_config}.",
+          x = "CRS of active spatial object for {.val {driver@id}}: {.val {driver_crs$Name}} (EPSG: {.val {driver_crs$epsg}})",
           x = "Expected CRS from {.arg model_config@ref_sys}: {.val {model_config@ref_sys$Name}} (EPSG: {.val {model_config@ref_sys$epsg}})"
         ),
         call = call, class = "err-crs-mismatch")
       }
 
       ### Check spatial overlap between AOC and drivers
-      #if(d@id == "owf_foot") browser()
+      #if(driver@id == "owf_foot") browser()
 
       aoc_poly <- sf::st_as_sfc(aoc_bbx(model_config))
 
-      if(d@obj_active == "sf"){
+      if(driver@obj_active == "sf"){
 
-        n_feats <- length(sf::st_geometry(drv_obj))
-        feats_out_aoc <- which(lengths(sf::st_intersects(drv_obj, aoc_poly)) == 0)
-        n_feats_out_aoc <- length(feats_out_aoc)
-        #prop_feats_out_aoc <- n_feats_out_aoc/n_feats
+        num_features <- length(sf::st_geometry(driver_object))
+        features_outside_aoc <- which(lengths(sf::st_intersects(driver_object, aoc_poly)) == 0)
+        num_features_outside_aoc <- length(features_outside_aoc)
+        #prop_features_outside_aoc <- num_features_outside_aoc/num_features
 
-        if(n_feats_out_aoc == n_feats){
+        if(num_features_outside_aoc == num_features){
           cli::cli_abort(c(
-            "{cli::qty(n_feats_out_aoc)} {?The/All} geometric feature{?s} specified for driver ID {.val {d@id}} {cli::qty(n_feats_out_aoc)} {?is/are} located outside the AOC's spatial extent.",
+            "{cli::qty(num_features_outside_aoc)} {?The/All} geometric feature{?s} specified for driver ID {.val {driver@id}} {cli::qty(num_features_outside_aoc)} {?is/are} located outside the AOC's spatial extent.",
             i = "To include this driver, consider expanding the AOC defined in argument {.arg model_config}."
           ),
           call = call, class = "err-driver-outside-aoc")
 
-        } else if(n_feats_out_aoc > 0){
+        } else if(num_features_outside_aoc > 0){
           cli::cli_warn(c(
-            "{n_feats_out_aoc}/{n_feats} of geometric features in driver ID {.val {d@id}} did not intersect with the AOC.",
-            #"!" = "Features in row{?s} {feats_out_aoc} of {.cls sf} object will be excluded from the simulation.",
-            i = "To resolve this warning, consider expanding the AOC or removing non-intersecting features from {.val {d@id}}."
+            "{num_features_outside_aoc}/{num_features} of geometric features in driver ID {.val {driver@id}} did not intersect with the AOC.",
+            #"!" = "Features in row{?s} {features_outside_aoc} of {.cls sf} object will be excluded from the simulation.",
+            i = "To resolve this warning, consider expanding the AOC or removing non-intersecting features from {.val {driver@id}}."
           ),
           call = call, class = "wrn-driver-partial-aoc" )
         }
 
 
-      }else if(d@obj_active == "stars"){
+      }else if(driver@obj_active == "stars"){
 
-        drv_bbox_poly <- sf::st_as_sfc(sf::st_bbox(drv_obj))
+        driver_bbox_poly <- sf::st_as_sfc(sf::st_bbox(driver_object))
 
-        intersect_area <- sf::st_intersection(drv_bbox_poly, aoc_poly) |>
+        intersect_area <- sf::st_intersection(driver_bbox_poly, aoc_poly) |>
           sf::st_area()
 
-        prop_covered <- intersect_area/sf::st_area(aoc_poly)
-        units(prop_covered) <- NULL
+        proportion_covered <- intersect_area/sf::st_area(aoc_poly)
+        units(proportion_covered) <- NULL
 
-        if(length(prop_covered) == 0){
+        if(length(proportion_covered) == 0){
 
           cli::cli_abort(c(
-            "Driver ID {.val {d@id}} lies completely outside the spatial extent of the specified AOC.",
+            "Driver ID {.val {driver@id}} lies completely outside the spatial extent of the specified AOC.",
             i = "To include this driver, consider expanding the AOC defined in argument {.arg model_config}."
           ),
           call = call, class = "err-driver-outside-aoc")
 
-        } else if(prop_covered <= 0.25){
+        } else if(proportion_covered <= 0.25){
           cli::cli_warn(c(
-            "The extent of driver ID {.val {d@id}} covers only {round(prop_covered, 3)*100}% of the specified AOC area.",
-            "!" = "As a result, most values extracted from driver {.val {d@id}} during simulation may be NAs."
+            "The extent of driver ID {.val {driver@id}} covers only {round(proportion_covered, 3)*100}% of the specified AOC area.",
+            "!" = "As a result, most values extracted from driver {.val {driver@id}} during simulation may be NAs."
           ),
           call = call, class = "wrn-driver-partial-aoc")
         }
@@ -436,67 +436,67 @@ generate_aoc_driver <- function(bbox, grid){
 #'
 #' Calculate the vector fields (rasters aspect and slope) of a stars object for
 #' a single attribute, for multi-dimensions
-compute_vector_fields <- function(strs, unit = "radians"){
+compute_vector_fields <- function(stars_object, unit = "radians"){
 
-  if(!inherits(strs, "stars")) cli::cli_abort("{arg. strs} must be a {.cls stars} object")
-  if(length(strs) != 1) stop("'strs' must be a single-attribute <stars> object")
+  if(!inherits(stars_object, "stars")) cli::cli_abort("{arg. stars_object} must be a {.cls stars} object")
+  if(length(stars_object) != 1) stop("'stars_object' must be a single-attribute <stars> object")
 
   # get the labels of dimensions defining the coords of the spatial grid,
   # i.e. the names used for the x/y dimensions
-  xy_labs <- attr(stars::st_dimensions(strs), "raster")$dimensions
+  xy_labels <- attr(stars::st_dimensions(stars_object), "raster")$dimensions
   # dimnames for non-grid variables
-  cov_labs <- setdiff(dimnames(strs), xy_labs)
+  covariate_labels <- setdiff(dimnames(stars_object), xy_labels)
 
-  if(length(cov_labs) == 0){
-    vfs <- get_slope_aspect(strs)
+  if(length(covariate_labels) == 0){
+    vector_fields <- get_slope_aspect(stars_object)
   }else{
-    cov_vals <- sapply(
-      cov_labs,
-      \(x) stars::st_get_dimension_values(strs, which = x),
+    covariate_values <- sapply(
+      covariate_labels,
+      \(x) stars::st_get_dimension_values(stars_object, which = x),
       simplify = FALSE
     )
 
-    cov_grid <- expand.grid(cov_vals, stringsAsFactors = FALSE)
+    covariate_grid <- expand.grid(covariate_values, stringsAsFactors = FALSE)
 
     # compute vector fields for each layer
-    vfs_ls <- purrr::pmap(cov_grid, \(...){
-      cov_val <- list(...)
-      slice_strs(strs, cov_labs, !!!cov_val, .drop = TRUE) |>
+    vector_fields_list <- purrr::pmap(covariate_grid, \(...){
+      covariate_value <- list(...)
+      slice_strs(stars_object, covariate_labels, !!!covariate_value, .drop = TRUE) |>
         get_slope_aspect()
     })
 
     # combine single layers into original datacube
-    vfs <- do.call("c", append(vfs_ls, list(along = cov_vals)))
+    vector_fields <- do.call("c", append(vector_fields_list, list(along = covariate_values)))
   }
 
   ## assign angle units
-  vfs$aspect <- units::set_units(vfs$aspect, unit, mode = "standard")
-  vfs$slope <- units::set_units(vfs$slope, unit, mode = "standard")
+  vector_fields$aspect <- units::set_units(vector_fields$aspect, unit, mode = "standard")
+  vector_fields$slope <- units::set_units(vector_fields$slope, unit, mode = "standard")
 
-  vfs
+  vector_fields
 }
 
 
 
 # Calculates slope and aspect of one attribute in the stars object and
 # binds them to the original stars object as attributes
-get_slope_aspect <- function(strs, unit = "radians"){
+get_slope_aspect <- function(stars_object, unit = "radians"){
   #browser()
-  if(!inherits(strs, "stars")) stop("`strs` must be a <stars> object")
-  if(length(strs) != 1) stop("`strs` must be a single-attribute <stars> object")
-  if(length(dim(strs)) > 2) stop("`strs` cannot have more than 2 dimensions")
+  if(!inherits(stars_object, "stars")) stop("`stars_object` must be a <stars> object")
+  if(length(stars_object) != 1) stop("`stars_object` must be a single-attribute <stars> object")
+  if(length(dim(stars_object)) > 2) stop("`stars_object` cannot have more than 2 dimensions")
 
-  vf <- as(strs, "SpatRaster") |>
+  vector_field <- as(stars_object, "SpatRaster") |>
     terra::terrain(v = c("aspect", "slope"), unit = unit) |>
     stars::st_as_stars(as_attributes = TRUE)
 
   # force equal dimensions of original data
-  stars::st_dimensions(vf) <- stars::st_dimensions(strs)
+  stars::st_dimensions(vector_field) <- stars::st_dimensions(stars_object)
 
   # convert aspect to bearing (i.e. East is 0)
-  vf$aspect <- -(vf$aspect - 0.5*pi)
+  vector_field$aspect <- -(vector_field$aspect - 0.5*pi)
 
-  c(strs, vf)
+  c(stars_object, vector_field)
 }
 
 
