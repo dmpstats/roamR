@@ -49,44 +49,44 @@ introspect_stars <- function(x,
   # Dimensions Classification (incl. additional validation)  ---------------------
 
   ## get names of dimensions
-  x_nms <- dimnames(x)
+  dimension_names <- dimnames(x)
 
   # subset names of raster dimensions
-  rstr_nms <- attr(stars::st_dimensions(x), "raster")$dimensions
+  raster_dimension_names <- attr(stars::st_dimensions(x), "raster")$dimensions
 
   # get list describing raster dimensions
-  rstr_dims <- list(
-    dims = match(rstr_nms, x_nms),
-    names = rstr_nms
+  raster_dimensions <- list(
+    dims = match(raster_dimension_names, dimension_names),
+    names = raster_dimension_names
   )
 
   # names of remaining dimensions
-  non_rstr_nms <- setdiff(x_nms, rstr_nms)
+  non_raster_dimension_names <- setdiff(dimension_names, raster_dimension_names)
 
-  non_rstr_dims <- if (length(non_rstr_nms) == 0) NULL else {
+  non_raster_dimensions <- if (length(non_raster_dimension_names) == 0) NULL else {
 
-    lapply(non_rstr_nms, function(nm) {
+    lapply(non_raster_dimension_names, function(dimension_name) {
 
       # get dim values
-      dvals <- stars::st_get_dimension_values(x, which = nm)
+      dimension_values <- stars::st_get_dimension_values(x, which = dimension_name)
 
       # dim classification
-      if (inherits(dvals, c("POSIXt", "Date"))) {
+      if (inherits(dimension_values, c("POSIXt", "Date"))) {
 
         type <- "temporal"
         proc <- "nearest"
 
-      } else if (is.character(dvals)) {
+      } else if (is.character(dimension_values)) {
 
         pattern <- paste0("^(", paste(c(month.name, month.abb), collapse = "|"), ")$")
-        is_valid_month_chr <- grepl(pattern, dvals, ignore.case = TRUE)
+        is_valid_month_chr <- grepl(pattern, dimension_values, ignore.case = TRUE)
 
         if(!all(is_valid_month_chr)){
-          invalids <- dvals[!is_valid_month_chr]
+          invalids <- dimension_values[!is_valid_month_chr]
           cli::cli_abort(c(
-            "Issue found in dimension {.val {nm}} of {.arg {arg}}.",
+            "Issue found in dimension {.val {dimension_name}} of {.arg {arg}}.",
             "!" = "Character-valued, non-raster dimensions are assumed to represent months.",
-            x = "The following {cli::qty(invalids)} value{?s} in dimension {.val {nm}} are not valid month names: {.val {invalids}}.",
+            x = "The following {cli::qty(invalids)} value{?s} in dimension {.val {dimension_name}} are not valid month names: {.val {invalids}}.",
             "i" = "See {.help [month.name](base::month.name)} and {.help [month.abb](base::month.abb)} for accepted values."
           ),
           call = call
@@ -96,48 +96,48 @@ introspect_stars <- function(x,
         type <- "temporal"
         proc <- "month_chr"
 
-      } else if (is.numeric(dvals)) {
+      } else if (is.numeric(dimension_values)) {
 
         # if numeric, must have the following names
         valid_num_names <- c("month", "year", "quarter", "yearweek", "yearday", "iter", "iteration", "boot", "bootstrap", "sample")
 
         # standardize dim name, to handle some simple name deviations
-        nm_std <- tolower(nm) # capitalization
-        nm_std <- sub("\\.|-", "", nm_std) # separating dots/hyphens
-        nm_std <- sub("s$", "", nm_std)   # plurals
+        dimension_name_standardized <- tolower(dimension_name) # capitalization
+        dimension_name_standardized <- sub("\\.|-", "", dimension_name_standardized) # separating dots/hyphens
+        dimension_name_standardized <- sub("s$", "", dimension_name_standardized)   # plurals
 
 
-        if(nm_std %notin% valid_num_names){
+        if(dimension_name_standardized %notin% valid_num_names){
           cli::cli_abort(c(
             "Invalid dimension name detected in {.arg {arg}}.",
-            "x" = "{.val {nm}} is not an accepted name for a non-raster dimension with numeric values.",
+            "x" = "{.val {dimension_name}} is not an accepted name for a non-raster dimension with numeric values.",
             "i" = "Valid names for such dimensions are: {.val {vec_style(valid_num_names)}}."
           ), call = call)
         }
 
         # Can't have negative values
-        if(any(dvals < 0)){
+        if(any(dimension_values < 0)){
           cli::cli_abort(c(
-            "Dimension named {.val {nm}} of {.arg {arg}} contains negative value(s).",
+            "Dimension named {.val {dimension_name}} of {.arg {arg}} contains negative value(s).",
             "x" = "Numeric-valued, non-raster dimensions must contain only positive integers."
           ),
           call = call)
         }
 
         # Must contain whole/integer numbers
-        if(any(!is_whole(dvals))){
+        if(any(!is_whole(dimension_values))){
           cli::cli_abort(c(
-            "Dimension named {.val {nm}} of {.arg {arg}} contains fractional value(s).",
+            "Dimension named {.val {dimension_name}} of {.arg {arg}} contains fractional value(s).",
             "x" = "Numeric-valued, non-raster dimensions must contain only positive integers."
           ),
           call = call)
         }
 
         # if years, must have 4 digits
-        if(nm_std == "year"){
-          if(any(n_digits(dvals) != 4)){
+        if(dimension_name_standardized == "year"){
+          if(any(n_digits(dimension_values) != 4)){
             cli::cli_abort(c(
-              "Issue found in dimension {.val {nm}} of {.arg {arg}}.",
+              "Issue found in dimension {.val {dimension_name}} of {.arg {arg}}.",
               "x" = "Years must be represented as 4-digit integer numbers (e.g., 1990, 2024)."
             ),
             call = call)
@@ -145,16 +145,16 @@ introspect_stars <- function(x,
 
         # Year time-points must comply with specific boundaries
         switch(
-          nm_std,
-          month = check_bounds_num_dim(dvals, nm, "Numeric months", 1, 12, arg, call),
-          quarter = check_bounds_num_dim(dvals, nm, "Quarters of the year", 1, 4, arg, call),
-          yearweek = check_bounds_num_dim(dvals, nm, "Week of the year", 1, 52, arg, call),
-          yearday = check_bounds_num_dim(dvals, nm, "Day of the year", 1, 365, arg, call)
+          dimension_name_standardized,
+          month = check_bounds_num_dim(dimension_values, dimension_name, "Numeric months", 1, 12, arg, call),
+          quarter = check_bounds_num_dim(dimension_values, dimension_name, "Quarters of the year", 1, 4, arg, call),
+          yearweek = check_bounds_num_dim(dimension_values, dimension_name, "Week of the year", 1, 52, arg, call),
+          yearday = check_bounds_num_dim(dimension_values, dimension_name, "Day of the year", 1, 365, arg, call)
         )
 
 
         type <- switch(
-          nm_std,
+          dimension_name_standardized,
           month = "temporal",
           year = "temporal",
           quarter = "temporal",
@@ -168,7 +168,7 @@ introspect_stars <- function(x,
         )
 
         proc <- switch(
-          nm_std,
+          dimension_name_standardized,
           month = "month_num",
           year = "year",
           quarter = "quarter",
@@ -184,40 +184,40 @@ introspect_stars <- function(x,
 
       # non-raster dim 'metadata'
       list(
-        dims = which(nm == x_nms),
-        names = nm,
+        dims = which(dimension_name == dimension_names),
+        names = dimension_name,
         types = type,
         procs = proc,
-        cls = class(dvals)[1]
+        cls = class(dimension_values)[1]
       )
     }) |> purrr::list_transpose()
   }
 
 
   # issue warning when dimensions have duplicated types
-  if(any(duplicated(non_rstr_dims$types))){
+  if(any(duplicated(non_raster_dimensions$types))){
 
-    tp <- non_rstr_dims$types[1]
-    tp_label <- ifelse(non_rstr_dims$types[1] == "temporal", "time-related variables", "resampling-based replicates")
+    dimension_type <- non_raster_dimensions$types[1]
+    type_label <- ifelse(non_raster_dimensions$types[1] == "temporal", "time-related variables", "resampling-based replicates")
 
     cli::cli_warn(c(
       "Non-raster dimensions of {.arg {arg}} must represent distinct covariate types.",
-      "!" = "Both dimensions {.val {non_rstr_dims$names}} appear to convey {tp_label}.",
-      "!" = "Only the first of these dimensions, {.val {non_rstr_dims$names[1]}}, will be used in the model."
+      "!" = "Both dimensions {.val {non_raster_dimensions$names}} appear to convey {type_label}.",
+      "!" = "Only the first of these dimensions, {.val {non_raster_dimensions$names[1]}}, will be used in the model."
     ))
   }
 
-  list(raster = rstr_dims, non_raster = non_rstr_dims)
+  list(raster = raster_dimensions, non_raster = non_raster_dimensions)
 }
 
 
 
 
 
-check_bounds_num_dim <- function(dvals, nm, context, min, max, arg, call){
-  if(any(dvals < min) || any(dvals > max)){
+check_bounds_num_dim <- function(dimension_values, dimension_name, context, min, max, arg, call){
+  if(any(dimension_values < min) || any(dimension_values > max)){
     cli::cli_abort(c(
-      "Issue found in dimension {.val {nm}} of {.arg {arg}}.",
+      "Issue found in dimension {.val {dimension_name}} of {.arg {arg}}.",
       "x" = "Dimension contains values outside the accepted range.",
       "x" = "{context} must be represented by integer numbers between {min} and {max} (inclusive)."
     ),
