@@ -17,7 +17,7 @@
 #'   distribution used to drive the agent's movement.
 #' @param intake_drv `<stars>`, containing the energy intake surface for the
 #'   agent. Used to simulate energetic dynamics.
-#' @param dnbs_cfg TODO
+#' @param disnbs_config TODO
 #'
 #' @returns A modified `<Agent>` object containing the complete simulated
 #'   trajectory and condition history of the agent over the simulation period,
@@ -25,9 +25,9 @@
 simulate_agent_disnbs <- function(agent,
                                   drivers,
                                   states_profile,
-                                  scen = c("baseline", "impact"),
+                                  scenario = c("baseline", "impact"),
                                   night_proportion,
-                                  dnbs_cfg,
+                                  disnbs_config,
                                   feed_avg_net_energy,
                                   target_energy = units::set_units(1, "kJ")){
 
@@ -38,14 +38,14 @@ simulate_agent_disnbs <- function(agent,
   # - further factorisation?
 
   # check ------------------------------------------------------
-  if (!inherits(dnbs_cfg, "disnbs_config")){
+  if (!inherits(disnbs_config, "disnbs_config")){
     cli::cli_abort(c(
-      "{.arg dnbs_cfg} must be an object of class {.cls disnbs_config}.",
+      "{.arg disnbs_config} must be an object of class {.cls disnbs_config}.",
       i = "Build required object via {.fun create_dnbs_config}."
     ))
   }
 
-  scen <- rlang::arg_match(scen)
+  scenario <- rlang::arg_match(scenario)
 
   # prep ------------------------------------------------------
 
@@ -53,19 +53,19 @@ simulate_agent_disnbs <- function(agent,
   names(states_profile) <- sapply(states_profile, \(s) s@id)
 
   # set up agent's impacted status and ID of intake driver
-  if(scen == "baseline"){
+  if(scenario == "baseline"){
     impacted <- FALSE
-    intake_id <- dnbs_cfg$intake_id
+    intake_id <- disnbs_config$intake_id
   }else{
-    stopifnot(not_null(dnbs_cfg$imp_dens_id))
-    stopifnot(not_null(dnbs_cfg$imp_intake_id))
+    stopifnot(not_null(disnbs_config$impact_dens_id))
+    stopifnot(not_null(disnbs_config$impact_intake_id))
 
-    impacted <- agent@properties@move_influences[[dnbs_cfg$imp_dens_id]]$infl
-    intake_id <- dnbs_cfg$imp_intake_id
+    impacted <- agent@properties@move_influences[[disnbs_config$impact_dens_id]]$infl
+    intake_id <- disnbs_config$impact_intake_id
   }
 
   # Units management
-  step_drtn_hrs <- dnbs_cfg$step_drtn |>
+  step_duration_hours <- disnbs_config$step_duration |>
     assert_units_to_numeric("hr")
 
   states_budget(agent@condition) <- lapply(
@@ -111,20 +111,20 @@ simulate_agent_disnbs <- function(agent,
 
   # initial location as sf
   step_loc <- sf::st_sf(
-    tm = dnbs_cfg$time_grid[1],
-    geometry = sf::st_sfc(location(agent), crs = dnbs_cfg$crs)
+    tm = disnbs_config$time_grid[1],
+    geometry = sf::st_sfc(location(agent), crs = disnbs_config$crs)
   )
 
   # run -----------------------------------------------------
 
   # run for-loop over simulations timepoints
-  for(step in seq_along(dnbs_cfg$time_grid)){ # t = 1
+  for(step in seq_along(disnbs_config$time_grid)){ # t = 1
 
     ## Generate track ---------------------------------------------------------
 
     # re-routing done at "start of the day", i.e. before moving the agent on
     # current delta_time
-    if(step %in% dnbs_cfg$routing_timesteps){
+    if(step %in% disnbs_config$routing_timesteps){
 
       #if(track_id == 3) browser()
 
@@ -133,36 +133,36 @@ simulate_agent_disnbs <- function(agent,
         calculate_track(
           agent,
           dens = extract_dns_layer(
-            pluck_s4(drivers, dnbs_cfg$dens_id) |> stars_obj(),
-            dnbs_cfg,
+            pluck_s4(drivers, disnbs_config$dens_id) |> stars_obj(),
+            disnbs_config,
             step
           ),
           impacted = FALSE,
-          crs = dnbs_cfg$crs,
-          aoc_bbx = dnbs_cfg$aoc_bbx
+          crs = disnbs_config$crs,
+          aoc_bbx = disnbs_config$aoc_bbx
         )
       }else{
         calculate_track(
           agent,
           dens = extract_dns_layer(
-            pluck_s4(drivers, dnbs_cfg$dens_id) |> stars_obj(),
-            dnbs_cfg,
+            pluck_s4(drivers, disnbs_config$dens_id) |> stars_obj(),
+            disnbs_config,
             step
           ),
           impacted = TRUE,
           imp_dens = extract_dns_layer(
-              pluck_s4(drivers, dnbs_cfg$imp_dens_id) |> stars_obj(),
-              dnbs_cfg,
+              pluck_s4(drivers, disnbs_config$imp_dens_id) |> stars_obj(),
+              disnbs_config,
               step
           ),
-          crs = dnbs_cfg$crs,
-          aoc_bbx = dnbs_cfg$aoc_bbx
+          crs = disnbs_config$crs,
+          aoc_bbx = disnbs_config$aoc_bbx
         )
       }
 
       # segmentize track to specified point resolution
       actv_waypnts <- actv_track |>
-        sf::st_segmentize(dfMaxLength = dnbs_cfg$waypnts_res) |>
+        sf::st_segmentize(dfMaxLength = disnbs_config$waypnts_res) |>
         sf::st_cast("POINT")
 
       # cumulative length of new track's waypoints (meters)
@@ -195,8 +195,8 @@ simulate_agent_disnbs <- function(agent,
     # State@energy_gain, analogous to the already existing State@energy_cost. Or
     # maybe the concatenation of the two into a single State@net_energy?
     energy_gain <- prod(
-      agent@condition@states_budget[[dnbs_cfg$feed_state_id]],
-      step_drtn_hrs,
+      agent@condition@states_budget[[disnbs_config$feed_state_id]],
+      step_duration_hours,
       unit_gain
     )
 
@@ -212,7 +212,7 @@ simulate_agent_disnbs <- function(agent,
     state_costs <- purrr::map2(
       state_unit_costs,
       states_budget(agent@condition),
-      \(unit_cost, budget) unit_cost * step_drtn_hrs * budget
+      \(unit_cost, budget) unit_cost * step_duration_hours * budget
     )
 
     # step net total energy (kJ)
@@ -233,12 +233,12 @@ simulate_agent_disnbs <- function(agent,
     states_budget(agent@condition) <- rebalance_states(
       states_budget(agent@condition),
       night_prop,
-      dnbs_cfg$feed_state_id,
-      dnbs_cfg$roost_state_id,
+      disnbs_config$feed_state_id,
+      disnbs_config$roost_state_id,
       net_energy,
       feed_avg_net_energy,
       target_energy,
-      step_drtn_hrs
+      step_duration_hours
     )
 
 
@@ -249,7 +249,7 @@ simulate_agent_disnbs <- function(agent,
     step_dist <-  purrr::map2(
       agent_speeds,
       states_budget(agent@condition),
-      \(speed, budget) speed * budget * step_drtn_hrs) |>
+      \(speed, budget) speed * budget * step_duration_hours) |>
       purrr::discard(is.na) |>
       purrr::reduce(sum)
 
@@ -258,12 +258,12 @@ simulate_agent_disnbs <- function(agent,
 
     # agent's location at the end of the step
     step_loc <- actv_waypnts[which.min(abs(total_dist - cum_dist))] |>
-      st_sf(tm = dnbs_cfg$time_grid[step], geometry = _)
+      st_sf(tm = disnbs_config$time_grid[step], geometry = _)
 
     # step_travel <- runif(1, 0.1, 1) * step_dist
     # total_dist <- total_dist + step_travel
     # step_loc <- actv_waypnts[which.min(abs(total_dist - cum_dist))] |>
-    #   st_sf(tm = dnbs_cfg$time_grid[step], geometry = _)
+    #   st_sf(tm = disnbs_config$time_grid[step], geometry = _)
 
 
     ## Update Agent slots ------------------------------------------
@@ -271,7 +271,7 @@ simulate_agent_disnbs <- function(agent,
 
     location(agent) <- sf::st_geometry(step_loc)[[1]]
     agent@condition@timestep <- step
-    agent@condition@timestamp <- as.POSIXct(dnbs_cfg$time_grid[step], "UTC")
+    agent@condition@timestamp <- as.POSIXct(disnbs_config$time_grid[step], "UTC")
     agent@condition@energy_expenditure <- units::set_units(net_energy, "kJ")
     agent@condition@states_cost <- lapply(state_unit_costs, units::set_units, "kJ/h")
 
@@ -294,16 +294,16 @@ simulate_agent_disnbs <- function(agent,
 
   hist <- do.call(rbind, hist)
 
-  if(isTRUE(dnbs_cfg$bm_smooth$apply)){
+  if(isTRUE(disnbs_config$bm_smooth$apply)){
     hist <- hist |>
       dplyr::mutate(
-        body_mass_smooth = smooth_body_mass(timestep, body_mass, dnbs_cfg$bm_smooth$ks_bw),
+        body_mass_smooth = smooth_body_mass(timestep, body_mass, disnbs_config$bm_smooth$ks_bw),
         .after = body_mass
       )
   }
 
   history(agent) <- dplyr::add_row(hist, hist_0, .before = 1) |>
-    sf::st_set_crs(dnbs_cfg$crs)
+    sf::st_set_crs(disnbs_config$crs)
 
   agent
 }
@@ -313,27 +313,27 @@ simulate_agent_disnbs <- function(agent,
 
 
 #' wrapper on slice_strs() to slice density surface with appropriate indices.
-#' Slice construction relies on `cfg` to define the available non-raster
+#' Slice construction relies on `disnbs_config` to define the available non-raster
 #' dimensions to evaluate
 #'
-#' @param dns_strs <stars> object containing the density datacube
-extract_dns_layer <- function(dns_strs, cfg, timestep){
+#' @param density_stars <stars> object containing the density datacube
+extract_dns_layer <- function(density_stars, disnbs_config, timestep){
 
-  if(!inherits(cfg, "disnbs_config")){
-    stop("`cfg` must be object created via {.fun create_dnbs_config}.")
+  if(!inherits(disnbs_config, "disnbs_config")){
+    stop("`disnbs_config` must be object created via {.fun create_dnbs_config}.")
   }
 
   # get the index of the track corresponding to the input timestep
-  route_idx <- which(cfg$routing_timesteps == timestep)
+  route_index <- which(disnbs_config$routing_timesteps == timestep)
 
-  dns_nrst_dims <- c(cfg$dns_tm_dim, cfg$dns_itr_dim)
+  density_non_raster_dimensions <- c(disnbs_config$dns_tm_dim, disnbs_config$dns_itr_dim)
 
-  dns_slcs <- list(
-    tm = cfg$dns_tm_slices[route_idx],
-    itr = if(!is.na(cfg$dns_itr_dim)) cfg$dns_itr_slices[route_idx] else NULL
+  density_slices <- list(
+    tm = disnbs_config$dns_tm_slices[route_index],
+    itr = if(!is.na(disnbs_config$dns_itr_dim)) disnbs_config$dns_itr_slices[route_index] else NULL
   )
 
-  slice_strs(dns_strs, dns_nrst_dims, !!!dns_slcs, .drop = TRUE)
+  slice_strs(density_stars, density_non_raster_dimensions, !!!density_slices, .drop = TRUE)
 }
 
 
