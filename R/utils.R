@@ -8,17 +8,17 @@ not_null <- Negate(is.null)
 
 #'
 #' helper to check validity of probability distribution names
-check_dist <- function(dist){
+check_dist <- function(distribution){
 
-  dist <- match.arg(
-    dist,
+  distribution <- match.arg(
+    distribution,
     choices = c("normal", "Normal",
                 "poisson", "Poisson",
                 "gamma", "Gamma",
                 "binomial", "Binomial")
   )
 
-  tolower(dist)
+  tolower(distribution)
 }
 
 
@@ -145,8 +145,8 @@ is_empty_function <- function(f){
 # Helper to define a cli style for a vector. A wrapper of `cli::cli_vec()` to
 # simplify calls, allowing the choice of separator and the last word when
 # collapsing a vector into a single string. Must be called inside a `cli` definition
-vec_style <- function(x, sep = ", ", last = " or "){
-  cli::cli_vec(x, style = list("vec-sep" = sep, "vec-last" = last))
+vec_style <- function(x, separator = ", ", last_separator = " or "){
+  cli::cli_vec(x, style = list("vec-sep" = separator, "vec-last" = last_separator))
 }
 
 
@@ -173,7 +173,7 @@ as_vardist <- function(x, units){
 #' dimensions while optionally dropping singleton dimensions.
 #'
 #'
-#' @param strs a `<stars>` object
+#' @param stars_object a `<stars>` object
 #' @param dim_along a integer or character vector specifying the dimensions along
 #'   which to slice the `<stars>` array
 #' @param ... integer or character vectors providing the indices or values to slice
@@ -185,7 +185,7 @@ as_vardist <- function(x, units){
 #' @return A `<stars>` object containing the sliced subset of the original
 #'   multi-dimensional array.
 #'
-slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
+slice_strs <- function(stars_object, dim_along, ..., .drop = FALSE){
 
   # TODO: check issue with slicing dimensions of type <Date> and <Posixt>
   # TODO: unit-testing
@@ -198,38 +198,38 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
   # over ndim + 1
 
   if(is.character(dim_along)){
-    if(is.null(dimnames(strs))) cli::cli_abort("`strs` must have named dimensions.")
-    dm <- match(dim_along, dimnames(strs))
-    missnames <- dim_along[is.na(dm)]
+    if(is.null(dimnames(stars_object))) cli::cli_abort("`stars_object` must have named dimensions.")
+    dimension_match <- match(dim_along, dimnames(stars_object))
+    missnames <- dim_along[is.na(dimension_match)]
     if(length(missnames) > 0){
-      cli::cli_abort("{.val {missnames}} {?is/are} not dimension name{?s} of the provided {.arg strs} object")
+      cli::cli_abort("{.val {missnames}} {?is/are} not dimension name{?s} of the provided {.arg stars_object} object")
     }
   }else if(!is.numeric(dim_along)){
     cli::cli_abort("{.str dim_along} must be a {.cls numeric} vector.")
   }else{
-    dm <- dim_along
+    dimension_match <- dim_along
   }
 
   # collect subsetting indices for each dimension
-  dm_idx <- rlang::list2(...)
+  dimension_indices <- rlang::list2(...)
 
-  if (length(dm) != length(dm_idx)) {
-    cli::cli_abort("Too many indices provided ({length(dm_idx)}) given `length(dim_along) == {length(dm)}`.")
+  if (length(dimension_match) != length(dimension_indices)) {
+    cli::cli_abort("Too many indices provided ({length(dimension_indices)}) given `length(dim_along) == {length(dimension_match)}`.")
   }
 
-  n_dm <- length(dim(strs))
-  indices <- rep(list(rlang::missing_arg()), n_dm + 1)
+  num_dimensions <- length(dim(stars_object))
+  indices <- rep(list(rlang::missing_arg()), num_dimensions + 1)
 
   # assign specified indices for each dimension
-  for(i in seq_along(dm)){
-    indices[[dm[i] + 1]] <- dm_idx[[i]]
+  for(i in seq_along(dimension_match)){
+    indices[[dimension_match[i] + 1]] <- dimension_indices[[i]]
   }
 
   # append drop option
   indices[["drop"]] <- .drop
 
-  eval(rlang::expr(strs[!!!indices]))
-  #do.call("[", c(list(strs), indices))
+  eval(rlang::expr(stars_object[!!!indices]))
+  #do.call("[", c(list(stars_object), indices))
 }
 
 
@@ -240,7 +240,7 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
 #'  Helper to get element of list of S4 objects using it's slot `@id`.
 #'  Applicable to e.g. `IBM@drivers` or `Species@states_profile`
 #'
-#' @param l a list containing S4 class objects as elements, each of which must contain a slot @id
+#' @param s4_list a list containing S4 class objects as elements, each of which must contain a slot @id
 #' @param id character, the name assigned to @id
 #'
 #'
@@ -252,12 +252,12 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
 #' # returns NULL if there is no element with specified ID
 #' pluck_s4(rover_ibm_disnbs@drivers, "water_resting")
 #'
-pluck_s4 <- function(l, id){
+pluck_s4 <- function(s4_list, id){
 
-  idx <- which(purrr::map_lgl(l, \(x) x@id == id))
+  idx <- which(purrr::map_lgl(s4_list, \(x) x@id == id))
 
   if(length(idx) != 0){
-    purrr::pluck(l, idx)
+    purrr::pluck(s4_list, idx)
   } else{
     NULL
   }

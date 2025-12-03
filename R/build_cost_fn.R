@@ -14,20 +14,20 @@
 #' time spent on activity on a current time-step
 #'  * it is be responsible to handle the intended units
 #'
-#' @param vrf an `<VarFn>` object, the user-defined function for calculating the
+#' @param variable_function an `<VarFn>` object, the user-defined function for calculating the
 #'   energy cost of a given state. It gets wrapped by a function that is usable
 #'   within `{roamR}`s infrastructure.
 #'
 #' @importFrom rlang !!!
-build_cost_fn <- function(vrf, state_id = NULL, step_duration = NULL){
+build_cost_fn <- function(variable_function, state_id = NULL, step_duration = NULL){
 
-  force(vrf)
+  force(variable_function)
   force(state_id)
   force(step_duration)
 
 
   # input validation
-  check_class(vrf, "VarFn")
+  check_class(variable_function, "VarFn")
 
   # manufacture function for internal use
   #
@@ -39,7 +39,7 @@ build_cost_fn <- function(vrf, state_id = NULL, step_duration = NULL){
     check_class(agent, "Agent")
     check_class(drivers, "Driver", inlist = TRUE)
 
-    arg_inputs <- purrr::imap(vrf@args_spec, function(arg, arg_nm){
+    argument_inputs <- purrr::imap(variable_function@args_spec, function(arg, argument_name){
 
 
       if(arg@type == "driver"){ # driver arg type
@@ -56,7 +56,7 @@ build_cost_fn <- function(vrf, state_id = NULL, step_duration = NULL){
           body_mass = body_mass(agent),
           time_at_state = get_time_spent_at_state(agent, arg@state_id, arg@units, step_duration),
           constant = arg@value,
-          random = get_drawn_cost_par(agent, state_id, arg_nm)
+          random = get_drawn_cost_par(agent, state_id, argument_name)
         )
       }
 
@@ -74,9 +74,9 @@ build_cost_fn <- function(vrf, state_id = NULL, step_duration = NULL){
     })
 
     # evaluates the base function by passing on the computed values
-    out <- eval(rlang::expr(vrf@fn(!!!arg_inputs)))
+    out <- eval(rlang::expr(variable_function@fn(!!!argument_inputs)))
 
-    if(details) list(output = out, input = arg_inputs) else out
+    if(details) list(output = out, input = argument_inputs) else out
   }
 
 }
@@ -102,7 +102,7 @@ get_time_spent_at_state <- function(agent, state_id, units, step_duration){
 
 
 # helper to get the cost parameter value that has been drawn for state_id
-get_drawn_cost_par <- function(agent, state_id, arg_nm){
+get_drawn_cost_par <- function(agent, state_id, argument_name){
 
   state_ids <- names(agent@properties@cost_par_draws)
 
@@ -110,7 +110,7 @@ get_drawn_cost_par <- function(agent, state_id, arg_nm){
     cli::cli_abort("Can't find energy cost parameter for state ID {.val {state_id}}.")
   }
 
-  agent@properties@cost_par_draws[[state_id]][[arg_nm]]
+  agent@properties@cost_par_draws[[state_id]][[argument_name]]
 }
 
 

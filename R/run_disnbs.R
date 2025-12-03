@@ -19,9 +19,9 @@
 #'   more information.
 #' @param intake_id character string, the identifier for the `<Driver>`
 #'   object containing the agent's baseline energy intake map.
-#' @param imp_dens_id character string, the identifier for the `<Driver>`
+#' @param impact_dens_id character string, the identifier for the `<Driver>`
 #'   object containing the agent's impacted density map.
-#' @param imp_intake_id character string, the identifier for the `<Driver>`
+#' @param impact_intake_id character string, the identifier for the `<Driver>`
 #'   object containing the agent's impacted energy intake map.
 #' @param feed_avg_net_energy a `<units>` object, specifying the average net
 #'   energy per unit of feeding time. This is a tuning parameter expressing the
@@ -50,11 +50,11 @@
 #'
 #' @export
 run_disnbs <- function(ibm,
-                       run_scen = c("baseline", "impact", "baseline-and-impact"),
+                       run_scenario = c("baseline", "impact", "baseline-and-impact"),
                        dens_id,
                        intake_id = NULL,
-                       imp_dens_id = NULL,
-                       imp_intake_id = NULL,
+                       impact_dens_id = NULL,
+                       impact_intake_id = NULL,
                        feed_state_id,
                        roost_state_id,
                        feed_avg_net_energy = units::set_units(422, "kJ/h"),
@@ -80,68 +80,68 @@ run_disnbs <- function(ibm,
   check_class(dens_id, "character")
   check_class(feed_state_id, "character")
   check_class(roost_state_id, "character")
-  if(not_null(imp_dens_id)) check_class(imp_dens_id, "character")
-  if(not_null(imp_intake_id)) check_class(imp_intake_id, "character")
+  if(not_null(impact_dens_id)) check_class(impact_dens_id, "character")
+  if(not_null(impact_intake_id)) check_class(impact_intake_id, "character")
 
   if(inherits(waypnts_res, "numeric")) waypnts_res <- units::set_units(waypnts_res, "m")
   check_class(waypnts_res, "units")
 
-  run_scen <- rlang::arg_match(run_scen)
+  run_scenario <- rlang::arg_match(run_scenario)
 
 
   ## baseline Vs impacted scenarios: check required driver IDs are provided
-  if(run_scen %in% c("baseline", "baseline-and-impact")){
+  if(run_scenario %in% c("baseline", "baseline-and-impact")){
     if(is.null(intake_id)){
-      cli::cli_abort("{.arg intake_id} must be provided when {.code run_scen = {.val {run_scen}}}")
+      cli::cli_abort("{.arg intake_id} must be provided when {.code run_scenario = {.val {run_scenario}}}")
     }
   }
 
-  if(run_scen %in% c("impact", "baseline-and-impact")){
-    if(is.null(imp_dens_id)){
-      cli::cli_abort("{.arg imp_dens_id} must be provided when {.code run_scen = {.val {run_scen}}}")
+  if(run_scenario %in% c("impact", "baseline-and-impact")){
+    if(is.null(impact_dens_id)){
+      cli::cli_abort("{.arg impact_dens_id} must be provided when {.code run_scenario = {.val {run_scenario}}}")
     }
-    if(is.null(imp_intake_id)){
-      cli::cli_abort("{.arg imp_intake_id} must be provided when {.code run_scen = {.val {run_scen}}}")
+    if(is.null(impact_intake_id)){
+      cli::cli_abort("{.arg impact_intake_id} must be provided when {.code run_scenario = {.val {run_scenario}}}")
     }
   }
 
 
   ## check if drivers present in `ibm`
-  drv_ids <- sapply(ibm@drivers, \(d) d@id)
-  input_drv_ids <- switch(
-    run_scen,
+  driver_ids <- sapply(ibm@drivers, \(d) d@id)
+  input_driver_ids <- switch(
+    run_scenario,
     baseline = c(dens_id, intake_id),
-    impact = c(dens_id, imp_dens_id, imp_intake_id),
-    'baseline-and-impact' = c(dens_id, intake_id, imp_dens_id, imp_intake_id),
+    impact = c(dens_id, impact_dens_id, impact_intake_id),
+    'baseline-and-impact' = c(dens_id, intake_id, impact_dens_id, impact_intake_id),
   )
 
-  nonexistent_drvs <- setdiff(input_drv_ids, drv_ids)
+  nonexistent_drivers <- setdiff(input_driver_ids, driver_ids)
 
-  if(length(nonexistent_drvs) > 0){
+  if(length(nonexistent_drivers) > 0){
    cli::cli_abort(c(
-     "Failed to find driver ID{?s} {.val {nonexistent_drvs}} in the provided {.cls IBM} object.",
+     "Failed to find driver ID{?s} {.val {nonexistent_drivers}} in the provided {.cls IBM} object.",
      i = "Ensure all required driver IDs are present in slot {.field @drivers} of the {.arg ibm} object."
    ))
   }
 
   ## Drivers' @stars_obj must be non-empty and with only one attribute
   purrr::walk(
-    input_drv_ids,
+    input_driver_ids,
     function(id, call = rlang::caller_env()){
-      drv_idx <- match(id, drv_ids)
-      drv_strs <- ibm@drivers[[drv_idx]] |> stars_obj()
+      driver_index <- match(id, driver_ids)
+      driver_stars <- ibm@drivers[[driver_index]] |> stars_obj()
 
-      if(is_stars_empty(drv_strs)){
+      if(is_stars_empty(driver_stars)){
 
         cli::cli_abort(
           "Slot {.code @stars_obj} of Driver {.val {id}} must contain a populated {.cls stars} object.",
           call = call
         )
 
-      } else if(length(drv_strs) > 1){
+      } else if(length(driver_stars) > 1){
         cli::cli_abort(c(
           "Slot {.code @stars_obj} of Driver {.val {id}} must have one unique attribute.",
-          x = "Provided object has {length(drv_strs)} attributes: {.val {names(drv_strs)}}."
+          x = "Provided object has {length(driver_stars)} attributes: {.val {names(driver_stars)}}."
         ), call = call)
       }
     }
@@ -151,15 +151,15 @@ run_disnbs <- function(ibm,
   ## NOTE: this check is already performed in `rmr_initiate()`, but doing it
   ## again here for extra safety. Might drop this in the future
   purrr::walk(
-    input_drv_ids,
+    input_driver_ids,
     function(id, call = rlang::caller_env()){
-      drv_strs <- pluck_s4(ibm@drivers, id) |> stars_obj()
-      drv_crs <- sf::st_crs(drv_strs)
+      driver_stars <- pluck_s4(ibm@drivers, id) |> stars_obj()
+      driver_crs <- sf::st_crs(driver_stars)
 
-      if(drv_crs$proj4string != ref_sys(ibm)$proj4string){
+      if(driver_crs$proj4string != ref_sys(ibm)$proj4string){
         cli::cli_abort(c(
           "Driver {.val {id}} must have the same CRS as specified in slot {.code @model_config} of argument {.arg ibm}.",
-          x = "Detected CRS of {.cls stars} object for {.val {id}}: {.val {drv_crs$Name}} (EPSG: {.val {drv_crs$epsg}})",
+          x = "Detected CRS of {.cls stars} object for {.val {id}}: {.val {driver_crs$Name}} (EPSG: {.val {driver_crs$epsg}})",
           x = "Expected CRS from {.code ibm@model_config@ref_sys}: {.val {ref_sys(ibm)$Name}} (EPSG: {.val {ref_sys(ibm)$epsg}})"
         ),
         call = call, class = "err-crs-mismatch")
@@ -169,24 +169,24 @@ run_disnbs <- function(ibm,
 
 
   ## baseline Vs impacted scenarios: check dimension consistency in density maps
-  if(run_scen %in% c("impact", "baseline-and-impact")){
+  if(run_scenario %in% c("impact", "baseline-and-impact")){
 
     # Check consistency of stars objects' dimensions. Required for extracting
     # slices of densities maps during simulations. Currently the construction of
     # slices is based on baseline density map, and assumes impact density maps
     # have identical non-raster dims and format
-    dns_dim <- pluck_s4(ibm@drivers, dens_id) |> stars_obj() |> dim()
-    imp_dns_dim <- pluck_s4(ibm@drivers, imp_dens_id) |> stars_obj() |> dim()
+    density_dimensions <- pluck_s4(ibm@drivers, dens_id) |> stars_obj() |> dim()
+    impact_density_dimensions <- pluck_s4(ibm@drivers, impact_dens_id) |> stars_obj() |> dim()
 
-    if(any(dns_dim != imp_dns_dim)){
-      idx <- which(dns_dim != imp_dns_dim)
-      txt_l <- paste(paste(names(dns_dim), dns_dim, sep = ':'), collapse = ", ")
-      txt_r <- paste(paste(names(imp_dns_dim), imp_dns_dim, sep = ':'), collapse = ", ")
+    if(any(density_dimensions != impact_density_dimensions)){
+      idx <- which(density_dimensions != impact_density_dimensions)
+      txt_l <- paste(paste(names(density_dimensions), density_dimensions, sep = ':'), collapse = ", ")
+      txt_r <- paste(paste(names(impact_density_dimensions), impact_density_dimensions, sep = ':'), collapse = ", ")
 
       cli::cli_abort(c(
-        "{.cls stars} objects of drivers {.val {c(dens_id, imp_dens_id)}} must have identical dimensions.",
+        "{.cls stars} objects of drivers {.val {c(dens_id, impact_dens_id)}} must have identical dimensions.",
         x = "Driver {.val {dens_id}} cube dimensions: [{txt_l}]",
-        x = "Driver {.val {imp_dens_id}} cube dimensions: [{txt_r}]",
+        x = "Driver {.val {impact_dens_id}} cube dimensions: [{txt_r}]",
         i = "Note: make sure to run {.fn rmr_initiate} after adjustments made to data contained in drivers."
       ))
     }
@@ -199,13 +199,13 @@ run_disnbs <- function(ibm,
   check_units_contextual(target_energy, context = "energy")
 
   if(not_null(intake_id)){
-    drv_vals <- stars_obj(pluck_s4(ibm@drivers, intake_id))[[1]]
-    check_units_contextual(drv_vals, context = "energy-time", arg = "intake_id")
+    driver_values <- stars_obj(pluck_s4(ibm@drivers, intake_id))[[1]]
+    check_units_contextual(driver_values, context = "energy-time", arg = "intake_id")
   }
 
-  if(not_null(imp_intake_id)){
-    drv_vals <- stars_obj(pluck_s4(ibm@drivers, imp_intake_id))[[1]]
-    check_units_contextual(drv_vals, context = "energy-time", arg = "imp_intake_id")
+  if(not_null(impact_intake_id)){
+    driver_values <- stars_obj(pluck_s4(ibm@drivers, impact_intake_id))[[1]]
+    check_units_contextual(driver_values, context = "energy-time", arg = "impact_intake_id")
   }
 
 
@@ -288,8 +288,8 @@ run_disnbs <- function(ibm,
     ids = list( # congregate IDs, for tidyness
       dens_id = dens_id,
       intake_id = intake_id,
-      imp_dens_id = imp_dens_id,
-      imp_intake_id = imp_intake_id,
+      impact_dens_id = impact_dens_id,
+      impact_intake_id = impact_intake_id,
       feed_state_id = feed_state_id,
       roost_state_id = roost_state_id
     ),
