@@ -328,29 +328,136 @@ setMethod("aoc_bbx", "ModelConfig", function(x) x@aoc_bbx)
 
 
 ## Show ------------------------------------
+# Only @start_site and @end_site are optionals, so they're the only ones getting
+# a fancy red-coloured NAs. NA's in other slots should fail validation
 setMethod("show", "ModelConfig", function(object) {
-  # cat(is(object)[[1]], " instance with:\n",
-  #     "  Nr of Agents: ", object@n_agents, "\n",
-  #     "  AOC Bounding Box:  ", object@aoc_bbx, "\n",
-  #     sep = ""
-  # )
 
-  object@n_agents
+  align_width <- nchar("Temporal Resolution:") + 1
+  bltcol <- "blue"
 
-  cli::cat_line(is(object)[[1]], " instance with:")
-  cli::cat_line("  AOC bounding box:")
-  cat("  ")
-  show(turtwick_ibm_cfg@aoc_bbx)
+  cli::cat_line(cli::format_message("{.cls {is(object)[[1]]}} instance with attributes:"))
 
-#   cli::cli_text("Some more text.")
-#   cli::cli_end()
-#   cli::cli_par()
-#   cli::cli_text("Already a new paragraph.")
-#
-#   cli::cat_line("This is ", "a ", "line of text.", col = "red")
+  #cli::cat_line(paste("CRS:", object@ref_sys$Name))
+
+  #browser()
+
+  crs_units_txt <- if(is.na(object@ref_sys)){
+    ""
+  } else {
+    paste0("[", units::deparse_unit(object@ref_sys$ud_unit), "]") |>
+      cli::col_grey()
+  }
+
+  # @n_agents
+  agents_txt <- paste0(
+    format("No. Agents:", width = align_width),
+    object@n_agents
+  )
+
+
+  # @ref_system
+  rs <- object@ref_sys
+  crs_label <- if (is.na(rs)) {
+    "CRS:"
+  } else if (rs$IsGeographic) {
+    "Geodetic CRS:"
+  } else {
+    "Projected CRS:"
+  }
+
+  crs_txt <- paste0(format(crs_label, width = align_width), rs$Name)
+
+
+  # @delta_x and @delta_y
+  sp_res_txt <- paste0(
+    format("Spatial resolution:", width = align_width),
+    object@delta_x, " x ", object@delta_y, " ", crs_units_txt
+  )
+
+  # @aoc_bbx
+  bbox_txt <- paste0(
+    format("Bounding box:", width = align_width),
+    paste(
+      sapply(1:4, \(i) paste(names(object@aoc_bbx)[i], object@aoc_bbx[i], sep = ": ")),
+      collapse = "  "
+    ),
+    " ", crs_units_txt
+  )
+
+  # @start_date and @end_date
+  sim_duration <- difftime(as.Date(object@end_date), as.Date(object@start_date), units = "days")
+  sim_duration_text <- paste0("(", as.numeric(sim_duration), " days)") |>
+    cli::col_grey()
+
+  sim_period_txt <- paste0(
+    format("Simulation period:", width = align_width),
+    object@start_date,
+    " -- ",
+    object@end_date,
+    " ",
+    sim_duration_text
+  )
+
+  # @delta_time
+  temp_res_txt <- paste0(
+    format("Temporal resolution:", width = align_width),
+    object@delta_time
+  )
+
+  #browser()
+
+  # @start_sites and @end_sites
+  start_site_txt <- textify_site(object@start_sites, "Start", align_width)
+  end_site_txt <- textify_site(object@end_sites, "End", align_width)
+
+  # print
+  cli::cat_bullet(
+    c(agents_txt, sim_period_txt, temp_res_txt, bbox_txt, sp_res_txt, crs_txt,
+      start_site_txt, end_site_txt),
+    bullet_col = bltcol
+  )
+
 })
 
 
-#cli::cli_text("{names(turtwick_ibm_cfg@aoc_bbx)}")
+
+
+textify_site <- function(x, word_start, align_width, n = 5){
+
+  if(nrow(x) == 0){
+    paste0(
+      format(paste0(word_start, " site:"), width = align_width),
+      cli::col_red("NA")
+    )
+  } else{
+
+    if(nrow(x) > n){
+      y <- x[1:n, drop = FALSE]
+      feat_subset_txt <- paste0("  First ", n," sites:\n")
+    } else{
+      y <- x
+      feat_subset_txt <-  ""
+    }
+
+    paste0(
+      format(paste0(word_start, " ", ifelse(nrow(x) == 1, "site", "sites"), ":"), width = align_width),
+      gsub(" collection", "", capture.output(print(x))[[1]]),
+      cli::col_grey(" [", sf::st_crs(x)$Name, "]\n"),
+      feat_subset_txt,
+      paste(
+        paste0(
+          #"\t",
+          #paste(rep(" ", align_width + 5), collapse = ""),
+          "  ",
+          capture.output(data.frame(y))),
+        collapse = "\n"
+      )
+    )
+  }
+}
+
+
+# cli::cat_line(cli::format_message("A {.cls move2} with `track_id_column` {.val 3} and `time_column` {.val 'rrs'}"))
+# cli::cat_line("A {.cls move2} with `track_id_column` {.val 3}", col = "blue") #cli::cli_text("{names(turtwick_ibm_cfg@aoc_bbx)}")
 
 
