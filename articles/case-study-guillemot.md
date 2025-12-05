@@ -521,28 +521,28 @@ guill_ibm <- xfun::cache_rds({
 
 })
 #> ℹ Validating inputs
-#> ✔ Validating inputs [116ms]
+#> ✔ Validating inputs [102ms]
 #> 
 #> ℹ Processing the AOC
-#> ✔ Processing the AOC [5.8s]
+#> ✔ Processing the AOC [6.1s]
 #> 
 #> ℹ Cropping drivers to AOC
-#> ✔ Cropping drivers to AOC [61ms]
+#> ✔ Cropping drivers to AOC [59ms]
 #> 
 #> ℹ Handling movement-influencing drivers
 #> ✔ Handling movement-influencing drivers [17ms]
 #> 
 #> ℹ Calculate vector fields for drivers "aoc".
-#> ✔ Calculate vector fields for drivers "aoc". [2.8s]
+#> ✔ Calculate vector fields for drivers "aoc". [3s]
 #> 
 #> ℹ Processing Activity States
-#> ✔ Processing Activity States [25ms]
+#> ✔ Processing Activity States [26ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [765ms]
+#> ✔ Initialize Agents [496ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [16ms]
+#> ✔ Initialize <IBM> object [18ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -605,16 +605,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [22ms]
+#> ✔ Performing validation checks on inputs and underlying data. [23ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [3s]
+#> ✔ Preparing and configuring data for simulation. [3.2s]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [52.6s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [57.1s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [50.5s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [51.1s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
