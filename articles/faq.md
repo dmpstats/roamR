@@ -1,0 +1,87 @@
+# Frequently Asked Questions
+
+## General Questions
+
+### What is roamR?
+
+roamR is an R package that provides a flexible framework for building
+and running Individual-Based Models (IBMs), also known as Agent-Based
+Models. It offers a formal and transparent toolset for defining the
+logical components underpinning the simulation of animal movement,
+enabling users to focus on model parametrisation, input data,
+behavioural states and habitat interaction rules rather than programming
+and implementation details.
+
+For an in-depth description of the package, see the article [roamR
+Overview](https://dmpstats.github.io/roamR/articles/roamR-guide.md).
+
+### Do I need programming experience to use roamR?
+
+Some familiarity with R is required, but you don’t need to be an expert
+programmer. roamR is designed to simplify model building by providing
+well-defined object classes and functions, so you can get a simulation
+running with minimal coding, and then refine and extend it as needed.
+
+### What are the main requirements of roamR from a user’s perspective?
+
+While roamR provides a well-defined implementation infrastructure, users
+still need to make key modelling decisions when building an IBM. This
+includes defining the population and environment of interest, specifying
+interactions, energetics and behavioural states, and carefully
+considering the ecological and biological factors that influence
+movement. Thoughtful and accurate definition of such elements helps
+ensure that simulations are as realistic and meaningful as possible.
+
+### By flexible framework, do you mean I can use roamR to build any IBM I can imagine?
+
+Not quite! roamR offers flexibility within a structured modelling
+framework. Model definitions are constrained by of spatial and temporal
+resolution, and some ecological processes - like energy budgets and
+associated behaviour-balancing mechanisms - need to follow the package’s
+core logic.
+
+Currently the package supports two main types of agent movement methods:
+**Density-informed** and **Correlated Random Walk (CRW)**. Within these
+types, you can specify agent characteristics, environmental elements and
+associated interactions.
+
+### How do I start building my first model?
+
+Begin with
+[`vignette("roamR")`](https://dmpstats.github.io/roamR/articles/roamR.md)
+for a simple walk-through on setting up your first IBM.
+
+Once you’re comfortable, you can explore more detailed use-cases based
+on real-world scenarios, such as the analysis for
+[Guillemots](https://dmpstats.github.io/roamR/articles/case-study-guillemot.md)
+and [Red-throated
+Divers](https://dmpstats.github.io/roamR/articles/case-study-RTD.md)
+conducted for the **ORJP’s DisNBS** project. In these case-studies, IBMs
+implemented with roamR were used to investigate displacement effects
+from speculative offshore windfarms on those seabird populations in the
+non-breeding season.
+
+### What support is there for roamR and how do I get it?
+
+In addition to the documentation provided in this webpage, as well as
+the vignettes and examples included in the package, further support is
+available through the roamR’s GitHub repository, where you can:
+
+- Open an [Issue](https://github.com/dmpstats/roamR/issues) if you
+  encounter a bug or need help.
+
+- Join the [Discussion
+  Forum](https://github.com/dmpstats/roamR/discussions) with other users
+  and contributors.
+
+## Modelling structure details
+
+*(coming soon)*
+
+## Model Inputs
+
+*(coming soon)*
+
+## Model Outputs
+
+*(coming soon)*

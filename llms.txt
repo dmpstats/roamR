@@ -1,0 +1,462 @@
+# Welcome to the `roamR` package
+
+`roamR` is an R package that offers a toolset and framework for running
+Individual Based Models (IBMs - or Agent-Based Models). It was created
+as part of the DisNBS project (Distribution of seabirds in the
+Non-Breeding Season) which was a project within the Off-shore Renewables
+Joint Industry Partnership programme
+([ORJIP](http://www.orjip.org.uk/)). While the project has specific
+goals in relation to Off-shore Wind Farms (OWF) and their potential
+effects on seabirds, the problem is quite general. This package can help
+build animal movement simulations, with the general problem broken down
+into logical components and imposes a level of transparent formality,
+such that the computational components are on a common footing, leaving
+focus on parametrisation and inputs/data.
+
+`roamR` is written in S4 and has been structured/implemented such that
+the simulations are well defined, but with a lot of flexibility in what
+the components can do. Animal IBMs are spatio-temporal and can be based
+on very disparate data sources - so `roamR` is particular in its
+treatment of space (projections etc), time and units generally (as found
+in the `units` package). The package was written with animals in mind
+(indeed one of the main classes is `Species`), but we’ll use the
+agnostic term **agent**.
+
+In brief - `roamR`:
+
+- defines the environment the animal interacts with, and how this
+  functionally affects its movement or behaviour
+- defines how animals move, with consideration of the environment,
+  behavoural state, or condition
+- defines the behaviours animals may engage in and how these change
+- defines the general characteristics of a type of agent (a *species*
+  definition)
+- creates many agents with stochastic properties in line with their
+  species definition
+- runs the agents through the simulated environment over time, for a
+  defined temporal resolution
+- measures the agents throughout the simulation
+- gives tools to query the mass of agents that have been simulated
+
+A principal limitation in IBMs is the level of information you have
+about how the agents behave. `roamR` is intended to work with very
+little information, up to very information rich. The test cases here
+cover a range of data support:
+
+- Relatively data rich: Guillemots at the Isle of May, which are well
+  studied.
+- Relatively data poor: Red-Throated Divers in the North Sea, which are
+  less understood.
+
+At the more extreme information end, `roamR` has been developed to
+simulate agents at a very detailed level, for example a population with
+extensive GPS tagging information. The exemplar that guided this was the
+Hidden Markov Model of McClintock & Michelot (2018) and subsequent
+fitting to detailed Fulmar track data.
+
+## Installation
+
+`roamR` is not currently on CRAN - installation is direct from github.
+You can use devtools to install:
+
+``` r
+devtools::install_github("dmpstats/roamR", ref = "master", build_vignettes = TRUE)
+```
+
+# Package index
+
+## IBM setup
+
+High-level IBM controls and definitions
+
+- [`IBM-class`](https://dmpstats.github.io/roamR/reference/IBM-class.md)
+  :
+
+  `<IBM>`
+
+- [`IBM()`](https://dmpstats.github.io/roamR/reference/IBM.md) :
+
+  Create a `<IBM>` object
+
+- [`ModelConfig-class`](https://dmpstats.github.io/roamR/reference/ModelConfig-class.md)
+  :
+
+  Class `<ModelConfig>`
+
+- [`ModelConfig()`](https://dmpstats.github.io/roamR/reference/ModelConfig.md)
+  :
+
+  Create a `<ModelConfig>` object
+
+## Species definitions
+
+Species/simulated population level functions
+
+- [`ArgSpec-class`](https://dmpstats.github.io/roamR/reference/ArgSpec-class.md)
+  :
+
+  Class `<ArgSpec>`
+
+- [`ArgSpec()`](https://dmpstats.github.io/roamR/reference/ArgSpec.md) :
+
+  Create a `<ArgSpec>` object
+
+- [`Species-class`](https://dmpstats.github.io/roamR/reference/Species-class.md)
+  :
+
+  `<Species>`
+
+- [`Species()`](https://dmpstats.github.io/roamR/reference/Species.md) :
+
+  Create `<Species>` objects
+
+## Environment definitions
+
+Functions relating to the driver definitions
+
+- [`Driver-class`](https://dmpstats.github.io/roamR/reference/Driver-class.md)
+  :
+
+  Class `<Driver>`
+
+- [`Driver()`](https://dmpstats.github.io/roamR/reference/Driver.md) :
+
+  Create a `<Driver>` object
+
+- [`DriverResponse-class`](https://dmpstats.github.io/roamR/reference/DriverResponse-class.md)
+  :
+
+  Class `<DriverResponse>`
+
+- [`DriverResponse()`](https://dmpstats.github.io/roamR/reference/DriverResponse.md)
+  :
+
+  Create a `<DriverResponse>` object
+
+## Classes
+
+Class definitions
+
+- [`Agent-class`](https://dmpstats.github.io/roamR/reference/Agent-class.md)
+  :
+
+  `<Agent>`
+
+- [`AgentCondition-class`](https://dmpstats.github.io/roamR/reference/AgentCondition-class.md)
+  :
+
+  `<AgentCondition>`
+
+- [`AgentProperties-class`](https://dmpstats.github.io/roamR/reference/AgentProperties-class.md)
+  :
+
+  `<AgentProperties>`
+
+- [`ArgSpec-class`](https://dmpstats.github.io/roamR/reference/ArgSpec-class.md)
+  :
+
+  Class `<ArgSpec>`
+
+- [`Driver-class`](https://dmpstats.github.io/roamR/reference/Driver-class.md)
+  :
+
+  Class `<Driver>`
+
+- [`DriverResponse-class`](https://dmpstats.github.io/roamR/reference/DriverResponse-class.md)
+  :
+
+  Class `<DriverResponse>`
+
+- [`IBM-class`](https://dmpstats.github.io/roamR/reference/IBM-class.md)
+  :
+
+  `<IBM>`
+
+- [`ModelConfig-class`](https://dmpstats.github.io/roamR/reference/ModelConfig-class.md)
+  :
+
+  Class `<ModelConfig>`
+
+- [`MoveInfluence-class`](https://dmpstats.github.io/roamR/reference/MoveInfluence-class.md)
+  :
+
+  `<MoveInfluence>`
+
+- [`Species-class`](https://dmpstats.github.io/roamR/reference/Species-class.md)
+  :
+
+  `<Species>`
+
+- [`State-class`](https://dmpstats.github.io/roamR/reference/State-class.md)
+  :
+
+  Class `<State>`
+
+- [`StateInfluence-class`](https://dmpstats.github.io/roamR/reference/StateInfluence-class.md)
+  :
+
+  `<StateInfluence>`
+
+- [`VarDist-class`](https://dmpstats.github.io/roamR/reference/VarDist-class.md)
+  :
+
+  Class `<VarDist>`
+
+- [`VarFn-class`](https://dmpstats.github.io/roamR/reference/VarFn-class.md)
+  :
+
+  Class `<VarFn>`
+
+- [`check_class()`](https://dmpstats.github.io/roamR/reference/check_class.md)
+  : Validate Object Class
+
+## Alphabetical
+
+Complete list of user-facing functions
+
+- [`Agent-class`](https://dmpstats.github.io/roamR/reference/Agent-class.md)
+  :
+
+  `<Agent>`
+
+- [`Agent()`](https://dmpstats.github.io/roamR/reference/Agent.md) :
+
+  Create `<Agent>` objects
+
+- [`AgentCondition-class`](https://dmpstats.github.io/roamR/reference/AgentCondition-class.md)
+  :
+
+  `<AgentCondition>`
+
+- [`AgentCondition()`](https://dmpstats.github.io/roamR/reference/AgentCondition.md)
+  :
+
+  Create `<AgentCondition>` objects
+
+- [`AgentProperties-class`](https://dmpstats.github.io/roamR/reference/AgentProperties-class.md)
+  :
+
+  `<AgentProperties>`
+
+- [`AgentProperties()`](https://dmpstats.github.io/roamR/reference/AgentProperties.md)
+  :
+
+  Create `<AgentProperties>` objects
+
+- [`ArgSpec-class`](https://dmpstats.github.io/roamR/reference/ArgSpec-class.md)
+  :
+
+  Class `<ArgSpec>`
+
+- [`ArgSpec()`](https://dmpstats.github.io/roamR/reference/ArgSpec.md) :
+
+  Create a `<ArgSpec>` object
+
+- [`Driver-class`](https://dmpstats.github.io/roamR/reference/Driver-class.md)
+  :
+
+  Class `<Driver>`
+
+- [`Driver()`](https://dmpstats.github.io/roamR/reference/Driver.md) :
+
+  Create a `<Driver>` object
+
+- [`DriverResponse-class`](https://dmpstats.github.io/roamR/reference/DriverResponse-class.md)
+  :
+
+  Class `<DriverResponse>`
+
+- [`DriverResponse()`](https://dmpstats.github.io/roamR/reference/DriverResponse.md)
+  :
+
+  Create a `<DriverResponse>` object
+
+- [`IBM-class`](https://dmpstats.github.io/roamR/reference/IBM-class.md)
+  :
+
+  `<IBM>`
+
+- [`IBM()`](https://dmpstats.github.io/roamR/reference/IBM.md) :
+
+  Create a `<IBM>` object
+
+- [`ModelConfig-class`](https://dmpstats.github.io/roamR/reference/ModelConfig-class.md)
+  :
+
+  Class `<ModelConfig>`
+
+- [`ModelConfig()`](https://dmpstats.github.io/roamR/reference/ModelConfig.md)
+  :
+
+  Create a `<ModelConfig>` object
+
+- [`MoveInfluence-class`](https://dmpstats.github.io/roamR/reference/MoveInfluence-class.md)
+  :
+
+  `<MoveInfluence>`
+
+- [`MoveInfluence()`](https://dmpstats.github.io/roamR/reference/MoveInfluence.md)
+  :
+
+  Create a `<MoveInfluence>` object
+
+- [`Species-class`](https://dmpstats.github.io/roamR/reference/Species-class.md)
+  :
+
+  `<Species>`
+
+- [`Species()`](https://dmpstats.github.io/roamR/reference/Species.md) :
+
+  Create `<Species>` objects
+
+- [`State-class`](https://dmpstats.github.io/roamR/reference/State-class.md)
+  :
+
+  Class `<State>`
+
+- [`State()`](https://dmpstats.github.io/roamR/reference/State.md) :
+
+  Create a `<State>` object
+
+- [`StateInfluence-class`](https://dmpstats.github.io/roamR/reference/StateInfluence-class.md)
+  :
+
+  `<StateInfluence>`
+
+- [`VarDist-class`](https://dmpstats.github.io/roamR/reference/VarDist-class.md)
+  :
+
+  Class `<VarDist>`
+
+- [`VarDist()`](https://dmpstats.github.io/roamR/reference/VarDist.md) :
+
+  Create a `<VarDist>` object
+
+- [`VarFn-class`](https://dmpstats.github.io/roamR/reference/VarFn-class.md)
+  :
+
+  Class `<VarFn>`
+
+- [`VarFn()`](https://dmpstats.github.io/roamR/reference/VarFn.md) :
+
+  Create a `<VarFn>` object
+
+- [`as_vardist()`](https://dmpstats.github.io/roamR/reference/as_vardist.md)
+  : Cast numeric, distributional and unit objects as VarDist
+
+- [`bm_smooth_opts()`](https://dmpstats.github.io/roamR/reference/bm_smooth_opts.md)
+  : Set options for body mass smoother
+
+- [`build_cost_fn()`](https://dmpstats.github.io/roamR/reference/build_cost_fn.md)
+  : State cost function factory
+
+- [`calculate_track()`](https://dmpstats.github.io/roamR/reference/calculate_track.md)
+  : Shortest path calc
+
+- [`check_class()`](https://dmpstats.github.io/roamR/reference/check_class.md)
+  : Validate Object Class
+
+- [`check_dist()`](https://dmpstats.github.io/roamR/reference/check_dist.md)
+  : helper to check validity of probability distribution names
+
+- [`check_units_contextual()`](https://dmpstats.github.io/roamR/reference/check_units_contextual.md)
+  : Check if units of an object are those expected under a specific
+  context
+
+- [`compute_vector_fields()`](https://dmpstats.github.io/roamR/reference/compute_vector_fields.md)
+  : Compute vector field of a stars raster
+
+- [`create_dnbs_config()`](https://dmpstats.github.io/roamR/reference/create_dnbs_config.md)
+  : Helper to extract data and info required for configuring DisNBS's
+  agent simulation model
+
+- [`derive_night_cube()`](https://dmpstats.github.io/roamR/reference/derive_night_cube.md)
+  : Derive rasters of night-time proportion per day
+
+- [`estimate_costs()`](https://dmpstats.github.io/roamR/reference/estimate_costs.md)
+  : Estimate energy costs for each state in the profile, given agents
+  condition (e.g. location, bodymass, etc)
+
+- [`extract_dns_layer()`](https://dmpstats.github.io/roamR/reference/extract_dns_layer.md)
+  :
+
+  wrapper on slice_strs() to slice density surface with appropriate
+  indices. Slice construction relies on `cfg` to define the available
+  non-raster dimensions to evaluate
+
+- [`generate(`*`<VarDist>`*`)`](https://dmpstats.github.io/roamR/reference/generate-VarDist-method.md)
+  : VarDist random sampler
+
+- [`init_check_consistency()`](https://dmpstats.github.io/roamR/reference/init_check_consistency.md)
+  : Initialization object's consistency check
+
+- [`introspect_stars()`](https://dmpstats.github.io/roamR/reference/introspect_stars.md)
+  :
+
+  Introspects `<stars>` objects from the `stars_obj` argument of
+  [`Driver()`](https://dmpstats.github.io/roamR/reference/Driver.md)
+
+- [`is_empty(`*`<VarDist>`*`)`](https://dmpstats.github.io/roamR/reference/is_empty-VarDist-method.md)
+  : Empty assertion
+
+- [`is_empty(`*`<VarFn>`*`)`](https://dmpstats.github.io/roamR/reference/is_empty-VarFn-method.md)
+  : Empty assertion
+
+- [`is_empty_function()`](https://dmpstats.github.io/roamR/reference/is_empty_function.md)
+  :
+
+  Assertion for empty `<function>` objects
+
+- [`is_stars_empty()`](https://dmpstats.github.io/roamR/reference/is_stars_empty.md)
+  :
+
+  Assertion for empty `<stars>` objects
+
+- [`pluck_s4()`](https://dmpstats.github.io/roamR/reference/pluck_s4.md)
+  : Get element of list of S4 objects
+
+- [`rebalance_states()`](https://dmpstats.github.io/roamR/reference/rebalance_states.md)
+  : Rebalance activity states
+
+- [`rmr_initiate()`](https://dmpstats.github.io/roamR/reference/rmr_initiate.md)
+  : Initialize the Individual Based Model
+
+- [`rover`](https://dmpstats.github.io/roamR/reference/rover.md) : A
+  mock Species object
+
+- [`run_disnbs()`](https://dmpstats.github.io/roamR/reference/run_disnbs.md)
+  : Run the DisNBS individual-based model
+
+- [`sample_cell()`](https://dmpstats.github.io/roamR/reference/sample_cell.md)
+  : Sampling a density map as PDF
+
+- [`simulate_agent_disnbs()`](https://dmpstats.github.io/roamR/reference/simulate_agent_disnbs.md)
+  : Run Agent-level simulation under the DisNBS model
+
+- [`slice_strs()`](https://dmpstats.github.io/roamR/reference/slice_strs.md)
+  :
+
+  Slicer
+
+- [`smooth_body_mass()`](https://dmpstats.github.io/roamR/reference/smooth_body_mass.md)
+  : Title Energy to mass conversion
+
+- [`update_agent()`](https://dmpstats.github.io/roamR/reference/update_agent.md)
+  : Update agent's condition
+
+- [`velocity_ou()`](https://dmpstats.github.io/roamR/reference/velocity_ou.md)
+  : Find 2D velocity vector of an Ornstein-Uhlenbeck process
+
+# Articles
+
+### All vignettes
+
+- [Case Study: Isle of May's
+  Guillemot](https://dmpstats.github.io/roamR/articles/case-study-guillemot.md):
+- [Case Study: North Sea's Red-throated
+  Diver](https://dmpstats.github.io/roamR/articles/case-study-RTD.md):
+- [Frequently Asked
+  Questions](https://dmpstats.github.io/roamR/articles/faq.md):
+- [roamR
+  Overview](https://dmpstats.github.io/roamR/articles/roamR-guide.md):
+- [Getting Started](https://dmpstats.github.io/roamR/articles/roamR.md):
