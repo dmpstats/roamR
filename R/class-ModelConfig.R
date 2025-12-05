@@ -241,10 +241,84 @@ methods::setValidity("ModelConfig", function(object) {
 
   err <- c()
 
+  # Check if required slots are populated
+  if (is.na(object@n_agents)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @n_agents: Provide the number of agents to simulate.")
+    )
+  }
+
+  if (is.na(object@ref_sys)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @ref_sys: Missing value. Provide valid CRS for the AOC.")
+    )
+  }
+
+  #browser()
+
+  if (any(is.na(as.vector(object@aoc_bbx)))) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @aoc_bbx: Invalid input. Bounding box must be a vector of 4 non-NA values.")
+    )
+  }
+
+  if (is.na(object@delta_x)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @delta_x: Missing value. Provide cell size for x dimension.")
+    )
+  }
+
+  if (is.na(object@delta_y)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @delta_y: Missing value. Provide cell size for y dimension.")
+    )
+  }
+
+  if (is.na(object@delta_time)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @delta_time: Missing value. Provide the model's temporal resolution.")
+    )
+  }
+
+  if (is.na(object@start_date)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @start_date: Missing value. Provide the model's start date.")
+    )
+  }
+
+  if (is.na(object@end_date)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @end_date: Missing value. Provide the model's end date.")
+    )
+  }
+
+  # validate temporal resolution
+  # check done via lubridate::period
+  if(!is.na(object@delta_time)){
+    if (is.na(lubridate::period(object@delta_time))) {
+      err <- c(
+        err,
+        cli::format_inline(
+          "\n- Slot @delta_time: Failed to parse {.val {object@delta_time}} as valid ",
+          "time units. Use recognized units (e.g. {.val 1 day}, {.val 2 months})."
+        )
+      )
+    }}
+
+
+  # validate sites
   err <- c(err, val_sites(object@start_sites, object@aoc_bbx))
   err <- c(err, val_sites(object@end_sites, object@aoc_bbx))
 
-  if(length(err) > 0){
+  if (length(err) > 0) {
     # need to collapse into single string for desired formatting
     do.call(paste, list(err, collapse = " "))
   } else{
