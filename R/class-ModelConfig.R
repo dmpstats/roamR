@@ -423,6 +423,26 @@ setGeneric("aoc_bbx", function(x) standardGeneric("aoc_bbx"))
 setMethod("aoc_bbx", "ModelConfig", function(x) x@aoc_bbx)
 
 
+
+### @n_agent
+#### getter
+#' @export
+setGeneric("n_agents", function(x) standardGeneric("n_agents"))
+setMethod("n_agents", "ModelConfig", function(x) x@n_agents)
+
+#' #### setter
+#' @export
+setGeneric("n_agents<-", function(x, value) standardGeneric("n_agents<-"))
+setMethod("n_agents<-", "ModelConfig", function(x, value){
+  x@n_agents <- value
+  validObject(x)
+  x
+})
+
+
+
+
+
 # visualize bbox,  start and end sites stored in `config`
 # plot(st_as_sfc(config@aoc_bbx), axes = TRUE, col = NA, border = "blue", lwd = 1.5)
 # plot(start_sites(config)["id"], pch = 19, col = "darkgreen", add = TRUE, cex = 1.5)
