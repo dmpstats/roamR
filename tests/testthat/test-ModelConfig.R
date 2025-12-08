@@ -47,3 +47,146 @@ test_that("Validation of site slots work as expected", {
 
 
 })
+
+
+
+
+test_that("Missing values for required slots raises errors", {
+
+  # n_agents
+  expect_snapshot(
+    ModelConfig(n_agents = NA_integer_),
+    error = TRUE
+  )
+
+  # CRS
+  expect_snapshot(
+    ModelConfig(ref_sys = sf::st_crs(NA)),
+    error = TRUE
+  )
+
+  # AOC bbox
+  expect_snapshot(
+    ModelConfig(aoc_bbx = c(1, 2, NA, NA)),
+    error = TRUE
+  )
+
+  # Spatial resolution
+  expect_snapshot(
+    ModelConfig(delta_x = NA_real_, delta_y = NA_real_),
+    error = TRUE
+  )
+
+  # Simulation period
+  expect_snapshot(
+    ModelConfig(start_date = as.Date(NA), end_date = as.Date(NA)),
+    error = TRUE
+  )
+
+  # Temporal resolution
+  expect_snapshot(
+    ModelConfig(delta_time = NA_character_),
+    error = TRUE
+  )
+
+})
+
+
+
+test_that("Error raised when units of @delta_time are invalid", {
+
+  expect_snapshot(
+    ModelConfig(delta_time = "WRONG_UNITS"),
+    error = TRUE
+  )
+
+  expect_no_error(ModelConfig(delta_time = "1 day"))
+  expect_no_error(ModelConfig(delta_time = "10 week"))
+  expect_no_error(ModelConfig(delta_time = "1 month"))
+  expect_no_error(ModelConfig(delta_time = "3 months"))
+  expect_no_error(ModelConfig(delta_time = "3 year"))
+  expect_no_error(ModelConfig(delta_time = "10 d"))
+  expect_no_error(ModelConfig(delta_time = "m"))
+  expect_no_error(ModelConfig(delta_time = "we"))
+
+})
+
+
+
+
+test_that("'show' method prints out configuration as expected", {
+
+  # default inputs (Density-informed mov model)
+  expect_snapshot(ModelConfig())
+
+  # CRW movement model - i.e. spatial resolution should be printed
+  expect_snapshot(ModelConfig(movement_model = "crw"))
+
+  # With starting-sites
+  s <- sf::st_sf(
+    id = c("A", "B", "C"),
+    prop = c(0.30, 0.30, 0.40),
+    geom = sf::st_sfc(sf::st_point(c(1,1)), sf::st_point(c(2,2)), sf::st_point(c(3,3))),
+    crs = 4326
+  )
+
+  expect_snapshot(ModelConfig(start_sites = s))
+
+
+  # With starting-sites and (n>10) end-sites
+  e <- data.frame(
+    x = seq(1, 9, length.out = 15),
+    y = seq(9, 1, length.out = 15),
+    prop = rep(1/15, 15),
+    id = LETTERS[1:15]
+  ) |>
+    sf::st_as_sf(coords = c("x", "y"), crs = 4326)
+
+  expect_snapshot(ModelConfig(start_sites = s, end_sites = e))
+
+  # UTM units
+  expect_snapshot(ModelConfig(movement_model = "crw", ref_sys = sf::st_crs(32630)))
+
+})
+
+
+
+
+## Dev Testing ------------------------------------
+test_that("Dev testing", {
+
+  skip("ModelConfig show method testing")
+
+  s <- sf::st_sf(
+    id = c("A", "B", "C"),
+    prop = c(0.30, 0.30, 0.40),
+    geom = sf::st_sfc(sf::st_point(c(1,1)), sf::st_point(c(2,2)), sf::st_point(c(3,3))),
+    crs = 4326
+    #crs = 32630
+  )
+
+  s
+
+  m <- ModelConfig(start_sites = s)
+  m
+
+  sf::st_crs(s)$IsGeographic
+  sf::st_crs(s)$wkt
+
+
+
+  s <- data.frame(
+    x = seq(1, 9, length.out = 15),
+    y = seq(9, 1, length.out = 15),
+    prop = rep(1/15, 15),
+    id = LETTERS[1:15]
+  )
+
+  sites <- sf::st_as_sf(s, coords = c("x", "y"), crs = 4326)
+
+  ModelConfig(start_sites = sites)
+
+  ModelConfig(ref_sys = sf::st_crs(NA), n_agents = NA_integer_, delta_y = NA_real_, aoc_bbx = c(1, NA, 2, 3))
+  ModelConfig()
+
+})

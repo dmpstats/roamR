@@ -1,22 +1,25 @@
 #' Class `<ModelConfig>`
 #'
 #' `<ModelConfig>` is an S4 class containing the user-defined configuration for
-#' the Individual-based Model (IBM). t specifies key parameters such as the
+#' the Individual-based Model (IBM). It specifies key parameters such as the
 #' number of agents, the spatio-temporal resolution of the model, the bounding
 #' box (extent) of the area of calculation (AOC), the simulation start and end
 #' date.
 #'
+#' @slot movement_model character string, specifying movement model to simulate
+#'   agent trajectories. Supported options are:
+#'    * `"di"`: Density-informed movement model. [TODO: expand]
+#'    * `"crw"`: Correlated Random Walk model. [TODO: expand]
 #' @slot n_agents integer, the number of agents to track within the simulation.
 #' @slot ref_sys object of class <`crs`>, defining the Coordinate Reference System to
 #'   be applied to the IBM. Must be specified via [sf::st_crs()].
-#' @slot aoc_bbx object of class <`bbox`>, specifying the area of calculation,
+#' @slot aoc_bbx object of class <`bbox`>, specifying the area of calculation (AOC),
 #'   i.e. the spatial bounding box within which simulation occurs.
 #' @slot delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
 #' @slot delta_time character string, defines the temporal resolution of the
-#'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
-#'   optionally be preceded by a positive integer and a space, and followed by
-#'   "s".
+#'   model. Valid options include "hours", "day", "week", "month" or "year", and can
+#'   be preceded by a positive integer and a space, and followed by "s".
 #' @slot start_date;end_date Date, respectively, defines the start and end
 #'   dates for the simulation period.
 #' @slot start_sites an `<sf>` object, defining the sites where agents start the
@@ -26,7 +29,7 @@
 #'    * `prop`: the proportion of `n_agents` allocated at each site. The values
 #'     in this column must sum to 1.
 #'
-#'    If `start_sites` are not provided, agents are assigned to random locations
+#'    If `start_sites` are not provided, agents start at random locations
 #'    within the AOC.
 #'
 #' @slot end_sites an `<sf>` object, analogous to `start_sites`, but specifying
@@ -45,13 +48,15 @@
 #'
 #'
 #' @seealso
-#' Helper function [ModelConfig()] for constructing `<ModelConfig>` objects
+#' Helper function [ModelConfig()] for constructing `<ModelConfig>` objects and
+#' further considerations on the specification of input values.
 #'
 #' @export
 
 methods::setClass(
   Class = "ModelConfig",
   slots = list(
+    movement_model = "character",
     n_agents = "integer",
     ref_sys = "crs",
     aoc_bbx = "bbox",
@@ -65,6 +70,7 @@ methods::setClass(
     end_sites = "sf"
   ),
   prototype = list(
+    movement_model = NA_character_,
     n_agents = NA_integer_,
     ref_sys = sf::NA_crs_,
     aoc_bbx = sf::NA_bbox_,
@@ -86,9 +92,13 @@ methods::setClass(
 #' Helper function to define the model configuration of the IMB. It constructs
 #' instances of <[`ModelConfig-class`]> objects.
 #'
+#' @param movement_model character string, specifying movement model to simulate
+#'   agent trajectories. Supported options are:
+#'    * `"di"`: Density-informed movement model. [TODO: expand]
+#'    * `"crw"`: Correlated Random Walk model. [TODO: expand]
 #' @param n_agents integer, the number of agents to track within the simulation.
-#' @param ref_sys object of class <`crs`>, defining the Coordinate Reference System to
-#'   be applied to the IBM. Must be specified via [sf::st_crs()].
+#' @param ref_sys object of class <`crs`>, defining the Coordinate Reference
+#'   System to be applied to the IBM. Must be specified via [sf::st_crs()].
 #' @param aoc_bbx numeric vector or object of class <`bbox`>, specifying the
 #'   area of calculation, i.e. the spatial bounding box within which simulation
 #'   occurs. If numeric, expects a 4-length vector specifying `xmin`, `ymin`,
@@ -96,9 +106,9 @@ methods::setClass(
 #' @param delta_x,delta_y numeric, the cell (pixel) size in the x and y
 #'   dimensions, respectively. Assumed to take the same units as `ref_sys`.
 #' @param delta_time character string, defines the temporal resolution of the
-#'   model. Must be one of "day", "week", "month", "quarter" or "year", and can
-#'   optionally be preceded by a positive integer and a space, and followed by
-#'   "s".
+#'   model. Valid options include "hours", "day", "week", "month" or
+#'   "year", and can be preceded by a positive integer and a space, and followed
+#'   by "s".
 #' @param start_date;end_date Date, respectively, defines the start and end
 #'   dates for the simulation period.
 #' @param start_sites an `<sf>` object, defining the sites where agents start the
@@ -114,6 +124,7 @@ methods::setClass(
 #'   sites to which agents must return to at the end of the simulation. If
 #'   `NULL` (the default), end locations are not forced upon agent. **Note:**
 #'   This parameter is currently inactive and will be ignored.
+#'
 #'
 #' @details
 #'
@@ -140,6 +151,7 @@ methods::setClass(
 #'
 #' # initialize model configuration object
 #' config <- ModelConfig(
+#'   movement_model = "crw",
 #'   n_agents = 1000,
 #'   ref_sys = st_crs(4326),
 #'   aoc_bbx = c(0, 0, 5, 5),
@@ -151,6 +163,8 @@ methods::setClass(
 #'   start_sites = colonies,
 #'   end_sites = colonies
 #' )
+#'
+#' config
 #'
 #' # Accessors
 #' aoc_bbx(config)
@@ -166,7 +180,8 @@ methods::setClass(
 #' @return An object of class <[ModelConfig-class]>
 #'
 #' @export
-ModelConfig <- function(n_agents = 100L,
+ModelConfig <- function(movement_model = c("di", "crw"),
+                        n_agents = 100L,
                         ref_sys = sf::st_crs(4326),
                         aoc_bbx = c(0, 0, 10, 10),
                         delta_x = 0.25,
@@ -178,7 +193,6 @@ ModelConfig <- function(n_agents = 100L,
                         end_sites = NULL){
 
   # TODO:
-  # (i) examples;
   # (ii) unit-tests
 
   # Null input handling --------------------------------------------------------
@@ -186,6 +200,9 @@ ModelConfig <- function(n_agents = 100L,
   end_sites <- end_sites %||% sf::st_sf(sf::st_sfc())
 
   # Input validation -----------------------------------------------------------
+
+  movement_model <- rlang::arg_match(movement_model)
+
   if(!inherits(ref_sys, "crs")){
     cli::cli_abort(c(
       "{.arg ref_sys} must be an object of class {.cls crs}, not {.cls {class(ref_sys)}}",
@@ -215,9 +232,16 @@ ModelConfig <- function(n_agents = 100L,
   if(is.numeric(n_agents)) n_agents <- as.integer(n_agents)
 
 
-  # construct a new instance of <ModelConfig>
+  # Slot input values management -----------------------
+
+  # Under density-informed movement models, Spatial resolution is defined by the
+  # density surface driver. So, overwrite delta_x and delta_y as NAs.
+  if(movement_model == "di") delta_x <- delta_y <- NA_real_
+
+  # Construct a new instance of <ModelConfig> -----
   methods::new(
     "ModelConfig",
+    movement_model = movement_model,
     n_agents = n_agents,
     ref_sys = ref_sys,
     aoc_bbx = aoc_bbx,
@@ -265,18 +289,22 @@ methods::setValidity("ModelConfig", function(object) {
     )
   }
 
-  if (is.na(object@delta_x)) {
-    err <- c(
-      err,
-      cli::format_inline("\n- slot @delta_x: Missing value. Provide cell size for x dimension.")
-    )
-  }
+  if(object@movement_model == "crw"){
 
-  if (is.na(object@delta_y)) {
-    err <- c(
-      err,
-      cli::format_inline("\n- slot @delta_y: Missing value. Provide cell size for y dimension.")
-    )
+    if (is.na(object@delta_x)) {
+      err <- c(
+        err,
+        cli::format_inline("\n- slot @delta_x: Missing value. Provide cell size for x dimension.")
+      )
+    }
+
+    if (is.na(object@delta_y)) {
+      err <- c(
+        err,
+        cli::format_inline("\n- slot @delta_y: Missing value. Provide cell size for y dimension.")
+      )
+    }
+
   }
 
   if (is.na(object@delta_time)) {
@@ -422,6 +450,12 @@ setMethod("show", "ModelConfig", function(object) {
       cli::col_grey()
   }
 
+  # @movement_model
+  mv_mod_txt <- paste0(
+    format("Movement Model:", width = align_width),
+    ifelse(object@movement_model == "di", "Density-informed", "Correlated Random Walk")
+  )
+
   # @n_agents
   agents_txt <- paste0(
     format("No. Agents:", width = align_width),
@@ -443,10 +477,14 @@ setMethod("show", "ModelConfig", function(object) {
 
 
   # @delta_x and @delta_y
-  sp_res_txt <- paste0(
-    format("Spatial resolution:", width = align_width),
-    object@delta_x, " x ", object@delta_y, " ", crs_units_txt
-  )
+  sp_res_txt <- if(object@movement_model == "crw") {
+    paste0(
+      format("Spatial resolution:", width = align_width),
+      object@delta_x, " x ", object@delta_y, " ", crs_units_txt
+    )
+  } else {
+    NULL
+  }
 
   # @aoc_bbx
   bbox_txt <- paste0(
@@ -485,9 +523,9 @@ setMethod("show", "ModelConfig", function(object) {
   end_site_txt <- textify_site(object@end_sites, "End", align_width)
 
   # print
-  cli::cat_bullet(
-    c(agents_txt, sim_period_txt, temp_res_txt, bbox_txt, sp_res_txt, crs_txt,
-      start_site_txt, end_site_txt),
+  cli::cat_bullet(c(
+    mv_mod_txt, agents_txt, sim_period_txt, temp_res_txt, bbox_txt, sp_res_txt,
+    crs_txt, start_site_txt, end_site_txt),
     bullet_col = bltcol
   )
 
@@ -507,7 +545,7 @@ textify_site <- function(x, word_start, align_width, n = 5){
 
     if(nrow(x) > n){
       y <- x[1:n, drop = FALSE]
-      feat_subset_txt <- paste0("  First ", n," sites:\n")
+      feat_subset_txt <- paste0("   First ", n," sites:\n")
     } else{
       y <- x
       feat_subset_txt <-  ""
@@ -522,7 +560,7 @@ textify_site <- function(x, word_start, align_width, n = 5){
         paste0(
           #"\t",
           #paste(rep(" ", align_width + 5), collapse = ""),
-          "  ",
+          "   ",
           capture.output(data.frame(y))),
         collapse = "\n"
       )
