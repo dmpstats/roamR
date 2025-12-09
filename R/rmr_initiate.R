@@ -32,37 +32,45 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   init_check_consistency(species, drivers, model_config)
 
 
-  ## AOC Processing -------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Processing the AOC")
+  ## AOC Driver Processing for CRW Movement -----------------------------
 
-  # TODO: Add safeguard on handling memory failures due to unreasonable spatial
-  # resolution. Maybe use a try_fetch to rephrase the error and provide
-  # constructive user feedback
-  aoc_grid <- sf::st_make_grid(
-    model_config@aoc_bbx,
-    cellsize = c(model_config@delta_x, model_config@delta_y),
-    what = "centers"
-  )
+  # AOC grid: generate for CRW movement type, otherwise set to NULL
+  if(model_config@movement_type == "crw"){
 
-  aoc_grid <- sf::st_sf(cellid = 1:length(aoc_grid), geometry = aoc_grid)
+    if(!quiet) cli::cli_progress_step("Processing the AOC-based Driver")
 
-  # generate aoc driver
-  aoc_driver <- generate_aoc_driver(model_config@aoc_bbx, aoc_grid)
-  drivers <- append(drivers, aoc_driver)
-
-  # define species response
-  aoc_resp <- DriverResponse(
-    driver_id = aoc_driver@id,
-    movement = MoveInfluence(
-      prob = VarDist(1),  # all agents to be influenced (p = 1)
-      fn = \(x) ifelse(x <= 0, 1, 0), # binary influencer with cut-off at bbox's border (i.e. 0m)
-      type = "repulsion",
-      mode = "vector-field",
-      sim_stage = "bsln-imp"
+    # TODO: Add safeguard on handling memory failures due to unreasonable spatial
+    # resolution. Maybe use a try_fetch to rephrase the error and provide
+    # constructive user feedback
+    aoc_grid <- sf::st_make_grid(
+      model_config@aoc_bbx,
+      cellsize = c(model_config@delta_x, model_config@delta_y),
+      what = "centers"
     )
-  )
 
-  species@driver_responses <- append(species@driver_responses, aoc_resp)
+    aoc_grid <- sf::st_sf(cellid = 1:length(aoc_grid), geometry = aoc_grid)
+
+    # generate aoc driver
+    aoc_driver <- generate_aoc_driver(model_config@aoc_bbx, aoc_grid)
+    drivers <- append(drivers, aoc_driver)
+
+
+    # define species response
+    aoc_resp <- DriverResponse(
+      driver_id = aoc_driver@id,
+      movement = MoveInfluence(
+        prob = VarDist(1),  # all agents to be influenced (p = 1)
+        fn = \(x) ifelse(x <= 0, 1, 0), # binary influencer with cut-off at bbox's border (i.e. 0m)
+        type = "repulsion",
+        mode = "vector-field",
+        sim_stage = "bsln-imp"
+      )
+    )
+
+    species@driver_responses <- append(species@driver_responses, aoc_resp)
+
+  }
+
 
 
   ## Driver processing  ------------------------------------------------------
@@ -91,7 +99,6 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
 
   ### Handle movement-influencing drivers ----------------
-  if(!quiet) cli::cli_progress_step("Handling movement-influencing drivers")
 
   # extract ids of drivers influencing movement
   mv_drvids <- species@driver_responses |>
@@ -99,7 +106,9 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
     purrr::map_chr(\(x) x@driver_id)
 
 
-  if(length(mv_drvids) > 0){
+  if(length(mv_drvids) > 0 && model_config@movement_type == "crw"){
+
+    if(!quiet) cli::cli_progress_step("Handling movement-influencing drivers")
 
     #### sf-based drivers: derive cell-distance surfaces  ------
 
@@ -209,7 +218,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 #' function. E.g., asserts that:
 #' (i) driver IDs are coherent between specified species configuration and
 #' defined drivers;
-#' (ii) spatial objects defined in driers are spatially consistent qiith defined
+#' (ii) spatial objects defined in drivers are spatially consistent with defined
 #' AOC
 #'
 init_check_consistency <- function(species,
