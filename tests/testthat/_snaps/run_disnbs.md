@@ -99,7 +99,7 @@
         roost_state_id = "ro", target_energy = units::set_units(2, "J/h"), quiet = TRUE)
     Condition
       Error in `run_disnbs()`:
-      ! Input values in `target_energy_gain` are expected to carry a valid unit of energy.
+      ! Input values in `target_energy` are expected to carry a valid unit of energy.
       x "J h-1" is not a recognized energy unit.
       i Use e.g., "kJ" instead.
 
@@ -192,7 +192,7 @@
     Condition
       Error in `run_disnbs()`:
       ! States IDs "f" and "ro" are not defined in the <IBM> object provided to `ibm`.
-      i Please ensure the inputs to is listed in `ibm@species@states_profile`.
+      i Please ensure the inputs to are listed in `ibm@species@states_profile`.
       i Available state IDs are "flying", "foraging", "swimming", and "water_resting".
 
 ---
@@ -204,6 +204,6 @@
     Condition
       Error in `run_disnbs()`:
       ! State ID "ro" is not defined in the <IBM> object provided to `ibm`.
-      i Please ensure the inputs to is listed in `ibm@species@states_profile`.
+      i Please ensure the inputs to are listed in `ibm@species@states_profile`.
       i Available state IDs are "flying", "foraging", "swimming", and "water_resting".
 

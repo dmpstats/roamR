@@ -11,7 +11,6 @@ test_that("dev testing", {
     ibm = x,
     dens_id = "rvr_distr",
     intake_id = "prey_distr",
-    impact = FALSE
   )
 
 
@@ -148,12 +147,12 @@ test_that("run_disnbs() fails when inputs are not specified in expected contextu
 
   # intake maps
   x <- rover_ibm_disnbs
-  x@drivers[[7]] <- Driver(
+  x@drivers[[6]] <- Driver(
     id = "bla",
     stars_obj = stars_obj(pluck_s4(x@drivers, "intake"))
     )
 
-  stars_obj(x@drivers[[7]])[[1]]  <- stars_obj(x@drivers[[7]])[[1]] |>
+  stars_obj(x@drivers[[6]])[[1]] <- stars_obj(x@drivers[[6]])[[1]] |>
     units::drop_units() |>
     units::set_units("kJ")
 
@@ -324,11 +323,11 @@ test_that("derive_night_cube() works as expected", {
 
   withr::local_package("vdiffr")
 
-  aoc_drv <- purrr::keep(rover_ibm_disnbs@drivers, \(d) d@id == "aoc")[[1]]
+  dens_drv <- purrr::keep(rover_ibm_disnbs@drivers, \(d) d@id == "dens")[[1]]
 
   # AOC CRS in latlon
   night_prop <- derive_night_cube(
-    aoc_strs = stars_obj(aoc_drv),
+    strs = stars_obj(dens_drv),
     start_date = rover_ibm_disnbs@model_config@start_date,
     end_date = rover_ibm_disnbs@model_config@end_date,
     delta_time = "1 week"
@@ -336,9 +335,9 @@ test_that("derive_night_cube() works as expected", {
 
   expect_s3_class(night_prop, "stars")
   expect_length(dim(night_prop), 3)
-  expect_true(all(night_prop[[1]] >= 0))
-  expect_true(all(night_prop[[1]] <= 1))
-  expect_true(sf::st_crs(night_prop) == sf::st_crs(stars_obj(aoc_drv)))
+  expect_true(all(night_prop[[1]] >= 0, na.rm = TRUE))
+  expect_true(all(night_prop[[1]] <= 1, na.rm = TRUE))
+  expect_true(sf::st_crs(night_prop) == sf::st_crs(stars_obj(dens_drv)))
 
   # plot snapshot - detecting changes
   expect_doppelganger(
@@ -347,10 +346,12 @@ test_that("derive_night_cube() works as expected", {
   )
 
   # AOC CRS in UTM
-  stars_obj(aoc_drv) <- stars::st_warp(aoc_drv@stars_obj, crs = sf::st_crs(32629))
+
+
+  stars_obj(dens_drv) <- stars::st_warp(dens_drv@stars_obj, crs = sf::st_crs(32629))
 
   night_prop <- derive_night_cube(
-    aoc_strs = stars_obj(aoc_drv),
+    strs = stars_obj(dens_drv),
     start_date = rover_ibm_disnbs@model_config@start_date,
     end_date = rover_ibm_disnbs@model_config@end_date,
     #crs = rover_ibm_disnbs@model_config@ref_sys,

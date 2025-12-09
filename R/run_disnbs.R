@@ -280,7 +280,7 @@ run_disnbs <- function(ibm,
   }
 
 
-  # create config object for the agent simulation function
+  ## Create config object for the agent simulation function -------
   cfg <- create_dnbs_config(
     dens_drv = pluck_s4(ibm@drivers, dens_id),
     ibm_cfg = ibm@model_config,
@@ -296,9 +296,13 @@ run_disnbs <- function(ibm,
     bmsm_opts = smooth_body_mass
   )
 
-  # generate datacube with night-time proportions
+
+  ## Generate datacube with night-time proportions --------------------
+  ##
+  ## Density-informed movement (underlying the DisNBS approach), so using
+  ## density datacube as the spatial reference
   night_prop <- derive_night_cube(
-    aoc_strs = pluck_s4(ibm@drivers, "aoc") |> stars_obj(),
+    strs = pluck_s4(ibm@drivers, dens_id)|> stars_obj(),
     start_date = ibm@model_config@start_date,
     end_date = ibm@model_config@end_date,
     delta_time = "1 week"
@@ -412,25 +416,25 @@ sim_agent_wrapper <- function(i, agents, drivers, states_profile, scen,
 #'
 #' NOTES:
 #' - uses `geosphere::daylength()` which requires latitude values. Thus,
-#' input `aoc_strs` object needs to be projected/resampled into "EPSG:4326" for
+#' input `strs` object needs to be projected/resampled into "EPSG:4326" for
 #' computations, before being projected back to its original CRS
 #' - Temporal dimension of returned <stars> is always Date
 #'
-derive_night_cube <- function(aoc_strs, start_date, end_date, delta_time = "1 week"){
+derive_night_cube <- function(strs, start_date, end_date, delta_time = "1 week"){
 
   # fetch "official" CRS
-  crs <- sf::st_crs(aoc_strs)
+  crs <- sf::st_crs(strs)
 
   # re-project if CRS is not lat/lon
   reproject <- crs != sf::st_crs(4326)
 
   if(reproject){
-    aoc_strs <- stars::st_warp(aoc_strs, crs = sf::st_crs(4326))
+    strs <- stars::st_warp(strs, crs = sf::st_crs(4326))
   }
 
   # value grids for required variables
-  lon <- stars::st_get_dimension_values(aoc_strs, "x", where = "start")
-  lat <- stars::st_get_dimension_values(aoc_strs, "y", where = "start")
+  lon <- stars::st_get_dimension_values(strs, "x", where = "start")
+  lat <- stars::st_get_dimension_values(strs, "y", where = "start")
   tgrd <- seq(start_date, end_date + lubridate::period(delta_time), by = delta_time)
 
   # derive night-time proportions for each latitude across time grid
