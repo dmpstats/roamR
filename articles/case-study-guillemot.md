@@ -521,28 +521,19 @@ guill_ibm <- xfun::cache_rds({
 
 })
 #> ℹ Validating inputs
-#> ✔ Validating inputs [102ms]
-#> 
-#> ℹ Processing the AOC
-#> ✔ Processing the AOC [6.1s]
+#> ✔ Validating inputs [100ms]
 #> 
 #> ℹ Cropping drivers to AOC
-#> ✔ Cropping drivers to AOC [59ms]
-#> 
-#> ℹ Handling movement-influencing drivers
-#> ✔ Handling movement-influencing drivers [17ms]
-#> 
-#> ℹ Calculate vector fields for drivers "aoc".
-#> ✔ Calculate vector fields for drivers "aoc". [3s]
+#> ✔ Cropping drivers to AOC [51ms]
 #> 
 #> ℹ Processing Activity States
-#> ✔ Processing Activity States [26ms]
+#> ✔ Processing Activity States [25ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [496ms]
+#> ✔ Initialize Agents [223ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [18ms]
+#> ✔ Initialize <IBM> object [16ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -605,16 +596,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [23ms]
+#> ✔ Performing validation checks on inputs and underlying data. [21ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [3.2s]
+#> ✔ Preparing and configuring data for simulation. [191ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [57.1s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.1s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [51.1s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [15.7s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -686,7 +677,7 @@ dataset.
     #> Simple feature collection with 2176 features and 19 fields
     #> Geometry type: POINT
     #> Dimension:     XY
-    #> Bounding box:  xmin: 363772.8 ymin: 5958868 xmax: 1143527 ymax: 6746621
+    #> Bounding box:  xmin: 363772.8 ymin: 5958868 xmax: 1143527 ymax: 6743622
     #> Projected CRS: WGS 84 / UTM zone 30N
     #> First 10 features:
     #>      scenario agent timestep  timestamp track_id    body_mass body_mass_smooth

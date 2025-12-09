@@ -102,11 +102,11 @@ You can inspect the configuration details by calling the created
 ``` r
 turtwick_ibm_cfg
 #> <ModelConfig> instance with attributes:
+#> • Movement Model:      Density-informed
 #> • No. Agents:          100
 #> • Simulation period:   2025-01-01 -- 2025-02-01 (31 days)
 #> • Temporal resolution: 1 day
 #> • Bounding box:        xmin: 0  ymin: 0  xmax: 10000  ymax: 10000 [m]
-#> • Spatial resolution:  250 x 250 [m]
 #> • Projected CRS:       WGS 84 / UTM zone 30N
 #> • Start site:          NA
 #> • End site:            NA
