@@ -278,8 +278,13 @@ rvr_states$dive@id
 
 # IBM object -----------------------------------------------------------------
 cfg <- ibm_config_rover
+cfg@movement_type <- "di"
+cfg@delta_x <- NA_real_
+cfg@delta_y <- NA_real_
 cfg@start_date <- as.Date("2022-10-01")
 cfg@end_date <- as.Date("2023-03-30")
+
+
 
 #set.seed(1991)
 rover_ibm_disnbs <- rmr_initiate(
