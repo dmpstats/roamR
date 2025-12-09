@@ -6,9 +6,9 @@
 #' box (extent) of the area of calculation (AOC), the simulation start and end
 #' date.
 #'
-#' @slot movement_model character string, specifying movement model to simulate
+#' @slot movement_type character string, specifying movement model to simulate
 #'   agent trajectories. Supported options are:
-#'    * `"di"`: Density-informed movement model. [TODO: expand]
+#'    * `"di"`: Density-informed movement [TODO: expand]
 #'    * `"crw"`: Correlated Random Walk model. [TODO: expand]
 #' @slot n_agents integer, the number of agents to track within the simulation.
 #' @slot ref_sys object of class <`crs`>, defining the Coordinate Reference System to
@@ -56,7 +56,7 @@
 methods::setClass(
   Class = "ModelConfig",
   slots = list(
-    movement_model = "character",
+    movement_type = "character",
     n_agents = "integer",
     ref_sys = "crs",
     aoc_bbx = "bbox",
@@ -70,7 +70,7 @@ methods::setClass(
     end_sites = "sf"
   ),
   prototype = list(
-    movement_model = NA_character_,
+    movement_type = NA_character_,
     n_agents = NA_integer_,
     ref_sys = sf::NA_crs_,
     aoc_bbx = sf::NA_bbox_,
@@ -92,9 +92,9 @@ methods::setClass(
 #' Helper function to define the model configuration of the IMB. It constructs
 #' instances of <[`ModelConfig-class`]> objects.
 #'
-#' @param movement_model character string, specifying movement model to simulate
+#' @param movement_type character string, specifying movement model to simulate
 #'   agent trajectories. Supported options are:
-#'    * `"di"`: Density-informed movement model. [TODO: expand]
+#'    * `"di"`: Density-informed movement. [TODO: expand]
 #'    * `"crw"`: Correlated Random Walk model. [TODO: expand]
 #' @param n_agents integer, the number of agents to track within the simulation.
 #' @param ref_sys object of class <`crs`>, defining the Coordinate Reference
@@ -151,7 +151,7 @@ methods::setClass(
 #'
 #' # initialize model configuration object
 #' config <- ModelConfig(
-#'   movement_model = "crw",
+#'   movement_type = "crw",
 #'   n_agents = 1000,
 #'   ref_sys = st_crs(4326),
 #'   aoc_bbx = c(0, 0, 5, 5),
@@ -180,7 +180,7 @@ methods::setClass(
 #' @return An object of class <[ModelConfig-class]>
 #'
 #' @export
-ModelConfig <- function(movement_model = c("di", "crw"),
+ModelConfig <- function(movement_type = c("di", "crw"),
                         n_agents = 100L,
                         ref_sys = sf::st_crs(4326),
                         aoc_bbx = c(0, 0, 10, 10),
@@ -201,7 +201,7 @@ ModelConfig <- function(movement_model = c("di", "crw"),
 
   # Input validation -----------------------------------------------------------
 
-  movement_model <- rlang::arg_match(movement_model)
+  movement_type <- rlang::arg_match(movement_type)
 
   if(!inherits(ref_sys, "crs")){
     cli::cli_abort(c(
@@ -236,12 +236,12 @@ ModelConfig <- function(movement_model = c("di", "crw"),
 
   # Under density-informed movement models, Spatial resolution is defined by the
   # density surface driver. So, overwrite delta_x and delta_y as NAs.
-  if(movement_model == "di") delta_x <- delta_y <- NA_real_
+  if(movement_type == "di") delta_x <- delta_y <- NA_real_
 
   # Construct a new instance of <ModelConfig> -----
   methods::new(
     "ModelConfig",
-    movement_model = movement_model,
+    movement_type = movement_type,
     n_agents = n_agents,
     ref_sys = ref_sys,
     aoc_bbx = aoc_bbx,
@@ -289,7 +289,7 @@ methods::setValidity("ModelConfig", function(object) {
     )
   }
 
-  if(object@movement_model == "crw"){
+  if(object@movement_type == "crw"){
 
     if (is.na(object@delta_x)) {
       err <- c(
@@ -470,10 +470,10 @@ setMethod("show", "ModelConfig", function(object) {
       cli::col_grey()
   }
 
-  # @movement_model
+  # @movement_type
   mv_mod_txt <- paste0(
     format("Movement Model:", width = align_width),
-    ifelse(object@movement_model == "di", "Density-informed", "Correlated Random Walk")
+    ifelse(object@movement_type == "di", "Density-informed", "Correlated Random Walk")
   )
 
   # @n_agents
@@ -497,7 +497,7 @@ setMethod("show", "ModelConfig", function(object) {
 
 
   # @delta_x and @delta_y
-  sp_res_txt <- if(object@movement_model == "crw") {
+  sp_res_txt <- if(object@movement_type == "crw") {
     paste0(
       format("Spatial resolution:", width = align_width),
       object@delta_x, " x ", object@delta_y, " ", crs_units_txt

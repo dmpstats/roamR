@@ -120,7 +120,7 @@ test_that("'show' method prints out configuration as expected", {
   expect_snapshot(ModelConfig())
 
   # CRW movement model - i.e. spatial resolution should be printed
-  expect_snapshot(ModelConfig(movement_model = "crw"))
+  expect_snapshot(ModelConfig(movement_type = "crw"))
 
   # With starting-sites
   s <- sf::st_sf(
@@ -145,7 +145,7 @@ test_that("'show' method prints out configuration as expected", {
   expect_snapshot(ModelConfig(start_sites = s, end_sites = e))
 
   # UTM units
-  expect_snapshot(ModelConfig(movement_model = "crw", ref_sys = sf::st_crs(32630)))
+  expect_snapshot(ModelConfig(movement_type = "crw", ref_sys = sf::st_crs(32630)))
 
 })
 
