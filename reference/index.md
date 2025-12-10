@@ -322,6 +322,10 @@ Complete list of user-facing functions
 - [`generate(`*`<VarDist>`*`)`](https://dmpstats.github.io/roamR/reference/generate-VarDist-method.md)
   : VarDist random sampler
 
+- [`get_slope_aspect()`](https://dmpstats.github.io/roamR/reference/get_slope_aspect.md)
+  : Calculates slope and aspect of one attribute in the stars object and
+  binds them to the original stars object as attributes
+
 - [`init_check_consistency()`](https://dmpstats.github.io/roamR/reference/init_check_consistency.md)
   : Initialization object's consistency check
 
