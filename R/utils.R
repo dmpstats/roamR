@@ -115,7 +115,8 @@ check_units_contextual <- function(x,
 #'
 #' @param x an object of class `<stars>`
 #'
-#' @return logical, whether x is a `<stars>` object or not
+#' @returns logical, whether x is a `<stars>` object or not
+#'
 is_stars_empty <- function(x){
 
   if(!inherits(x, "stars")){
@@ -133,6 +134,13 @@ is_stars_empty <- function(x){
 
 
 #' Assertion for empty `<function>` objects
+#'
+#' @param f A function.
+#'
+#' @returns
+#' `TRUE` if the function body is empty (`{}`), `FALSE` otherwise. An error is
+#' raised if `f` is not a function.
+#'
 is_empty_function <- function(f){
   check_class(f, "function")
   all.equal(body(f), quote({}))
