@@ -6,6 +6,13 @@
 \usage{
 is_empty_function(f)
 }
+\arguments{
+\item{f}{A function.}
+}
+\value{
+\code{TRUE} if the function body is empty (\code{{}}), \code{FALSE} otherwise. An error is
+raised if \code{f} is not a function.
+}
 \description{
 Assertion for empty \verb{<function>} objects
 }
