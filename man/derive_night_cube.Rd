@@ -4,7 +4,7 @@
 \alias{derive_night_cube}
 \title{Derive rasters of night-time proportion per day}
 \usage{
-derive_night_cube(aoc_strs, start_date, end_date, delta_time = "1 week")
+derive_night_cube(strs, start_date, end_date, delta_time = "1 week")
 }
 \description{
 Helper to compute a \if{html}{\out{<stars>}} datacube comprising spatio-temporal maps of
@@ -15,7 +15,7 @@ period
 NOTES:
 \itemize{
 \item uses \code{geosphere::daylength()} which requires latitude values. Thus,
-input \code{aoc_strs} object needs to be projected/resampled into "EPSG:4326" for
+input \code{strs} object needs to be projected/resampled into "EPSG:4326" for
 computations, before being projected back to its original CRS
 \item Temporal dimension of returned \if{html}{\out{<stars>}} is always Date
 }
