@@ -18,7 +18,7 @@ test_that("dev testing", {
   )
 
   npr <- derive_night_cube(
-    aoc_strs = rover_ibm_disnbs@drivers[[6]] |> stars_obj(),
+    strs = rover_ibm_disnbs@drivers[[1]] |> stars_obj(),
     start_date = rover_ibm_disnbs@model_config@start_date,
     end_date = rover_ibm_disnbs@model_config@end_date,
     delta_time = "1 week"
@@ -120,7 +120,7 @@ test_that("simulate_agent_disnbs(): matched-pairs work as expected movement-wise
   )
 
   npr <- derive_night_cube(
-    aoc_strs = pluck_s4(rover_ibm_disnbs@drivers, "aoc") |> stars_obj(),
+    strs = pluck_s4(rover_ibm_disnbs@drivers, "dens") |> stars_obj(),
     start_date = rover_ibm_disnbs@model_config@start_date,
     end_date = rover_ibm_disnbs@model_config@end_date,
     delta_time = "1 week"
@@ -270,7 +270,7 @@ test_that("simulate_agent_disnbs(): matched-runs work as expected condition-wise
   )
 
   npr <- derive_night_cube(
-    aoc_strs = pluck_s4(rover_ibm_disnbs@drivers, "aoc") |> stars_obj(),
+    strs = pluck_s4(rover_ibm_disnbs@drivers, "dens") |> stars_obj(),
     start_date = rover_ibm_disnbs@model_config@start_date,
     end_date = rover_ibm_disnbs@model_config@end_date,
     delta_time = "1 week"
@@ -408,7 +408,7 @@ test_that("simulate_agent_disnbs() fails when inputs are invalid", {
   )
 
   npr <- derive_night_cube(
-    aoc_strs = pluck_s4(rover_ibm_disnbs@drivers, "aoc") |> stars_obj(),
+    strs = pluck_s4(rover_ibm_disnbs@drivers, "dens") |> stars_obj(),
     start_date = rover_ibm_disnbs@model_config@start_date,
     end_date = rover_ibm_disnbs@model_config@end_date,
     delta_time = "1 week"
