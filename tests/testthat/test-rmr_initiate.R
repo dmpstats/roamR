@@ -85,6 +85,45 @@ test_that("drivers are correctly cropped to AOC", {
 
 
 
+
+test_that("CRS-differing drivers are re-projected to match ModelConfig@ref_sys", {
+
+  # modify example model config for testing
+  m <- ibm_config_rover
+  m@n_agents <- 1L
+
+  # set bbox to NAD83 CRS
+  m@ref_sys <- sf::st_crs(4269)
+  m@aoc_bbx <- structure(
+    c(-4, 55.8, 2.5, 56.8),
+    names = c("xmin", "ymin", "xmax", "ymax"),
+    class = "bbox",
+    crs = sf::st_crs(4269))
+
+  # select land and sst only
+  d <- rover_drivers[c("drv_land", "drv_sst")]
+
+
+  expect_no_error(
+    out <- rmr_initiate(m, Species(), d, quiet = TRUE)
+  )
+
+  expect_identical(
+    sf::st_crs(out@drivers$drv_sst@stars_obj),
+    out@model_config@ref_sys
+  )
+
+  expect_identical(
+    sf::st_crs(out@drivers$drv_land@sf_obj),
+    out@model_config@ref_sys
+  )
+
+
+})
+
+
+
+
 # test_that("development testing", {
 #   out <- rmr_initiate(ibm_config_rover, rover, rover_drivers)
 # })

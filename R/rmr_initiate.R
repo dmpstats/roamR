@@ -29,15 +29,65 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   check_class(model_config, "ModelConfig", class_fn = "roamR::ModelConfig")
 
 
+
+  ## Model config Vs Drivers: handle spatio-temporal integrity  --------------
+  if(!quiet) cli::cli_progress_step("Checking spatio-temporal consistency of inputs")
+
+  ### Check and re-project drivers to chosen CRS under model config, if required
+  crsmsg_hd <- FALSE
+  crsmsg <- "Converting CRS of driver(s) to align with CRS specified in {.arg model_config}:"
+
+  drivers <- drivers |>
+    purrr::modify_if(
+      ~!is_empty(.x),
+      function(d){
+        if (d@obj_active == "sf") {
+          drv_crs <- sf::st_crs(sf_obj(d))
+          # if non-matching CRS, re-project via st_transform
+          if(drv_crs$proj4string != model_config@ref_sys$proj4string){
+
+            if(!quiet){
+              if(isFALSE(crsmsg_hd)){
+                cli::cli_alert_warning(crsmsg)
+                crsmsg_hd <<- TRUE
+              }
+              cli::cli_ul("{.val {d@id}} {.cls sf}: {drv_crs$Name} {cli::symbol$arrow_right} {model_config@ref_sys$Name}")
+            }
+
+            sf_obj(d) <- sf::st_transform(sf_obj(d), model_config@ref_sys)
+          }
+
+        } else if (d@obj_active == "stars") {
+          drv_crs <- sf::st_crs(stars_obj(d))
+          # if non-matching CRS, re-project via st_warp
+          if(drv_crs$proj4string != model_config@ref_sys$proj4string){
+
+            if(!quiet){
+              if(isFALSE(crsmsg_hd)){
+                cli::cli_alert_info(crsmsg)
+                crsmsg_hd <<- TRUE
+              }
+              cli::cli_ul("{.val {d@id}} {.cls stars}: {drv_crs$Name} {cli::symbol$arrow_right} {model_config@ref_sys$Name}")
+            }
+
+            stars_obj(d) <- stars::st_warp(stars_obj(d), crs = model_config@ref_sys)
+          }
+        }
+        return(d)
+      }
+    )
+
+
+  ### Further consistency checks
   init_check_consistency(species, drivers, model_config)
 
 
-  ## AOC Driver Processing for CRW Movement -----------------------------
+  ## Generate AOC-based driver for CRW Movement Model -----------------------------
 
-  # AOC grid: generate for CRW movement type, otherwise set to NULL
+  # Create raster of distances from regular grid within AOC to its bounding box
   if(model_config@movement_type == "crw"){
 
-    if(!quiet) cli::cli_progress_step("Processing the AOC-based Driver")
+    if(!quiet) cli::cli_progress_step("CRW Movement Model: generating the AOC-based Driver")
 
     # TODO: Add safeguard on handling memory failures due to unreasonable spatial
     # resolution. Maybe use a try_fetch to rephrase the error and provide
@@ -53,7 +103,6 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
     # generate aoc driver
     aoc_driver <- generate_aoc_driver(model_config@aoc_bbx, aoc_grid)
     drivers <- append(drivers, aoc_driver)
-
 
     # define species response
     aoc_resp <- DriverResponse(
@@ -74,16 +123,18 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
 
   ## Driver processing  ------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Cropping drivers to AOC")
+  if(!quiet) cli::cli_progress_step("Processing Drivers")
 
-  ### Spatially crop drivers to AOC ---------
+  ### Spatially crop drivers to AOC  -----------------
   drivers <- drivers |>
     purrr::modify_if(
       function(d){
         if(is_empty(d)) FALSE else if(d@id == "aoc") FALSE else TRUE
       },
       function(d){
+
         if(d@obj_active == "sf"){
+
           # assume attributes of each geometry are constant throughout that
           # geometry. This avoids warning in subsequent `sf::st_crop`
           # (https://github.com/r-spatial/sf/issues/406#issuecomment-314152780)
@@ -91,6 +142,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
           sf_obj(d) <- sf::st_crop(sf_obj(d), model_config@aoc_bbx)
 
         }else if(d@obj_active == "stars"){
+          # crop stars to AOC
           stars_obj(d) <- sf::st_crop(stars_obj(d), model_config@aoc_bbx)
         }
         return(d)
@@ -100,6 +152,8 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
   ### Handle movement-influencing drivers ----------------
 
+  #if(!quiet) cli::cli_progress_step("Handling movement-influencing drivers")
+
   # extract ids of drivers influencing movement
   mv_drvids <- species@driver_responses |>
     purrr::keep(\(x) !is_empty(x@movement@prob)) |> # driver doesn't affect movement if @prob in <MoveInfluence> is empty
@@ -107,8 +161,6 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
 
   if(length(mv_drvids) > 0 && model_config@movement_type == "crw"){
-
-    if(!quiet) cli::cli_progress_step("Handling movement-influencing drivers")
 
     #### sf-based drivers: derive cell-distance surfaces  ------
 
@@ -130,6 +182,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
        }
      )
 
+
     #### Compute vector fields solely where required ------
     vf_drvids <- species@driver_responses |>
       purrr::keep(\(x) x@driver_id %in% mv_drvids && x@movement@mode == "vector-field") |>
@@ -137,7 +190,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
 
     if(length(vf_drvids) > 0){
-      if(!quiet) cli::cli_progress_step("Calculate vector fields for drivers {.val {vf_drvids}}.")
+      if(!quiet) cli::cli_progress_step("{cli::qty(vf_drvids)}Calculate vector field for driver{?s} {.val {vf_drvids}}")
 
       drivers <- drivers |>
         purrr::modify_if(
@@ -325,7 +378,6 @@ init_check_consistency <- function(species,
   ## TODO: State-dependent energy cost functions - ArgSpec@type = "time-at-state"
 
 
-
   ## Spatial consistency between drivers and AOC (inc CRS)
   driver_not_empty <- sapply(drivers, Negate(is_empty))
 
@@ -333,19 +385,7 @@ init_check_consistency <- function(species,
 
     lapply(drivers, function(d){
 
-      ### CRS: Check if driver and nodel_config have matching reference system
-      # isolate driver's active spatial object
       drv_obj <- slot(d, paste0(d@obj_active, "_obj"))
-      drv_crs <- sf::st_crs(drv_obj)
-
-      if(drv_crs$proj4string != model_config@ref_sys$proj4string){
-        cli::cli_abort(c(
-          "Driver {.val {d@id}} must have the same coordinate reference system (CRS) as specified in {.arg model_config}.",
-          x = "CRS of active spatial object for {.val {d@id}}: {.val {drv_crs$Name}} (EPSG: {.val {drv_crs$epsg}})",
-          x = "Expected CRS from {.arg model_config@ref_sys}: {.val {model_config@ref_sys$Name}} (EPSG: {.val {model_config@ref_sys$epsg}})"
-        ),
-        call = call, class = "err-crs-mismatch")
-      }
 
       ### Check spatial overlap between AOC and drivers
       #if(d@id == "owf_foot") browser()
@@ -487,8 +527,12 @@ compute_vector_fields <- function(strs, unit = "radians"){
 
 
 
-# Calculates slope and aspect of one attribute in the stars object and
-# binds them to the original stars object as attributes
+#' Calculates slope and aspect of one attribute in the stars object and
+#' binds them to the original stars object as attributes
+#'
+#' @param strs A `<stars>` object.
+#' @param unit Optional. A single string indicating units; default is `"radians"`.
+#'
 get_slope_aspect <- function(strs, unit = "radians"){
   #browser()
   if(!inherits(strs, "stars")) stop("`strs` must be a <stars> object")
