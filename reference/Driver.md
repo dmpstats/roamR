@@ -170,9 +170,9 @@ library(stars)
 #>  Mode:logical  
 #>  NA's:1        
 #> dimension(s):
-#>    from to point values
-#> X1    1  1 FALSE [0,NA)
-#> X2    1  1 FALSE [0,NA)
+#>    from to offset point x/y
+#> X1    1  1      0 FALSE [x]
+#> X2    1  1      0 FALSE [y]
 #> 
 #> Slot "stars_meta":
 #> list()
