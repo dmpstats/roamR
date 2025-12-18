@@ -5,6 +5,7 @@
 \title{Create a \verb{<ModelConfig>} object}
 \usage{
 ModelConfig(
+  movement_type = c("di", "crw"),
   n_agents = 100L,
   ref_sys = sf::st_crs(4326),
   aoc_bbx = c(0, 0, 10, 10),
@@ -18,25 +19,38 @@ ModelConfig(
 )
 }
 \arguments{
-\item{n_agents}{integer, the number of agents to track within the simulation.}
+\item{movement_type}{Character string, specifying the movement model to simulate
+agent trajectories. Currently supported options:
+\itemize{
+\item \code{"di"}: Density-informed movement, where agent destinations stochastically
+generated based on population-level density maps.
+\item \code{"crw"}: Correlated Random Walk model, where movement directions
+follow probability distributions that can be conditioned by habitat,
+environmental and/or physiological factors.
+}}
 
-\item{ref_sys}{object of class <\code{crs}>, defining the Coordinate Reference System to
-be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
+\item{n_agents}{Integer, the number of agents to track within the simulation.}
 
-\item{aoc_bbx}{numeric vector or object of class <\code{bbox}>, specifying the
-area of calculation, i.e. the spatial bounding box within which simulation
+\item{ref_sys}{Object of class <\code{crs}>, defining the Coordinate Reference
+System to be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
+
+\item{aoc_bbx}{Numeric vector or object of class <\code{bbox}>, specifying the
+area of calculation (AOC), i.e. the spatial bounding box within which simulation
 occurs. If numeric, expects a 4-length vector specifying \code{xmin}, \code{ymin},
 \code{xmax} and \code{ymax} values.}
 
-\item{delta_x, delta_y}{numeric, the cell (pixel) size in the x and y
-dimensions, respectively. Assumed to take the same units as \code{ref_sys}.}
+\item{delta_x, delta_y}{Numeric values, specifying the cell (pixel) size in the x and
+y dimensions, respectively. These define the spatial resolution of the
+AOC. Required only when \code{movement_type = "crw"}; otherwise values
+are automatically derived from the resolution of provided
+density maps. Units are assumed to match those of \code{ref_sys}.}
 
-\item{delta_time}{character string, defines the temporal resolution of the
-model. Must be one of "day", "week", "month", "quarter" or "year", and can
-optionally be preceded by a positive integer and a space, and followed by
-"s".}
+\item{delta_time}{Character string, defines the temporal resolution of the
+model. Valid options include "hours", "day", "week", "month" or
+"year", and can be preceded by a positive integer and a space, and followed
+by "s".}
 
-\item{start_sites}{an \verb{<sf>} object, defining the sites where agents start the
+\item{start_sites}{An \verb{<sf>} object, defining the sites where agents start the
 simulation. Apart from the sites' geometry, this object must contain the
 following columns:
 \itemize{
@@ -47,7 +61,7 @@ in this column must sum to 1.
 
 If \code{NULL} (the default), agents start at random locations within the AOC.}
 
-\item{end_sites}{an \verb{<sf>} object, analogous to \code{start_sites}, specifying the
+\item{end_sites}{An \verb{<sf>} object, analogous to \code{start_sites}, specifying the
 sites to which agents must return to at the end of the simulation. If
 \code{NULL} (the default), end locations are not forced upon agent. \strong{Note:}
 This parameter is currently inactive and will be ignored.}
@@ -63,13 +77,76 @@ Helper function to define the model configuration of the IMB. It constructs
 instances of <\code{\linkS4class{ModelConfig}}> objects.
 }
 \details{
-\subsection{\code{start_sites} and \code{end_sites}}{
-\itemize{
-\item For site geometries other than points, agents' starting/end locations are
-randomly drawn within the boundary of the geometry. For example, if a site
-is defined by polygon(s), agents assigned to that site start/end at random
-points within the polygon.
+In the recommended workflow for building and running IBMs in roamR, the first
+step is to define high-level model settings and controls by creating a
+\verb{<ModelConfig>} object. Key components of \verb{<ModelConfig>} are outlined below.
+For additional guidance, see \code{vignette("roamR-guide")}.
+\subsection{Movement Model}{
+
+At this stage, users only need to specify the movement methodology for the
+simulation. Detailed descriptions of each movement model are available in
+\code{vignette("movement")}. Required input data underpinning the chosen model
+should be provided through other components, such as \verb{<Driver>} and
+\verb{<Species>} classes.
 }
+
+\subsection{Number of Agents}{
+
+\code{n_agents} should be large enough to capture uncertainty and the
+distributional shape of outputs. However, computational costs must me
+considered, as runtime and storage increase roughly linearly with the number
+of agents. Note that simulated agents represent a sample of possible
+realizations from the simulated population, so \code{n_agents} does not need to
+match the actual population size.
+}
+
+\subsection{Spatial Settings}{
+
+\code{ref_sys} sets the CRS underpinning the simulation. Spatial inputs
+with differing CRS are automatically converted to \code{ref_sys} during model
+initialization.
+
+\code{aoc_bbx} specifies the spatial bounding box that constrains agent movement;
+agents cannot move beyond these limits. All spatial inputs are clipped to
+this extent during model initialization, so it should encompass key spatial
+features of the population (e.g., density maps, maximum range). Avoid
+excessively large boundaries, as they increase storage requirements without
+improving model realism.
+
+Parameters \code{delta_x} and \code{delta_y} define the spatial resolution of the IMB:
+\itemize{
+\item They set the pixel size which, together with \code{aoc_bbx}, determines the
+gridded spatial domain for the simulation.
+\item Values sould balance spatial realism (i.e. movement responses to habitat)
+with computational efficiency. Finer grids do not improve realism beyond the
+resolution of the input data.
+\item Under the default Density-informed movement model, these parameters are
+automatically set to match the resolution of user-provided density maps.
+}
+}
+
+\subsection{Temporal Configuration}{
+
+Arguments \code{start_date} and \code{end_date} define the simulation period. Input
+data must fully cover this interval, either through matching timestamps
+or via aggregation over an appropriate temporal scale (e.g.,
+monthly/annually means or totals) that spans the same period.
+
+\code{delta_time} specifies the duration each simulation step. Agent locations and
+physiological states are evaluated at the end of each step, followed by
+energy budget calculations for the subsequent time-step. As with the spatial
+configuration, chose a temporal resolution that balances biological realism
+with computational efficiency: overly coarse steps may miss important agent
+dynamics, while steps finer than the input data resolution add cost without
+benefit.
+}
+
+\subsection{\code{start_sites} and \code{end_sites}}{
+
+For site geometries other than points, agents' starting/end locations are
+randomly drawn within the boundary of the geometry. For example, if a site is
+defined by polygon(s), agents assigned to that site start/end at random
+points within the polygon.
 }
 }
 \examples{
@@ -86,6 +163,7 @@ colonies <- st_sf(
 
 # initialize model configuration object
 config <- ModelConfig(
+  movement_type = "crw",
   n_agents = 1000,
   ref_sys = st_crs(4326),
   aoc_bbx = c(0, 0, 5, 5),
@@ -97,6 +175,8 @@ config <- ModelConfig(
   start_sites = colonies,
   end_sites = colonies
 )
+
+config
 
 # Accessors
 aoc_bbx(config)

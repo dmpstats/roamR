@@ -6,43 +6,46 @@
 \title{Class \verb{<ModelConfig>}}
 \description{
 \verb{<ModelConfig>} is an S4 class containing the user-defined configuration for
-the Individual-based Model (IBM). t specifies key parameters such as the
+the Individual-based Model (IBM). It specifies key parameters such as the
 number of agents, the spatio-temporal resolution of the model, the bounding
 box (extent) of the area of calculation (AOC), the simulation start and end
 date.
 }
-\details{
-\subsection{\code{start_sites} and \code{end_sites}}{
-
-For site geometries other than points, agents' starting/end locations are
-randomly drawn within the boundary of the geometry. For example, if a site
-is defined by polygon(s), agents assigned to that site start/end at random
-points within the polygon.
-}
-}
 \section{Slots}{
 
 \describe{
-\item{\code{n_agents}}{integer, the number of agents to track within the simulation.}
+\item{\code{movement_type}}{Character string, specifying the movement model to simulate
+agent trajectories. Currently supported options:
+\itemize{
+\item \code{"di"}: Density-informed movement, where agent destinations stochastically
+generated based on population-level density maps.
+\item \code{"crw"}: Correlated Random Walk model, where movement directions
+follow probability distributions that can be conditioned by habitat,
+environmental and/or physiological factors.
+}}
 
-\item{\code{ref_sys}}{object of class <\code{crs}>, defining the Coordinate Reference System to
+\item{\code{n_agents}}{Integer, the number of agents to track within the simulation.}
+
+\item{\code{ref_sys}}{Object of class <\code{crs}>, defining the Coordinate Reference System to
 be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
 
-\item{\code{aoc_bbx}}{object of class <\code{bbox}>, specifying the area of calculation,
+\item{\code{aoc_bbx}}{Object of class <\code{bbox}>, specifying the area of calculation (AOC),
 i.e. the spatial bounding box within which simulation occurs.}
 
-\item{\code{delta_x,delta_y}}{numeric, the cell (pixel) size in the x and y
-dimensions, respectively. Assumed to take the same units as \code{ref_sys}.}
+\item{\code{delta_x,delta_y}}{Numeric, specifying the cell (pixel) size in the x and
+y dimensions, respectively. These define the spatial resolution of the
+AOC. Required only when \code{movement_type = "crw"}; otherwise values
+are automatically derived from the resolution of provided
+density maps. Units are assumed to match those of \code{ref_sys}.}
 
-\item{\code{delta_time}}{character string, defines the temporal resolution of the
-model. Must be one of "day", "week", "month", "quarter" or "year", and can
-optionally be preceded by a positive integer and a space, and followed by
-"s".}
+\item{\code{delta_time}}{Character string, defines the temporal resolution of the
+model. Valid options include "hours", "day", "week", "month" or "year", and can
+be preceded by a positive integer and a space, and followed by "s".}
 
 \item{\code{start_date;end_date}}{Date, respectively, defines the start and end
 dates for the simulation period.}
 
-\item{\code{start_sites}}{an \verb{<sf>} object, defining the sites where agents start the
+\item{\code{start_sites}}{An \verb{<sf>} object, defining the sites where agents start the
 simulation. Apart from the sites' geometry, this object must contain the
 following columns:
 \itemize{
@@ -51,15 +54,16 @@ following columns:
 in this column must sum to 1.
 }
 
-If \code{start_sites} are not provided, agents are assigned to random locations
+If \code{start_sites} are not provided, agents start at random locations
 within the AOC.}
 
-\item{\code{end_sites}}{an \verb{<sf>} object, analogous to \code{start_sites}, but specifying
+\item{\code{end_sites}}{An \verb{<sf>} object, analogous to \code{start_sites}, but specifying
 the sites to which agents must return to at the end of the simulation. If
 \code{NULL} (the default), end locations are not forced upon agent. \strong{Note:}
 This parameter is currently inactive and will be ignored.}
 }}
 
 \seealso{
-Helper function \code{\link[=ModelConfig]{ModelConfig()}} for constructing \verb{<ModelConfig>} objects
+\code{\link[=ModelConfig]{ModelConfig()}} for creating \verb{<ModelConfig>} objects and further
+details on the specification of input values.
 }
