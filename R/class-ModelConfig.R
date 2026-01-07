@@ -143,10 +143,10 @@ methods::setClass(
 #' ## Movement Model
 #'
 #' At this stage, users only need to specify the movement methodology for the
-#' simulation. Detailed descriptions of each movement model are available in
-#' `vignette("movement")`. Required input data underpinning the chosen model
-#' should be provided through other components, such as `<Driver>` and
-#' `<Species>` classes.
+#' simulation via `movement_type`. Detailed descriptions of each movement model
+#' are available in `vignette("movement")`. Required input data underpinning the
+#' chosen model should be provided through other components, such as `<Driver>`
+#' and `<Species>` classes.
 #'
 #' ## Number of Agents
 #'
@@ -194,12 +194,12 @@ methods::setClass(
 #'
 #'
 #' `delta_time` specifies the duration each simulation step. Agent locations and
-#' physiological states are evaluated at the end of each step, followed by
-#' energy budget calculations for the subsequent time-step. As with the spatial
-#' configuration, chose a temporal resolution that balances biological realism
-#' with computational efficiency: overly coarse steps may miss important agent
-#' dynamics, while steps finer than the input data resolution add cost without
-#' benefit.
+#' physiological states are evaluated at the end of each step, informing energy
+#' budget calculations and potential movement for the subsequent time-step. As
+#' with the spatial configuration, chose a temporal resolution that balances
+#' biological realism with computational efficiency: overly coarse steps may
+#' miss important agent dynamics, while steps finer than the input data
+#' resolution add cost without benefit.
 #'
 #'
 #' ## `start_sites` and `end_sites`
