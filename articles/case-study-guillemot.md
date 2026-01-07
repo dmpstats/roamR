@@ -521,22 +521,22 @@ guill_ibm <- xfun::cache_rds({
 
 })
 #> ℹ Validating inputs
-#> ✔ Validating inputs [8ms]
+#> ✔ Validating inputs [9ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [107ms]
+#> ✔ Checking spatio-temporal consistency of inputs [110ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [62ms]
+#> ✔ Processing Drivers [69ms]
 #> 
 #> ℹ Processing Activity States
 #> ✔ Processing Activity States [16ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [227ms]
+#> ✔ Initialize Agents [245ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [16ms]
+#> ✔ Initialize <IBM> object [17ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -599,16 +599,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [22ms]
+#> ✔ Performing validation checks on inputs and underlying data. [23ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [192ms]
+#> ✔ Preparing and configuring data for simulation. [202ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18.8s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [20.2s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [17.1s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [18.1s]
 #> 
 #> ✔ Model simulation finished! 🛬
 

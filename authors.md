@@ -12,14 +12,14 @@
 Source:
 [`DESCRIPTION`](https://github.com/dmpstats/roamR/blob/master/DESCRIPTION)
 
-Donovan C, Caneco B (2025). *roamR: Seabird IBM For Non-Breeding
+Donovan C, Caneco B (2026). *roamR: Seabird IBM For Non-Breeding
 Season*. R package version 0.0.0.9000,
 <https://dmpstats.github.io/roamR/>.
 
     @Manual{,
       title = {roamR: Seabird IBM For Non-Breeding Season},
       author = {Carl Donovan and Bruno Caneco},
-      year = {2025},
+      year = {2026},
       note = {R package version 0.0.0.9000},
       url = {https://dmpstats.github.io/roamR/},
     }

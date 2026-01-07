@@ -152,10 +152,10 @@ For additional guidance, see <code>vignette("roamR-guide")</code>.</p><div class
 
 
 <p>At this stage, users only need to specify the movement methodology for the
-simulation. Detailed descriptions of each movement model are available in
-<code>vignette("movement")</code>. Required input data underpinning the chosen model
-should be provided through other components, such as <code>&lt;Driver&gt;</code> and
-<code>&lt;Species&gt;</code> classes.</p>
+simulation via <code>movement_type</code>. Detailed descriptions of each movement model
+are available in <code>vignette("movement")</code>. Required input data underpinning the
+chosen model should be provided through other components, such as <code>&lt;Driver&gt;</code>
+and <code>&lt;Species&gt;</code> classes.</p>
 </div>
 
 <div class="section">
@@ -201,12 +201,12 @@ data must fully cover this interval, either through matching timestamps
 or via aggregation over an appropriate temporal scale (e.g.,
 monthly/annually means or totals) that spans the same period.</p>
 <p><code>delta_time</code> specifies the duration each simulation step. Agent locations and
-physiological states are evaluated at the end of each step, followed by
-energy budget calculations for the subsequent time-step. As with the spatial
-configuration, chose a temporal resolution that balances biological realism
-with computational efficiency: overly coarse steps may miss important agent
-dynamics, while steps finer than the input data resolution add cost without
-benefit.</p>
+physiological states are evaluated at the end of each step, informing energy
+budget calculations and potential movement for the subsequent time-step. As
+with the spatial configuration, chose a temporal resolution that balances
+biological realism with computational efficiency: overly coarse steps may
+miss important agent dynamics, while steps finer than the input data
+resolution add cost without benefit.</p>
 </div>
 
 <div class="section">
