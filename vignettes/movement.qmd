@@ -1,0 +1,19 @@
+---
+title: "Movement Models"
+vignette: >
+  %\VignetteIndexEntry{Movement Models}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| label: setup
+library(roamR)
+```
+
+
+*(Placeholder)*
