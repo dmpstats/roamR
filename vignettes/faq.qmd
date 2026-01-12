@@ -61,11 +61,10 @@ interactions.
 
 ### How do I start building my first model?
 
-Begin with `vignette("roamR")` for a simple walk-through on
-setting up your first IBM.
+Begin with `vignette("roamR")` for a simple walk-through on setting up your first IBM.
 
-Once you're comfortable, you can explore more detailed use-cases based on
-real-world scenarios, such as the analysis for
+Once you're comfortable with setting up a basic model, you can explore more
+detailed use-cases based on real-world scenarios, such as the analysis for
 [Guillemots](case-study-guillemot.html) and [Red-throated
 Divers](case-study-RTD.html) conducted for the **ORJP's DisNBS** project. In
 these case-studies, IBMs implemented with roamR were used to investigate

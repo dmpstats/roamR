@@ -18,6 +18,9 @@ navbar:
       - text: roamR Overview
         href: articles/roamR-guide.html
       - text: -------
+      - text: Movement Models
+        href: articles/movement.html
+      - text: -------
       - text: Case Studies
       - text: Guillemot in the Isle of May
         href: articles/case-study-guillemot.html
