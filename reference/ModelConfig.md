@@ -110,9 +110,10 @@ outlined below. For additional guidance, see `vignette("roamR-guide")`.
 
 At this stage, users only need to specify the movement methodology for
 the simulation via `movement_type`. Detailed descriptions of each
-movement model are available in `vignette("movement")`. Required input
-data underpinning the chosen model should be provided through other
-components, such as `<Driver>` and `<Species>` classes.
+movement model are available in
+[`vignette("movement")`](https://dmpstats.github.io/roamR/articles/movement.md).
+Required input data underpinning the chosen model should be provided
+through other components, such as `<Driver>` and `<Species>` classes.
 
 ### Number of Agents
 

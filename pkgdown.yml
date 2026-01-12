@@ -5,9 +5,10 @@ articles:
   articles/case-study-guillemot: case-study-guillemot.html
   articles/case-study-RTD: case-study-RTD.html
   faq: faq.html
+  movement: movement.html
   articles/roamR-guide: roamR-guide.html
   roamR: roamR.html
-last_built: 2026-01-12T15:06Z
+last_built: 2026-01-12T15:09Z
 urls:
   reference: https://dmpstats.github.io/roamR/reference
   article: https://dmpstats.github.io/roamR/articles
