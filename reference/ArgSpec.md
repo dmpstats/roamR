@@ -91,118 +91,22 @@ ArgSpec(
 ``` r
 # driver ID set to `name` by default
 ArgSpec("sst", "driver")
-#> An object of class "ArgSpec"
-#> Slot "name":
-#> [1] "sst"
-#> 
-#> Slot "type":
-#> [1] "driver"
-#> 
-#> Slot "value":
-#> NULL
-#> 
-#> Slot "driver_id":
-#> [1] "sst"
-#> 
-#> Slot "state_id":
-#> [1] NA
-#> 
-#> Slot "description":
-#> [1] NA
-#> 
-#> Slot "distr":
-#> <distribution[1]>
-#> [1] NA
-#> 
-#> Slot "units":
-#> [1] ""
-#> 
+#> <ArgSpec>
+#> NA 
 
 # linking argument name to a given driver ID
 ArgSpec("x", "driver", driver_id = "sst", units = "Degrees_celsius")
-#> An object of class "ArgSpec"
-#> Slot "name":
-#> [1] "x"
-#> 
-#> Slot "type":
-#> [1] "driver"
-#> 
-#> Slot "value":
-#> NULL
-#> 
-#> Slot "driver_id":
-#> [1] "sst"
-#> 
-#> Slot "state_id":
-#> [1] NA
-#> 
-#> Slot "description":
-#> [1] NA
-#> 
-#> Slot "distr":
-#> <distribution[1]>
-#> [1] NA
-#> 
-#> Slot "units":
-#> [1] "Degrees_celsius"
-#> 
+#> <ArgSpec>
+#> NA [°C]
 
 # argument referring to agents' body mass, in kilograms
 ArgSpec("b", "body_mass", units = "kg")
-#> An object of class "ArgSpec"
-#> Slot "name":
-#> [1] "b"
-#> 
-#> Slot "type":
-#> [1] "body_mass"
-#> 
-#> Slot "value":
-#> NULL
-#> 
-#> Slot "driver_id":
-#> [1] NA
-#> 
-#> Slot "state_id":
-#> [1] NA
-#> 
-#> Slot "description":
-#> [1] NA
-#> 
-#> Slot "distr":
-#> <distribution[1]>
-#> [1] NA
-#> 
-#> Slot "units":
-#> [1] "kg"
-#> 
+#> <ArgSpec>
+#> NA [kg]
 
 # argument whose input values follow a Bernoulli distribution
 ArgSpec("x", "random", distr = distributional::dist_bernoulli(0.1), units = "m")
-#> An object of class "ArgSpec"
-#> Slot "name":
-#> [1] "x"
-#> 
-#> Slot "type":
-#> [1] "random"
-#> 
-#> Slot "value":
-#> NULL
-#> 
-#> Slot "driver_id":
-#> [1] NA
-#> 
-#> Slot "state_id":
-#> [1] NA
-#> 
-#> Slot "description":
-#> [1] NA
-#> 
-#> Slot "distr":
-#> <distribution[1]>
-#> [1] Bernoulli(0.1)
-#> 
-#> Slot "units":
-#> [1] "m"
-#> 
+#> <ArgSpec>
+#> Bernoulli(0.1) [m]
 
 ```

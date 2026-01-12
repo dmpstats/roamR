@@ -44,5 +44,5 @@ A 2D numeric (velocity) vector
 # drift to the NE of approx 1m/s, high correlation,
 # current velocity SW of approx 1m/s, 10s step, 2.5m/s std dev
 velocity_ou(c(1, 1), 0.1, c(-1, -1), 10, 2.5)
-#> [1] 17.43604 15.27005
+#> [1]  15.27005 -16.73425
 ```

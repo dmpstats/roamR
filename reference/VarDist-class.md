@@ -2,7 +2,7 @@
 
 `<VarDist>` is an S4 class that encapsulates the distributional
 properties of a variable of interest. It allows variables to be defined
-n terms of their probability distribution, sampling distribution,
+in terms of their probability distribution, sampling distribution,
 percentile distribution or a fixed value. The class provides a
 structured approach to specifying input values by allowing the
 quantification of uncertainty while ensuring proper handling of
@@ -37,7 +37,7 @@ calculations.
 
 - Helper function
   [`VarDist()`](https://dmpstats.github.io/roamR/reference/VarDist.md)
-  to construct `<varDist>` objects
+  to construct `<varDist>` objects.
 
 - Package
   [distributional](https://pkg.mitchelloharawild.com/distributional/reference/distributional-package.html)

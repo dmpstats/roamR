@@ -328,6 +328,14 @@ Complete list of user-facing functions
 
   Class `<VarDist>`
 
+- [`distr(`*`<VarDist>`*`)`](https://dmpstats.github.io/roamR/reference/VarDist-utils.md)
+  [`units(`*`<VarDist>`*`)`](https://dmpstats.github.io/roamR/reference/VarDist-utils.md)
+  [`generate(`*`<VarDist>`*`)`](https://dmpstats.github.io/roamR/reference/VarDist-utils.md)
+  [`parameters(`*`<VarDist>`*`)`](https://dmpstats.github.io/roamR/reference/VarDist-utils.md)
+  :
+
+  Utility functions for `<VarDist>` objects
+
 - [`VarDist()`](https://dmpstats.github.io/roamR/reference/VarDist.md) :
 
   Create a `<VarDist>` object

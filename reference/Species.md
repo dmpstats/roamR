@@ -107,6 +107,11 @@ and [`State()`](https://dmpstats.github.io/roamR/reference/State.md)
 
 ``` r
 library(distributional)
+#> 
+#> Attaching package: ‘distributional’
+#> The following object is masked from ‘package:roamR’:
+#> 
+#>     generate
 
 # 1. Start by setting the state profile
 states <- list(
