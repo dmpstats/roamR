@@ -43,10 +43,9 @@ the variable.
 }
 }
 \examples{
-library(distributional)
 
 # create a VarDist object
-speed <- VarDist(dist_normal(10, 0.5), "m/s")
+speed <- VarDist(distributional::dist_normal(10, 0.5), "m/s")
 
 # get slot `units`
 units(speed)

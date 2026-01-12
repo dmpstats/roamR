@@ -79,7 +79,7 @@ methods::setClass(
 #' @returns an object of class `<VarDist>`
 #'
 #' @examples
-#' library(distributional)
+#' #library(distributional)
 #'
 #' # define a Normally distributed variable with units m/s
 #' VarDist(dist_normal(mean = 23, sd = 2), "m/s")
@@ -274,10 +274,9 @@ methods::setMethod("parameters", "VarDist", function(x){
 #' @param x an object of class `<VarDist>`.
 #'
 #' @examples
-#' library(distributional)
 #'
 #' # create a VarDist object
-#' speed <- VarDist(dist_normal(10, 0.5), "m/s")
+#' speed <- VarDist(distributional::dist_normal(10, 0.5), "m/s")
 #'
 #' # get slot `units`
 #' units(speed)

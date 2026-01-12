@@ -36,7 +36,7 @@ measurement units, ensuring that variable values are interpreted and
 processed correctly during simulation calculations.
 }
 \examples{
-library(distributional)
+#library(distributional)
 
 # define a Normally distributed variable with units m/s
 VarDist(dist_normal(mean = 23, sd = 2), "m/s")
