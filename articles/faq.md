@@ -51,8 +51,9 @@ Begin with
 [`vignette("roamR")`](https://dmpstats.github.io/roamR/articles/roamR.md)
 for a simple walk-through on setting up your first IBM.
 
-Once you’re comfortable, you can explore more detailed use-cases based
-on real-world scenarios, such as the analysis for
+Once you’re comfortable with setting up a basic model, you can explore
+more detailed use-cases based on real-world scenarios, such as the
+analysis for
 [Guillemots](https://dmpstats.github.io/roamR/articles/case-study-guillemot.md)
 and [Red-throated
 Divers](https://dmpstats.github.io/roamR/articles/case-study-RTD.md)
