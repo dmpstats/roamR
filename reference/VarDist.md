@@ -55,7 +55,7 @@ are interpreted and processed correctly during simulation calculations.
 ## Examples
 
 ``` r
-library(distributional)
+#library(distributional)
 
 # define a Normally distributed variable with units m/s
 VarDist(dist_normal(mean = 23, sd = 2), "m/s")
