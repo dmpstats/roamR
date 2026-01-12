@@ -1,7 +1,7 @@
 #' Class `<VarDist>`
 #'
 #' `<VarDist>` is an S4 class that encapsulates the distributional properties of
-#' a variable of interest. It allows variables to be defined n terms of their
+#' a variable of interest. It allows variables to be defined in terms of their
 #' probability distribution, sampling distribution, percentile distribution or a
 #' fixed value. The class provides a structured approach to specifying input
 #' values by allowing the quantification of uncertainty while ensuring proper
@@ -25,7 +25,7 @@
 #' processed correctly during simulation calculations.
 #'
 #' @seealso
-#'  * Helper function [VarDist()] to construct `<varDist>` objects
+#'  * Helper function [VarDist()] to construct `<varDist>` objects.
 #'  * Package [distributional][distributional::distributional] for access to and details
 #' on a comprehensive selection of distributions.
 #'
@@ -71,8 +71,10 @@ methods::setClass(
 #' processed correctly during simulation calculations.
 #'
 #' @seealso
-#' Package [distributional][distributional::distributional] for access to and details
+#'  * Package [distributional][distributional::distributional] for access to and details
 #' on a comprehensive selection of distributions.
+#'
+#'  * Utility functions for `<VarDist>` objects in [VarDist-utils].
 #'
 #' @returns an object of class `<VarDist>`
 #'
@@ -86,11 +88,10 @@ methods::setClass(
 #' # define a parameter with fixed value
 #' VarDist(10, "m")
 #'
+#'
 #' # set variable's empirical distribution from a random sample (e.g a bootstrap)
 #' boot <- rlnorm(100, 2, 1)
-#' mass <- VarDist(dist_sample(list(boot)), "kg")
-#' # re-sample 100 values
-#' generate(mass, times = 100)
+#' VarDist(dist_sample(list(boot)), "kg")
 #'
 #' @export
 VarDist <- function(distr = NULL, units = NULL){
@@ -113,14 +114,14 @@ VarDist <- function(distr = NULL, units = NULL){
   ## length validation
   if(length(distr) > 1){
     cli::cli_abort(c(
-      "{.arg distr} must be of lenght 1",
+      "{.arg distr} must be of length 1",
       "x" = "You've provided an object with length {length(distr)}"
     ), class = "err-arg-wrong-length")
   }
 
   if(length(units) > 1){
     cli::cli_abort(c(
-      "{.arg units} must be of lenght 1",
+      "{.arg units} must be of length 1",
       "x" = "You've provided an object with length {length(units)}"
     ), class = "err-arg-wrong-length")
 
@@ -161,19 +162,70 @@ methods::setValidity("VarDist", function(object) {
 
 
 
-# Methods -----------------------------------------------------
+# Methods ------------------------------------------------------------
 
 ## Accessors ----
 
 ### @distr
-setGeneric("distr", function(object) standardGeneric("distr"))
-setMethod("distr", "VarDist", function(object) object@distr)
+setGeneric("distr", function(x) standardGeneric("distr"))
+
+#' @rdname VarDist-utils
+#' @aliases distr
+#'
+#' @description
+#' - `distr()` returns the [`<distribution>`][distributional::distributional]
+#' object stored in the `distr` slot.
+#'
+#' @export
+setMethod("distr", "VarDist", function(x) x@distr)
+
 
 ### @units
+#' @rdname VarDist-utils
+#' @aliases units
+#'
+#' @description
+#' - `units()` retrieves the value of the `units` slot.
+#'
+#' @export
 setMethod("units", "VarDist", function(x) x@units)
 
 
-## Other ----
+
+## Show ------------------------------------
+
+setMethod("show", "VarDist", function(object) {
+
+  #browser()
+
+  cli::cat_line(cli::format_message("{.cls {class(object)}}"))
+
+  # @distr
+  distr_txt <- if(is.na(object@distr)){
+    "NA"
+  } else{
+    sub("\\[1\\] ", "", capture.output(object@distr)[2])
+  }
+
+  # @units
+  units_txt <- if(object@units == ""){
+    ""
+  } else {
+    #paste0("[", object@units, "]") |>
+    paste0("[", units::deparse_unit(units::as_units(object@units)), "]") |>
+      cli::col_grey()
+  }
+
+  # print
+  cli::cat_line(
+    paste0(distr_txt, " ", units_txt)
+  )
+
+})
+
+
+
+## Other -------------------------------------------
 
 #' Empty assertion
 #' @include s4_utils.R
@@ -182,15 +234,63 @@ methods::setMethod("is_empty", "VarDist", function(object){
 })
 
 
-#' VarDist random sampler
+
+#' @rdname VarDist-utils
+#'
+#' @description
+#' - `generate()` randomly samples values from the distributional properties of
+#' the variable.
+#'
+#' @param times the sample size.
 #'
 #' @include s4_utils.R
-methods::setMethod("generate", "VarDist", function(object, times = 1){
-  vals <- distributional::generate(object@distr, times)
-  vals <- lapply(vals, units::set_units, object@units, mode = "standard")
+#'
+#' @export
+methods::setMethod("generate", "VarDist", function(x, times = 1){
+  vals <- distributional::generate(x@distr, times)
+  vals <- lapply(vals, units::set_units, x@units, mode = "standard")
   if(length(vals) == 1) vals[[1]] else vals
 })
 
 
 
+#' @rdname VarDist-utils
+#'
+#' @description
+#' - `parameters()` returns the parameters that define variable's distribution.
+#'
+#'
+#' @include s4_utils.R
+methods::setMethod("parameters", "VarDist", function(x){
+  distributional::parameters(x@distr)
+})
 
+
+## Documentation ---------------------------------------
+
+#' Utility functions for `<VarDist>` objects
+#'
+#'
+#' @param x an object of class `<VarDist>`.
+#'
+#' @examples
+#' library(distributional)
+#'
+#' # create a VarDist object
+#' speed <- VarDist(dist_normal(10, 0.5), "m/s")
+#'
+#' # get slot `units`
+#' units(speed)
+#'
+#' # get slot `distr`
+#' distr(speed)
+#'
+#' # generate 100 random values from the variable's probability distribution
+#' generate(speed, times = 100)
+#'
+#' # parameters underpinning Normally distributed `speed`
+#' parameters(speed)
+#'
+#'
+#' @name VarDist-utils
+NULL

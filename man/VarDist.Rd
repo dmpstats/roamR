@@ -45,14 +45,16 @@ VarDist(dist_normal(mean = 23, sd = 2), "m/s")
 # define a parameter with fixed value
 VarDist(10, "m")
 
+
 # set variable's empirical distribution from a random sample (e.g a bootstrap)
 boot <- rlnorm(100, 2, 1)
-mass <- VarDist(dist_sample(list(boot)), "kg")
-# re-sample 100 values
-generate(mass, times = 100)
+VarDist(dist_sample(list(boot)), "kg")
 
 }
 \seealso{
-Package \link[distributional:distributional-package]{distributional} for access to and details
+\itemize{
+\item Package \link[distributional:distributional-package]{distributional} for access to and details
 on a comprehensive selection of distributions.
+\item Utility functions for \verb{<VarDist>} objects in \link{VarDist-utils}.
+}
 }

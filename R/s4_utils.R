@@ -91,7 +91,9 @@ check_class <- function(x,
 
 # Generics -------------------------------------------------------------------
 methods::setGeneric("is_empty", function(object) standardGeneric("is_empty"))
-methods::setGeneric("generate", function(object, ...) standardGeneric("generate"))
+methods::setGeneric("generate", function(x, ...) standardGeneric("generate"))
+methods::setGeneric("parameters", function(x) standardGeneric("parameters"))
+
 
 
 

@@ -6,7 +6,7 @@
 \title{Class \verb{<VarDist>}}
 \description{
 \verb{<VarDist>} is an S4 class that encapsulates the distributional properties of
-a variable of interest. It allows variables to be defined n terms of their
+a variable of interest. It allows variables to be defined in terms of their
 probability distribution, sampling distribution, percentile distribution or a
 fixed value. The class provides a structured approach to specifying input
 values by allowing the quantification of uncertainty while ensuring proper
@@ -35,7 +35,7 @@ be unitless.}
 
 \seealso{
 \itemize{
-\item Helper function \code{\link[=VarDist]{VarDist()}} to construct \verb{<varDist>} objects
+\item Helper function \code{\link[=VarDist]{VarDist()}} to construct \verb{<varDist>} objects.
 \item Package \link[distributional:distributional-package]{distributional} for access to and details
 on a comprehensive selection of distributions.
 }
