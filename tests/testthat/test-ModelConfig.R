@@ -71,9 +71,12 @@ test_that("Missing values for required slots raises errors", {
     error = TRUE
   )
 
-  # Spatial resolution
+  # Spatial resolution for CRW movement models
   expect_snapshot(
-    ModelConfig(delta_x = NA_real_, delta_y = NA_real_),
+    ModelConfig(
+      movement_type = "crw",
+      delta_x = NA_real_, delta_y = NA_real_
+    ),
     error = TRUE
   )
 

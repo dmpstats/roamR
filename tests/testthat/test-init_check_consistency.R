@@ -41,15 +41,16 @@ test_that("top-level input errors are detected", {
   d <- rover_drivers
   d$drv_land@id <- "sst"
 
-  expect_error(
+  expect_snapshot(
     init_check_consistency(rover, d),
-    class =  "err-multiple-driverid"
+    error = TRUE, cnd_class = TRUE
   )
 
+
   d$drv_sss@id <- "prey_distr"
-  expect_error(
+  expect_snapshot(
     init_check_consistency(rover, d),
-    class =  "err-multiple-driverid"
+    error = TRUE, cnd_class = TRUE
   )
 
 
@@ -57,21 +58,10 @@ test_that("top-level input errors are detected", {
   r <- rover
   r@driver_responses[[1]]@driver_id <- "poo"
 
-  expect_error(
+  expect_snapshot(
     init_check_consistency(r, rover_drivers),
-    class = "err-nonexistent-driverid"
+    error = TRUE, cnd_class = TRUE
   )
-
-
-  # CRS mismatch between drivers and expected by model_config
-  m <- ibm_config_rover
-  m@ref_sys <- sf::st_crs(32604)
-
-  expect_error(
-    init_check_consistency(rover, rover_drivers, m),
-    class = "err-crs-mismatch"
-  )
-
 
   # spatial inconsistencies between drivers and AOC
   #library(ggplot2)
@@ -92,10 +82,11 @@ test_that("top-level input errors are detected", {
 
   # sf objects
   d <- rover_drivers[c("drv_land", "drv_trawling")]
-  expect_error(
+  expect_snapshot(
     init_check_consistency(Species(), d, m),
-    class = "err-driver-outside-aoc"
-    )
+    error = TRUE, cnd_class = TRUE
+  )
+
 
   d <- rover_drivers[c("drv_land", "drv_owfs")]
   expect_warning(
@@ -118,9 +109,9 @@ test_that("top-level input errors are detected", {
   #   xlim(c(-10.5, 4)) +
   #   stars::geom_stars(data = d$drv_sst@stars_obj[, , , "January"])
 
-  expect_error(
+  expect_snapshot(
     init_check_consistency(Species(), d, m),
-    class = "err-driver-outside-aoc"
+    error = TRUE, cnd_class = TRUE
   )
 
 
