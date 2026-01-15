@@ -345,8 +345,7 @@ test_that("derive_night_cube() works as expected", {
     plot(night_prop, col = viridisLite::mako(50, direction = -1))
   )
 
-  # AOC CRS in UTM
-
+  # dens CRS in UTM
 
   stars_obj(dens_drv) <- stars::st_warp(dens_drv@stars_obj, crs = sf::st_crs(32629))
 
@@ -359,7 +358,7 @@ test_that("derive_night_cube() works as expected", {
   )
 
   # Input and output have the same CRS
-  expect_true(sf::st_crs(night_prop) == sf::st_crs(stars_obj(aoc_drv)))
+  expect_true(sf::st_crs(night_prop) == sf::st_crs(stars_obj(dens_drv)))
 
   # plot snapshot
   expect_doppelganger(
