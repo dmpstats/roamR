@@ -4,15 +4,16 @@ An S4 class for specifying the characteristics of a function argument.
 
 ## Details
 
-`<ArgSpec>` defines the metadata of a function's argument, including its
-name, expected type, default value, description, and (if applicable) its
-probability distribution and measurement units.
+`<ArgSpec>` defines the properties of a function's argument, such as its
+name, type, value or probability distribution, measurement units and
+general description.
 
 At a lower level,`<ArgSpec>` interacts with the
 [`VarFn`](https://dmpstats.github.io/roamR/reference/VarFn-class.md)
-class to define input parameters for a user-defined function. At a
-higher level, it supports `{roamR}`'s **IBM definition** by linking
-functions arguments to the broader simulation infrastructure.
+class to define parameters for user-specified function that determine
+the value of a model variable at each simulation iteration. At a higher
+level, it ensures model robustness linking function arguments to the
+IBM's simulation infrastructure.
 
 ## Slots
 
@@ -22,23 +23,28 @@ functions arguments to the broader simulation infrastructure.
 
 - `type`:
 
-  character, the expected type of argument within the `{roamR}` context.
+  character, the expected type of argument within roamR's IBM context.
   Must be one of:
 
-  - `"driver"`: refers to an argument linked to an existing driver.
+  - `"driver"`: An argument linked to an existing driver; its value is
+    determined by the agent's status (e.g. location) at the current
+    simulation step.
 
-  - `"body_mass"`: relates to the agent’s body mass.
+  - `"body_mass"`: Refers to the agent’s body mass at the current
+    simulation step.
 
-  - `"time_at_state"`: used for arguments related to the time spent by
-    the agent in a given state during the current simulation time step.
+  - `"time_at_state"`: An argument related to time spent by the agent in
+    a given state during the current simulation time step.
 
-  - `"constant"`: the argument has a fixed value across simulations.
+  - `"constant"`: The argument has a fixed value across simulations.
 
-  - `"random"`: the argument is drawn from a probability distribution.
+  - `"random"`: The argument is stochastic and it's value is dictated by
+    a probability distribution.
 
 - `value`:
 
-  the value assigned to the argument.
+  the fixed value assigned to the argument. Required only if
+  `type = "constant"`.
 
 - `driver_id`:
 

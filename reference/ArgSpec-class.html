@@ -57,13 +57,14 @@
 
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>&lt;ArgSpec&gt;</code> defines the metadata of a function's argument, including its
-name, expected type, default value, description, and (if applicable) its
-probability distribution and measurement units.</p>
+    <p><code>&lt;ArgSpec&gt;</code> defines the properties of a function's argument, such as its
+name, type, value or probability distribution, measurement units and general
+description.</p>
 <p>At a lower level,<code>&lt;ArgSpec&gt;</code> interacts with the <code><a href="VarFn-class.html">VarFn</a></code> class to
-define input parameters for a user-defined function. At a higher level, it
-supports <code>{roamR}</code>'s <strong>IBM definition</strong> by linking functions arguments to the
-broader simulation infrastructure.</p>
+define parameters for user-specified function that determine the value of a
+model variable at each simulation iteration. At a higher level, it ensures
+model robustness linking function arguments to the IBM's simulation
+infrastructure.</p>
     </div>
     <div class="section level2">
     <h2 id="slots">Slots<a class="anchor" aria-label="anchor" href="#slots"></a></h2>
@@ -74,18 +75,21 @@ broader simulation infrastructure.</p>
 
 
 <dt><code>type</code></dt>
-<dd><p>character, the expected type of argument within the <code>{roamR}</code>
-context. Must be one of:</p><ul><li><p><code>"driver"</code>: refers to an argument linked to an existing driver.</p></li>
-<li><p><code>"body_mass"</code>: relates to the agent’s body mass.</p></li>
-<li><p><code>"time_at_state"</code>: used for arguments related to the time spent by the agent
+<dd><p>character, the expected type of argument within roamR's IBM
+context. Must be one of:</p><ul><li><p><code>"driver"</code>: An argument linked to an existing driver; its value is
+determined by the agent's status (e.g. location) at the current simulation
+step.</p></li>
+<li><p><code>"body_mass"</code>: Refers to the agent’s body mass at the current simulation step.</p></li>
+<li><p><code>"time_at_state"</code>: An argument related to time spent by the agent
 in a given state during the current simulation time step.</p></li>
-<li><p><code>"constant"</code>: the argument has a fixed value across simulations.</p></li>
-<li><p><code>"random"</code>: the argument is drawn from a probability distribution.</p></li>
+<li><p><code>"constant"</code>: The argument has a fixed value across simulations.</p></li>
+<li><p><code>"random"</code>: The argument is stochastic and it's value is dictated by a
+probability distribution.</p></li>
 </ul></dd>
 
 
 <dt><code>value</code></dt>
-<dd><p>the value assigned to the argument.</p></dd>
+<dd><p>the fixed value assigned to the argument. Required only if <code>type = "constant"</code>.</p></dd>
 
 
 <dt><code>driver_id</code></dt>

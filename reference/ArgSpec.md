@@ -2,9 +2,9 @@
 
 Helper function to construct an instance of a
 \<[`ArgSpec`](https://dmpstats.github.io/roamR/reference/ArgSpec-class.md)\>
-object, which defines the metadata of a function's argument, including
-its name, expected type, default value, description, and (if applicable)
-its probability distribution and measurement units.
+object, which defines the properties of a function's argument, including
+its name, default value, probability distribution, measurement units,
+etc.
 
 ## Usage
 
@@ -30,19 +30,23 @@ ArgSpec(
 
 - type:
 
-  character, the expected type of argument within the `{roamR}` context.
+  character, the expected type of argument within roamR's IBM context.
   Must be one of:
 
-  - `"driver"`: refers to an argument linked to an existing driver.
+  - `"driver"`: An argument linked to an existing driver; its value is
+    determined by the agent's status (e.g. location) at the current
+    simulation step.
 
-  - `"body_mass"`: relates to the agent’s body mass.
+  - `"body_mass"`: Refers to the agent’s body mass at the current
+    simulation step.
 
-  - `"time_at_state"`: used for arguments related to the time spent by
-    the agent in a given state during the current simulation time step.
+  - `"time_at_state"`: An argument related to time spent by the agent in
+    a given state during the current simulation time step.
 
-  - `"constant"`: the argument has a fixed value across simulations.
+  - `"constant"`: The argument has a fixed value across simulations.
 
-  - `"random"`: the argument is drawn from a probability distribution.
+  - `"random"`: The argument is stochastic, i.e. it's value is dictated
+    by a probability distribution.
 
 - distr:
 
@@ -51,14 +55,14 @@ ArgSpec(
 
 - value:
 
-  the fixed value assigned to the argument. Required only if
-  `type = "constant"`.
+  the fixed value assigned to the argument. Required only if \`type =
+  "constant".
 
 - units:
 
-  character string defining the measurement unit for the argument,
-  either by name (e.g. `"grams"`) or symbol (e.g. `"m/s"`). Units must
-  be recognized by the
+  character string defining the measurement unit for the argument within
+  the function, either by name (e.g. `"grams"`) or abbreviation (e.g.
+  `"m/s"`). Units must be recognized by the
   [`units::valid_udunits()`](https://r-quantities.github.io/units/reference/valid_udunits.html)
   database. Defaults to:
 
@@ -72,14 +76,14 @@ ArgSpec(
   (used when `type = "driver"`). This must match the ID of a `<Driver>`
   object available during model initialization via
   [`rmr_initiate()`](https://dmpstats.github.io/roamR/reference/rmr_initiate.md).
-  If not defined, defaults to `name`. For all other types, the
+  If not defined, defaults to `name`. For all other `type`s, the
   associated slot `@driver_id` is set to `NA`.
 
 - state_id, :
 
   character, required if `type = "time_at_state"`; specifies the ID of
   the referred state. Assumes the existence of a `<State>` object with a
-  matching ID during the IBM's initialization phase (via
+  matching ID during the IBM's initialization stage (via
   [`rmr_initiate()`](https://dmpstats.github.io/roamR/reference/rmr_initiate.md)).
 
 - description:
@@ -92,21 +96,21 @@ ArgSpec(
 # driver ID set to `name` by default
 ArgSpec("sst", "driver")
 #> <ArgSpec>
-#> NA 
+#> `sst`: driver "sst" evaluated at current step
 
 # linking argument name to a given driver ID
 ArgSpec("x", "driver", driver_id = "sst", units = "Degrees_celsius")
 #> <ArgSpec>
-#> NA [°C]
+#> `x`: driver "sst" evaluated at current step [°C]
 
 # argument referring to agents' body mass, in kilograms
 ArgSpec("b", "body_mass", units = "kg")
 #> <ArgSpec>
-#> NA [kg]
+#> `b`: agent's body mass at current step [kg]
 
 # argument whose input values follow a Bernoulli distribution
 ArgSpec("x", "random", distr = distributional::dist_bernoulli(0.1), units = "m")
 #> <ArgSpec>
-#> Bernoulli(0.1) [m]
+#> `x`: Bernoulli(0.1) [m]
 
 ```

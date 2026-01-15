@@ -49,7 +49,7 @@ parameters(x)
 
 ``` r
 # create a VarDist object
-speed <- VarDist(distributional::dist_normal(10, 0.5), "m/s")
+speed <- VarDist(dist_normal(10, 0.5), "m/s")
 
 # get slot `units`
 units(speed)

@@ -37,7 +37,7 @@ calculations.
 
 - Helper function
   [`VarDist()`](https://dmpstats.github.io/roamR/reference/VarDist.md)
-  to construct `<varDist>` objects.
+  to construct `<VarDist>` objects.
 
 - Package
   [distributional](https://pkg.mitchelloharawild.com/distributional/reference/distributional-package.html)
