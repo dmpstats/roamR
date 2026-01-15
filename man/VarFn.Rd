@@ -7,11 +7,32 @@
 VarFn(fn = NULL, args_spec = NULL, units = NULL, fn_cmp = NULL)
 }
 \arguments{
-\item{args_spec}{a list}
+\item{fn}{a function, providing the functional relationship between a model
+variable (the function's output) and its predicting factors (the function's
+arguments). \strong{Note:} Default argument values in \code{fn} are ignored. Values
+for inputs must be provided via \code{args_spec}.}
 
-\item{fn_cmp}{compiled \code{fn}, resulting from applying e.g. \code{build_cost_fn()}
-to \code{fn}}
+\item{args_spec}{a list containing <\code{\linkS4class{ArgSpec}}> objects and/or \code{name = value} pairs, one for each argument of \code{fn}. See \strong{Details} for shortcuts
+to facilitate the specification of different types of \verb{<ArgSpec>}.}
+
+\item{units}{character string defining the output units of \code{fn}. Units must
+be recognized by the \code{\link[units:valid_udunits]{units::valid_udunits()}} database.}
+
+\item{fn_cmp}{a compiled version \code{fn}, resulting from applying e.g.
+\code{build_cost_fn()} to \code{fn}.}
 }
 \description{
-Create a \verb{<VarFn>} object
+Construct an instance of a <\code{\linkS4class{VarFn}}> object, which declares the
+functional properties of a variable of interest to be used in the IBM
+simulation.
+}
+\details{
+A \verb{<VarFn>} object declares the relationship between a response variable and
+its explanatory variables, allowing to define model variables that are
+dependent on the
+\subsection{Shortcuts for \code{args_spec}#'}{
+}
+}
+\seealso{
+\code{\link[=ArgSpec]{ArgSpec()}} for creating \verb{<ArgSpec>} objects.
 }

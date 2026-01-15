@@ -1,13 +1,24 @@
 #' Class `<VarFn>`
 #'
-#' `<VarFn>` is an S4 class that describes the functional properties of a
-#' variable of interest. It enables the specification of a variable as a
-#' function of one or more predictors through an expression, thereby describing
-#' the relationship between the variable and its explanatory factors. This
-#' provides a structured approach to incorporating dynamic dependencies between
-#' model components. This class extends from the [`VarDist-class`] class,
-#' inheriting its slots.
+#' `<VarFn>` is an S4 class that declares the functional properties of a
+#' variable of interest to be used in the IBM simulation.
 #'
+#' It enables the specification of a variable as a function of one or more
+#' predictors through an expression, thereby describing the relationship between
+#' the variable and its explanatory factors. This provides a structured approach
+#' to incorporating dynamic dependencies between model components. This class
+#' extends from the [`VarDist-class`] class, inheriting its slots.
+#'
+#' @slot fn a function, providing the functional relationship between a model
+#'   variable and predicting factors.
+#' @slot args_spec a list of <[`ArgSpec-class`]> objects, one for each argument
+#'   of `fn`.
+#' @slot units character string defining the output units of `fn`. Units must
+#'   be recognized by the [units::valid_udunits()] database.
+#' @slot fn_cmp compiled version `fn`, resulting from applying e.g.
+#'   `build_cost_fn()` to `fn`.
+#'
+#' @seealso Helper function [VarFn()] to construct `<VarFn>` objects.
 #'
 setClass(
   "VarFn",
@@ -26,12 +37,33 @@ setClass(
 
 
 
-
 #' Create a `<VarFn>` object
 #'
-#' @param args_spec a list
-#' @param fn_cmp compiled `fn`, resulting from applying e.g. `build_cost_fn()`
-#'   to `fn`
+#' Construct an instance of a <[`VarFn-class`]> object, which declares the
+#' functional properties of a variable of interest to be used in the IBM
+#' simulation.
+#'
+#' @param fn a function, providing the functional relationship between a model
+#'   variable (the function's output) and its predicting factors (the function's
+#'   arguments). **Note:** Default argument values in `fn` are ignored. Values
+#'   for inputs must be provided via `args_spec`.
+#' @param args_spec a list containing <[`ArgSpec-class`]> objects and/or `name =
+#'   value` pairs, one for each argument of `fn`. See **Details** for shortcuts
+#'   to facilitate the specification of different types of `<ArgSpec>`.
+#' @param units character string defining the output units of `fn`. Units must
+#'   be recognized by the [units::valid_udunits()] database.
+#' @param fn_cmp a compiled version `fn`, resulting from applying e.g.
+#'   `build_cost_fn()` to `fn`.
+#'
+#' @seealso [ArgSpec()] for creating `<ArgSpec>` objects.
+#'
+#' @details
+#' A `<VarFn>` object declares the relationship between a response variable and
+#' its explanatory variables, allowing to define model variables that are
+#' dependent on the
+#'
+#'
+#' ## Shortcuts for `args_spec`
 #'
 #' @export
 VarFn <- function(fn = NULL,
@@ -202,6 +234,44 @@ setMethod("fn_cmp<-", "VarFn", function(x, value) {
   validObject(x)
   x
 })
+
+
+
+## Show ------------------------------------
+
+setMethod("show", "VarFn", function(object) {
+
+  cli::cat_line(c(
+    cli::format_message("{.cls {class(object)}}"),
+    #"",
+    paste0(capture.output(object@fn)),
+    "",
+    "Args:"
+  ))
+
+  cli::cat_bullet(
+    lapply(object@args_spec, format_argspec),
+    #bullet = "arrow_right"
+    bullet_col = "blue"
+  )
+
+  #browser()
+
+  if(object@units != ""){
+    cli::cat_line(
+      paste0(
+        "\nOutput units: ",
+        paste0("[", units::deparse_unit(units::as_units(object@units)), "]")
+      )
+    )
+  }
+
+  # if(!is.na(object@distr)){
+  #   cli::cat_line(paste0("Process error: ",  sub("\\[1\\] ", "", capture.output(object@distr)[2])))
+  # }
+
+})
+
 
 
 ## Other ----

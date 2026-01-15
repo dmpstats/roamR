@@ -5,14 +5,32 @@
 \alias{VarFn-class}
 \title{Class \verb{<VarFn>}}
 \description{
-\verb{<VarFn>} is an S4 class that describes the functional properties of a
+\verb{<VarFn>} is an S4 class that declares the functional properties of a
 variable of interest to be used in the IBM simulation.
 }
 \details{
-It enables the specification of a variable as a
-function of one or more predictors through an expression, thereby describing
-the relationship between the variable and its explanatory factors. This
-provides a structured approach to incorporating dynamic dependencies between
-model components. This class extends from the \code{\linkS4class{VarDist}} class,
-inheriting its slots.
+It enables the specification of a variable as a function of one or more
+predictors through an expression, thereby describing the relationship between
+the variable and its explanatory factors. This provides a structured approach
+to incorporating dynamic dependencies between model components. This class
+extends from the \code{\linkS4class{VarDist}} class, inheriting its slots.
+}
+\section{Slots}{
+
+\describe{
+\item{\code{fn}}{a function, providing the functional relationship between a model
+variable and predicting factors.}
+
+\item{\code{args_spec}}{a list of <\code{\linkS4class{ArgSpec}}> objects, one for each argument
+of \code{fn}.}
+
+\item{\code{units}}{character string defining the output units of \code{fn}. Units must
+be recognized by the \code{\link[units:valid_udunits]{units::valid_udunits()}} database.}
+
+\item{\code{fn_cmp}}{compiled version \code{fn}, resulting from applying e.g.
+\code{build_cost_fn()} to \code{fn}.}
+}}
+
+\seealso{
+Helper function \code{\link[=VarFn]{VarFn()}} to construct \verb{<VarFn>} objects.
 }
