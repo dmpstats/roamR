@@ -19,25 +19,30 @@ ArgSpec(
 \item{name}{character, the name of the argument. If an empty string (\code{""}), an
 empty \verb{<ArgSpec>} object is returned, regardless of other inputs.}
 
-\item{type}{character, the expected type of argument within the \code{{roamR}} context.
-Must be one of:
+\item{type}{character, the expected type of argument within roamR's IBM
+context. Must be one of:
 \itemize{
-\item \code{"driver"}: refers to an argument linked to an existing driver.
-\item \code{"body_mass"}: relates to the agent’s body mass.
-\item \code{"time_at_state"}: used for arguments related to the time spent by the agent
+\item \code{"driver"}: An argument linked to an existing driver; its value is
+determined by the agent's status (e.g. location) at the current simulation
+step.
+\item \code{"body_mass"}: Refers to the agent’s body mass at the current simulation step.
+\item \code{"time_at_state"}: An argument related to time spent by the agent
 in a given state during the current simulation time step.
-\item \code{"constant"}: the argument has a fixed value across simulations.
-\item \code{"random"}: the argument is drawn from a probability distribution.
+\item \code{"constant"}: The argument has a fixed value across simulations.
+\item \code{"random"}: The argument is stochastic, i.e. it's value is dictated by a
+probability distribution.
 }}
 
 \item{distr}{a \verb{<distributional>} object describing the probability
 distribution of the argument's values. Required only if \code{type = "random"}.}
 
-\item{value}{the fixed value assigned to the argument. Required only if \code{type = "constant"}.}
+\item{value}{the fixed value assigned to the argument. Required only if `type
+= "constant".}
 
-\item{units}{character string defining the measurement unit for the
-argument, either by name (e.g. \code{"grams"}) or symbol (e.g. \code{"m/s"}).  Units
-must be recognized by the \code{\link[units:valid_udunits]{units::valid_udunits()}} database. Defaults to:
+\item{units}{character string defining the measurement unit for the argument
+within the function, either by name (e.g. \code{"grams"}) or abbreviation (e.g.
+\code{"m/s"}).  Units must be recognized by the \code{\link[units:valid_udunits]{units::valid_udunits()}}
+database. Defaults to:
 \itemize{
 \item "grams" if \code{type = "body_mass"}
 \item "minutes" if \code{type = "time_at_state"}.
@@ -46,12 +51,12 @@ must be recognized by the \code{\link[units:valid_udunits]{units::valid_udunits(
 \item{driver_id}{character string, the ID of a driver associated with the argument
 (used when \code{type = "driver"}). This must match the ID of a \verb{<Driver>} object
 available during model initialization via \code{rmr_initiate()}. If not defined,
-defaults to \code{name}. For all other types, the associated slot \verb{@driver_id} is
+defaults to \code{name}. For all other \code{type}s, the associated slot \verb{@driver_id} is
 set to \code{NA}.}
 
 \item{state_id, }{character, required if \code{type = "time_at_state"}; specifies
 the ID of the referred state. Assumes the existence of a \verb{<State>}
-object with a matching ID during the IBM's initialization phase (via
+object with a matching ID during the IBM's initialization stage (via
 \code{rmr_initiate()}).}
 
 \item{description}{character string, a brief explanation of the argument's
@@ -59,9 +64,8 @@ purpose.}
 }
 \description{
 Helper function to construct an instance of a <\code{\linkS4class{ArgSpec}}> object,
-which defines the metadata of a function's argument, including its name,
-expected type, default value, description, and (if applicable) its
-probability distribution and measurement units.
+which defines the properties of a function's argument, including its name,
+default value, probability distribution, measurement units, etc.
 }
 \examples{
 

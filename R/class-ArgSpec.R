@@ -2,28 +2,33 @@
 #'
 #' An S4 class for specifying the characteristics of a function argument.
 #'
-#' `<ArgSpec>` defines the metadata of a function's argument, including its
-#' name, expected type, default value, description, and (if applicable) its
-#' probability distribution and measurement units.
+#' `<ArgSpec>` defines the properties of a function's argument, such as its
+#' name, type, value or probability distribution, measurement units and general
+#' description.
 #'
 #' At a lower level,`<ArgSpec>` interacts with the [`VarFn-class`] class to
-#' define input parameters for a user-defined function. At a higher level, it
-#' supports `{roamR}`'s **IBM definition** by linking functions arguments to the
-#' broader simulation infrastructure.
+#' define parameters for user-specified function that determine the value of a
+#' model variable at each simulation iteration. At a higher level, it ensures
+#' model robustness linking function arguments to the IBM's simulation
+#' infrastructure.
 #'
 #'
 #' @slot name character, the name of the argument.
 #'
-#' @slot type character, the expected type of argument within the `{roamR}`
+#' @slot type character, the expected type of argument within roamR's IBM
 #'   context. Must be one of:
-#'    - `"driver"`: refers to an argument linked to an existing driver.
-#'    - `"body_mass"`: relates to the agent’s body mass.
-#'    - `"time_at_state"`: used for arguments related to the time spent by the agent
-#'     in a given state during the current simulation time step.
-#'    - `"constant"`: the argument has a fixed value across simulations.
-#'    - `"random"`: the argument is drawn from a probability distribution.
+#'    - `"driver"`: An argument linked to an existing driver; its value is
+#'    determined by the agent's status (e.g. location) at the current simulation
+#'    step.
+#'    - `"body_mass"`: Refers to the agent’s body mass at the current simulation step.
+#'    - `"time_at_state"`: An argument related to time spent by the agent
+#'   in a given state during the current simulation time step.
+#'    - `"constant"`: The argument has a fixed value across simulations.
+#'    - `"random"`: The argument is stochastic and it's value is dictated by a
+#'    probability distribution.
 #'
-#' @slot value the value assigned to the argument.
+#' @slot value the fixed value assigned to the argument. Required only if `type
+#'   = "constant"`.
 #'
 #' @slot driver_id character, required if `type = "driver"`; specifies the ID
 #'   assigned to a given driver. This assumes the existence of a `<Driver>`
@@ -81,43 +86,46 @@ methods::setClass(
 #' Create a `<ArgSpec>` object
 #'
 #' Helper function to construct an instance of a <[`ArgSpec-class`]> object,
-#' which defines the metadata of a function's argument, including its name,
-#' expected type, default value, description, and (if applicable) its
-#' probability distribution and measurement units.
+#' which defines the properties of a function's argument, including its name,
+#' default value, probability distribution, measurement units, etc.
 #'
 #' @param name character, the name of the argument. If an empty string (`""`), an
 #'   empty `<ArgSpec>` object is returned, regardless of other inputs.
 #'
-#' @param type character, the expected type of argument within the `{roamR}` context.
-#'  Must be one of:
-#'    - `"driver"`: refers to an argument linked to an existing driver.
-#'    - `"body_mass"`: relates to the agent’s body mass.
-#'    - `"time_at_state"`: used for arguments related to the time spent by the agent
-#'     in a given state during the current simulation time step.
-#'    - `"constant"`: the argument has a fixed value across simulations.
-#'    - `"random"`: the argument is drawn from a probability distribution.
+#' @param type character, the expected type of argument within roamR's IBM
+#'   context. Must be one of:
+#'    - `"driver"`: An argument linked to an existing driver; its value is
+#'    determined by the agent's status (e.g. location) at the current simulation
+#'    step.
+#'    - `"body_mass"`: Refers to the agent’s body mass at the current simulation step.
+#'    - `"time_at_state"`: An argument related to time spent by the agent
+#'   in a given state during the current simulation time step.
+#'    - `"constant"`: The argument has a fixed value across simulations.
+#'    - `"random"`: The argument is stochastic, i.e. it's value is dictated by a
+#'    probability distribution.
 #'
 #' @param distr a `<distributional>` object describing the probability
 #'   distribution of the argument's values. Required only if `type = "random"`.
 #'
 #' @param value the fixed value assigned to the argument. Required only if `type
-#'   = "constant"`.
+#'   = "constant".
 #'
-#' @param units  character string defining the measurement unit for the
-#'   argument, either by name (e.g. `"grams"`) or symbol (e.g. `"m/s"`).  Units
-#'   must be recognized by the [units::valid_udunits()] database. Defaults to:
+#' @param units character string defining the measurement unit for the argument
+#'   within the function, either by name (e.g. `"grams"`) or abbreviation (e.g.
+#'   `"m/s"`).  Units must be recognized by the [units::valid_udunits()]
+#'   database. Defaults to:
 #'  * "grams" if `type = "body_mass"`
 #'  * "minutes" if `type = "time_at_state"`.
 #'
 #' @param driver_id character string, the ID of a driver associated with the argument
 #'   (used when `type = "driver"`). This must match the ID of a `<Driver>` object
 #'   available during model initialization via `rmr_initiate()`. If not defined,
-#'   defaults to `name`. For all other types, the associated slot `@driver_id` is
+#'   defaults to `name`. For all other `type`s, the associated slot `@driver_id` is
 #'   set to `NA`.
 #'
 #' @param state_id, character, required if `type = "time_at_state"`; specifies
 #'   the ID of the referred state. Assumes the existence of a `<State>`
-#'   object with a matching ID during the IBM's initialization phase (via
+#'   object with a matching ID during the IBM's initialization stage (via
 #'   `rmr_initiate()`).
 #'
 #' @param description character string, a brief explanation of the argument's
@@ -283,4 +291,60 @@ methods::setValidity("ArgSpec", function(object) {
 
 
 
+# Methods ------------------------------------------------------------
 
+## Show ------------------------------------
+
+setMethod("show", "ArgSpec", function(object) {
+
+  cli::cat_line(c(
+    cli::format_message("{.cls {class(object)}}"),
+    format_argspec(object)
+  ))
+
+})
+
+
+
+# utility for formatting <ArgSpec>
+format_argspec <- function(object){
+
+  # @name
+  name_txt <- paste0("`", object@name, "`")
+
+  # @units
+  units_txt <- if(object@units == ""){
+    ""
+  } else{
+    paste0(" [", units::deparse_unit(units::as_units(object@units)), "]") |>
+      cli::col_grey()
+  }
+
+  spec_txt <- if(object@type == "constant"){
+    object@value
+  } else if(object@type == "random"){
+    sub("\\[1\\] ", "", capture.output(object@distr)[2])
+  } else if(object@type == "driver"){
+    cli::format_message("driver {.val {object@driver_id}} evaluated at current step")
+  } else if(object@type == "body_mass"){
+    cli::format_message("agent's body mass at current step")
+  } else if(object@type == "time_at_state"){
+    cli::format_message("time spent on state {.val {object@state_id}} at current step")
+  }
+
+  sep_text <- ": "
+  #sep_text <- ifelse(object@type == "random", " ~ ", " = ")
+
+  argspec_txt <- paste0(name_txt, sep_text, spec_txt, units_txt)
+
+  # @description
+  descr_txt <- paste0("Description: ", object@description) |>
+    cli::col_grey() |>
+    cli::style_italic()
+
+  if(!is.na(object@description)){
+    argspec_txt <- paste0(argspec_txt, "\n", descr_txt)
+  }
+
+  argspec_txt
+}

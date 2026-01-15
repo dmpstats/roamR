@@ -8,32 +8,36 @@
 An S4 class for specifying the characteristics of a function argument.
 }
 \details{
-\verb{<ArgSpec>} defines the metadata of a function's argument, including its
-name, expected type, default value, description, and (if applicable) its
-probability distribution and measurement units.
+\verb{<ArgSpec>} defines the properties of a function's argument, such as its
+name, type, value or probability distribution, measurement units and general
+description.
 
 At a lower level,\verb{<ArgSpec>} interacts with the \code{\linkS4class{VarFn}} class to
-define input parameters for a user-defined function. At a higher level, it
-supports \code{{roamR}}'s \strong{IBM definition} by linking functions arguments to the
-broader simulation infrastructure.
+define parameters for user-specified function that determine the value of a
+model variable at each simulation iteration. At a higher level, it ensures
+model robustness linking function arguments to the IBM's simulation
+infrastructure.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{name}}{character, the name of the argument.}
 
-\item{\code{type}}{character, the expected type of argument within the \code{{roamR}}
+\item{\code{type}}{character, the expected type of argument within roamR's IBM
 context. Must be one of:
 \itemize{
-\item \code{"driver"}: refers to an argument linked to an existing driver.
-\item \code{"body_mass"}: relates to the agent’s body mass.
-\item \code{"time_at_state"}: used for arguments related to the time spent by the agent
+\item \code{"driver"}: An argument linked to an existing driver; its value is
+determined by the agent's status (e.g. location) at the current simulation
+step.
+\item \code{"body_mass"}: Refers to the agent’s body mass at the current simulation step.
+\item \code{"time_at_state"}: An argument related to time spent by the agent
 in a given state during the current simulation time step.
-\item \code{"constant"}: the argument has a fixed value across simulations.
-\item \code{"random"}: the argument is drawn from a probability distribution.
+\item \code{"constant"}: The argument has a fixed value across simulations.
+\item \code{"random"}: The argument is stochastic and it's value is dictated by a
+probability distribution.
 }}
 
-\item{\code{value}}{the value assigned to the argument.}
+\item{\code{value}}{the fixed value assigned to the argument. Required only if \code{type = "constant"}.}
 
 \item{\code{driver_id}}{character, required if \code{type = "driver"}; specifies the ID
 assigned to a given driver. This assumes the existence of a \verb{<Driver>}
