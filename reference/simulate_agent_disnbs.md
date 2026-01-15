@@ -55,5 +55,5 @@ Notes to expand:
   each track
 
 - once agent gets to a track's endpoint, it stays there until the
-  following rerouting step, relardless of of the travelling distance
-  returned from the states
+  following rerouting step, regardless of of the travelling distance
+  returned from the states.

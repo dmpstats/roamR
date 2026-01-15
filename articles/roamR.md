@@ -8,7 +8,7 @@ library(roamR)
 
 ## Introduction
 
-This article provides a fast-track nahds-on demonstration of how to
+This article provides a fast-track hands-on demonstration of how to
 build an Individual-Based Model (IBM) using roamR. We’ll walk through a
 mock example featuring an imaginary population in a hypothetical habitat
 to illustrate the core workflow. In this example, we’ll use the
@@ -51,19 +51,18 @@ summarised in the following steps:
 In the following sections, we’ll go over each of these steps and build
 our own IBM from scratch. Buckle up!
 
-## The *Turtwick* IBM: a baseline scenario
+## The *Turtwick* IBM: the baseline scenario
 
-In this demonstrative example, we’ll focus on a hypothetical species,
-the *Turtwick*, which inhabits a grassland area expected to be altered
-by the introduction of man-made structures. From previous observations,
-we know that *turtwicks* tend to avoid such structures, often showing
-displacement behaviour in response to their presence.
+In this example, we focus on a hypothetical species, the *Turtwick*,
+which inhabits grassland areas expected to be altered by the
+introduction of man-made structures. Previous observations indicate that
+*turtwicks* tend to avoid such structures, often showing displacement
+behaviour in response to their presence.
 
 We also know that the species’ body mass and activity behaviours (here
 referred to as **states**) are influenced by surface temperature and
-vegetation index. *turtwicks* are diurnal: individuals remain completely
-inactive at night, resting in any nearby, reasonably safe location where
-they stop by the end of the day.
+vegetation index. *Turtwicks* are diurnal: individuals remain completely
+inactive at night, resting in a nearby safe location once the sun sets.
 
 ### 1. Model Configuration
 
@@ -74,32 +73,15 @@ function:
 
 ``` r
 turtwick_ibm_cfg <- ModelConfig(
+  movement_type = "di",
   n_agents = 100,
   ref_sys = sf::st_crs(32630), 
   aoc_bbx = c(0, 0, 10000, 10000), 
-  delta_x = 250, 
-  delta_y = 250, 
   delta_time = "1 day", 
   start_date = as.Date("2025-01-01"), 
   end_date = as.Date("2025-02-01")
 )
-```
 
-In plain terms, this configuration defines a model in which we:
-
-- track the movement and life history of **100** *turtwicks*
-  (`n_agents`)
-- use the **UTM 30N** coordinate reference system (`ref_sys`)
-- constrain movement within a **10x10 km** area of calculation with
-  origin at **(0,0)**, using a spatial resolution of **250x250 m** cells
-  (`delta_x` and `delta_y`)
-- simulate the population from 1 January to 1 February 2025, in daily
-  time steps (`delta_time`, `start_date`, `end_date`)
-
-You can inspect the configuration details by calling the created
-`turtwick_ibm_cfg` object:
-
-``` r
 turtwick_ibm_cfg
 #> <ModelConfig> instance with attributes:
 #> • Movement Model:      Density-informed
@@ -111,6 +93,21 @@ turtwick_ibm_cfg
 #> • Start site:          NA
 #> • End site:            NA
 ```
+
+In plain terms, this configuration sets up a model where we:
+
+- Simulate the movement and life history of **100** *turtwicks*
+  (`n_agents`) from 1 January to 1 February 2025, using daily time steps
+  (`delta_time`, `start_date`, `end_date`).
+
+- Use the **UTM 30N** coordinate reference system (`ref_sys`).
+
+- Restrict movement to a **10x10 km** area of calculation (AOC) with its
+  origin at **(0,0)**, using a spatial resolution of **250x250 m** cells
+  (`delta_x` and `delta_y`)
+
+- Initialise agents at random locations within the AOC, allowing them to
+  end up anywhere inside this area by the end of the simulation.
 
 ### 2. Species Definition
 
