@@ -35,7 +35,7 @@ be unitless.}
 
 \seealso{
 \itemize{
-\item Helper function \code{\link[=VarDist]{VarDist()}} to construct \verb{<varDist>} objects.
+\item Helper function \code{\link[=VarDist]{VarDist()}} to construct \verb{<VarDist>} objects.
 \item Package \link[distributional:distributional-package]{distributional} for access to and details
 on a comprehensive selection of distributions.
 }

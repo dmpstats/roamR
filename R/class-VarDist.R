@@ -25,7 +25,7 @@
 #' processed correctly during simulation calculations.
 #'
 #' @seealso
-#'  * Helper function [VarDist()] to construct `<varDist>` objects.
+#'  * Helper function [VarDist()] to construct `<VarDist>` objects.
 #'  * Package [distributional][distributional::distributional] for access to and details
 #' on a comprehensive selection of distributions.
 #'
@@ -259,8 +259,9 @@ methods::setMethod("generate", "VarDist", function(x, times = 1){
 #' @description
 #' - `parameters()` returns the parameters that define variable's distribution.
 #'
-#'
 #' @include s4_utils.R
+#'
+#' @export
 methods::setMethod("parameters", "VarDist", function(x){
   distributional::parameters(x@distr)
 })
@@ -276,7 +277,7 @@ methods::setMethod("parameters", "VarDist", function(x){
 #' @examples
 #'
 #' # create a VarDist object
-#' speed <- VarDist(distributional::dist_normal(10, 0.5), "m/s")
+#' speed <- VarDist(dist_normal(10, 0.5), "m/s")
 #'
 #' # get slot `units`
 #' units(speed)
