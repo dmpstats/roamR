@@ -99,7 +99,7 @@ Note: although roamR can operate with minimal data inputs - illustrated in the a
 
 ## IBM configuration
 
-The broad configuration of the IBM is specified via the function `ModelConfig()`. In the interest of speed, the example simulation here will not be large in terms of the number of agents to run - we'll opt for few agents (`n_agents`), whereas a typical run would usually involve several thousands of individuals. For guillemots, the non-breeding season spans roughly 9 months beginning in early July, which we specify using the `start_date` and `end_date` arguments. We set the temporal resolution to one-day time steps (`delta_time`), meaning that agent state updates - such as energetics balancing and movement decisions - are evaluated on a daily basis.
+The broad configuration of the IBM is specified via the function `ModelConfig()`. In the interest of speed, the example simulation here will not be large in terms of the number of agents to run - we'll opt for few agents (`n_agents`), whereas a typical run would usually involve several thousands of individuals. For guillemots, the non-breeding season spans roughly 9 months beginning in early July, which we specify using the `start_date` and `end_date` arguments. We set the temporal resolution to one-day time steps (`delta_time`), meaning that agent state updates - such as activity balancing and movement decisions - are evaluated on a daily basis.
 
 We'll opt to our simulation to operate on the UTM 30N coordinate system (`ref_sys`), which forms the basis for ingesting, projecting and aligning all the spatial inputs throughout the model workflow.
 
@@ -139,11 +139,14 @@ In terms of bounding the simulation spatially, we've opted for a semi-arbitrary 
 AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 ```
 
+In this case study, we adopt the _density-informed_ movement model (`movement_type`, refer guidance document), under which species-level density maps influence agent movement by providing a spatio-temporal varying preference surface. 
+
 Passing the above configuration inputs to `ModelConfig()` creates a `<ModelConfig>` object, which we assigned to `guill_ibm_config`:
 
 ```{r ibm-config}
 # IBM Settings - assume fixed for these simulations
 guill_ibm_config <- ModelConfig(
+  movement_type = "di",
   n_agents = 4,
   ref_sys = utm30,
   aoc_bbx = AoC,
@@ -156,14 +159,13 @@ guill_ibm_config <- ModelConfig(
 guill_ibm_config
 ```
 
-## Driver information - specifying the environment
+## Driver information: specifying the environment
 
-Drivers define the environment that agents may interact with or respond, with each driver being specified via the `Driver()` function. The scope of these will be defined by the level of knowledge for the species in hand - at the minimum the agents would not be responsive to the environment. Any environmental component that can/will be functionally linked to the animal's behaviour (activity states or movement) or their energetics, must be included in the definition of the environment via the drivers.
+In roamR, *drivers* define the environmental context with which agents may interact with or to which they may respond. Each driver is defined by a `<Driver>` object, which can be created using the `Driver()` function. The scope of these will be defined by the level of knowledge for the species of interest - at the minimum the agents would not be responsive to the environment. Any environmental component that can/will be functionally linked to the animal's behaviour (activity states or movement) or their energetic expenditures, must be included in the definition of the environment via the drivers.
 
+In this application to the common guillemot, the following drivers are required - all provided as spatio-temporal datacubes (2D rasters giving values for $x, y$ locations over time $t$) so the agents can query their environment at any $x, y, t$:
 
-In this application to the common guillemot, the following drivers are required - all provided as spatio-temporal datacubes (2D rasters giving values for $x, y$ locations over $t$ times) so the agents can query their environment at any $x, y, t$:
-
-* Monthly species density surfaces, for both baseline and impacted scenarios (@Buckingham2023). These give monthly density predictions around the UK at a 10 sq-km resolution (with bootstrap uncertainties).
+* Monthly species density surfaces, for both baseline and impacted scenarios [@Buckingham2023]. These give monthly density predictions around the UK at a 10 km^2 resolution (with bootstrap uncertainties).
 * Monthly energy intake maps (kJ/h), for both baseline and impacted scenarios based on density maps above, and conspecifics (other Guillemots, refer below).
 * Monthly average Sea Surface Temperature (SST) maps (National Oceanic and Atmospheric Administration/NOAA [here](https://downloads.psl.noaa.gov/Datasets/noaa.oisst.v2.highres/)).
 
@@ -173,7 +175,7 @@ We begin by uploading these datacubes, assigning measurement units where they ar
 
  
 ```{r read-drivers}
-# driver spatial surfaces
+# upload available spatial surfaces
 
 spec_map <- readRDS("data/bioss_spec_map.rds") |> 
    mutate(density =  units::set_units(density, "counts"))
@@ -192,7 +194,14 @@ sst_map <- readRDS("data/bioss_sst_stars.rds") |>
 
 ```
 
-Next we specify the corresponding drivers, and stored them as a list of `<Driver>` objects. Collectively these define the environment the agents will move through. This is very flexible, and can comprise of coastal polygons, OWF footprints, prey-fields etc. Here we're providing sea surface temperature animal density surfaces, and maps that reflect the energy Note here we're adopting the _density-informed_ movement model (refer guidance document) which uses density maps for location preference. The feasible locations are defined by the density surfaces (so coast is implicit), and OWF are similarly implicit in the "impact" density surfaces, where OWF-sensitive agents avoid developments.
+Next we specify the corresponding drivers, and stored them as a list of `<Driver>` objects. Collectively these define the environment the agents will move through. This is very flexible, and lists can comprise coastal polygons, OWF footprints, prey-fields etc. 
+
+Here we're providing sea surface temperature, animal density surfaces, and maps that reflect the energy.
+
+Note here we're adopting the _density-informed_ movement model (refer guidance document) which uses density maps for location preference. 
+
+The feasible locations are defined by the density surfaces (so coast is implicit), and OWF are similarly implicit in the "impact" density surfaces, where OWF-sensitive agents avoid developments.
+
 
 Here the energetics maps reflect an Ideal Free Distribution (IFD) in the unimpacted case i.e. the agent's energy requirements are met on average - their distribution reflects the underlying resource. The impacted energy maps reflect displacement from the OWF footprints, including the conspecifics, meaning a proportional reduction in the IFD due to competition from other guillemot e.g. twice as many individuals means 1/2 the resource.
 
@@ -200,6 +209,7 @@ Here the energetics maps reflect an Ideal Free Distribution (IFD) in the unimpac
 ```{r set-driverobj}
 # Set up IBM drivers 
 
+# guillemot baseline density maps
 dens_drv <- Driver(
   id = "dens",
   type = "resource",
@@ -208,6 +218,7 @@ dens_drv <- Driver(
   obj_active = "stars"
 )
 
+# guillemot impacted density maps
 dens_imp_drv <- Driver(
   id = "dens_imp",
   type = "resource",
@@ -216,6 +227,7 @@ dens_imp_drv <- Driver(
   obj_active = "stars"
 )
 
+# baseline energy intake maps
 energy_drv <- Driver(
   id = "energy",
   type = "resource",
@@ -224,6 +236,7 @@ energy_drv <- Driver(
   obj_active = "stars"
 )
 
+# impacted energy intake maps
 imp_energy_drv <- Driver(
   id = "imp_energy",
   type = "resource",
@@ -233,6 +246,7 @@ imp_energy_drv <- Driver(
 )
 
 
+# Sea Surface Temperature 
 sst_drv <- Driver(
   id = "sst",
   type = "habitat",
@@ -242,7 +256,7 @@ sst_drv <- Driver(
 )
 
 
-# store as list for initialisation
+# store as list, for initialisation
 guill_drivers <- list(
   dens = dens_drv,
   imp_dens = dens_imp_drv,
