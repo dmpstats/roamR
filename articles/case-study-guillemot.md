@@ -27,83 +27,112 @@ guillemot density surface. Density is clipped to the AoC, windfarms are
 the light blue boxes. Anything beyond the AoC boundaries are excluded
 from calculations**
 
-The overall intention is to quantify the effects of potential
-displacement from these developments, based on counterfactual
-comparisons of animal’s condition under these scenarios. In keeping with
-the architecture of the roamR package, the following main components
-will be populated:
+ 
 
-- **IBM general settings** (`<ModelConfig>`) sundry high-level controls
-  for the simulation, such as the number of agents, broad spatial
-  boundaries, spatial projections, time-steps, start & finish dates.
-- **Species-level information** (`<Species>`) such as distributions
-  governing initial body mass, what behavioural states are possible,
-  movement parameters, and how agents respond to their environment
-  e.g. avoidance of windfarms or landmass, costs associated with
-  activity.
-- **Drivers** (`<Driver>`) descriptions/data that define the environment
-  that agents may interact with or respond to e.g. sea surface
-  temperatures, locations of windfarms, coastlines, prey fields etc.
+The overall aim is to quantify the effects of potential displacement
+from these OWF developments, based on counterfactual comparisons of
+animal’s condition under the two scenarios. In line with the
+architecture of the roamR package, the simulation requires specifying
+the following main components:
 
-The extent to which these can be reliably populated will obviously vary,
-with the guillemot chosen here as a population that is relatively well
-studied. roamR is intentionally general and has substantial
-functionality that will not be used in a simulation. We will populate
-various elements of the simulation in turn, before turning to running
-the simulation and post-processing the results.
+- **IBM configuration** (`<ModelConfig>`)
 
-## Input data
+  Sundry high-level simulation controls, including the number of agents,
+  spatial extent and geographic projection, temporal resolution, start
+  and end dates of the model run.
 
-As a relatively well-studied species/population, there are many roamR
-elements to populate. Mainly these are:
+- **Species-level information** (`<Species>`)
+
+  Parameters describing the species’ biology and ecology, such as
+  distributions for initial body mass, available activity states and
+  associated energetic costs, movement parameters, how agents respond to
+  environmental conditions and barriers, etc.
+
+- **Drivers** (`<Driver>`)
+
+  Descriptions/data that define the environment that agents may interact
+  with or respond to e.g. population density maps, sea surface
+  temperatures, OWF locations, coastlines, etc.
+
+The extent to which these can be reliably populated will obviously vary
+across species and regions. The Isle of May Guillemot population is used
+here as case study due to the availability of relatively rich supporting
+data.
+
+The roamR infrastructure is intentionally general and flexible, and many
+of its broader capabilities are not required for this example. In the
+following sections, we will systematically populate the relevant IBM
+components, before running the simulation and post-processing the
+results.
+
+## Settting up the IBM
+
+We begin by defining the model settings and specifying the inputs
+required to initialise an IBM for this case study using roamR.
+
+### Data Availability
+
+As a relatively well-studied species/population, many roamR components
+can be populated using available data. In this vignette, we draw on:
 
 - Density maps
 - SST
 - Activity data
 - Energetics
-- Bodyweight
-- body mass conversion
+- Species’ bodyweight distributions
+- Body mass conversion
 
-which will be a) described in detail and b) specified in roamR forms in
-the following sections. roamR can be run with very little data (an
-example of a more data sparse species is given in the alternative test
-case of red-throated divers), with the results being correspondingly
-less informative and more stochastic.
+These datasets are (a) described in detail and (b) implemented in
+appropriate roamR object classes in the following sections.
+
+Note: although roamR can operate with minimal data inputs - illustrated
+in the alternative test case for red‑throated divers - results in such
+cases will be inherently more uncertain and more strongly driven by
+stochastic variation.
 
 ### IBM configuration
 
 The broad configuration of the IBM is specified via the function
-[`ModelConfig()`](https://dmpstats.github.io/roamR/reference/ModelConfig.md).In
-the interest of speed, the example simulation here will not be large in
-terms of the number of agents to run - we’ll opt for few agents
-(`n_agents`), whereas a typical run would be 1000s. The non-breeding
-season for these animals runs from approximately start of July for 9
-months (`start_date`, `end_date`). We’ll opt for a uniform 1km^2 spatial
-resolution (`x_delta`, `y_delta`) and have everything operate on the UTM
-30N coordinate system (`ref_sys`). This will be the basis of ingesting
-and aligning the general spatial inputs. Note: the package currently
-requires all spatial inputs (e.g. density maps) to be provided in a
-common Coordinate Reference System (CRS) [¹](#fn1). The
-[sf](https://r-spatial.github.io/sf/) package is generally used for
-dealing with spatial data (and the interlinked
-[stars](https://r-spatial.github.io/stars/) package for spatiotemporal).
+[`ModelConfig()`](https://dmpstats.github.io/roamR/reference/ModelConfig.md).
+In the interest of speed, the example simulation here will not be large
+in terms of the number of agents to run - we’ll opt for few agents
+(`n_agents`), whereas a typical run would usually involve several
+thousands of individuals. For guillemots, the non-breeding season spans
+roughly 9 months beginning in early July, which we specify using the
+`start_date` and `end_date` arguments. We set the temporal resolution to
+one-day time steps (`delta_time`), meaning that agent state updates -
+such as energetics balancing and movement decisions - are evaluated on a
+daily basis.
+
+We’ll opt to our simulation to operate on the UTM 30N coordinate system
+(`ref_sys`), which forms the basis for ingesting, projecting and
+aligning all the spatial inputs throughout the model workflow.
+
+Note: the [sf](https://r-spatial.github.io/sf/) package is generally
+used for dealing with spatial data , and the interlinked
+[stars](https://r-spatial.github.io/stars/) package for spatiotemporal
+information.
 
 ``` r
-# Set UTM zone 30N
+# define UTM zone 30N
 utm30 <- st_crs(32630)
 ```
 
-Agent start and end locations (`start_sites`, `end_sites`) must be
-supplied as`sf` objects containing two required columns: `id` (a unique
-site identifier) and `prop` (the proportion of agents assigned to each
-site).
+Agent starting and ending locations (`start_sites`, `end_sites`) must be
+supplied as `<sf>` objects containing two required columns:
+
+- `id`, a unique site identifier
+- `prop`, the proportion of agents assigned to each site.
 
 In this example, we use the Isle of May as the sole starting location,
-specified by its geographic coordinates (longitude/latitude). Note that
-`end_sites` is not utilised in this the simulation, meaning the movement
-model assumes agents remain at their final locations once the simulation
-ends. As noted earlier, the site must be re-projected to the common UTM
-Zone 30N coordinate reference system.
+specified as a geometric point by its geographic (longitude/latitude)
+coordinates. We do not make use of `end_sites` in this simulation;
+agents simply remain at their final positions once the simulation ends.
+
+Because
+[`ModelConfig()`](https://dmpstats.github.io/roamR/reference/ModelConfig.md)
+expects spatial inputs to match the CRS defined by `ref_sys`, the site
+must be projected to UTM Zone 30N.
 
 ``` r
 # location of colony in long/lat degrees - start/finish locations
@@ -117,14 +146,15 @@ isle_may <- st_sf(
 isle_may <- st_transform(isle_may, crs = utm30)
 ```
 
-In terms of bounding the entire simulation spatially, we’ve opted for a
+In terms of bounding the simulation spatially, we’ve opted for a
 semi-arbitrary bounding box around the Isle of May that encompasses a
 large swathe of the North Sea and far to the west of the UK, which
-covers the bulk of the guillemot density maps. Note this a hard boundary
-in terms of simulations - data outside this will have no influence.
+covers the bulk of the guillemot density maps. Importantly, this a hard
+boundary in terms of simulations - data outside this will have no
+influence.
 
 ``` r
-
+# define the Area of Calculation
 AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 ```
 
@@ -134,25 +164,29 @@ creates a `<ModelConfig>` object, which we assigned to
 `guill_ibm_config`:
 
 ``` r
-
 # IBM Settings - assume fixed for these simulations
-
 guill_ibm_config <- ModelConfig(
   n_agents = 4,
   ref_sys = utm30,
-  aoc_bbx = AoC, 
-  delta_x = 1000,
-  delta_y = 1000,
+  aoc_bbx = AoC,
   delta_time = "1 day",
-  start_date = date("2025-07-01"),
-  end_date = date("2025-07-01") + 270, 
+  start_date = lubridate::date("2025-07-01"),
+  end_date = lubridate::date("2025-07-01") + lubridate::days(9*30), # 1 month ~ 30 days
   start_sites = isle_may
 )
 
-class(guill_ibm_config)
-#> [1] "ModelConfig"
-#> attr(,"package")
-#> [1] "roamR"
+guill_ibm_config
+#> <ModelConfig> instance with attributes:
+#> • Movement Model:      Density-informed
+#> • No. Agents:          4
+#> • Simulation period:   2025-07-01 -- 2026-03-28 (270 days)
+#> • Temporal resolution: 1 day
+#> • Bounding box:        xmin: 178831  ymin: 5906535  xmax: 1174762  ymax: 6783609 [m]
+#> • Projected CRS:       WGS 84 / UTM zone 30N
+#> • Start site:          Simple feature with 1 feature and 2 fields [WGS 84 / UTM zone 30N]
+#>               id prop                     geom
+#>    1 Isle of May    1 POINT (526895.8 6226565)
+#> • End site:            NA
 ```
 
 ### Driver information - specifying the environment
@@ -209,7 +243,7 @@ sst_map <- readRDS("data/bioss_sst_stars.rds") |>
   stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
 ```
 
-Next we specify the corresponding drivers, and stored the as a list of
+Next we specify the corresponding drivers, and stored them as a list of
 `<Driver>` objects. Collectively these define the environment the agents
 will move through. This is very flexible, and can comprise of coastal
 polygons, OWF footprints, prey-fields etc. Here we’re providing sea
@@ -495,7 +529,7 @@ guill <- Species(
 )
 ```
 
-## Setting up and running the IBM
+## Run the IBM simulation
 
 Now the key components of the IBM have been specified, roamR can be used
 for the initialisation and running of the simulations.
@@ -514,29 +548,28 @@ set.seed(1009)
 
 guill_ibm <- xfun::cache_rds({
   rmr_initiate(
-  model_config = guill_ibm_config,
-  species = guill,
-  drivers = guill_drivers
-)
-
+    model_config = guill_ibm_config,
+    species = guill,
+    drivers = guill_drivers
+  )
 })
 #> ℹ Validating inputs
 #> ✔ Validating inputs [8ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [107ms]
+#> ✔ Checking spatio-temporal consistency of inputs [105ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [61ms]
+#> ✔ Processing Drivers [60ms]
 #> 
 #> ℹ Processing Activity States
-#> ✔ Processing Activity States [15ms]
+#> ✔ Processing Activity States [14ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [232ms]
+#> ✔ Initialize Agents [345ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [16ms]
+#> ✔ Initialize <IBM> object [22ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -549,7 +582,7 @@ condition through time and determining their responses to these.
 Parallelisation is dealt with (and assumed to be generally used) such
 that individual agents are piped out to independent threads of
 calculation - hence the speed of a simulation is a function of the
-number of cores available[²](#fn2).
+number of cores available[¹](#fn1).
 
 Much of the parameterisiation and data from previous sections are
 encapsulated within the `ibm` object (`guill_ibm`) passed to the
@@ -580,42 +613,42 @@ plan(multisession, workers = 2)
 
 guill_results <- xfun::cache_rds({
   run_disnbs(
-  ibm = guill_ibm,
-  run_scen = "baseline-and-impact", 
-  dens_id = "dens", 
-  intake_id = "energy", 
-  imp_dens_id = "dens_imp", 
-  imp_intake_id = "imp_energy", 
-  feed_state_id = "diving", 
-  roost_state_id = "inactive_on_water", 
-  feed_avg_net_energy = units::set_units(422, "kJ/h"), 
-  target_energy = units::set_units(1, "kJ"), 
-  smooth_body_mass = bm_smooth_opts(time_bw = "7 days"), 
-  waypnts_res = 1000, 
-  seed = 1990
-)
+    ibm = guill_ibm,
+    run_scen = "baseline-and-impact", 
+    dens_id = "dens", 
+    intake_id = "energy", 
+    imp_dens_id = "dens_imp", 
+    imp_intake_id = "imp_energy", 
+    feed_state_id = "diving", 
+    roost_state_id = "inactive_on_water", 
+    feed_avg_net_energy = units::set_units(422, "kJ/h"), 
+    target_energy = units::set_units(1, "kJ"), 
+    smooth_body_mass = bm_smooth_opts(time_bw = "7 days"), 
+    waypnts_res = 1000, 
+    seed = 1990
+  )
 
 })
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [22ms]
+#> ✔ Performing validation checks on inputs and underlying data. [21ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [193ms]
+#> ✔ Preparing and configuring data for simulation. [188ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18.6s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.2s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [16.7s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
 plan(sequential)
 ```
 
-## Digesting the results
+## Query and digest the results
 
 roamR records an extensive amount of information from its running and
 monitoring of the agents. The primary output is a list, with one element
@@ -770,7 +803,7 @@ p_bdm <- guill_history |>
 p_bdm
 ```
 
-![](case-study-guillemot_files/figure-html/unnamed-chunk-7-1.png)
+![](case-study-guillemot_files/figure-html/unnamed-chunk-4-1.png)
 
 ``` r
 
@@ -803,7 +836,7 @@ p_tracks <- guill_history |>
 p_tracks
 ```
 
-![](case-study-guillemot_files/figure-html/unnamed-chunk-8-1.png)
+![](case-study-guillemot_files/figure-html/unnamed-chunk-5-1.png)
 
 ``` r
 
@@ -827,7 +860,7 @@ p_tracks <- guill_history |>
 p_tracks
 ```
 
-![](case-study-guillemot_files/figure-html/unnamed-chunk-9-1.png)
+![](case-study-guillemot_files/figure-html/unnamed-chunk-6-1.png)
 
 ``` r
 
@@ -906,8 +939,4 @@ Climate Versus Biodiversity?” *Biodiversity and Conservation* 33
 
 ------------------------------------------------------------------------
 
-1.  functionality to homogenise CRSs across spatial inputs during model
-    initialization is expected to be implemented in roamR in the near
-    future
-
-2.  The `furrr` package handles the parallelisation
+1.  The `furrr` package handles the parallelisation

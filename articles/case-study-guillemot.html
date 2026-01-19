@@ -105,88 +105,113 @@ North Sea, against a predicted guillemot density surface. Density is
 clipped to the AoC, windfarms are the light blue boxes. Anything beyond
 the AoC boundaries are excluded from calculations</strong></div>
 </div>
-<p>The overall intention is to quantify the effects of potential
-displacement from these developments, based on counterfactual
-comparisons of animal’s condition under these scenarios. In keeping with
-the architecture of the roamR package, the following main components
-will be populated:</p>
+<p> </p>
+<p>The overall aim is to quantify the effects of potential displacement
+from these OWF developments, based on counterfactual comparisons of
+animal’s condition under the two scenarios. In line with the
+architecture of the roamR package, the simulation requires specifying
+the following main components:</p>
 <ul>
 <li>
-<strong>IBM general settings</strong>
-(<code>&lt;ModelConfig&gt;</code>) sundry high-level controls for the
-simulation, such as the number of agents, broad spatial boundaries,
-spatial projections, time-steps, start &amp; finish dates.</li>
+<p><strong>IBM configuration</strong>
+(<code>&lt;ModelConfig&gt;</code>)</p>
+<p>Sundry high-level simulation controls, including the number of
+agents, spatial extent and geographic projection, temporal resolution,
+start and end dates of the model run.</p>
+</li>
 <li>
-<strong>Species-level information</strong>
-(<code>&lt;Species&gt;</code>) such as distributions governing initial
-body mass, what behavioural states are possible, movement parameters,
-and how agents respond to their environment e.g. avoidance of windfarms
-or landmass, costs associated with activity.</li>
+<p><strong>Species-level information</strong>
+(<code>&lt;Species&gt;</code>)</p>
+<p>Parameters describing the species’ biology and ecology, such as
+distributions for initial body mass, available activity states and
+associated energetic costs, movement parameters, how agents respond to
+environmental conditions and barriers, etc.</p>
+</li>
 <li>
-<strong>Drivers</strong> (<code>&lt;Driver&gt;</code>)
-descriptions/data that define the environment that agents may interact
-with or respond to e.g. sea surface temperatures, locations of
-windfarms, coastlines, prey fields etc.</li>
+<p><strong>Drivers</strong> (<code>&lt;Driver&gt;</code>)</p>
+<p>Descriptions/data that define the environment that agents may
+interact with or respond to e.g. population density maps, sea surface
+temperatures, OWF locations, coastlines, etc.</p>
+</li>
 </ul>
 <p>The extent to which these can be reliably populated will obviously
-vary, with the guillemot chosen here as a population that is relatively
-well studied. roamR is intentionally general and has substantial
-functionality that will not be used in a simulation. We will populate
-various elements of the simulation in turn, before turning to running
-the simulation and post-processing the results.</p>
+vary across species and regions. The Isle of May Guillemot population is
+used here as case study due to the availability of relatively rich
+supporting data.</p>
+<p>The roamR infrastructure is intentionally general and flexible, and
+many of its broader capabilities are not required for this example. In
+the following sections, we will systematically populate the relevant IBM
+components, before running the simulation and post-processing the
+results.</p>
 </div>
 <div class="section level2">
-<h2 id="input-data">Input data<a class="anchor" aria-label="anchor" href="#input-data"></a>
+<h2 id="settting-up-the-ibm">Settting up the IBM<a class="anchor" aria-label="anchor" href="#settting-up-the-ibm"></a>
 </h2>
-<p>As a relatively well-studied species/population, there are many roamR
-elements to populate. Mainly these are:</p>
+<p>We begin by defining the model settings and specifying the inputs
+required to initialise an IBM for this case study using roamR.</p>
+<div class="section level3">
+<h3 id="data-availability">Data Availability<a class="anchor" aria-label="anchor" href="#data-availability"></a>
+</h3>
+<p>As a relatively well-studied species/population, many roamR
+components can be populated using available data. In this vignette, we
+draw on:</p>
 <ul>
 <li>Density maps</li>
 <li>SST</li>
 <li>Activity data</li>
 <li>Energetics</li>
-<li>Bodyweight</li>
-<li>body mass conversion</li>
+<li>Species’ bodyweight distributions</li>
+<li>Body mass conversion</li>
 </ul>
-<p>which will be a) described in detail and b) specified in roamR forms
-in the following sections. roamR can be run with very little data (an
-example of a more data sparse species is given in the alternative test
-case of red-throated divers), with the results being correspondingly
-less informative and more stochastic.</p>
+<p>These datasets are (a) described in detail and (b) implemented in
+appropriate roamR object classes in the following sections.</p>
+<p>Note: although roamR can operate with minimal data inputs -
+illustrated in the alternative test case for red‑throated divers -
+results in such cases will be inherently more uncertain and more
+strongly driven by stochastic variation.</p>
+</div>
 <div class="section level3">
 <h3 id="ibm-configuration">IBM configuration<a class="anchor" aria-label="anchor" href="#ibm-configuration"></a>
 </h3>
 <p>The broad configuration of the IBM is specified via the function
-<code><a href="../reference/ModelConfig.html">ModelConfig()</a></code>.In the interest of speed, the example
+<code><a href="../reference/ModelConfig.html">ModelConfig()</a></code>. In the interest of speed, the example
 simulation here will not be large in terms of the number of agents to
 run - we’ll opt for few agents (<code>n_agents</code>), whereas a
-typical run would be 1000s. The non-breeding season for these animals
-runs from approximately start of July for 9 months
-(<code>start_date</code>, <code>end_date</code>). We’ll opt for a
-uniform 1km^2 spatial resolution (<code>x_delta</code>,
-<code>y_delta</code>) and have everything operate on the UTM 30N
-coordinate system (<code>ref_sys</code>). This will be the basis of
-ingesting and aligning the general spatial inputs. Note: the package
-currently requires all spatial inputs (e.g. density maps) to be provided
-in a common Coordinate Reference System (CRS) <a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;functionality to homogenise CRSs across spatial inputs
-during model initialization is expected to be implemented in roamR in
-the near future&lt;/p&gt;"><sup>1</sup></a>. The <a href="https://r-spatial.github.io/sf/" class="external-link">sf</a>
-package is generally used for dealing with spatial data (and the
-interlinked <a href="https://r-spatial.github.io/stars/" class="external-link">stars</a> package for spatiotemporal).</p>
+typical run would usually involve several thousands of individuals. For
+guillemots, the non-breeding season spans roughly 9 months beginning in
+early July, which we specify using the <code>start_date</code> and
+<code>end_date</code> arguments. We set the temporal resolution to
+one-day time steps (<code>delta_time</code>), meaning that agent state
+updates - such as energetics balancing and movement decisions - are
+evaluated on a daily basis.</p>
+<p>We’ll opt to our simulation to operate on the UTM 30N coordinate
+system (<code>ref_sys</code>), which forms the basis for ingesting,
+projecting and aligning all the spatial inputs throughout the model
+workflow.</p>
+<p>Note: the <a href="https://r-spatial.github.io/sf/" class="external-link">sf</a> package is generally used for dealing
+with spatial data , and the interlinked <a href="https://r-spatial.github.io/stars/" class="external-link">stars</a> package for
+spatiotemporal information.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set UTM zone 30N</span></span>
+<code class="sourceCode R"><span><span class="co"># define UTM zone 30N</span></span>
 <span><span class="va">utm30</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="fl">32630</span><span class="op">)</span></span></code></pre></div>
-<p>Agent start and end locations (<code>start_sites</code>,
-<code>end_sites</code>) must be supplied as<code>sf</code> objects
-containing two required columns: <code>id</code> (a unique site
-identifier) and <code>prop</code> (the proportion of agents assigned to
-each site).</p>
+<p>Agent starting and ending locations (<code>start_sites</code>,
+<code>end_sites</code>) must be supplied as <code>&lt;sf&gt;</code>
+objects containing two required columns:</p>
+<ul>
+<li>
+<code>id</code>, a unique site identifier</li>
+<li>
+<code>prop</code>, the proportion of agents assigned to each
+site.</li>
+</ul>
 <p>In this example, we use the Isle of May as the sole starting
-location, specified by its geographic coordinates (longitude/latitude).
-Note that <code>end_sites</code> is not utilised in this the simulation,
-meaning the movement model assumes agents remain at their final
-locations once the simulation ends. As noted earlier, the site must be
-re-projected to the common UTM Zone 30N coordinate reference system.</p>
+location, specified as a geometric point by its geographic
+(longitude/latitude) coordinates. We do not make use of
+<code>end_sites</code> in this simulation; agents simply remain at their
+final positions once the simulation ends.</p>
+<p>Because <code><a href="../reference/ModelConfig.html">ModelConfig()</a></code> expects spatial inputs to match
+the CRS defined by <code>ref_sys</code>, the site must be projected to
+UTM Zone 30N.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># location of colony in long/lat degrees - start/finish locations</span></span>
 <span><span class="va">isle_may</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/sf.html" class="external-link">st_sf</a></span><span class="op">(</span></span>
@@ -197,37 +222,42 @@ re-projected to the common UTM Zone 30N coordinate reference system.</p>
 <span></span>
 <span><span class="co"># re-project to UTM 30N</span></span>
 <span><span class="va">isle_may</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="va">isle_may</span>, crs <span class="op">=</span> <span class="va">utm30</span><span class="op">)</span></span></code></pre></div>
-<p>In terms of bounding the entire simulation spatially, we’ve opted for
-a semi-arbitrary bounding box around the Isle of May that encompasses a
+<p>In terms of bounding the simulation spatially, we’ve opted for a
+semi-arbitrary bounding box around the Isle of May that encompasses a
 large swathe of the North Sea and far to the west of the UK, which
-covers the bulk of the guillemot density maps. Note this a hard boundary
-in terms of simulations - data outside this will have no influence.</p>
+covers the bulk of the guillemot density maps. Importantly, this a hard
+boundary in terms of simulations - data outside this will have no
+influence.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<code class="sourceCode R"><span><span class="co"># define the Area of Calculation</span></span>
 <span><span class="va">AoC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="fl">178831</span>, ymin <span class="op">=</span> <span class="fl">5906535</span>,  xmax <span class="op">=</span> <span class="fl">1174762</span>, ymax <span class="op">=</span> <span class="fl">6783609</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="va">utm30</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Passing the above configuration inputs to <code><a href="../reference/ModelConfig.html">ModelConfig()</a></code>
 creates a <code>&lt;ModelConfig&gt;</code> object, which we assigned to
 <code>guill_ibm_config</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># IBM Settings - assume fixed for these simulations</span></span>
-<span></span>
+<code class="sourceCode R"><span><span class="co"># IBM Settings - assume fixed for these simulations</span></span>
 <span><span class="va">guill_ibm_config</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ModelConfig.html">ModelConfig</a></span><span class="op">(</span></span>
 <span>  n_agents <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  ref_sys <span class="op">=</span> <span class="va">utm30</span>,</span>
-<span>  aoc_bbx <span class="op">=</span> <span class="va">AoC</span>, </span>
-<span>  delta_x <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  delta_y <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  aoc_bbx <span class="op">=</span> <span class="va">AoC</span>,</span>
 <span>  delta_time <span class="op">=</span> <span class="st">"1 day"</span>,</span>
-<span>  start_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/date.html" class="external-link">date</a></span><span class="op">(</span><span class="st">"2025-07-01"</span><span class="op">)</span>,</span>
-<span>  end_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/date.html" class="external-link">date</a></span><span class="op">(</span><span class="st">"2025-07-01"</span><span class="op">)</span> <span class="op">+</span> <span class="fl">270</span>, </span>
+<span>  start_date <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/date.html" class="external-link">date</a></span><span class="op">(</span><span class="st">"2025-07-01"</span><span class="op">)</span>,</span>
+<span>  end_date <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/date.html" class="external-link">date</a></span><span class="op">(</span><span class="st">"2025-07-01"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/period.html" class="external-link">days</a></span><span class="op">(</span><span class="fl">9</span><span class="op">*</span><span class="fl">30</span><span class="op">)</span>, <span class="co"># 1 month ~ 30 days</span></span>
 <span>  start_sites <span class="op">=</span> <span class="va">isle_may</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">guill_ibm_config</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "ModelConfig"</span></span>
-<span><span class="co">#&gt; attr(,"package")</span></span>
-<span><span class="co">#&gt; [1] "roamR"</span></span></code></pre></div>
+<span><span class="va">guill_ibm_config</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">&lt;ModelConfig&gt;</span> instance with attributes:</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> Movement Model:      Density-informed</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> No. Agents:          4</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> Simulation period:   2025-07-01 -- 2026-03-28 <span style="color: #555555;">(270 days)</span></span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> Temporal resolution: 1 day</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> Bounding box:        xmin: 178831  ymin: 5906535  xmax: 1174762  ymax: 6783609 <span style="color: #555555;">[m]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> Projected CRS:       WGS 84 / UTM zone 30N</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> Start site:          Simple feature with 1 feature and 2 fields<span style="color: #555555;"> [WGS 84 / UTM zone 30N]</span></span></span>
+<span><span class="co"><span style="color: #555555;">#&gt; </span>              id prop                     geom</span></span>
+<span><span class="co">#&gt;    1 Isle of May    1 POINT (526895.8 6226565)</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> End site:            <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="driver-information---specifying-the-environment">Driver information - specifying the environment<a class="anchor" aria-label="anchor" href="#driver-information---specifying-the-environment"></a>
@@ -281,7 +311,7 @@ where they are missing.</p>
 <span><span class="va">sst_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/bioss_sst_stars.rds"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>sst <span class="op">=</span>  <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="va">sst</span>, <span class="st">"degree_Celsius"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">stars</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/stars/reference/st_warp.html" class="external-link">st_warp</a></span><span class="op">(</span>crs <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="va">spec_map</span><span class="op">)</span>, threshold  <span class="op">=</span> <span class="fl">20028</span><span class="op">)</span></span></code></pre></div>
-<p>Next we specify the corresponding drivers, and stored the as a list
+<p>Next we specify the corresponding drivers, and stored them as a list
 of <code>&lt;Driver&gt;</code> objects. Collectively these define the
 environment the agents will move through. This is very flexible, and can
 comprise of coastal polygons, OWF footprints, prey-fields etc. Here
@@ -562,7 +592,7 @@ advice from F. Daunt, <em>pers. comm.</em>, 2025) .</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="setting-up-and-running-the-ibm">Setting up and running the IBM<a class="anchor" aria-label="anchor" href="#setting-up-and-running-the-ibm"></a>
+<h2 id="run-the-ibm-simulation">Run the IBM simulation<a class="anchor" aria-label="anchor" href="#run-the-ibm-simulation"></a>
 </h2>
 <p>Now the key components of the IBM have been specified, roamR can be
 used for the initialisation and running of the simulations.</p>
@@ -584,29 +614,28 @@ config object.</li>
 <span></span>
 <span><span class="va">guill_ibm</span> <span class="op">&lt;-</span> <span class="fu">xfun</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/xfun/man/cache_rds.html" class="external-link">cache_rds</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/rmr_initiate.html">rmr_initiate</a></span><span class="op">(</span></span>
-<span>  model_config <span class="op">=</span> <span class="va">guill_ibm_config</span>,</span>
-<span>  species <span class="op">=</span> <span class="va">guill</span>,</span>
-<span>  drivers <span class="op">=</span> <span class="va">guill_drivers</span></span>
-<span><span class="op">)</span></span>
-<span></span>
+<span>    model_config <span class="op">=</span> <span class="va">guill_ibm_config</span>,</span>
+<span>    species <span class="op">=</span> <span class="va">guill</span>,</span>
+<span>    drivers <span class="op">=</span> <span class="va">guill_drivers</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Validating inputs</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[8ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Checking spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[107ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[105ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Drivers</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[61ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[60ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[15ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[14ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[232ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[345ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[16ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[22ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialization Done! 🚀</span></span></code></pre></div>
 </div>
@@ -620,7 +649,7 @@ Parallelisation is dealt with (and assumed to be generally used) such
 that individual agents are piped out to independent threads of
 calculation - hence the speed of a simulation is a function of the
 number of cores available<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The &lt;code&gt;furrr&lt;/code&gt; package handles the
-parallelisation&lt;/p&gt;"><sup>2</sup></a>.</p>
+parallelisation&lt;/p&gt;"><sup>1</sup></a>.</p>
 <p>Much of the parameterisiation and data from previous sections are
 encapsulated within the <code>ibm</code> object (<code>guill_ibm</code>)
 passed to the simulation. Several additional parameters as per
@@ -654,35 +683,35 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span></span>
 <span><span class="va">guill_results</span> <span class="op">&lt;-</span> <span class="fu">xfun</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/xfun/man/cache_rds.html" class="external-link">cache_rds</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/run_disnbs.html">run_disnbs</a></span><span class="op">(</span></span>
-<span>  ibm <span class="op">=</span> <span class="va">guill_ibm</span>,</span>
-<span>  run_scen <span class="op">=</span> <span class="st">"baseline-and-impact"</span>, </span>
-<span>  dens_id <span class="op">=</span> <span class="st">"dens"</span>, </span>
-<span>  intake_id <span class="op">=</span> <span class="st">"energy"</span>, </span>
-<span>  imp_dens_id <span class="op">=</span> <span class="st">"dens_imp"</span>, </span>
-<span>  imp_intake_id <span class="op">=</span> <span class="st">"imp_energy"</span>, </span>
-<span>  feed_state_id <span class="op">=</span> <span class="st">"diving"</span>, </span>
-<span>  roost_state_id <span class="op">=</span> <span class="st">"inactive_on_water"</span>, </span>
-<span>  feed_avg_net_energy <span class="op">=</span> <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fl">422</span>, <span class="st">"kJ/h"</span><span class="op">)</span>, </span>
-<span>  target_energy <span class="op">=</span> <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fl">1</span>, <span class="st">"kJ"</span><span class="op">)</span>, </span>
-<span>  smooth_body_mass <span class="op">=</span> <span class="fu"><a href="../reference/bm_smooth_opts.html">bm_smooth_opts</a></span><span class="op">(</span>time_bw <span class="op">=</span> <span class="st">"7 days"</span><span class="op">)</span>, </span>
-<span>  waypnts_res <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span>  seed <span class="op">=</span> <span class="fl">1990</span></span>
-<span><span class="op">)</span></span>
+<span>    ibm <span class="op">=</span> <span class="va">guill_ibm</span>,</span>
+<span>    run_scen <span class="op">=</span> <span class="st">"baseline-and-impact"</span>, </span>
+<span>    dens_id <span class="op">=</span> <span class="st">"dens"</span>, </span>
+<span>    intake_id <span class="op">=</span> <span class="st">"energy"</span>, </span>
+<span>    imp_dens_id <span class="op">=</span> <span class="st">"dens_imp"</span>, </span>
+<span>    imp_intake_id <span class="op">=</span> <span class="st">"imp_energy"</span>, </span>
+<span>    feed_state_id <span class="op">=</span> <span class="st">"diving"</span>, </span>
+<span>    roost_state_id <span class="op">=</span> <span class="st">"inactive_on_water"</span>, </span>
+<span>    feed_avg_net_energy <span class="op">=</span> <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fl">422</span>, <span class="st">"kJ/h"</span><span class="op">)</span>, </span>
+<span>    target_energy <span class="op">=</span> <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="fl">1</span>, <span class="st">"kJ"</span><span class="op">)</span>, </span>
+<span>    smooth_body_mass <span class="op">=</span> <span class="fu"><a href="../reference/bm_smooth_opts.html">bm_smooth_opts</a></span><span class="op">(</span>time_bw <span class="op">=</span> <span class="st">"7 days"</span><span class="op">)</span>, </span>
+<span>    waypnts_res <span class="op">=</span> <span class="fl">1000</span>, </span>
+<span>    seed <span class="op">=</span> <span class="fl">1990</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Running the DisNBS Individual-Based Model</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Performing validation checks on inputs and underlying data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[22ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[21ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[193ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[188ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.6s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16.7s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
@@ -690,7 +719,7 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 </div>
 </div>
 <div class="section level2">
-<h2 id="digesting-the-results">Digesting the results<a class="anchor" aria-label="anchor" href="#digesting-the-results"></a>
+<h2 id="query-and-digest-the-results">Query and digest the results<a class="anchor" aria-label="anchor" href="#query-and-digest-the-results"></a>
 </h2>
 <p>roamR records an extensive amount of information from its running and
 monitoring of the agents. The primary output is a list, with one element
@@ -842,7 +871,7 @@ grams of body mass.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">agent</span>, ncol <span class="op">=</span> <span class="fl">2</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span>
 <span>  </span>
 <span><span class="va">p_bdm</span></span></code></pre></div>
-<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"images/body mass.png"</span>, <span class="va">p_bdm</span>, width <span class="op">=</span> <span class="fl">12</span>, height <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
@@ -871,7 +900,7 @@ specification at the species level.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Monthly movement tracks for a non-sensitive agent"</span>, subtitle <span class="op">=</span> <span class="st">"Status-quo Vs Impacted scenarios"</span><span class="op">)</span></span>
 <span>  </span>
 <span><span class="va">p_tracks</span></span></code></pre></div>
-<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"images/tracks_non_susceptile_agent.png"</span>, <span class="va">p_tracks</span>, width <span class="op">=</span> <span class="fl">15</span>, height <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
@@ -890,7 +919,7 @@ specification at the species level.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Monthly movement tracks for a sensitive agent"</span>, subtitle <span class="op">=</span> <span class="st">"Status-quo Vs Impacted scenarios"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p_tracks</span></span></code></pre></div>
-<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"images/tracks_susceptile_agent.png"</span>, <span class="va">p_tracks</span>, width <span class="op">=</span> <span class="fl">15</span>, height <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
