@@ -231,10 +231,10 @@ influence.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define the Area of Calculation</span></span>
 <span><span class="va">AoC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="fl">178831</span>, ymin <span class="op">=</span> <span class="fl">5906535</span>,  xmax <span class="op">=</span> <span class="fl">1174762</span>, ymax <span class="op">=</span> <span class="fl">6783609</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="va">utm30</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>In this case study, we adopt the <em>density-informed</em> movement
-model (<code>movement_type</code>, refer guidance document), under which
-species-level density maps influence agent movement by providing a
-spatio-temporal varying preference surface.</p>
+<p>In this case study, we adopt the <strong>density-informed</strong>
+movement model (<code>movement_type</code>, refer guidance document),
+under which species-level density maps influence agent movement by
+providing a spatio-temporal varying preference surface.</p>
 <p>Passing the above configuration inputs to <code><a href="../reference/ModelConfig.html">ModelConfig()</a></code>
 creates a <code>&lt;ModelConfig&gt;</code> object, which we assigned to
 <code>guill_ibm_config</code>:</p>
@@ -286,15 +286,15 @@ locations over time
 so the agents can query their environment at any
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">x, y, t</annotation></semantics></math>:</p>
 <ul>
-<li>Monthly species density surfaces, for both baseline and impacted
+<li><p>Monthly species density surfaces, for both baseline and impacted
 scenarios <span class="citation">(Buckingham et al. 2023)</span>. These
 give monthly density predictions around the UK at a 10 km^2 resolution
-(with bootstrap uncertainties).</li>
-<li>Monthly energy intake maps (kJ/h), for both baseline and impacted
+(with bootstrap uncertainties).</p></li>
+<li><p>Monthly energy intake maps (kJ/h), for both baseline and impacted
 scenarios based on density maps above, and conspecifics (other
-Guillemots, refer below).</li>
-<li>Monthly average Sea Surface Temperature (SST) maps (National Oceanic
-and Atmospheric Administration/NOAA <a href="https://downloads.psl.noaa.gov/Datasets/noaa.oisst.v2.highres/" class="external-link">here</a>).</li>
+Guillemots, refer below).</p></li>
+<li><p>Monthly average Sea Surface Temperature (SST) maps (National
+Oceanic and Atmospheric Administration/NOAA <a href="https://downloads.psl.noaa.gov/Datasets/noaa.oisst.v2.highres/" class="external-link">here</a>).</p></li>
 </ul>
 <p>roamR enforces a strict requirement that all input variables be
 accompanied by appropriate measurement units. This ensures that all
@@ -319,25 +319,36 @@ where they are missing.</p>
 <span>  <span class="fu">mutate</span><span class="op">(</span>sst <span class="op">=</span>  <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="va">sst</span>, <span class="st">"degree_Celsius"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">stars</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/stars/reference/st_warp.html" class="external-link">st_warp</a></span><span class="op">(</span>crs <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="va">spec_map</span><span class="op">)</span>, threshold  <span class="op">=</span> <span class="fl">20028</span><span class="op">)</span></span></code></pre></div>
 <p>Next we specify the corresponding drivers, and stored them as a list
-of <code>&lt;Driver&gt;</code> objects. Collectively these define the
-environment the agents will move through. This is very flexible, and
-lists can comprise coastal polygons, OWF footprints, prey-fields
-etc.</p>
-<p>Here we’re providing sea surface temperature, animal density
-surfaces, and maps that reflect the energy.</p>
-<p>Note here we’re adopting the <em>density-informed</em> movement model
-(refer guidance document) which uses density maps for location
-preference.</p>
-<p>The feasible locations are defined by the density surfaces (so coast
-is implicit), and OWF are similarly implicit in the “impact” density
-surfaces, where OWF-sensitive agents avoid developments.</p>
-<p>Here the energetics maps reflect an Ideal Free Distribution (IFD) in
-the unimpacted case i.e. the agent’s energy requirements are met on
-average - their distribution reflects the underlying resource. The
-impacted energy maps reflect displacement from the OWF footprints,
-including the conspecifics, meaning a proportional reduction in the IFD
-due to competition from other guillemot e.g. twice as many individuals
-means 1/2 the resource.</p>
+of <code>&lt;Driver&gt;</code> objects. Collectively these lists define
+the environment the agents will move through, offering flexibility to
+comprise spatial features such as coastal polygons, OWF footprints,
+prey-fields, etc.</p>
+<p>In our specific case:</p>
+<ul>
+<li><p>Density maps are used in the <em>density-informed</em> movement
+model, guiding agents toward areas with higher habitat preference while
+implicitly excluding land as potential destinations. Likewise, OWF
+footprints are incorporated as spatial holes in the “impact” density
+surfaces, defining no‑go areas for OWF‑sensitive agents.</p></li>
+<li>
+<p>Energetic maps represent spatial variation in energetic gain:</p>
+<ul>
+<li><p>in the unimpacted scenario, the energetics surface reflects an
+Ideal Free Distribution (IFD): on average, agents meet their energetic
+requirements, and their spatial distribution reflects the underlying
+resource landscape.</p></li>
+<li><p>under the impacted scenario, the energetics surface incorporates
+displacement caused by OWFs and the resulting redistribution of
+conspecifics. Increased competition reduces available resources
+proportionally - for example, a doubling of local density leads to
+halved resource availability.</p></li>
+</ul>
+</li>
+<li><p>Sea surface temperature is used in the calculation of
+activity-state energetics through time, specifically affecting the
+energetic costs experienced by agents while on water (swimming and
+resting, see below).</p></li>
+</ul>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set up IBM drivers </span></span>
 <span></span>
@@ -637,19 +648,19 @@ config object.</li>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[8ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Checking spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[107ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[108ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Drivers</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[62ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[64ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[15ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[369ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[365ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[22ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[23ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialization Done! 🚀</span></span></code></pre></div>
 </div>
@@ -716,13 +727,13 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Running the DisNBS Individual-Based Model</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Performing validation checks on inputs and underlying data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[21ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[22ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[194ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[195ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[19s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[17.4s]</span></span></span>

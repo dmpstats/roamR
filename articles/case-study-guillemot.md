@@ -158,7 +158,7 @@ influence.
 AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 ```
 
-In this case study, we adopt the *density-informed* movement model
+In this case study, we adopt the **density-informed** movement model
 (`movement_type`, refer guidance document), under which species-level
 density maps influence agent movement by providing a spatio-temporal
 varying preference surface.
@@ -217,9 +217,11 @@ environment at any $x,y,t$:
   scenarios (Buckingham et al. 2023). These give monthly density
   predictions around the UK at a 10 km^2 resolution (with bootstrap
   uncertainties).
+
 - Monthly energy intake maps (kJ/h), for both baseline and impacted
   scenarios based on density maps above, and conspecifics (other
   Guillemots, refer below).
+
 - Monthly average Sea Surface Temperature (SST) maps (National Oceanic
   and Atmospheric Administration/NOAA
   [here](https://downloads.psl.noaa.gov/Datasets/noaa.oisst.v2.highres/)).
@@ -251,27 +253,35 @@ sst_map <- readRDS("data/bioss_sst_stars.rds") |>
 ```
 
 Next we specify the corresponding drivers, and stored them as a list of
-`<Driver>` objects. Collectively these define the environment the agents
-will move through. This is very flexible, and lists can comprise coastal
-polygons, OWF footprints, prey-fields etc.
+`<Driver>` objects. Collectively these lists define the environment the
+agents will move through, offering flexibility to comprise spatial
+features such as coastal polygons, OWF footprints, prey-fields, etc.
 
-Here we’re providing sea surface temperature, animal density surfaces,
-and maps that reflect the energy.
+In our specific case:
 
-Note here we’re adopting the *density-informed* movement model (refer
-guidance document) which uses density maps for location preference.
+- Density maps are used in the *density-informed* movement model,
+  guiding agents toward areas with higher habitat preference while
+  implicitly excluding land as potential destinations. Likewise, OWF
+  footprints are incorporated as spatial holes in the “impact” density
+  surfaces, defining no‑go areas for OWF‑sensitive agents.
 
-The feasible locations are defined by the density surfaces (so coast is
-implicit), and OWF are similarly implicit in the “impact” density
-surfaces, where OWF-sensitive agents avoid developments.
+- Energetic maps represent spatial variation in energetic gain:
 
-Here the energetics maps reflect an Ideal Free Distribution (IFD) in the
-unimpacted case i.e. the agent’s energy requirements are met on
-average - their distribution reflects the underlying resource. The
-impacted energy maps reflect displacement from the OWF footprints,
-including the conspecifics, meaning a proportional reduction in the IFD
-due to competition from other guillemot e.g. twice as many individuals
-means 1/2 the resource.
+  - in the unimpacted scenario, the energetics surface reflects an Ideal
+    Free Distribution (IFD): on average, agents meet their energetic
+    requirements, and their spatial distribution reflects the underlying
+    resource landscape.
+
+  - under the impacted scenario, the energetics surface incorporates
+    displacement caused by OWFs and the resulting redistribution of
+    conspecifics. Increased competition reduces available resources
+    proportionally - for example, a doubling of local density leads to
+    halved resource availability.
+
+- Sea surface temperature is used in the calculation of activity-state
+  energetics through time, specifically affecting the energetic costs
+  experienced by agents while on water (swimming and resting, see
+  below).
 
 ``` r
 # Set up IBM drivers 
@@ -573,19 +583,19 @@ guill_ibm <- xfun::cache_rds({
 #> ✔ Validating inputs [8ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [107ms]
+#> ✔ Checking spatio-temporal consistency of inputs [108ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [62ms]
+#> ✔ Processing Drivers [64ms]
 #> 
 #> ℹ Processing Activity States
 #> ✔ Processing Activity States [15ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [369ms]
+#> ✔ Initialize Agents [365ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [22ms]
+#> ✔ Initialize <IBM> object [23ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -648,13 +658,13 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [21ms]
+#> ✔ Performing validation checks on inputs and underlying data. [22ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [194ms]
+#> ✔ Preparing and configuring data for simulation. [195ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [19s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.9s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
 #> ✔ Simulating agents' journeys under the impact-case scenario [17.4s]
