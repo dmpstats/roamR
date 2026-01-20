@@ -177,23 +177,32 @@ roamR enforces a strict requirement that all input variables be accompanied by a
 We begin by uploading these datacubes, assigning measurement units where they are missing.
 
  
-```{r read-drivers}
+```{r read-drivers, fig.dim = c(8, 6)}
 # upload available spatial surfaces
 
 spec_map <- readRDS("data/bioss_spec_map.rds") |> 
    mutate(density =  units::set_units(density, "counts"))
 
+plot(spec_map)
+
 spec_imp_map <- readRDS("data/bioss_spec_imp_map.rds") |> 
    mutate(density =  units::set_units(density, "counts"))
 
+plot(spec_imp_map)
+
 intake_map <- readRDS("data/guill_energy_intake_map.rds")
 
+plot(intake_map)
+
 imp_intake_map <- readRDS("data/guill_impacted_energy_intake_map.rds")
+
+plot(imp_intake_map)
 
 sst_map <- readRDS("data/bioss_sst_stars.rds") |> 
   mutate(sst =  units::set_units(sst, "degree_Celsius")) |> 
   stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
 
+plot(sst_map)
 ```
 
 Next we specify the corresponding drivers, and stored them as a list of `<Driver>` objects. Collectively these lists define the environment the agents will move through, offering flexibility to comprise spatial features such as coastal polygons, OWF footprints, prey-fields, etc. 
@@ -506,8 +515,6 @@ Much of the parameterisiation and data from previous sections are encapsulated w
 
 
 ```{r run-sim}
-
-
 plan(multisession, workers = 2)
 
 guill_results <- xfun::cache_rds({
@@ -566,7 +573,6 @@ str(guill_results$agents_bsln[[1]]@history)
 Here we extract the history from agents under the two scenarios for comparison. All agents over both scenarios are combined into one dataset.
 
 ```{r, echo=F}
-
 # gather history from all agents, under the 2 scenarios, into one data frame
 guill_history <- map(guill_results, function(scn){
   map(scn, ~.x@history) |> 
@@ -598,7 +604,6 @@ guill_history
 We can examine a small number of agents graphically - here their body mass histories as implied by the simulated energetics. Note roamR at its heart simulates energetics, so conversion functions from energy to mass are specified by the user. Here the primary conversion figure is from @Dunn2022, relating energy to grams of body mass.
 
 ```{r}
-
 p_bdm <- guill_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
@@ -617,8 +622,7 @@ ggsave("images/body mass.png", p_bdm, width = 12, height = 12)
 
 Similarly movement tracks for select agents over time can be visualised, under the two impact scenarios. Here we separate by a property of the agent - those that were assigned susceptibility to OWF in the agent initialisation - recalling this was a stochastic specification at the species level.
 
-```{r}
-
+```{r, fig.dim=c(9,9), out.width="100%"}
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
   filter(suscep == FALSE) |> 
@@ -629,7 +633,8 @@ p_tracks <- guill_history |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_distiller(palette = "Greys", direction = 1) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+  labs(title = "Monthly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios") +
+  theme(legend.position = "bottom")
   
 p_tracks
 
@@ -638,8 +643,7 @@ ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 
 ```
 
 
-```{r}
-
+```{r, fig.dim=c(9,9), out.width="100%"}
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
   filter(suscep == TRUE) |> 
@@ -650,7 +654,8 @@ p_tracks <- guill_history |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_distiller(palette = "Greys", direction = 1) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+  labs(title = "Monthly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios") +
+  theme(legend.position = "bottom")
 
 p_tracks
 
