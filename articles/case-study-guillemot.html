@@ -506,7 +506,9 @@ multiplier in the above equation (the leading coefficient, 3.71) to vary
 among individuals. We therefore parameterise this multiplier as
 <code>alpha</code>, assuming it follows a Normal distribution with mean
 3.71 and standard deviation 1.3, such that each agent’s diving cost
-fluctuates throughout the simulation.</p>
+fluctuates throughout the simulation. Diving speeds are also drawn from
+a Uniform distribution, and initial time allocated to diving is set to
+3.11 h/day.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define costing function</span></span>
 <span><span class="va">dive_cost_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t_dive</span>, <span class="va">alpha_mean</span>, <span class="va">alpha_sd</span><span class="op">)</span><span class="op">{</span></span>
@@ -543,6 +545,8 @@ corresponding driver is linked correctly within the
 we include a list element named <code>sst</code>, set to
 <code>"driver"</code>, which instructs roamR to retrieve SST values from
 the <code>"sst"</code> driver defined earlier in the vignette.</p>
+<p>The specification of the remaining attributes for this state follows
+the same principles used for the previous states.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define water-active cost function</span></span>
 <span><span class="va">active_water_cost_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sst</span>, <span class="va">int_mean</span>, <span class="va">int_sd</span><span class="op">)</span><span class="op">{</span></span>
@@ -569,8 +573,7 @@ has a mean of 72.2 and SD of 22.
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
 is similarly constant at 2.75.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">inactive_water_cost_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sst</span>, <span class="va">int_mean</span>, <span class="va">int_sd</span><span class="op">)</span><span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">inactive_water_cost_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sst</span>, <span class="va">int_mean</span>, <span class="va">int_sd</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">int_mean</span>, <span class="va">int_sd</span><span class="op">)</span></span>
 <span>  <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">int</span><span class="op">-</span><span class="op">(</span><span class="fl">2.75</span><span class="op">*</span><span class="va">sst</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="st">"kJ/h"</span><span class="op">)</span></span>
@@ -604,16 +607,20 @@ is similarly constant at 2.75.</p>
 the environmental drivers introduced and defined earlier. For the
 guillemot model, we assign the density drivers - identified as
 <code>"dens"</code> (baseline) and <code>"dens_imp"</code> (impacted) -
-as the primary determinants of agent movement (density maps as per <span class="citation">Buckingham et al. (2022)</span>). For each scenario, we
-also specify the probability that an agent is influenced by the
-respective driver. In the baseline case, all agents “respond” to the
-density map for their movement. For driver <code>"dens_imp"</code>, this
-probability reflects how likely an agent is to respond to a OWF
-installation <span class="citation">(Peschko et al. 2024)</span> - hence
-their influence map differs.</p>
+as the primary determinants of agent movement (density maps as per <span class="citation">Buckingham et al. (2022)</span>).</p>
+<p>For each scenario, we also specify the probability that an agent is
+influenced by the respective driver. In the baseline case, all agents
+“respond” to the density map for their movement<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Under the density‑informed movement model, the
+&lt;code&gt;prob&lt;/code&gt; argument in &lt;code&gt;&lt;a href="../reference/MoveInfluence.html"&gt;MoveInfluence()&lt;/a&gt;&lt;/code&gt; under the
+chosen density driver is forced to 1 at the initialization phase&lt;/p&gt;'><sup>1</sup></a>. In contrast, for the
+<code>"dens_imp"</code> driver, the probability reflects how likely an
+individual is to respond to the presence of an OWF installation (see
+<span class="citation">Peschko et al. (2024)</span>). Agents that
+respond to the impacted density map therefore experience altered
+movement preferences, representing displacement or avoidance of OWF
+footprints.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">resp_dens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DriverResponse.html">DriverResponse</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">resp_dens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DriverResponse.html">DriverResponse</a></span><span class="op">(</span></span>
 <span>  driver_id <span class="op">=</span> <span class="st">"dens"</span>,</span>
 <span>  movement <span class="op">=</span> <span class="fu"><a href="../reference/MoveInfluence.html">MoveInfluence</a></span><span class="op">(</span></span>
 <span>    prob <span class="op">=</span> <span class="fu"><a href="../reference/VarDist.html">VarDist</a></span><span class="op">(</span><span class="fu">distributional</span><span class="fu">::</span><span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_degenerate.html" class="external-link">dist_degenerate</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -668,14 +675,13 @@ used for the initialisation and running of the simulations.</p>
 running:</p>
 <ul>
 <li>The checking of inputs for conformity, some adjustments
-(e.g. clipping to the AoC) and derivation of of vector fields where
+(e.g. clipping to the AoC) and derivation of vector fields where
 needed.</li>
 <li>The generation the <code>n_agents</code> as indicated in the model
 config object.</li>
 </ul>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1009</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1009</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">guill_ibm</span> <span class="op">&lt;-</span> <span class="fu">xfun</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/xfun/man/cache_rds.html" class="external-link">cache_rds</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/rmr_initiate.html">rmr_initiate</a></span><span class="op">(</span></span>
@@ -685,19 +691,19 @@ config object.</li>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Validating inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[9ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[8ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Checking spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[112ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[107ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Drivers</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[63ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[60ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[15ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[241ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[223ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[16ms]</span></span></span>
@@ -714,7 +720,7 @@ Parallelisation is dealt with (and assumed to be generally used) such
 that individual agents are piped out to independent threads of
 calculation - hence the speed of a simulation is a function of the
 number of cores available<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The &lt;code&gt;furrr&lt;/code&gt; package handles the
-parallelisation&lt;/p&gt;"><sup>1</sup></a>.</p>
+parallelisation&lt;/p&gt;"><sup>2</sup></a>.</p>
 <p>Much of the parameterisiation and data from previous sections are
 encapsulated within the <code>ibm</code> object (<code>guill_ibm</code>)
 passed to the simulation. Several additional parameters as per
@@ -767,16 +773,16 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Running the DisNBS Individual-Based Model</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Performing validation checks on inputs and underlying data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[23ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[21ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[203ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[190ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[19.5s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[17.5s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16.4s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
@@ -792,8 +798,9 @@ for each agent. The stored agents consist of three main components (each
 their own class, as per the package schema):</p>
 <ul>
 <li>
-<code>properties</code> - were drawn/set at the intialisation of the
-simulation from the species definition, remain constant throughout</li>
+<code>properties</code> - were drawn/set at the initialisation of
+the simulation from the species definition, remain constant
+throughout</li>
 <li>
 <code>condition</code> - the specific condition of the agent at any
 point in the simulation. This will be the final condition at when the

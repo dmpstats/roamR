@@ -443,7 +443,8 @@ multiplier in the above equation (the leading coefficient, 3.71) to vary
 among individuals. We therefore parameterise this multiplier as `alpha`,
 assuming it follows a Normal distribution with mean 3.71 and standard
 deviation 1.3, such that each agent’s diving cost fluctuates throughout
-the simulation.
+the simulation. Diving speeds are also drawn from a Uniform
+distribution, and initial time allocated to diving is set to 3.11 h/day.
 
 ``` r
 # define costing function
@@ -482,6 +483,9 @@ Specifically, we include a list element named `sst`, set to `"driver"`,
 which instructs roamR to retrieve SST values from the `"sst"` driver
 defined earlier in the vignette.
 
+The specification of the remaining attributes for this state follows the
+same principles used for the previous states.
+
 ``` r
 # define water-active cost function
 active_water_cost_fn <- function(sst, int_mean, int_sd){
@@ -508,7 +512,6 @@ linear function in SST, but where $a$ has a mean of 72.2 and SD of 22.
 $b$ is similarly constant at 2.75.
 
 ``` r
-
 inactive_water_cost_fn <- function(sst, int_mean, int_sd){
   int <- rnorm(1, int_mean, int_sd)
   (max(int-(2.75*sst), 1)) |>
@@ -545,15 +548,18 @@ In this section, we define species-level, agent-specific responses to
 the environmental drivers introduced and defined earlier. For the
 guillemot model, we assign the density drivers - identified as `"dens"`
 (baseline) and `"dens_imp"` (impacted) - as the primary determinants of
-agent movement (density maps as per Buckingham et al. (2022)). For each
-scenario, we also specify the probability that an agent is influenced by
-the respective driver. In the baseline case, all agents “respond” to the
-density map for their movement. For driver `"dens_imp"`, this
-probability reflects how likely an agent is to respond to a OWF
-installation (Peschko et al. 2024) - hence their influence map differs.
+agent movement (density maps as per Buckingham et al. (2022)).
+
+For each scenario, we also specify the probability that an agent is
+influenced by the respective driver. In the baseline case, all agents
+“respond” to the density map for their movement[¹](#fn1). In contrast,
+for the `"dens_imp"` driver, the probability reflects how likely an
+individual is to respond to the presence of an OWF installation (see
+Peschko et al. (2024)). Agents that respond to the impacted density map
+therefore experience altered movement preferences, representing
+displacement or avoidance of OWF footprints.
 
 ``` r
-
 resp_dens <- DriverResponse(
   driver_id = "dens",
   movement = MoveInfluence(
@@ -607,11 +613,10 @@ for the initialisation and running of the simulations.
 The initialisation stage performs two main tasks prior to running:
 
 - The checking of inputs for conformity, some adjustments (e.g. clipping
-  to the AoC) and derivation of of vector fields where needed.
+  to the AoC) and derivation of vector fields where needed.
 - The generation the `n_agents` as indicated in the model config object.
 
 ``` r
-
 set.seed(1009)
 
 guill_ibm <- xfun::cache_rds({
@@ -622,19 +627,19 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Validating inputs
-#> ✔ Validating inputs [9ms]
+#> ✔ Validating inputs [8ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [112ms]
+#> ✔ Checking spatio-temporal consistency of inputs [107ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [63ms]
+#> ✔ Processing Drivers [60ms]
 #> 
 #> ℹ Processing Activity States
 #> ✔ Processing Activity States [15ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [241ms]
+#> ✔ Initialize Agents [223ms]
 #> 
 #> ℹ Initialize <IBM> object
 #> ✔ Initialize <IBM> object [16ms]
@@ -650,7 +655,7 @@ condition through time and determining their responses to these.
 Parallelisation is dealt with (and assumed to be generally used) such
 that individual agents are piped out to independent threads of
 calculation - hence the speed of a simulation is a function of the
-number of cores available[¹](#fn1).
+number of cores available[²](#fn2).
 
 Much of the parameterisiation and data from previous sections are
 encapsulated within the `ibm` object (`guill_ibm`) passed to the
@@ -700,16 +705,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [23ms]
+#> ✔ Performing validation checks on inputs and underlying data. [21ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [203ms]
+#> ✔ Preparing and configuring data for simulation. [190ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [19.5s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.2s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [17.5s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.4s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -723,7 +728,7 @@ monitoring of the agents. The primary output is a list, with one element
 for each agent. The stored agents consist of three main components (each
 their own class, as per the package schema):
 
-- `properties` - were drawn/set at the intialisation of the simulation
+- `properties` - were drawn/set at the initialisation of the simulation
   from the species definition, remain constant throughout
 - `condition` - the specific condition of the agent at any point in the
   simulation. This will be the final condition at when the simulation
@@ -1007,4 +1012,9 @@ Climate Versus Biodiversity?” *Biodiversity and Conservation* 33
 
 ------------------------------------------------------------------------
 
-1.  The `furrr` package handles the parallelisation
+1.  Under the density‑informed movement model, the `prob` argument in
+    [`MoveInfluence()`](https://dmpstats.github.io/roamR/reference/MoveInfluence.md)
+    under the chosen density driver is forced to 1 at the initialization
+    phase
+
+2.  The `furrr` package handles the parallelisation
