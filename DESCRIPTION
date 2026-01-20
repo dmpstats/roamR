@@ -68,7 +68,7 @@ Collate:
     'velocity_ou.R'
 VignetteBuilder: knitr, quarto
 Depends: 
-    R (>= 3.5)
+    R (>= 4.2.0)
 LazyData: true
 Config/Needs/website: 
   rmarkdown,
