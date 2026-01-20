@@ -241,17 +241,49 @@ they are missing.
 spec_map <- readRDS("data/bioss_spec_map.rds") |> 
    mutate(density =  units::set_units(density, "counts"))
 
+plot(spec_map)
+```
+
+![](case-study-guillemot_files/figure-html/read-drivers-1.png)
+
+``` r
+
 spec_imp_map <- readRDS("data/bioss_spec_imp_map.rds") |> 
    mutate(density =  units::set_units(density, "counts"))
 
+plot(spec_imp_map)
+```
+
+![](case-study-guillemot_files/figure-html/read-drivers-2.png)
+
+``` r
+
 intake_map <- readRDS("data/guill_energy_intake_map.rds")
 
+plot(intake_map)
+```
+
+![](case-study-guillemot_files/figure-html/read-drivers-3.png)
+
+``` r
+
 imp_intake_map <- readRDS("data/guill_impacted_energy_intake_map.rds")
+
+plot(imp_intake_map)
+```
+
+![](case-study-guillemot_files/figure-html/read-drivers-4.png)
+
+``` r
 
 sst_map <- readRDS("data/bioss_sst_stars.rds") |> 
   mutate(sst =  units::set_units(sst, "degree_Celsius")) |> 
   stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
+
+plot(sst_map)
 ```
+
+![](case-study-guillemot_files/figure-html/read-drivers-5.png)
 
 Next we specify the corresponding drivers, and stored them as a list of
 `<Driver>` objects. Collectively these lists define the environment the
@@ -630,19 +662,19 @@ guill_ibm <- xfun::cache_rds({
 #> ✔ Validating inputs [8ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [107ms]
+#> ✔ Checking spatio-temporal consistency of inputs [108ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [60ms]
+#> ✔ Processing Drivers [64ms]
 #> 
 #> ℹ Processing Activity States
 #> ✔ Processing Activity States [15ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [223ms]
+#> ✔ Initialize Agents [339ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [16ms]
+#> ✔ Initialize <IBM> object [20ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -680,8 +712,6 @@ entered here as needed. Here we specify:
   preceding 7 days energy intake (*pers. comm.* J. Green, 2025).
 
 ``` r
-
-
 plan(multisession, workers = 2)
 
 guill_results <- xfun::cache_rds({
@@ -708,13 +738,13 @@ guill_results <- xfun::cache_rds({
 #> ✔ Performing validation checks on inputs and underlying data. [21ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [190ms]
+#> ✔ Preparing and configuring data for simulation. [172ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18.2s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.5s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [16.4s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.8s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -865,7 +895,6 @@ are specified by the user. Here the primary conversion figure is from
 Dunn et al. (2022), relating energy to grams of body mass.
 
 ``` r
-
 p_bdm <- guill_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
@@ -893,7 +922,6 @@ initialisation - recalling this was a stochastic specification at the
 species level.
 
 ``` r
-
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
   filter(suscep == FALSE) |> 
@@ -904,7 +932,8 @@ p_tracks <- guill_history |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_distiller(palette = "Greys", direction = 1) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+  labs(title = "Monthly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios") +
+  theme(legend.position = "bottom")
   
 p_tracks
 ```
@@ -917,7 +946,6 @@ ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 
 ```
 
 ``` r
-
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
   filter(suscep == TRUE) |> 
@@ -928,7 +956,8 @@ p_tracks <- guill_history |>
   scale_color_brewer(palette = "Set1") +
   scale_fill_distiller(palette = "Greys", direction = 1) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios")
+  labs(title = "Monthly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios") +
+  theme(legend.position = "bottom")
 
 p_tracks
 ```
