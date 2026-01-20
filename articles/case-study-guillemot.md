@@ -474,6 +474,14 @@ $$e = a - (b*SST)$$
 where the intercept $a$ has a mean of 113 and SD of 22. $b$ is a
 constant of 2.75.
 
+Because this state explicitly depends on SST, we must ensure that the
+corresponding driver is linked correctly within the `<State>` object.
+This is achieved through the `args_spec` argument in
+[`State()`](https://dmpstats.github.io/roamR/reference/State.md).
+Specifically, we include a list element named `sst`, set to `"driver"`,
+which instructs roamR to retrieve SST values from the `"sst"` driver
+defined earlier in the vignette.
+
 ``` r
 # define water-active cost function
 active_water_cost_fn <- function(sst, int_mean, int_sd){
@@ -481,7 +489,6 @@ active_water_cost_fn <- function(sst, int_mean, int_sd){
   (max(int-(2.75*sst), 1)) |>
     units::set_units("kJ/h")
 }
-
 
 # Construct <State> object
 active <- State(
@@ -615,19 +622,19 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Validating inputs
-#> ✔ Validating inputs [8ms]
+#> ✔ Validating inputs [9ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [106ms]
+#> ✔ Checking spatio-temporal consistency of inputs [112ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [59ms]
+#> ✔ Processing Drivers [63ms]
 #> 
 #> ℹ Processing Activity States
-#> ✔ Processing Activity States [14ms]
+#> ✔ Processing Activity States [15ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [221ms]
+#> ✔ Initialize Agents [241ms]
 #> 
 #> ℹ Initialize <IBM> object
 #> ✔ Initialize <IBM> object [16ms]
@@ -693,16 +700,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [22ms]
+#> ✔ Performing validation checks on inputs and underlying data. [23ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [190ms]
+#> ✔ Preparing and configuring data for simulation. [203ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [17.9s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [19.5s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [16.2s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [17.5s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -735,11 +742,11 @@ two scenarios, each containing a number of agents:
 
 ``` r
 # two scenarios
-  names(guill_results)
+names(guill_results)
 #> [1] "agents_bsln" "agents_imp"
 
 # several agents within each
-  length(guill_results$agents_bsln)
+length(guill_results$agents_bsln)
 #> [1] 4
 
 # one agents history
