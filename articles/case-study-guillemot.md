@@ -181,6 +181,7 @@ guill_ibm_config <- ModelConfig(
   start_sites = isle_may
 )
 
+# show created <ModelConfig> object
 guill_ibm_config
 #> <ModelConfig> instance with attributes:
 #> • Movement Model:      Density-informed
@@ -289,7 +290,6 @@ In our specific case:
 # guillemot baseline density maps
 dens_drv <- Driver(
   id = "dens",
-  type = "resource",
   descr = "species dens map",
   stars_obj = spec_map,
   obj_active = "stars"
@@ -298,7 +298,6 @@ dens_drv <- Driver(
 # guillemot impacted density maps
 dens_imp_drv <- Driver(
   id = "dens_imp",
-  type = "resource",
   descr = "species redist map",
   stars_obj = spec_imp_map,
   obj_active = "stars"
@@ -307,7 +306,6 @@ dens_imp_drv <- Driver(
 # baseline energy intake maps
 energy_drv <- Driver(
   id = "energy",
-  type = "resource",
   descr = "energy map",
   stars_obj = intake_map,
   obj_active = "stars"
@@ -316,17 +314,14 @@ energy_drv <- Driver(
 # impacted energy intake maps
 imp_energy_drv <- Driver(
   id = "imp_energy",
-  type = "resource",
   descr = "energy impact map",
   stars_obj = imp_intake_map,
   obj_active = "stars"
 )
 
-
 # Sea Surface Temperature 
 sst_drv <- Driver(
   id = "sst",
-  type = "habitat",
   descr = "Sea Surface Temperature",
   stars_obj = sst_map,
   obj_active = "stars"
@@ -343,7 +338,7 @@ guill_drivers <- list(
 )
 ```
 
-### Species information - properties that inform individual agents
+### Species information: properties underpinning individual agents
 
 Species-level information is defined using the
 [`Species()`](https://dmpstats.github.io/roamR/reference/Species.md)
@@ -369,16 +364,19 @@ Here we include 4 states:
 - active on water (i.e. swimming)
 - inactive on water (i.e. resting)
 
-We start with the ‘flight’ state. For the current simulation, we assume
-the energetic cost of flying for each agent varies throughout the
-simulation, following a Normal distribution with mean `507.6 kJ/h` and
-standard deviation of`237.6 kJ/h`. The source for these figures are
-Elliott et al. (2013).
+We start with the *flight* state. For this simulation, we assume the
+energetic cost (`energy_cost`) of flying for each agent varies
+throughout the simulation, following a Normal distribution with mean
+507.6 kJ/h and standard deviation of 237.6 kJ/h. The source for these
+figures are Elliott et al. (2013).
 
-Stochasticity can enter in various ways, here we specify the average
-speed of each agent to be fixed over the simulation (e.g. we’re implying
-relatively fast/slow animals), with agents speeds drawn from a uniform
-distribution, as specified below.
+Stochasticity can enter the state specification in several ways. Here we
+assume assume that each agent has a fixed average flying speed for the
+entire simulation (representing inherently faster or slower
+individuals), with speeds drawn from a Uniform distribution as specified
+below (`speed`). The proportion of time allocated to flight at the
+initial time step (`time_budget`) is set to 0.056 h/day for all
+simulated agents.
 
 ``` r
 # user-defined function returning the energy cost of flying
@@ -388,6 +386,7 @@ flight_cost_fn <- function(mean, sd){
     units::set_units("kJ/h")
 }
 
+# define <State> object for flight activity
 flight <- State(
   id = "flight", 
   energy_cost = VarFn(
@@ -398,17 +397,53 @@ flight <- State(
   time_budget = VarDist(0.056, "hours/day"), 
   speed = VarDist(dist_uniform(10, 20), "m/s")
 )
+
+# inspect flight object
+flight
+#> An object of class "State"
+#> Slot "id":
+#> [1] "flight"
+#> 
+#> Slot "energy_cost":
+#> <VarFn>
+#> function (mean, sd) 
+#> {
+#>     e <- rnorm(1, mean, sd)
+#>     units::set_units((max(e, 1)), "kJ/h")
+#> }
+#> 
+#> Args:
+#> • `mean`: 507.6
+#> • `sd`: 237.6
+#> 
+#> Output units: [kJ h-1]
+#> 
+#> Slot "time_budget":
+#> <VarDist>
+#> 0.056 [h d-1]
+#> 
+#> Slot "speed":
+#> <VarDist>
+#> U(10, 20) [m s-1]
 ```
 
-The state representing the ‘diving’ activity (Elliott et al. 2013) as
-energy output contingent on the amount of diving. Here we are performing
-day-level calculations, meaning we are far from simulating at the dive
-level, and can use a mean dive-length without loss of generality. This
-is `t_dive` and populated later from tag information.
+For the state representing the *diving* activity, the energy output is
+contingent on the amount of diving (Elliott et al. 2013).
 
 $$e = 3.71\frac{\sum\limits_{i}\left( 1 - e^{- T_{i}/1.23} \right)}{\sum\limits_{i}T_{i}}$$
 
-Where $T_{i}$ is the dive length of dive $i$ in minutes.
+Where $T_{i}$ is the length of dive $i$ in minutes. Here we are
+performing day-level calculations, meaning we are far from simulating at
+the dive level, and can use a mean dive-length without loss of
+generality. This is specified as parameter `t_dive` in the defined
+diving cost function, with input value derived from tag information.
+
+To introduce agent‑level stochasticity, we allow the energetic
+multiplier in the above equation (the leading coefficient, 3.71) to vary
+among individuals. We therefore parameterise this multiplier as `alpha`,
+assuming it follows a Normal distribution with mean 3.71 and standard
+deviation 1.3, such that each agent’s diving cost fluctuates throughout
+the simulation.
 
 ``` r
 # define costing function
@@ -417,7 +452,6 @@ dive_cost_fn <- function(t_dive, alpha_mean, alpha_sd){
   (max(alpha*sum(1-exp(-t_dive/1.23))/sum(t_dive)*60, 1)) |>
     units::set_units("kJ/h")
 }
-
 
 # Construct <State> object
 dive <- State(
@@ -432,15 +466,16 @@ dive <- State(
 )
 ```
 
-State representing ‘active on water’ (Buckingham et al. 2023) is a
-linear function in SST:
+State representing *active on water* (Buckingham et al. 2023) is a
+linear function in sea surface temperature (SST):
 
 $$e = a - (b*SST)$$
 
-where $a$ has a mean of 113 and SD of 22. $b$ is a constant of 2.75.
+where the intercept $a$ has a mean of 113 and SD of 22. $b$ is a
+constant of 2.75.
 
 ``` r
-
+# define water-active cost function
 active_water_cost_fn <- function(sst, int_mean, int_sd){
   int <- rnorm(1, int_mean, int_sd)
   (max(int-(2.75*sst), 1)) |>
@@ -461,7 +496,7 @@ active <- State(
 )
 ```
 
-State for ‘inactive on water’ (Buckingham et al. 2023), follows the same
+State for *inactive on water* (Buckingham et al. 2023), follows the same
 linear function in SST, but where $a$ has a mean of 72.2 and SD of 22.
 $b$ is similarly constant at 2.75.
 
@@ -583,19 +618,19 @@ guill_ibm <- xfun::cache_rds({
 #> ✔ Validating inputs [8ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [108ms]
+#> ✔ Checking spatio-temporal consistency of inputs [106ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [63ms]
+#> ✔ Processing Drivers [59ms]
 #> 
 #> ℹ Processing Activity States
-#> ✔ Processing Activity States [16ms]
+#> ✔ Processing Activity States [14ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [382ms]
+#> ✔ Initialize Agents [221ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [23ms]
+#> ✔ Initialize <IBM> object [16ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -661,13 +696,13 @@ guill_results <- xfun::cache_rds({
 #> ✔ Performing validation checks on inputs and underlying data. [22ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [199ms]
+#> ✔ Preparing and configuring data for simulation. [190ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [19.5s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [17.9s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [18.3s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.2s]
 #> 
 #> ✔ Model simulation finished! 🛬
 

@@ -251,6 +251,7 @@ creates a <code>&lt;ModelConfig&gt;</code> object, which we assigned to
 <span>  start_sites <span class="op">=</span> <span class="va">isle_may</span></span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># show created &lt;ModelConfig&gt; object</span></span>
 <span><span class="va">guill_ibm_config</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">&lt;ModelConfig&gt;</span> instance with attributes:</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">•</span> Movement Model:      Density-informed</span></span>
@@ -355,7 +356,6 @@ resting, see below).</p></li>
 <span><span class="co"># guillemot baseline density maps</span></span>
 <span><span class="va">dens_drv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Driver.html">Driver</a></span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"dens"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"resource"</span>,</span>
 <span>  descr <span class="op">=</span> <span class="st">"species dens map"</span>,</span>
 <span>  stars_obj <span class="op">=</span> <span class="va">spec_map</span>,</span>
 <span>  obj_active <span class="op">=</span> <span class="st">"stars"</span></span>
@@ -364,7 +364,6 @@ resting, see below).</p></li>
 <span><span class="co"># guillemot impacted density maps</span></span>
 <span><span class="va">dens_imp_drv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Driver.html">Driver</a></span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"dens_imp"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"resource"</span>,</span>
 <span>  descr <span class="op">=</span> <span class="st">"species redist map"</span>,</span>
 <span>  stars_obj <span class="op">=</span> <span class="va">spec_imp_map</span>,</span>
 <span>  obj_active <span class="op">=</span> <span class="st">"stars"</span></span>
@@ -373,7 +372,6 @@ resting, see below).</p></li>
 <span><span class="co"># baseline energy intake maps</span></span>
 <span><span class="va">energy_drv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Driver.html">Driver</a></span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"energy"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"resource"</span>,</span>
 <span>  descr <span class="op">=</span> <span class="st">"energy map"</span>,</span>
 <span>  stars_obj <span class="op">=</span> <span class="va">intake_map</span>,</span>
 <span>  obj_active <span class="op">=</span> <span class="st">"stars"</span></span>
@@ -382,17 +380,14 @@ resting, see below).</p></li>
 <span><span class="co"># impacted energy intake maps</span></span>
 <span><span class="va">imp_energy_drv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Driver.html">Driver</a></span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"imp_energy"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"resource"</span>,</span>
 <span>  descr <span class="op">=</span> <span class="st">"energy impact map"</span>,</span>
 <span>  stars_obj <span class="op">=</span> <span class="va">imp_intake_map</span>,</span>
 <span>  obj_active <span class="op">=</span> <span class="st">"stars"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="co"># Sea Surface Temperature </span></span>
 <span><span class="va">sst_drv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Driver.html">Driver</a></span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"sst"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"habitat"</span>,</span>
 <span>  descr <span class="op">=</span> <span class="st">"Sea Surface Temperature"</span>,</span>
 <span>  stars_obj <span class="op">=</span> <span class="va">sst_map</span>,</span>
 <span>  obj_active <span class="op">=</span> <span class="st">"stars"</span></span>
@@ -409,7 +404,7 @@ resting, see below).</p></li>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="species-information---properties-that-inform-individual-agents">Species information - properties that inform individual agents<a class="anchor" aria-label="anchor" href="#species-information---properties-that-inform-individual-agents"></a>
+<h3 id="species-information-properties-underpinning-individual-agents">Species information: properties underpinning individual agents<a class="anchor" aria-label="anchor" href="#species-information-properties-underpinning-individual-agents"></a>
 </h3>
 <p>Species-level information is defined using the <code><a href="../reference/Species.html">Species()</a></code>
 function, which depends on a set of input objects. For clarity and
@@ -432,15 +427,19 @@ individual (agent) level.</p>
 <li>active on water (i.e. swimming)</li>
 <li>inactive on water (i.e. resting)</li>
 </ul>
-<p>We start with the ‘flight’ state. For the current simulation, we
-assume the energetic cost of flying for each agent varies throughout the
-simulation, following a Normal distribution with mean
-<code>507.6 kJ/h</code> and standard deviation
-of<code>237.6 kJ/h</code>. The source for these figures are <span class="citation">Elliott et al. (2013)</span>.</p>
-<p>Stochasticity can enter in various ways, here we specify the average
-speed of each agent to be fixed over the simulation (e.g. we’re implying
-relatively fast/slow animals), with agents speeds drawn from a uniform
-distribution, as specified below.</p>
+<p>We start with the <em>flight</em> state. For this simulation, we
+assume the energetic cost (<code>energy_cost</code>) of flying for each
+agent varies throughout the simulation, following a Normal distribution
+with mean 507.6 kJ/h and standard deviation of 237.6 kJ/h. The source
+for these figures are <span class="citation">Elliott et al.
+(2013)</span>.</p>
+<p>Stochasticity can enter the state specification in several ways. Here
+we assume assume that each agent has a fixed average flying speed for
+the entire simulation (representing inherently faster or slower
+individuals), with speeds drawn from a Uniform distribution as specified
+below (<code>speed</code>). The proportion of time allocated to flight
+at the initial time step (<code>time_budget</code>) is set to 0.056
+h/day for all simulated agents.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># user-defined function returning the energy cost of flying</span></span>
 <span><span class="va">flight_cost_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mean</span>, <span class="va">sd</span><span class="op">)</span><span class="op">{</span></span>
@@ -449,6 +448,7 @@ distribution, as specified below.</p>
 <span>    <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="st">"kJ/h"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
+<span><span class="co"># define &lt;State&gt; object for flight activity</span></span>
 <span><span class="va">flight</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/State.html">State</a></span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"flight"</span>, </span>
 <span>  energy_cost <span class="op">=</span> <span class="fu"><a href="../reference/VarFn.html">VarFn</a></span><span class="op">(</span></span>
@@ -458,20 +458,55 @@ distribution, as specified below.</p>
 <span>    <span class="op">)</span>, </span>
 <span>  time_budget <span class="op">=</span> <span class="fu"><a href="../reference/VarDist.html">VarDist</a></span><span class="op">(</span><span class="fl">0.056</span>, <span class="st">"hours/day"</span><span class="op">)</span>, </span>
 <span>  speed <span class="op">=</span> <span class="fu"><a href="../reference/VarDist.html">VarDist</a></span><span class="op">(</span><span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_uniform.html" class="external-link">dist_uniform</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span>, <span class="st">"m/s"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>The state representing the ‘diving’ activity <span class="citation">(Elliott et al. 2013)</span> as energy output
-contingent on the amount of diving. Here we are performing day-level
-calculations, meaning we are far from simulating at the dive level, and
-can use a mean dive-length without loss of generality. This is
-<code>t_dive</code> and populated later from tag information.</p>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># inspect flight object</span></span>
+<span><span class="va">flight</span></span>
+<span><span class="co">#&gt; An object of class "State"</span></span>
+<span><span class="co">#&gt; Slot "id":</span></span>
+<span><span class="co">#&gt; [1] "flight"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Slot "energy_cost":</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">&lt;VarFn&gt;</span></span></span>
+<span><span class="co">#&gt; function (mean, sd) </span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt;     e &lt;- rnorm(1, mean, sd)</span></span>
+<span><span class="co">#&gt;     units::set_units((max(e, 1)), "kJ/h")</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Args:</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> `mean`: 507.6</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">•</span> `sd`: 237.6</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Output units: [kJ h-1]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Slot "time_budget":</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">&lt;VarDist&gt;</span></span></span>
+<span><span class="co">#&gt; 0.056 <span style="color: #555555;">[h d-1]</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Slot "speed":</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">&lt;VarDist&gt;</span></span></span>
+<span><span class="co">#&gt; U(10, 20) <span style="color: #555555;">[m s-1]</span></span></span></code></pre></div>
+<p>For the state representing the <em>diving</em> activity, the energy
+output is contingent on the amount of diving <span class="citation">(Elliott et al. 2013)</span>.</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mn>3.71</mn><mfrac><mrow><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><msub><mi>T</mi><mi>i</mi></msub><mi>/</mi><mn>1.23</mn></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>T</mi><mi>i</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">
 e = 3.71\frac{\sum_i(1-e^{-T_i/1.23})}{\sum_iT_i}
 </annotation></semantics></math></p>
 <p>Where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>i</mi></msub><annotation encoding="application/x-tex">T_i</annotation></semantics></math>
-is the dive length of dive
+is the length of dive
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-in minutes.</p>
+in minutes. Here we are performing day-level calculations, meaning we
+are far from simulating at the dive level, and can use a mean
+dive-length without loss of generality. This is specified as parameter
+<code>t_dive</code> in the defined diving cost function, with input
+value derived from tag information.</p>
+<p>To introduce agent‑level stochasticity, we allow the energetic
+multiplier in the above equation (the leading coefficient, 3.71) to vary
+among individuals. We therefore parameterise this multiplier as
+<code>alpha</code>, assuming it follows a Normal distribution with mean
+3.71 and standard deviation 1.3, such that each agent’s diving cost
+fluctuates throughout the simulation.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define costing function</span></span>
 <span><span class="va">dive_cost_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t_dive</span>, <span class="va">alpha_mean</span>, <span class="va">alpha_sd</span><span class="op">)</span><span class="op">{</span></span>
@@ -479,7 +514,6 @@ in minutes.</p>
 <span>  <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">alpha</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">t_dive</span><span class="op">/</span><span class="fl">1.23</span><span class="op">)</span><span class="op">)</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">t_dive</span><span class="op">)</span><span class="op">*</span><span class="fl">60</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="st">"kJ/h"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span></span>
 <span></span>
 <span><span class="co"># Construct &lt;State&gt; object</span></span>
 <span><span class="va">dive</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/State.html">State</a></span><span class="op">(</span></span>
@@ -492,18 +526,18 @@ in minutes.</p>
 <span>  time_budget <span class="op">=</span> <span class="fu"><a href="../reference/VarDist.html">VarDist</a></span><span class="op">(</span><span class="fl">3.11</span>, <span class="st">"hours/day"</span><span class="op">)</span>, </span>
 <span>  speed <span class="op">=</span> <span class="fu"><a href="../reference/VarDist.html">VarDist</a></span><span class="op">(</span><span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_uniform.html" class="external-link">dist_uniform</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="st">"m/s"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>State representing ‘active on water’ <span class="citation">(Buckingham et al. 2023)</span> is a linear function in
-SST:</p>
+<p>State representing <em>active on water</em> <span class="citation">(Buckingham et al. 2023)</span> is a linear function in
+sea surface temperature (SST):</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mi>a</mi><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>b</mi><mo>*</mo><mi>S</mi><mi>S</mi><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 e = a-(b*SST)
 </annotation></semantics></math></p>
-<p>where
+<p>where the intercept
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 has a mean of 113 and SD of 22.
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
 is a constant of 2.75.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<code class="sourceCode R"><span><span class="co"># define water-active cost function</span></span>
 <span><span class="va">active_water_cost_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sst</span>, <span class="va">int_mean</span>, <span class="va">int_sd</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">int_mean</span>, <span class="va">int_sd</span><span class="op">)</span></span>
 <span>  <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">int</span><span class="op">-</span><span class="op">(</span><span class="fl">2.75</span><span class="op">*</span><span class="va">sst</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -522,8 +556,8 @@ is a constant of 2.75.</p>
 <span>  time_budget <span class="op">=</span> <span class="fu"><a href="../reference/VarDist.html">VarDist</a></span><span class="op">(</span><span class="fl">10.5</span>, <span class="st">"hours/day"</span><span class="op">)</span>, </span>
 <span>  speed <span class="op">=</span> <span class="fu"><a href="../reference/VarDist.html">VarDist</a></span><span class="op">(</span><span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_uniform.html" class="external-link">dist_uniform</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="st">"m/s"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>State for ‘inactive on water’ <span class="citation">(Buckingham et
-al. 2023)</span>, follows the same linear function in SST, but where
+<p>State for <em>inactive on water</em> <span class="citation">(Buckingham et al. 2023)</span>, follows the same
+linear function in SST, but where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 has a mean of 72.2 and SD of 22.
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
@@ -648,19 +682,19 @@ config object.</li>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[8ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Checking spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[108ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[106ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Drivers</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[63ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[59ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[16ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[14ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[382ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[221ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[23ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[16ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialization Done! 🚀</span></span></code></pre></div>
 </div>
@@ -730,13 +764,13 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[22ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[199ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[190ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[19.5s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[17.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[18.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
