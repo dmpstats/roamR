@@ -351,7 +351,9 @@ $$
 e = a-(b*SST)
 $$
 
-where the intercept $a$ has a mean of 113 and SD of 22. $b$ is a constant of 2.75.
+where the intercept $a$ has a mean of 113 and SD of 22. $b$ is a constant of 2.75. 
+
+Because this state explicitly depends on SST, we must ensure that the corresponding driver is linked correctly within the `<State>` object. This is achieved through the `args_spec` argument in `State()`. Specifically, we include a list element named `sst`, set to `"driver"`, which instructs roamR to retrieve SST values from the `"sst"` driver defined earlier in the vignette.
 
 
 ```{r active-state}
@@ -361,7 +363,6 @@ active_water_cost_fn <- function(sst, int_mean, int_sd){
   (max(int-(2.75*sst), 1)) |>
     units::set_units("kJ/h")
 }
-
 
 # Construct <State> object
 active <- State(
@@ -550,10 +551,10 @@ We can examine the agent's simulation histories directly - here we have two scen
 
 ```{r}
 # two scenarios
-  names(guill_results)
+names(guill_results)
 
 # several agents within each
-  length(guill_results$agents_bsln)
+length(guill_results$agents_bsln)
 
 # one agents history
 str(guill_results$agents_bsln[[1]]@history)
