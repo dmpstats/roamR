@@ -332,8 +332,7 @@ where they are missing.</p>
 <p><img src="case-study-guillemot_files/figure-html/read-drivers-4.png" class="r-plt" alt="" width="768"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">sst_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/bioss_sst_stars.rds"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>sst <span class="op">=</span>  <span class="fu">units</span><span class="fu">::</span><span class="fu"><a href="https://r-quantities.github.io/units/reference/units.html" class="external-link">set_units</a></span><span class="op">(</span><span class="va">sst</span>, <span class="st">"degree_Celsius"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">sst_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/sst_stars.rds"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">stars</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/stars/reference/st_warp.html" class="external-link">st_warp</a></span><span class="op">(</span>crs <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="va">spec_map</span><span class="op">)</span>, threshold  <span class="op">=</span> <span class="fl">20028</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sst_map</span><span class="op">)</span></span></code></pre></div>
@@ -710,22 +709,22 @@ config object.</li>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Validating inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[8ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Validating inputs <span style="color: #B2B2B2;">[10ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Checking spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[108ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Checking spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[113ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Drivers</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[64ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Drivers <span style="color: #B2B2B2;">[57ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[15ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States <span style="color: #B2B2B2;">[14ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[339ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize Agents <span style="color: #B2B2B2;">[212ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[20ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialize <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[17ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initialization Done! 🚀</span></span></code></pre></div>
 </div>
@@ -790,13 +789,13 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Running the DisNBS Individual-Based Model</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Performing validation checks on inputs and underlying data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[21ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[22ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[172ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[176ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.5s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.6s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16.8s]</span></span></span>
@@ -848,17 +847,17 @@ have two scenarios, each containing a number of agents:</p>
 <span><span class="co">#&gt;  $ timestep                          : int  0 1 2 3 4 5 6 7 8 9 ...</span></span>
 <span><span class="co">#&gt;  $ timestamp                         : POSIXct, format: NA "2025-07-01" ...</span></span>
 <span><span class="co">#&gt;  $ track_id                          : int  0 1 1 1 1 1 1 1 1 1 ...</span></span>
-<span><span class="co">#&gt;  $ body_mass                         : Units: [g] num  893 843 824 860 787 ...</span></span>
-<span><span class="co">#&gt;  $ body_mass_smooth                  : Units: [g] num  NA 841 841 842 842 ...</span></span>
-<span><span class="co">#&gt;  $ states_budget.flight              : num  0.00234 0.0025 0.00243 0.00257 0.00229 ...</span></span>
-<span><span class="co">#&gt;  $ states_budget.diving              : num  0.1298 0.0677 0.0941 0.0444 0.1454 ...</span></span>
-<span><span class="co">#&gt;  $ states_budget.active_on_water     : num  0.438 0.469 0.456 0.481 0.43 ...</span></span>
-<span><span class="co">#&gt;  $ states_budget.inactive_on_water   : num  0.43 0.46 0.447 0.472 0.422 ...</span></span>
+<span><span class="co">#&gt;  $ body_mass                         : Units: [g] num  893 859 825 875 784 ...</span></span>
+<span><span class="co">#&gt;  $ body_mass_smooth                  : Units: [g] num  NA 850 850 850 850 ...</span></span>
+<span><span class="co">#&gt;  $ states_budget.flight              : num  0.00234 0.00256 0.00243 0.00262 0.00229 ...</span></span>
+<span><span class="co">#&gt;  $ states_budget.diving              : num  0.1298 0.0457 0.0937 0.0248 0.1489 ...</span></span>
+<span><span class="co">#&gt;  $ states_budget.active_on_water     : num  0.438 0.48 0.456 0.491 0.428 ...</span></span>
+<span><span class="co">#&gt;  $ states_budget.inactive_on_water   : num  0.43 0.471 0.448 0.482 0.42 ...</span></span>
 <span><span class="co">#&gt;  $ states_unit_cost.flight           : Units: [kJ/h] num  0 -326 -580 -268 -380 ...</span></span>
 <span><span class="co">#&gt;  $ states_unit_cost.diving           : Units: [kJ/h] num  0 -176.8 -210.4 -138.4 -87.9 ...</span></span>
-<span><span class="co">#&gt;  $ states_unit_cost.active_on_water  : Units: [kJ/h] num  0 -108.2 -100.6 -76.2 -118.9 ...</span></span>
-<span><span class="co">#&gt;  $ states_unit_cost.inactive_on_water: Units: [kJ/h] num  0 -64.9 -29.3 -47.7 -49.5 ...</span></span>
-<span><span class="co">#&gt;  $ energy_expenditure                : Units: [kJ] num  0 -684 -952 -449 -1472 ...</span></span>
+<span><span class="co">#&gt;  $ states_unit_cost.active_on_water  : Units: [kJ/h] num  0 -97.5 -91.2 -66.9 -109.5 ...</span></span>
+<span><span class="co">#&gt;  $ states_unit_cost.inactive_on_water: Units: [kJ/h] num  0 -54.2 -19.9 -38.3 -40.1 ...</span></span>
+<span><span class="co">#&gt;  $ energy_expenditure                : Units: [kJ] num  0 -462 -948 -250 -1507 ...</span></span>
 <span><span class="co">#&gt;  $ geometry                          :sfc_POINT of length 272; first list element:  'XY' num  526896 6226565</span></span>
 <span><span class="co">#&gt;  - attr(*, "sf_column")= chr "geometry"</span></span>
 <span><span class="co">#&gt;  - attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA NA NA NA NA NA NA NA NA NA ...</span></span>
@@ -872,64 +871,64 @@ dataset.</p>
 <pre><code><span><span class="co">#&gt; Simple feature collection with 2176 features and 19 fields</span></span>
 <span><span class="co">#&gt; Geometry type: POINT</span></span>
 <span><span class="co">#&gt; Dimension:     XY</span></span>
-<span><span class="co">#&gt; Bounding box:  xmin: 363772.8 ymin: 5958868 xmax: 1143527 ymax: 6743622</span></span>
+<span><span class="co">#&gt; Bounding box:  xmin: 363772.8 ymin: 5958868 xmax: 1143527 ymax: 6741622</span></span>
 <span><span class="co">#&gt; Projected CRS: WGS 84 / UTM zone 30N</span></span>
 <span><span class="co">#&gt; First 10 features:</span></span>
 <span><span class="co">#&gt;      scenario agent timestep  timestamp track_id    body_mass body_mass_smooth</span></span>
 <span><span class="co">#&gt; 1  status-quo     1        0       &lt;NA&gt;        0 892.7471 [g]           NA [g]</span></span>
-<span><span class="co">#&gt; 2  status-quo     1        1 2025-07-01        1 843.4863 [g]     841.0222 [g]</span></span>
-<span><span class="co">#&gt; 3  status-quo     1        2 2025-07-02        1 824.1961 [g]     841.3407 [g]</span></span>
-<span><span class="co">#&gt; 4  status-quo     1        3 2025-07-03        1 860.4239 [g]     841.6555 [g]</span></span>
-<span><span class="co">#&gt; 5  status-quo     1        4 2025-07-04        1 786.7908 [g]     841.9606 [g]</span></span>
-<span><span class="co">#&gt; 6  status-quo     1        5 2025-07-05        1 899.6028 [g]     842.2460 [g]</span></span>
-<span><span class="co">#&gt; 7  status-quo     1        6 2025-07-06        1 851.8596 [g]     842.5069 [g]</span></span>
-<span><span class="co">#&gt; 8  status-quo     1        7 2025-07-07        1 797.9183 [g]     842.7435 [g]</span></span>
-<span><span class="co">#&gt; 9  status-quo     1        8 2025-07-08        1 860.3766 [g]     842.9635 [g]</span></span>
-<span><span class="co">#&gt; 10 status-quo     1        9 2025-07-09        1 844.7294 [g]     843.1735 [g]</span></span>
+<span><span class="co">#&gt; 2  status-quo     1        1 2025-07-01        1 859.4652 [g]     849.5669 [g]</span></span>
+<span><span class="co">#&gt; 3  status-quo     1        2 2025-07-02        1 824.5211 [g]     849.8199 [g]</span></span>
+<span><span class="co">#&gt; 4  status-quo     1        3 2025-07-03        1 874.7305 [g]     850.0713 [g]</span></span>
+<span><span class="co">#&gt; 5  status-quo     1        4 2025-07-04        1 784.2506 [g]     850.3156 [g]</span></span>
+<span><span class="co">#&gt; 6  status-quo     1        5 2025-07-05        1 915.2131 [g]     850.5381 [g]</span></span>
+<span><span class="co">#&gt; 7  status-quo     1        6 2025-07-06        1 868.0418 [g]     850.7335 [g]</span></span>
+<span><span class="co">#&gt; 8  status-quo     1        7 2025-07-07        1 791.9768 [g]     850.8961 [g]</span></span>
+<span><span class="co">#&gt; 9  status-quo     1        8 2025-07-08        1 880.5188 [g]     851.0329 [g]</span></span>
+<span><span class="co">#&gt; 10 status-quo     1        9 2025-07-09        1 835.8843 [g]     851.1461 [g]</span></span>
 <span><span class="co">#&gt;    states_budget.flight states_budget.diving states_budget.active_on_water</span></span>
 <span><span class="co">#&gt; 1           0.002336644           0.12976717                     0.4381207</span></span>
-<span><span class="co">#&gt; 2           0.002503428           0.06765173                     0.4693928</span></span>
-<span><span class="co">#&gt; 3           0.002432399           0.09410517                     0.4560748</span></span>
-<span><span class="co">#&gt; 4           0.002565795           0.04442471                     0.4810865</span></span>
-<span><span class="co">#&gt; 5           0.002294667           0.14540035                     0.4302501</span></span>
+<span><span class="co">#&gt; 2           0.002562265           0.04573934                     0.4804247</span></span>
+<span><span class="co">#&gt; 3           0.002433596           0.09365941                     0.4562992</span></span>
+<span><span class="co">#&gt; 4           0.002618474           0.02480554                     0.4909638</span></span>
+<span><span class="co">#&gt; 5           0.002285314           0.14888379                     0.4284964</span></span>
 <span><span class="co">#&gt; 6           0.002685079           0.00000000                     0.5034522</span></span>
-<span><span class="co">#&gt; 7           0.002534260           0.05616915                     0.4751738</span></span>
-<span><span class="co">#&gt; 8           0.002335640           0.13014076                     0.4379326</span></span>
-<span><span class="co">#&gt; 9           0.002565621           0.04448955                     0.4810539</span></span>
-<span><span class="co">#&gt; 10          0.002508006           0.06594702                     0.4702511</span></span>
+<span><span class="co">#&gt; 7           0.002593845           0.03397798                     0.4863460</span></span>
+<span><span class="co">#&gt; 8           0.002313763           0.13828859                     0.4338305</span></span>
+<span><span class="co">#&gt; 9           0.002639787           0.01686782                     0.4949601</span></span>
+<span><span class="co">#&gt; 10          0.002475437           0.07807672                     0.4641443</span></span>
 <span><span class="co">#&gt;    states_budget.inactive_on_water states_unit_cost.flight</span></span>
 <span><span class="co">#&gt; 1                        0.4297755           0.0000 [kJ/h]</span></span>
-<span><span class="co">#&gt; 2                        0.4604520        -326.0301 [kJ/h]</span></span>
-<span><span class="co">#&gt; 3                        0.4473876        -580.4143 [kJ/h]</span></span>
-<span><span class="co">#&gt; 4                        0.4719230        -267.6850 [kJ/h]</span></span>
-<span><span class="co">#&gt; 5                        0.4220549        -380.0569 [kJ/h]</span></span>
+<span><span class="co">#&gt; 2                        0.4712737        -326.0301 [kJ/h]</span></span>
+<span><span class="co">#&gt; 3                        0.4476078        -580.4143 [kJ/h]</span></span>
+<span><span class="co">#&gt; 4                        0.4816121        -267.6850 [kJ/h]</span></span>
+<span><span class="co">#&gt; 5                        0.4203345        -380.0569 [kJ/h]</span></span>
 <span><span class="co">#&gt; 6                        0.4938627        -540.9809 [kJ/h]</span></span>
-<span><span class="co">#&gt; 7                        0.4661228        -458.9594 [kJ/h]</span></span>
-<span><span class="co">#&gt; 8                        0.4295910        -452.3054 [kJ/h]</span></span>
-<span><span class="co">#&gt; 9                        0.4718909        -173.1052 [kJ/h]</span></span>
-<span><span class="co">#&gt; 10                       0.4612939        -818.3772 [kJ/h]</span></span>
+<span><span class="co">#&gt; 7                        0.4770822        -458.9594 [kJ/h]</span></span>
+<span><span class="co">#&gt; 8                        0.4255671        -452.3054 [kJ/h]</span></span>
+<span><span class="co">#&gt; 9                        0.4855323        -173.1052 [kJ/h]</span></span>
+<span><span class="co">#&gt; 10                       0.4553035        -818.3772 [kJ/h]</span></span>
 <span><span class="co">#&gt;    states_unit_cost.diving states_unit_cost.active_on_water</span></span>
 <span><span class="co">#&gt; 1           0.00000 [kJ/h]                   0.00000 [kJ/h]</span></span>
-<span><span class="co">#&gt; 2        -176.78357 [kJ/h]                -108.17686 [kJ/h]</span></span>
-<span><span class="co">#&gt; 3        -210.44304 [kJ/h]                -100.59187 [kJ/h]</span></span>
-<span><span class="co">#&gt; 4        -138.40550 [kJ/h]                 -76.24058 [kJ/h]</span></span>
-<span><span class="co">#&gt; 5         -87.91532 [kJ/h]                -118.91570 [kJ/h]</span></span>
-<span><span class="co">#&gt; 6         -90.63622 [kJ/h]                -132.35904 [kJ/h]</span></span>
-<span><span class="co">#&gt; 7         -87.63698 [kJ/h]                 -34.04614 [kJ/h]</span></span>
-<span><span class="co">#&gt; 8         -66.87361 [kJ/h]                -123.85927 [kJ/h]</span></span>
-<span><span class="co">#&gt; 9        -178.81558 [kJ/h]                 -91.25478 [kJ/h]</span></span>
-<span><span class="co">#&gt; 10       -142.40802 [kJ/h]                 -84.17964 [kJ/h]</span></span>
+<span><span class="co">#&gt; 2        -176.78357 [kJ/h]                 -97.52233 [kJ/h]</span></span>
+<span><span class="co">#&gt; 3        -210.44304 [kJ/h]                 -91.20198 [kJ/h]</span></span>
+<span><span class="co">#&gt; 4        -138.40550 [kJ/h]                 -66.85069 [kJ/h]</span></span>
+<span><span class="co">#&gt; 5         -87.91532 [kJ/h]                -109.52581 [kJ/h]</span></span>
+<span><span class="co">#&gt; 6         -90.63622 [kJ/h]                -122.96916 [kJ/h]</span></span>
+<span><span class="co">#&gt; 7         -87.63698 [kJ/h]                 -24.65625 [kJ/h]</span></span>
+<span><span class="co">#&gt; 8         -66.87361 [kJ/h]                -114.46939 [kJ/h]</span></span>
+<span><span class="co">#&gt; 9        -178.81558 [kJ/h]                 -81.86490 [kJ/h]</span></span>
+<span><span class="co">#&gt; 10       -142.40802 [kJ/h]                 -74.78976 [kJ/h]</span></span>
 <span><span class="co">#&gt;    states_unit_cost.inactive_on_water energy_expenditure       Date month</span></span>
-<span><span class="co">#&gt; 1                     0.000000 [kJ/h]       0.00000 [kJ]       &lt;NA&gt;    NA</span></span>
-<span><span class="co">#&gt; 2                   -64.856872 [kJ/h]    -684.17668 [kJ] 2025-07-01     7</span></span>
-<span><span class="co">#&gt; 3                   -29.316059 [kJ/h]    -952.09712 [kJ] 2025-07-02     7</span></span>
-<span><span class="co">#&gt; 4                   -47.738181 [kJ/h]    -448.93350 [kJ] 2025-07-03     7</span></span>
-<span><span class="co">#&gt; 5                   -49.479257 [kJ/h]   -1471.61472 [kJ] 2025-07-04     7</span></span>
-<span><span class="co">#&gt; 6                    -8.571322 [kJ/h]      95.21804 [kJ] 2025-07-05     7</span></span>
-<span><span class="co">#&gt; 7                   -10.708986 [kJ/h]    -567.88115 [kJ] 2025-07-06     7</span></span>
-<span><span class="co">#&gt; 8                   -46.383505 [kJ/h]   -1317.06559 [kJ] 2025-07-07     7</span></span>
-<span><span class="co">#&gt; 9                   -59.964954 [kJ/h]    -449.59019 [kJ] 2025-07-08     7</span></span>
-<span><span class="co">#&gt; 10                   -6.390341 [kJ/h]    -666.91142 [kJ] 2025-07-09     7</span></span>
+<span><span class="co">#&gt; 1                      0.00000 [kJ/h]        0.0000 [kJ]       &lt;NA&gt;    NA</span></span>
+<span><span class="co">#&gt; 2                    -54.20234 [kJ/h]     -462.2480 [kJ] 2025-07-01     7</span></span>
+<span><span class="co">#&gt; 3                    -19.92617 [kJ/h]     -947.5825 [kJ] 2025-07-02     7</span></span>
+<span><span class="co">#&gt; 4                    -38.34830 [kJ/h]     -250.2305 [kJ] 2025-07-03     7</span></span>
+<span><span class="co">#&gt; 5                    -40.08937 [kJ/h]    -1506.8950 [kJ] 2025-07-04     7</span></span>
+<span><span class="co">#&gt; 6                     -1.00000 [kJ/h]      312.0276 [kJ] 2025-07-05     7</span></span>
+<span><span class="co">#&gt; 7                     -1.31910 [kJ/h]     -343.1290 [kJ] 2025-07-06     7</span></span>
+<span><span class="co">#&gt; 8                    -36.99362 [kJ/h]    -1399.5869 [kJ] 2025-07-07     7</span></span>
+<span><span class="co">#&gt; 9                    -50.57507 [kJ/h]     -169.8373 [kJ] 2025-07-08     7</span></span>
+<span><span class="co">#&gt; 10                    -1.00000 [kJ/h]     -789.7610 [kJ] 2025-07-09     7</span></span>
 <span><span class="co">#&gt;    suscep                 geometry</span></span>
 <span><span class="co">#&gt; 1   FALSE POINT (526895.8 6226565)</span></span>
 <span><span class="co">#&gt; 2   FALSE POINT (543716.2 6248777)</span></span>
@@ -1007,7 +1006,7 @@ specification at the species level.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p_tracks</span></span></code></pre></div>
-<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="864"></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"images/tracks_susceptile_agent.png"</span>, <span class="va">p_tracks</span>, width <span class="op">=</span> <span class="fl">15</span>, height <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>

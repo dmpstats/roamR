@@ -276,8 +276,7 @@ plot(imp_intake_map)
 
 ``` r
 
-sst_map <- readRDS("data/bioss_sst_stars.rds") |> 
-  mutate(sst =  units::set_units(sst, "degree_Celsius")) |> 
+sst_map <- readRDS("data/sst_stars.rds") |> 
   stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
 
 plot(sst_map)
@@ -659,22 +658,22 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Validating inputs
-#> ✔ Validating inputs [8ms]
+#> ✔ Validating inputs [10ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [108ms]
+#> ✔ Checking spatio-temporal consistency of inputs [113ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [64ms]
+#> ✔ Processing Drivers [57ms]
 #> 
 #> ℹ Processing Activity States
-#> ✔ Processing Activity States [15ms]
+#> ✔ Processing Activity States [14ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [339ms]
+#> ✔ Initialize Agents [212ms]
 #> 
 #> ℹ Initialize <IBM> object
-#> ✔ Initialize <IBM> object [20ms]
+#> ✔ Initialize <IBM> object [17ms]
 #> 
 #> ✔ Initialization Done! 🚀
 ```
@@ -735,13 +734,13 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [21ms]
+#> ✔ Performing validation checks on inputs and underlying data. [22ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [172ms]
+#> ✔ Preparing and configuring data for simulation. [176ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18.5s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.6s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
 #> ✔ Simulating agents' journeys under the impact-case scenario [16.8s]
@@ -790,17 +789,17 @@ str(guill_results$agents_bsln[[1]]@history)
 #>  $ timestep                          : int  0 1 2 3 4 5 6 7 8 9 ...
 #>  $ timestamp                         : POSIXct, format: NA "2025-07-01" ...
 #>  $ track_id                          : int  0 1 1 1 1 1 1 1 1 1 ...
-#>  $ body_mass                         : Units: [g] num  893 843 824 860 787 ...
-#>  $ body_mass_smooth                  : Units: [g] num  NA 841 841 842 842 ...
-#>  $ states_budget.flight              : num  0.00234 0.0025 0.00243 0.00257 0.00229 ...
-#>  $ states_budget.diving              : num  0.1298 0.0677 0.0941 0.0444 0.1454 ...
-#>  $ states_budget.active_on_water     : num  0.438 0.469 0.456 0.481 0.43 ...
-#>  $ states_budget.inactive_on_water   : num  0.43 0.46 0.447 0.472 0.422 ...
+#>  $ body_mass                         : Units: [g] num  893 859 825 875 784 ...
+#>  $ body_mass_smooth                  : Units: [g] num  NA 850 850 850 850 ...
+#>  $ states_budget.flight              : num  0.00234 0.00256 0.00243 0.00262 0.00229 ...
+#>  $ states_budget.diving              : num  0.1298 0.0457 0.0937 0.0248 0.1489 ...
+#>  $ states_budget.active_on_water     : num  0.438 0.48 0.456 0.491 0.428 ...
+#>  $ states_budget.inactive_on_water   : num  0.43 0.471 0.448 0.482 0.42 ...
 #>  $ states_unit_cost.flight           : Units: [kJ/h] num  0 -326 -580 -268 -380 ...
 #>  $ states_unit_cost.diving           : Units: [kJ/h] num  0 -176.8 -210.4 -138.4 -87.9 ...
-#>  $ states_unit_cost.active_on_water  : Units: [kJ/h] num  0 -108.2 -100.6 -76.2 -118.9 ...
-#>  $ states_unit_cost.inactive_on_water: Units: [kJ/h] num  0 -64.9 -29.3 -47.7 -49.5 ...
-#>  $ energy_expenditure                : Units: [kJ] num  0 -684 -952 -449 -1472 ...
+#>  $ states_unit_cost.active_on_water  : Units: [kJ/h] num  0 -97.5 -91.2 -66.9 -109.5 ...
+#>  $ states_unit_cost.inactive_on_water: Units: [kJ/h] num  0 -54.2 -19.9 -38.3 -40.1 ...
+#>  $ energy_expenditure                : Units: [kJ] num  0 -462 -948 -250 -1507 ...
 #>  $ geometry                          :sfc_POINT of length 272; first list element:  'XY' num  526896 6226565
 #>  - attr(*, "sf_column")= chr "geometry"
 #>  - attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA NA NA NA NA NA NA NA NA NA ...
@@ -816,64 +815,64 @@ dataset.
     #> Simple feature collection with 2176 features and 19 fields
     #> Geometry type: POINT
     #> Dimension:     XY
-    #> Bounding box:  xmin: 363772.8 ymin: 5958868 xmax: 1143527 ymax: 6743622
+    #> Bounding box:  xmin: 363772.8 ymin: 5958868 xmax: 1143527 ymax: 6741622
     #> Projected CRS: WGS 84 / UTM zone 30N
     #> First 10 features:
     #>      scenario agent timestep  timestamp track_id    body_mass body_mass_smooth
     #> 1  status-quo     1        0       <NA>        0 892.7471 [g]           NA [g]
-    #> 2  status-quo     1        1 2025-07-01        1 843.4863 [g]     841.0222 [g]
-    #> 3  status-quo     1        2 2025-07-02        1 824.1961 [g]     841.3407 [g]
-    #> 4  status-quo     1        3 2025-07-03        1 860.4239 [g]     841.6555 [g]
-    #> 5  status-quo     1        4 2025-07-04        1 786.7908 [g]     841.9606 [g]
-    #> 6  status-quo     1        5 2025-07-05        1 899.6028 [g]     842.2460 [g]
-    #> 7  status-quo     1        6 2025-07-06        1 851.8596 [g]     842.5069 [g]
-    #> 8  status-quo     1        7 2025-07-07        1 797.9183 [g]     842.7435 [g]
-    #> 9  status-quo     1        8 2025-07-08        1 860.3766 [g]     842.9635 [g]
-    #> 10 status-quo     1        9 2025-07-09        1 844.7294 [g]     843.1735 [g]
+    #> 2  status-quo     1        1 2025-07-01        1 859.4652 [g]     849.5669 [g]
+    #> 3  status-quo     1        2 2025-07-02        1 824.5211 [g]     849.8199 [g]
+    #> 4  status-quo     1        3 2025-07-03        1 874.7305 [g]     850.0713 [g]
+    #> 5  status-quo     1        4 2025-07-04        1 784.2506 [g]     850.3156 [g]
+    #> 6  status-quo     1        5 2025-07-05        1 915.2131 [g]     850.5381 [g]
+    #> 7  status-quo     1        6 2025-07-06        1 868.0418 [g]     850.7335 [g]
+    #> 8  status-quo     1        7 2025-07-07        1 791.9768 [g]     850.8961 [g]
+    #> 9  status-quo     1        8 2025-07-08        1 880.5188 [g]     851.0329 [g]
+    #> 10 status-quo     1        9 2025-07-09        1 835.8843 [g]     851.1461 [g]
     #>    states_budget.flight states_budget.diving states_budget.active_on_water
     #> 1           0.002336644           0.12976717                     0.4381207
-    #> 2           0.002503428           0.06765173                     0.4693928
-    #> 3           0.002432399           0.09410517                     0.4560748
-    #> 4           0.002565795           0.04442471                     0.4810865
-    #> 5           0.002294667           0.14540035                     0.4302501
+    #> 2           0.002562265           0.04573934                     0.4804247
+    #> 3           0.002433596           0.09365941                     0.4562992
+    #> 4           0.002618474           0.02480554                     0.4909638
+    #> 5           0.002285314           0.14888379                     0.4284964
     #> 6           0.002685079           0.00000000                     0.5034522
-    #> 7           0.002534260           0.05616915                     0.4751738
-    #> 8           0.002335640           0.13014076                     0.4379326
-    #> 9           0.002565621           0.04448955                     0.4810539
-    #> 10          0.002508006           0.06594702                     0.4702511
+    #> 7           0.002593845           0.03397798                     0.4863460
+    #> 8           0.002313763           0.13828859                     0.4338305
+    #> 9           0.002639787           0.01686782                     0.4949601
+    #> 10          0.002475437           0.07807672                     0.4641443
     #>    states_budget.inactive_on_water states_unit_cost.flight
     #> 1                        0.4297755           0.0000 [kJ/h]
-    #> 2                        0.4604520        -326.0301 [kJ/h]
-    #> 3                        0.4473876        -580.4143 [kJ/h]
-    #> 4                        0.4719230        -267.6850 [kJ/h]
-    #> 5                        0.4220549        -380.0569 [kJ/h]
+    #> 2                        0.4712737        -326.0301 [kJ/h]
+    #> 3                        0.4476078        -580.4143 [kJ/h]
+    #> 4                        0.4816121        -267.6850 [kJ/h]
+    #> 5                        0.4203345        -380.0569 [kJ/h]
     #> 6                        0.4938627        -540.9809 [kJ/h]
-    #> 7                        0.4661228        -458.9594 [kJ/h]
-    #> 8                        0.4295910        -452.3054 [kJ/h]
-    #> 9                        0.4718909        -173.1052 [kJ/h]
-    #> 10                       0.4612939        -818.3772 [kJ/h]
+    #> 7                        0.4770822        -458.9594 [kJ/h]
+    #> 8                        0.4255671        -452.3054 [kJ/h]
+    #> 9                        0.4855323        -173.1052 [kJ/h]
+    #> 10                       0.4553035        -818.3772 [kJ/h]
     #>    states_unit_cost.diving states_unit_cost.active_on_water
     #> 1           0.00000 [kJ/h]                   0.00000 [kJ/h]
-    #> 2        -176.78357 [kJ/h]                -108.17686 [kJ/h]
-    #> 3        -210.44304 [kJ/h]                -100.59187 [kJ/h]
-    #> 4        -138.40550 [kJ/h]                 -76.24058 [kJ/h]
-    #> 5         -87.91532 [kJ/h]                -118.91570 [kJ/h]
-    #> 6         -90.63622 [kJ/h]                -132.35904 [kJ/h]
-    #> 7         -87.63698 [kJ/h]                 -34.04614 [kJ/h]
-    #> 8         -66.87361 [kJ/h]                -123.85927 [kJ/h]
-    #> 9        -178.81558 [kJ/h]                 -91.25478 [kJ/h]
-    #> 10       -142.40802 [kJ/h]                 -84.17964 [kJ/h]
+    #> 2        -176.78357 [kJ/h]                 -97.52233 [kJ/h]
+    #> 3        -210.44304 [kJ/h]                 -91.20198 [kJ/h]
+    #> 4        -138.40550 [kJ/h]                 -66.85069 [kJ/h]
+    #> 5         -87.91532 [kJ/h]                -109.52581 [kJ/h]
+    #> 6         -90.63622 [kJ/h]                -122.96916 [kJ/h]
+    #> 7         -87.63698 [kJ/h]                 -24.65625 [kJ/h]
+    #> 8         -66.87361 [kJ/h]                -114.46939 [kJ/h]
+    #> 9        -178.81558 [kJ/h]                 -81.86490 [kJ/h]
+    #> 10       -142.40802 [kJ/h]                 -74.78976 [kJ/h]
     #>    states_unit_cost.inactive_on_water energy_expenditure       Date month
-    #> 1                     0.000000 [kJ/h]       0.00000 [kJ]       <NA>    NA
-    #> 2                   -64.856872 [kJ/h]    -684.17668 [kJ] 2025-07-01     7
-    #> 3                   -29.316059 [kJ/h]    -952.09712 [kJ] 2025-07-02     7
-    #> 4                   -47.738181 [kJ/h]    -448.93350 [kJ] 2025-07-03     7
-    #> 5                   -49.479257 [kJ/h]   -1471.61472 [kJ] 2025-07-04     7
-    #> 6                    -8.571322 [kJ/h]      95.21804 [kJ] 2025-07-05     7
-    #> 7                   -10.708986 [kJ/h]    -567.88115 [kJ] 2025-07-06     7
-    #> 8                   -46.383505 [kJ/h]   -1317.06559 [kJ] 2025-07-07     7
-    #> 9                   -59.964954 [kJ/h]    -449.59019 [kJ] 2025-07-08     7
-    #> 10                   -6.390341 [kJ/h]    -666.91142 [kJ] 2025-07-09     7
+    #> 1                      0.00000 [kJ/h]        0.0000 [kJ]       <NA>    NA
+    #> 2                    -54.20234 [kJ/h]     -462.2480 [kJ] 2025-07-01     7
+    #> 3                    -19.92617 [kJ/h]     -947.5825 [kJ] 2025-07-02     7
+    #> 4                    -38.34830 [kJ/h]     -250.2305 [kJ] 2025-07-03     7
+    #> 5                    -40.08937 [kJ/h]    -1506.8950 [kJ] 2025-07-04     7
+    #> 6                     -1.00000 [kJ/h]      312.0276 [kJ] 2025-07-05     7
+    #> 7                     -1.31910 [kJ/h]     -343.1290 [kJ] 2025-07-06     7
+    #> 8                    -36.99362 [kJ/h]    -1399.5869 [kJ] 2025-07-07     7
+    #> 9                    -50.57507 [kJ/h]     -169.8373 [kJ] 2025-07-08     7
+    #> 10                    -1.00000 [kJ/h]     -789.7610 [kJ] 2025-07-09     7
     #>    suscep                 geometry
     #> 1   FALSE POINT (526895.8 6226565)
     #> 2   FALSE POINT (543716.2 6248777)
