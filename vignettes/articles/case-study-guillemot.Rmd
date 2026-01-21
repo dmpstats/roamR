@@ -198,8 +198,7 @@ imp_intake_map <- readRDS("data/guill_impacted_energy_intake_map.rds")
 
 plot(imp_intake_map)
 
-sst_map <- readRDS("data/bioss_sst_stars.rds") |> 
-  mutate(sst =  units::set_units(sst, "degree_Celsius")) |> 
+sst_map <- readRDS("data/sst_stars.rds") |> 
   stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
 
 plot(sst_map)
@@ -643,7 +642,7 @@ ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 
 ```
 
 
-```{r, fig.dim=c(9,9), out.width="100%"}
+```{r, fig.dim=c(9,9)}
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
   filter(suscep == TRUE) |> 
