@@ -661,16 +661,16 @@ guill_ibm <- xfun::cache_rds({
 #> ✔ Validating inputs [10ms]
 #> 
 #> ℹ Checking spatio-temporal consistency of inputs
-#> ✔ Checking spatio-temporal consistency of inputs [113ms]
+#> ✔ Checking spatio-temporal consistency of inputs [116ms]
 #> 
 #> ℹ Processing Drivers
-#> ✔ Processing Drivers [57ms]
+#> ✔ Processing Drivers [60ms]
 #> 
 #> ℹ Processing Activity States
-#> ✔ Processing Activity States [14ms]
+#> ✔ Processing Activity States [15ms]
 #> 
 #> ℹ Initialize Agents
-#> ✔ Initialize Agents [212ms]
+#> ✔ Initialize Agents [217ms]
 #> 
 #> ℹ Initialize <IBM> object
 #> ✔ Initialize <IBM> object [17ms]
@@ -737,13 +737,13 @@ guill_results <- xfun::cache_rds({
 #> ✔ Performing validation checks on inputs and underlying data. [22ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [176ms]
+#> ✔ Preparing and configuring data for simulation. [178ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18.6s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.5s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [16.8s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.6s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
