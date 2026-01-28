@@ -131,15 +131,17 @@ simulate_agent_disnbs <- function(agent,
 
       #if(track_id == 3) browser()
 
+      dens <- extract_dns_layer(
+        pluck_s4(drivers, dnbs_cfg$dens_id) |> stars_obj(),
+        dnbs_cfg,
+        step
+      )
+
       # generate new track
       actv_track <- if(!impacted){
         calculate_track(
           agent,
-          dens = extract_dns_layer(
-            pluck_s4(drivers, dnbs_cfg$dens_id) |> stars_obj(),
-            dnbs_cfg,
-            step
-          ),
+          dens = dens,
           impacted = FALSE,
           crs = dnbs_cfg$crs,
           aoc_bbx = dnbs_cfg$aoc_bbx
@@ -147,16 +149,12 @@ simulate_agent_disnbs <- function(agent,
       }else{
         calculate_track(
           agent,
-          dens = extract_dns_layer(
-            pluck_s4(drivers, dnbs_cfg$dens_id) |> stars_obj(),
-            dnbs_cfg,
-            step
-          ),
+          dens = dens,
           impacted = TRUE,
           imp_dens = extract_dns_layer(
-              pluck_s4(drivers, dnbs_cfg$imp_dens_id) |> stars_obj(),
-              dnbs_cfg,
-              step
+            pluck_s4(drivers, dnbs_cfg$imp_dens_id) |> stars_obj(),
+            dnbs_cfg,
+            step
           ),
           crs = dnbs_cfg$crs,
           aoc_bbx = dnbs_cfg$aoc_bbx
@@ -427,6 +425,8 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
 
   track
 }
+
+
 
 
 
