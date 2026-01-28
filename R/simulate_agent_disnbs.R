@@ -9,8 +9,11 @@
 #' Notes to expand:
 #'  - Assumes movement is exclusively one-directional, towards the end of each track
 #'  - once agent gets to a track's endpoint, it stays there until the following
-#'  rerouting step, relardless of of the travelling distance returned from the
-#'  states
+#'  re-routing step, regardless of of the travelling distance returned from the
+#'  states.
+#'  - handling cases where track generation is invalid due to unavailable path
+#'  between start and end points caused by NAs in density surface. Current
+#'  solution: agent remains in same cell.
 #'
 #' @param agent `<Agent>`, representing the individual to be simulated.
 #' @param dens `<stars>`, providing the spatio-temporal species density
@@ -160,10 +163,20 @@ simulate_agent_disnbs <- function(agent,
         )
       }
 
-      # segmentize track to specified point resolution
-      actv_waypnts <- actv_track |>
-        sf::st_segmentize(dfMaxLength = dnbs_cfg$waypnts_res) |>
-        sf::st_cast("POINT")
+      # generate current track's waypoints
+      if(!sf::st_is_empty(actv_track)){
+        # segmentize track to specified point resolution
+        actv_waypnts <- actv_track |>
+          sf::st_segmentize(dfMaxLength = dnbs_cfg$waypnts_res) |>
+          sf::st_cast("POINT")
+      } else {
+        # if `actv_track` contains an empty linestring, due to endpoint landing
+        # in a region without a connection to startpoint (e.g. endpoint
+        # falling in a region of the density surface surrounded by NAs), then we
+        # assume the agent remains in the current location/cell
+        actv_waypnts <- sf::st_sfc(agent@condition@location, crs = dnbs_cfg$crs)
+      }
+
 
       # cumulative length of new track's waypoints (meters)
       cum_dist <- sf::st_distance(actv_waypnts, actv_waypnts[1]) |>
@@ -174,7 +187,6 @@ simulate_agent_disnbs <- function(agent,
       #plot(actv_track, axes = TRUE)
       track_id <- track_id + 1L
     }
-
 
     ## Derive energetics ---------------------------------------------------
     # (at start of current step, given condition at previous)
@@ -404,7 +416,7 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
   # different decisions regarding endpoint linkage, resulting in different
   # linestring outputs. The <terra> approach was chosen, as it is recommended in
   # the documentation for Earth-related applications.
-  spaths::shortest_paths(
+  track <- spaths::shortest_paths(
     dens_rst,
     origins = end,
     destinations = start,
@@ -412,6 +424,8 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
   ) |>
     sf::st_as_sf() |>
     sf::st_geometry()
+
+  track
 }
 
 
