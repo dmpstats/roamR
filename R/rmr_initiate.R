@@ -15,9 +15,9 @@
 #'
 rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
-  ## Input validation ----------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Validating inputs")
+  ## Top-level input validation -----------------------------------------------------------
 
+  ### class checks
   if(is(drivers, "Driver")){
     drivers <- list(drivers)
   }else if(!is.list(drivers)){
@@ -118,12 +118,44 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   init_check_consistency(species, drivers, model_config)
 
 
-  ## Generate AOC-based driver for CRW Movement Model -----------------------------
+  ## Spatially crop drivers to AOC  ----------------------------------------
 
-  # Create raster of distances from regular grid within AOC to its bounding box
+  if(!quiet) cli::cli_progress_step("Cropping spatial Drivers to AoC")
+
+  drivers <- drivers |>
+    purrr::modify_if(
+      function(d){
+        if(is_empty(d)) FALSE else if(d@id == "aoc") FALSE else TRUE
+      },
+      function(d){
+
+        if(d@obj_active == "sf"){
+
+          # assume attributes of each geometry are constant throughout that
+          # geometry. This avoids warning in subsequent `sf::st_crop`
+          # (https://github.com/r-spatial/sf/issues/406#issuecomment-314152780)
+          sf::st_agr(sf_obj(d)) <- "constant"
+          sf_obj(d) <- sf::st_crop(sf_obj(d), model_config@aoc_bbx)
+
+        }else if(d@obj_active == "stars"){
+          # crop stars to AOC
+          stars_obj(d) <- sf::st_crop(stars_obj(d), model_config@aoc_bbx)
+        }
+        return(d)
+      }
+    )
+
+
+
+
+  ## Handle drivers for for CRW Movement Model ----------------------------------
+
   if(model_config@movement_type == "crw"){
 
-    if(!quiet) cli::cli_progress_step("CRW Movement Model: generating the AOC-based Driver")
+    ### Generate Driver for AOC-based vector-field  ----------
+    # A raster of distances from regular grid within AOC to its bounding box
+
+    if(!quiet) cli::cli_progress_step("CRW Movement: generating the AOC-based Driver")
 
     # TODO: Add safeguard on handling memory failures due to unreasonable spatial
     # resolution. Maybe use a try_fetch to rephrase the error and provide
@@ -154,91 +186,60 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
     species@driver_responses <- append(species@driver_responses, aoc_resp)
 
-  }
 
+    ### Compute vector-fields for movement influencing drivers  ---------
 
-
-  ## Driver processing  ------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Processing Drivers")
-
-  ### Spatially crop drivers to AOC  -----------------
-  drivers <- drivers |>
-    purrr::modify_if(
-      function(d){
-        if(is_empty(d)) FALSE else if(d@id == "aoc") FALSE else TRUE
-      },
-      function(d){
-
-        if(d@obj_active == "sf"){
-
-          # assume attributes of each geometry are constant throughout that
-          # geometry. This avoids warning in subsequent `sf::st_crop`
-          # (https://github.com/r-spatial/sf/issues/406#issuecomment-314152780)
-          sf::st_agr(sf_obj(d)) <- "constant"
-          sf_obj(d) <- sf::st_crop(sf_obj(d), model_config@aoc_bbx)
-
-        }else if(d@obj_active == "stars"){
-          # crop stars to AOC
-          stars_obj(d) <- sf::st_crop(stars_obj(d), model_config@aoc_bbx)
-        }
-        return(d)
-      }
-    )
-
-
-  ### Handle movement-influencing drivers ----------------
-
-  #if(!quiet) cli::cli_progress_step("Handling movement-influencing drivers")
-
-  # extract ids of drivers influencing movement
-  mv_drvids <- species@driver_responses |>
-    purrr::keep(\(x) !is_empty(x@movement@prob)) |> # driver doesn't affect movement if @prob in <MoveInfluence> is empty
-    purrr::map_chr(\(x) x@driver_id)
-
-
-  if(length(mv_drvids) > 0 && model_config@movement_type == "crw"){
-
-    #### sf-based drivers: derive cell-distance surfaces  ------
-
-    # For each movement-influencing driver without raster-type data:
-    # (i) calculate surface of distances from sf object to AOC grid-cells;
-    # (ii) update driver's slots accordingly
-    drivers <- drivers |>
-     purrr::modify_if(
-       \(d) d@id %in% mv_drvids && is_stars_empty(stars_obj(d)) ,
-       function(d, grid = aoc_grid) {
-         # forcing unioning to get single vector of grid-point distances when
-         # driver contains multiple geoms
-         grid$drv_dist <- sf::st_distance(grid, sf::st_union(d@sf_obj))
-         stars_obj(d) <- stars::st_rasterize(grid)["drv_dist"]
-         d@stars_descr <- paste0("Distance to ", d@sf_descr)
-         d@obj_active <- "stars"
-         validObject(d)
-         return(d)
-       }
-     )
-
-
-    #### Compute vector fields solely where required ------
-    vf_drvids <- species@driver_responses |>
-      purrr::keep(\(x) x@driver_id %in% mv_drvids && x@movement@mode == "vector-field") |>
+    # IDs of relevant drivers
+    mv_drvids <- species@driver_responses |>
+      purrr::keep(\(x) !is_empty(x@movement@prob)) |> # driver doesn't affect movement if @prob in <MoveInfluence> is empty
       purrr::map_chr(\(x) x@driver_id)
 
+    if(length(mv_drvids) > 0){
 
-    if(length(vf_drvids) > 0){
-      if(!quiet) cli::cli_progress_step("{cli::qty(vf_drvids)}Calculate vector field for driver{?s} {.val {vf_drvids}}")
+      ### sf-based drivers: derive cell-distance surfaces  -------------
 
+      # For each movement-influencing driver without raster-type data:
+      # (i) calculate surface of distances from sf object to AOC grid-cells;
+      # (ii) update driver's slots accordingly
       drivers <- drivers |>
         purrr::modify_if(
-          \(d) d@id %in% vf_drvids,
-          function(d) {
-            stars_obj(d) <- compute_vector_fields(stars_obj(d))
-            d
-          },
-          .progress = TRUE
+          \(d) d@id %in% mv_drvids && is_stars_empty(stars_obj(d)) ,
+          function(d, grid = aoc_grid) {
+            # forcing unioning to get single vector of grid-point distances when
+            # driver contains multiple geoms
+            grid$drv_dist <- sf::st_distance(grid, sf::st_union(d@sf_obj))
+            stars_obj(d) <- stars::st_rasterize(grid)["drv_dist"]
+            d@stars_descr <- paste0("Distance to ", d@sf_descr)
+            d@obj_active <- "stars"
+            validObject(d)
+            return(d)
+          }
         )
+
+      #### Compute vector fields solely where required ------
+      vf_drvids <- species@driver_responses |>
+        purrr::keep(\(x) x@driver_id %in% mv_drvids && x@movement@mode == "vector-field") |>
+        purrr::map_chr(\(x) x@driver_id)
+
+      if(length(vf_drvids) > 0){
+        if(!quiet){
+          cli::cli_progress_step("CRW Movement: {cli::qty(vf_drvids)}Calculate vector-field for driver{?s} {.val {vf_drvids}}")
+        }
+
+        drivers <- drivers |>
+          purrr::modify_if(
+            \(d) d@id %in% vf_drvids,
+            function(d) {
+              stars_obj(d) <- compute_vector_fields(stars_obj(d))
+              d
+            },
+            .progress = TRUE
+          )
+      }
     }
   }
+
+
 
   ## Species/States processing  ------------------------------------------------------
   if(!quiet) cli::cli_progress_step("Processing Activity States")
@@ -258,7 +259,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
 
   ## Initialize Agents -------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Initialize Agents")
+  if(!quiet) cli::cli_progress_step("Initializing {model_config@n_agents} Agents")
 
   if (model_config@n_agents > 100 && !is_empty(species)) {
     n_wk <- future::availableCores() - 3
@@ -279,7 +280,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   future::plan(future::sequential())
 
   ## Initialize <IBM> object --------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Initialize {.cls IBM} object")
+  if(!quiet) cli::cli_progress_step("Set up {.cls IBM} object")
 
   ibm <- IBM(
     agents = agents,
@@ -414,7 +415,7 @@ init_check_consistency <- function(species,
   ## TODO: State-dependent energy cost functions - ArgSpec@type = "time-at-state"
 
 
-  ## Spatial consistency between drivers and AOC (inc CRS)
+  ## Spatial consistency between drivers and AOC
   driver_not_empty <- sapply(drivers, Negate(is_empty))
 
   if(any(driver_not_empty)){
@@ -424,8 +425,6 @@ init_check_consistency <- function(species,
       drv_obj <- slot(d, paste0(d@obj_active, "_obj"))
 
       ### Check spatial overlap between AOC and drivers
-      #if(d@id == "owf_foot") browser()
-
       aoc_poly <- sf::st_as_sfc(aoc_bbx(model_config))
 
       if(d@obj_active == "sf"){
