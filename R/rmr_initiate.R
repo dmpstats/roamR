@@ -29,56 +29,92 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   check_class(model_config, "ModelConfig", class_fn = "roamR::ModelConfig")
 
 
+  ## Model config Vs. Drivers: check & ensure spatio-temporal integrity  ------------------
+  if(!quiet){
+    cli::cli_progress_step("Ensuring spatio-temporal consistency of inputs")
+  }
 
-  ## Model config Vs Drivers: handle spatio-temporal integrity  --------------
-  if(!quiet) cli::cli_progress_step("Checking spatio-temporal consistency of inputs")
+  ### If required:
+  ### (i) re-project drivers to chosen CRS under model config
+  ### (ii) Warp sample curvilinear rasters into regular grids to allow for AOC cropping
 
-  ### Check and re-project drivers to chosen CRS under model config, if required
-  crsmsg_hd <- FALSE
-  crsmsg <- "Converting CRS of driver(s) to align with CRS specified in {.arg model_config}:"
+  reproj_drvs <- c()
+  warped_drvs <- c()
 
   drivers <- drivers |>
     purrr::modify_if(
       ~!is_empty(.x),
       function(d){
         if (d@obj_active == "sf") {
+
           drv_crs <- sf::st_crs(sf_obj(d))
+
           # if non-matching CRS, re-project via st_transform
           if(drv_crs$proj4string != model_config@ref_sys$proj4string){
-
-            if(!quiet){
-              if(isFALSE(crsmsg_hd)){
-                cli::cli_alert_warning(crsmsg)
-                crsmsg_hd <<- TRUE
-              }
-              cli::cli_ul("{.val {d@id}} {.cls sf}: {drv_crs$Name} {cli::symbol$arrow_right} {model_config@ref_sys$Name}")
-            }
-
+            reproj_drvs <<- c(reproj_drvs, d@id)
             sf_obj(d) <- sf::st_transform(sf_obj(d), model_config@ref_sys)
           }
 
         } else if (d@obj_active == "stars") {
+
           drv_crs <- sf::st_crs(stars_obj(d))
+
           # if non-matching CRS, re-project via st_warp
           if(drv_crs$proj4string != model_config@ref_sys$proj4string){
-
-            if(!quiet){
-              if(isFALSE(crsmsg_hd)){
-                cli::cli_alert_info(crsmsg)
-                crsmsg_hd <<- TRUE
-              }
-              cli::cli_ul("{.val {d@id}} {.cls stars}: {drv_crs$Name} {cli::symbol$arrow_right} {model_config@ref_sys$Name}")
-            }
-
+            reproj_drvs <<- c(reproj_drvs, d@id)
             stars_obj(d) <- stars::st_warp(stars_obj(d), crs = model_config@ref_sys)
           }
+
+          # if raster has curvilinear grid, warp sample into regular grid, for
+          # AOC cropping below
+          drv_dms <- stars::st_dimensions(stars_obj(d))
+
+          if(attr(drv_dms, "raster")$curvilinear){
+
+            warped_drvs <<- c(warped_drvs, d@id)
+
+            # get minimum delta across dims, where delta is inferred from the
+            # ratio between range of x/y values and the nr. cells in each axis
+            xdlt <- diff(range(drv_dms[[1]]$values))/dim(drv_dms)[[1]]
+            ydlt <- diff(range(drv_dms[[2]]$values))/dim(drv_dms)[[2]]
+            thresh <- min(xdlt, ydlt)
+            # warp re-sample with thresh set to minimum delta in x/y dims
+            stars_obj(d) <- stars::st_warp(
+              src = stars_obj(d),
+              crs = model_config@ref_sys,
+              threshold = thresh
+            )
+          }
         }
+
         return(d)
       }
     )
 
 
-  ### Further consistency checks
+  ### report spatial alterations applied to drivers
+  if(!quiet){
+    cli::cli_progress_done()
+
+    dv <- cli::cli_div(theme = list(".alert-info" = list("margin-left" = 3)))
+
+    if(!is.null(reproj_drvs)){
+      cli::cli_alert_info(
+        "CRS of driver{?s} {.val {reproj_drvs}} converted to match CRS specified in {.arg model_config}"
+      )
+    }
+
+    if(!is.null(warped_drvs)){
+      cli::cli_alert_info(
+        "Raster of driver{?s} {.val {warped_drvs}} warped into regular grid for AoC cropping"
+      )
+    }
+
+    cli::cli_end(dv)
+  }
+
+
+  ### Further consistency checks (spatial coverage)
   init_check_consistency(species, drivers, model_config)
 
 
