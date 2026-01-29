@@ -223,7 +223,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
       if(length(vf_drvids) > 0){
         if(!quiet){
-          cli::cli_progress_step("CRW Movement: {cli::qty(vf_drvids)}Calculate vector-field for driver{?s} {.val {vf_drvids}}")
+          cli::cli_progress_step("CRW Movement: {cli::qty(vf_drvids)}calculate vector-field for driver{?s} {.val {vf_drvids}}")
         }
 
         drivers <- drivers |>
@@ -291,8 +291,10 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
   if(!quiet){
     cli::cli_progress_done()
-    cli::cli_alert_success("Initialization Done! {emoji::emoji('rocket')}")
-    #cli::cli_text(cli::style_bold("{cli::symbol$star} Initialization DONE!"))
+    #cli::cli_alert_success("Initialization Done! {emoji::emoji('rocket')}")
+    #cli::cli_text(cli::style_bold("{cli::symbol$star} Initialization Done!"))
+    cli::cli_text("")
+    cli::cli_text("Model initialization done! {emoji::emoji('rocket')}")
   }
 
   ibm
