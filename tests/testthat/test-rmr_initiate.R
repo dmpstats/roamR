@@ -86,7 +86,7 @@ test_that("drivers are correctly cropped to AOC", {
 
 
 
-test_that("CRS-differing drivers are re-projected to match ModelConfig@ref_sys", {
+test_that("CRS-differing drivers are transformed to match ModelConfig@ref_sys", {
 
   # modify example model config for testing
   m <- ibm_config_rover
@@ -118,12 +118,81 @@ test_that("CRS-differing drivers are re-projected to match ModelConfig@ref_sys",
     out@model_config@ref_sys
   )
 
-
 })
 
 
 
 
-# test_that("development testing", {
-#   out <- rmr_initiate(ibm_config_rover, rover, rover_drivers)
-# })
+
+
+test_that("Progress messages rendered as expected", {
+
+  withr::local_options(cli.dynamic = TRUE, cli.ansi = TRUE)
+
+  # modify example model config for testing
+  m_crw <- ibm_config_rover
+  m_crw@n_agents <- 2L
+
+  # CRW movement | Full spatial consistency
+  msg <- capture_cli_messages(
+    rmr_initiate(m_crw, rover, rover_drivers)
+  ) |>
+    fix_times()
+
+
+  # density-informed movement
+  m_di <- m_crw
+  m_di@movement_type <- "di"
+
+  msg <- capture_cli_messages(
+    rmr_initiate(m_di, rover, rover_drivers)
+  ) |>
+    fix_times()
+
+  expect_snapshot(msg)
+
+  # Driver CRS conversion
+  m_di@ref_sys <- sf::st_crs(4269)
+  m_di@aoc_bbx <- structure(
+    c(-4, 55.8, 2.5, 56.8),
+    names = c("xmin", "ymin", "xmax", "ymax"),
+    class = "bbox",
+    crs = sf::st_crs(4269))
+  d <- rover_drivers[c("drv_land", "drv_sst")]
+
+  msg <- capture_cli_messages(
+    rmr_initiate(m_di, Species(), d)
+  ) |>
+    fix_times()
+
+  expect_snapshot(msg)
+
+  # Curvilinear Driver converted to egular grid
+  stars_obj(d$drv_sst) <- sf::st_transform(d$drv_sst@stars_obj, sf::st_crs(d$drv_sst@stars_obj))
+
+  msg <- capture_cli_messages(
+    suppressWarnings(rmr_initiate(m_crw, Species(), d))
+  ) |>
+    fix_times()
+
+  expect_snapshot(msg)
+})
+
+
+
+
+
+
+
+
+
+test_that("development testing", {
+
+  skip()
+
+  m <- ibm_config_rover
+  m@n_agents <- 5L
+
+  out <- rmr_initiate(ibm_config_rover, rover, rover_drivers)
+
+})
