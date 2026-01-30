@@ -105,7 +105,9 @@ test_that("CRS-differing drivers are transformed to match ModelConfig@ref_sys", 
 
 
   expect_no_error(
-    out <- rmr_initiate(m, Species(), d, quiet = TRUE)
+    suppressWarnings(
+      out <- rmr_initiate(m, Species(), d, quiet = TRUE)
+    )
   )
 
   expect_identical(
@@ -161,7 +163,9 @@ test_that("Progress messages rendered as expected", {
   d <- rover_drivers[c("drv_land", "drv_sst")]
 
   msg <- capture_cli_messages(
-    rmr_initiate(m_di, Species(), d)
+    suppressWarnings(
+      rmr_initiate(m_di, Species(), d)
+    )
   ) |>
     fix_times()
 
@@ -171,7 +175,9 @@ test_that("Progress messages rendered as expected", {
   stars_obj(d$drv_sst) <- sf::st_transform(d$drv_sst@stars_obj, sf::st_crs(d$drv_sst@stars_obj))
 
   msg <- capture_cli_messages(
-    suppressWarnings(rmr_initiate(m_crw, Species(), d))
+    suppressWarnings(
+      rmr_initiate(m_crw, Species(), d)
+    )
   ) |>
     fix_times()
 

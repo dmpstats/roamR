@@ -68,11 +68,12 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
           drv_crs <- sf::st_crs(stars_obj(d))
 
-          # if non-matching CRS, re-project via st_warp
+          # if non-matching CRS, re-project via st_transform
           if(drv_crs$proj4string != model_config@ref_sys$proj4string){
             reproj_drvs[[d@id]] <<- drv_crs$Name
-            stars_obj(d) <- stars::st_warp(stars_obj(d), crs = model_config@ref_sys)
-            #stars_obj(d) <- sf::st_transform(stars_obj(d), crs = model_config@ref_sys)
+            # Note: st_tranform() always returns curvilinear grid (no loss)
+            stars_obj(d) <- sf::st_transform(stars_obj(d), crs = model_config@ref_sys)
+            #stars_obj(d) <- stars::st_warp(stars_obj(d), crs = model_config@ref_sys)
           }
 
           # if raster has curvilinear grid, warp sample into regular grid, for
@@ -117,13 +118,13 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
       cli::cli_alert_info(
         paste0(
           "{cli::qty(reproj_drvs)}Driver{?s} ", labs,
-          " tranformed to match CRS specified by {.arg model_config} ({.field {model_config@ref_sys$Name}})."
+          " transformed to match CRS specified by {.arg model_config} ({.field {model_config@ref_sys$Name}})."
         ))
     }
 
     if(!is.null(crvln_drvs)){
       cli::cli_alert_info(
-        "Curvilinear Driver{?s} {.val {crvln_drvs}} warped into a regular grid"
+        "Raster{?s} of Driver{?s} {.val {crvln_drvs}} warped from curvilinear to regular grid{?s}"
       )
     }
 
