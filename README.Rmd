@@ -54,4 +54,5 @@ At the more extreme information end, `roamR` has been developed to simulate agen
 devtools::install_github("dmpstats/roamR", ref = "master", build_vignettes = TRUE)
 ```
 
+Note: `install_github()` assumes that [RTools](https://cran.r-project.org/bin/windows/Rtools/) (on Windows) or an equivalent build toolchain is already installed for your version of R, as it is required to compile source packages.
 
