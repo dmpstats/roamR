@@ -15,6 +15,14 @@
 #'
 rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
+  # TODO:
+  # (i) handling consistency in CRS and curvilinearity between spatial inputs:
+  # currently, function performs required transformations, but I'm unsure if
+  # this is the best approach - it opens the door to errors and warnings and
+  # potential data losses e.g. when using st_warp() to force conformity. The
+  # alternative is to simply impose checks and fails on non-conformity, leaving
+  # users to ensure inputs conformity requirements are met.
+
   ## Top-level input validation -----------------------------------------------------------
 
   ### class checks
@@ -38,20 +46,21 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   ### (i) re-project drivers to chosen CRS under model config
   ### (ii) Warp sample curvilinear rasters into regular grids to allow for AOC cropping
 
-  reproj_drvs <- c()
-  warped_drvs <- c()
+  reproj_drvs <- list()
+  crvln_drvs <- c()
 
   drivers <- drivers |>
     purrr::modify_if(
       ~!is_empty(.x),
       function(d){
+        #browser()
         if (d@obj_active == "sf") {
 
           drv_crs <- sf::st_crs(sf_obj(d))
 
           # if non-matching CRS, re-project via st_transform
           if(drv_crs$proj4string != model_config@ref_sys$proj4string){
-            reproj_drvs <<- c(reproj_drvs, d@id)
+            reproj_drvs[[d@id]] <<- drv_crs$Name
             sf_obj(d) <- sf::st_transform(sf_obj(d), model_config@ref_sys)
           }
 
@@ -61,23 +70,26 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
           # if non-matching CRS, re-project via st_warp
           if(drv_crs$proj4string != model_config@ref_sys$proj4string){
-            reproj_drvs <<- c(reproj_drvs, d@id)
+            reproj_drvs[[d@id]] <<- drv_crs$Name
             stars_obj(d) <- stars::st_warp(stars_obj(d), crs = model_config@ref_sys)
+            #stars_obj(d) <- sf::st_transform(stars_obj(d), crs = model_config@ref_sys)
           }
 
           # if raster has curvilinear grid, warp sample into regular grid, for
           # AOC cropping below
           drv_dms <- stars::st_dimensions(stars_obj(d))
-
           if(attr(drv_dms, "raster")$curvilinear){
 
-            warped_drvs <<- c(warped_drvs, d@id)
+            crvln_drvs <<- c(crvln_drvs, d@id)
 
-            # get minimum delta across dims, where delta is inferred from the
-            # ratio between range of x/y values and the nr. cells in each axis
+            # derive distance threshold for st_warp steps below, based on min cell
+            # length of source raster. Cell deltas inferred from ratio between
+            # range and nr of cells in each x/y dims. This avoids NAs in the
+            # resultant surface
             xdlt <- diff(range(drv_dms[[1]]$values))/dim(drv_dms)[[1]]
             ydlt <- diff(range(drv_dms[[2]]$values))/dim(drv_dms)[[2]]
             thresh <- min(xdlt, ydlt)
+
             # warp re-sample with thresh set to minimum delta in x/y dims
             stars_obj(d) <- stars::st_warp(
               src = stars_obj(d),
@@ -91,22 +103,27 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
       }
     )
 
-
   ### report spatial alterations applied to drivers
   if(!quiet){
     cli::cli_progress_done()
 
     dv <- cli::cli_div(theme = list(".alert-info" = list("margin-left" = 3)))
 
-    if(!is.null(reproj_drvs)){
+    if(length(reproj_drvs) > 0){
+
+      labs <- sprintf("{.val %s} ({.field %s})", names(reproj_drvs), reproj_drvs) |>
+        cli::ansi_collapse(last = " and ")
+
       cli::cli_alert_info(
-        "CRS of driver{?s} {.val {reproj_drvs}} converted to match CRS specified in {.arg model_config}"
-      )
+        paste0(
+          "{cli::qty(reproj_drvs)}Driver{?s} ", labs,
+          " tranformed to match CRS specified by {.arg model_config} ({.field {model_config@ref_sys$Name}})."
+        ))
     }
 
-    if(!is.null(warped_drvs)){
+    if(!is.null(crvln_drvs)){
       cli::cli_alert_info(
-        "Raster of driver{?s} {.val {warped_drvs}} warped into regular grid for AoC cropping"
+        "Curvilinear Driver{?s} {.val {crvln_drvs}} warped into a regular grid"
       )
     }
 
@@ -144,7 +161,6 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
         return(d)
       }
     )
-
 
 
 
@@ -223,7 +239,9 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
       if(length(vf_drvids) > 0){
         if(!quiet){
-          cli::cli_progress_step("CRW Movement: {cli::qty(vf_drvids)}calculate vector-field for driver{?s} {.val {vf_drvids}}")
+          cli::cli_progress_step(
+            "CRW Movement: {cli::qty(vf_drvids)}calculate vector-field for driver{?s} {.val {vf_drvids}}"
+          )
         }
 
         drivers <- drivers |>
@@ -240,12 +258,15 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   }
 
 
-
   ## Species/States processing  ------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Processing Activity States")
 
   ### Compile user-defined functions for state's energy costs
   if(length(species@states_profile) > 0){
+
+    if(!quiet){
+      stids <- sapply(species@states_profile, \(s) s@id)
+      cli::cli_progress_step("Processing Activity States: {.val {stids}}")
+    }
 
     species@states_profile <- species@states_profile |>
       purrr::modify_if(
@@ -259,7 +280,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
 
   ## Initialize Agents -------------------------------------------------------
-  if(!quiet) cli::cli_progress_step("Initializing {model_config@n_agents} Agents")
+  if(!quiet) cli::cli_progress_step("Initializing {model_config@n_agents} Agent{?s}")
 
   if (model_config@n_agents > 100 && !is_empty(species)) {
     n_wk <- future::availableCores() - 3
@@ -292,7 +313,6 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
   if(!quiet){
     cli::cli_progress_done()
     #cli::cli_alert_success("Initialization Done! {emoji::emoji('rocket')}")
-    #cli::cli_text(cli::style_bold("{cli::symbol$star} Initialization Done!"))
     cli::cli_text("")
     cli::cli_text("Model initialization done! {emoji::emoji('rocket')}")
   }
