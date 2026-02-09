@@ -754,7 +754,8 @@ We can examine a small number of agents graphically - here their body mass histo
 p_bdm <- guill_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
-  scale_color_brewer(palette = "Set1") +
+  #scale_color_brewer(palette = "Set1", direction = -1) +
+  scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   theme(legend.position = "bottom") +
   facet_wrap(~agent, ncol = 2, scales = "free")
   
@@ -780,9 +781,8 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-    #scale_color_brewer(palette = "Set1") +
-  #scale_fill_distiller(palette = "Greys", direction = 1) +
-  scale_colour_manual(values = c("#424242", "#E53935"), name = "Scenario") +
+  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
+  scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
     palette = "GnBu", 
@@ -818,9 +818,8 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-  #scale_color_brewer(palette = "Set1") +
-  #scale_fill_distiller(palette = "Greys", direction = 1) +
-  scale_colour_manual(values = c("#424242", "#E53935"), name = "Scenario") +
+  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
+  scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
     palette = "GnBu", 
@@ -844,13 +843,12 @@ p_tracks
 ggsave("images/tracks_susceptile_agent.png", p_tracks, width = 15, height = 15)
 ```
 
-
-The following figure shows the movement of 250 agents during the period of time
-covered throughout the simulation, for a longer run. The animation depicts how
-agents movement patterns are informed by the underlying monthly density surfaces
-under the impacted scenario, while also highlighting how individuals respond to
-the OWF footprints as tolerated passage zones according to their assigned
-susceptibility.
+The figure below shows the movement of 250 agents over the full duration of a
+simulation, for the same model configuration but with a larger number of
+simulated agents. The animation depicts how agents' movement patterns are
+informed by the monthly density surfaces under the impacted scenario, while also
+highlighting how individuals respond to the OWF footprints as tolerated passage
+zones according to their assigned susceptibility.
 
 
 ```{r, include = FALSE}
