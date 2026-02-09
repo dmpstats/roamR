@@ -30,12 +30,17 @@ library(sf)
 library(tidyverse)
 library(distributional)
 library(stars)
-library(FNN) # dependency for stars::st_warp()
+#library(FNN) # dependency for stars::st_warp()
 library(future)
 library(units)
+library(patchwork)
+library(gganimate)
+library(ggdist)
 
 theme_set(theme_light())
 ```
+
+> **Note**: *This vignette uses data that is not bundled with the package, so the analysis is not immediately reproducible. To access the necessary data, please reach out to the package maintainers.*
 
 # Overview
 Here we use roamR to simulate the movement and energetics for a population of common guillemot (_Uria aalge_) on the Isle of May. For broad-scale details on the roamR package, refer to the general guide, with the general architecture repeated here:
@@ -50,7 +55,7 @@ The simulations here cover the non-breeding season (some 9 months, from July to 
 * An environment with many synthetic OWF developments 
 
 
-![__Figure 2: Synthetic windfarms within North Sea, against a predicted guillemot density surface. Density is clipped to the AoC, windfarms are the light blue boxes. Anything beyond the AoC boundaries are excluded from calculations__](images/guill_OWF_scenario.png)
+![__Figure 2: Synthetic windfarms within North Sea, against a predicted guillemot density surface (average counts/10km^2 in October). Density is clipped to the area oo calculation (AOC), windfarms are the light yellow boxes. Anything beyond the AOC boundaries are excluded from calculations__](images/case-study-guillemot_map.png)
 
 
 &nbsp;
@@ -180,29 +185,32 @@ We begin by uploading these datacubes, assigning measurement units where they ar
 ```{r read-drivers, fig.dim = c(8, 6)}
 # upload available spatial surfaces
 
+## population density maps: baseline and impacted scenarios
 spec_map <- readRDS("data/bioss_spec_map.rds") |> 
-   mutate(density =  units::set_units(density, "counts"))
-
-plot(spec_map)
+   mutate(density =  units::set_units(density, "counts/10km^2"))
 
 spec_imp_map <- readRDS("data/bioss_spec_imp_map.rds") |> 
-   mutate(density =  units::set_units(density, "counts"))
+   mutate(density =  units::set_units(density, "counts/10km^2"))
 
-plot(spec_imp_map)
+dpal <- hcl.colors(10, palette = "GnBu", rev = TRUE)
+plot(spec_map, col = dpal, breaks = "equal")
+plot(spec_imp_map, col = dpal, breaks = "equal")
 
+## Energy intake maps: basline and ipacted scenarios
 intake_map <- readRDS("data/guill_energy_intake_map.rds")
-
-plot(intake_map)
-
 imp_intake_map <- readRDS("data/guill_impacted_energy_intake_map.rds")
 
-plot(imp_intake_map)
+ipal <- hcl.colors(10, palette = "PurpOr", rev = TRUE)
+plot(intake_map, col = ipal[length(ipal)], breaks = "equal")
+plot(imp_intake_map, col = ipal, breaks = "equal")
 
-sst_map <- readRDS("data/sst_stars.rds") |> 
-  stars::st_warp(crs = sf::st_crs(spec_map), threshold  = 20028)
+## Sea surface temperature rasters
+sst_map <- readRDS("data/sst_stars.rds") 
+plot(sst_map, col = hcl.colors(12, palette = "Zissou 1"), breaks = "equal")
 
-plot(sst_map)
 ```
+
+&nbsp;
 
 Next we specify the corresponding drivers, and stored them as a list of `<Driver>` objects. Collectively these lists define the environment the agents will move through, offering flexibility to comprise spatial features such as coastal polygons, OWF footprints, prey-fields, etc. 
 
@@ -291,16 +299,17 @@ Here we include 4 states:
 * active on water (i.e. swimming)
 * inactive on water (i.e. resting)
 
+#### Flying
+
 We start with the *flight* state. For this simulation, we assume the energetic cost (`energy_cost`) of flying for each agent varies throughout the simulation, following a Normal distribution with mean 507.6 kJ/h and standard deviation of 237.6 kJ/h. The source for these figures are @Elliott2013.
 
-Stochasticity can enter the state specification in several ways. Here we assume assume that each agent has a fixed average flying speed for the entire simulation (representing inherently faster or slower individuals), with speeds drawn from a Uniform distribution as specified below (`speed`). The proportion of time allocated to flight at the initial time step (`time_budget`) is set to 0.056 h/day for all simulated agents. 
+Stochasticity can enter the state specification in further ways. Here we assume that each agent has a fixed average flying speed for the entire simulation (representing inherently faster or slower individuals), with speeds drawn from a Uniform distribution as specified below (`speed`). The proportion of time allocated to flight at the initial time step (`time_budget`) is set to 0.056 h/day for all simulated agents. 
 
 ```{r flight-state}
-# user-defined function returning the energy cost of flying
+# user-defined function returning a non-negative energy cost of flying
 flight_cost_fn <- function(mean, sd){
   e <- rnorm(1, mean, sd)
-  (max(e, 1)) |>
-    units::set_units("kJ/h")
+  units::set_units((max(e, 1)), "kJ/h")
 }
 
 # define <State> object for flight activity
@@ -318,6 +327,29 @@ flight <- State(
 # inspect flight object
 flight
 ```
+To ensure biologically realistic behaviour, `flight_cost_fn()` constrains sampled energy costs to a minimum of 1 kJ/h, avoiding the occasional negative values produced by a Normal distribution. The plots below illustrate the distributions that will be sampled for the stochastic elements of the `"flight"` state — specifically, per‑step energy costs and per‑agent flight speeds.
+
+```{r, fig.dim = c(9, 4)}
+## generate random samples of energy cost and flight speed
+set.seed(1991)
+flight_draws <- tibble(
+  `Flight cost` = replicate(2000, flight_cost_fn(507.6, 237.6), simplify = FALSE) |> list_c(),
+  `Flight speed` = roamR::generate(flight@speed, 2000)
+)
+
+p1 <- ggplot(flight_draws) +
+  geom_density(aes(`Flight speed`), fill = "#EFEBE9", col = "gray20") +
+  labs(subtitle = "Per agent at initialization")
+
+p2 <- ggplot(flight_draws) +
+  geom_density(aes(`Flight cost`), fill = "#EFEBE9", col = "gray20") +
+  labs(subtitle = "Per agent at each simulation step")
+
+(p1 + p2) + plot_annotation(title = "'flight' state: sampling distributions")
+```
+
+
+#### Diving
 
 For the state representing the *diving* activity, the energy output is contingent on the amount of diving [@Elliott2013].
 
@@ -327,10 +359,12 @@ $$
 
 Where $T_i$ is the length of dive $i$ in minutes. Here we are performing day-level calculations, meaning we are far from simulating at the dive level, and can use a mean dive-length without loss of generality. This is specified as parameter `t_dive` in the defined diving cost function, with input value derived from tag information. 
 
-To introduce agent‑level stochasticity, we allow the energetic multiplier in the above equation (the leading coefficient, 3.71) to vary among individuals. We therefore parameterise this multiplier as `alpha`, assuming it follows a Normal distribution with mean 3.71 and standard deviation 1.3, such that each agent’s diving cost fluctuates throughout the simulation. Diving speeds are also drawn from a Uniform distribution, and initial time allocated to diving is set to 3.11 h/day.
+To introduce agent‑level stochasticity, we allow the energetic multiplier in the above equation (the leading coefficient, 3.71) to vary among individuals. We therefore parameterise this multiplier as `alpha`, assuming it follows a Normal distribution with mean 3.71 and standard deviation 1.3, such that each agent’s diving cost fluctuates throughout the simulation. Diving energy costs are also constrained to a minimum of 1 kJ/h.
+
+Diving speeds are drawn from a Uniform distribution, and initial time allocated to diving is set to 3.11 h/day.
 
 ```{r dive-state}
-# define costing function
+# define costing function, with non-negative cost constraint
 dive_cost_fn <- function(t_dive, alpha_mean, alpha_sd){
   alpha <- rnorm(1, alpha_mean, alpha_sd)
   (max(alpha*sum(1-exp(-t_dive/1.23))/sum(t_dive)*60, 1)) |>
@@ -351,6 +385,39 @@ dive <- State(
 
 ```
 
+The following plots illustrate the sampling distributions specified for drawing random values of movement speeds and energetic costs associated with *diving*.
+
+```{r, fig.dim = c(9, 4), echo = FALSE}
+## generate random samples
+set.seed(1991)
+
+# gather arguments values 
+a_mn <- dive@energy_cost@args_spec$alpha_mean@value
+a_sd <- dive@energy_cost@args_spec$alpha_sd@value
+ti <- dive@energy_cost@args_spec$t_dive@value
+
+# generate draws
+dive_draws <- tibble(
+  `Dive cost` = replicate(2000, dive_cost_fn(ti, a_mn, a_sd), simplify = FALSE) |> list_c(),
+  `Dive speed` = roamR::generate(dive@speed, 2000)
+)
+
+p1 <- ggplot(dive_draws) +
+  geom_density(aes(`Dive speed`), fill = "#EFEBE9", col = "gray20") +
+  labs(subtitle = "Per agent at initialization")
+
+p2 <- ggplot(dive_draws) +
+  geom_density(aes(`Dive cost`), fill = "#EFEBE9", col = "gray20") +
+  labs(subtitle = "Per agent at each simulation step")
+
+
+(p1 + p2) + plot_annotation(title = "'diving' state: sampling distributions")
+```
+
+
+
+#### Active on Water
+
 State representing *active on water* [@Buckingham2023] is a linear function in sea surface temperature (SST):
 
 $$
@@ -363,9 +430,8 @@ Because this state explicitly depends on SST, we must ensure that the correspond
 
 The specification of the remaining attributes for this state follows the same principles used for the previous states.
 
-
 ```{r active-state}
-# define water-active cost function
+# define water-active cost function, with non-negative cost constraint
 active_water_cost_fn <- function(sst, int_mean, int_sd){
   int <- rnorm(1, int_mean, int_sd)
   (max(int-(2.75*sst), 1)) |>
@@ -387,6 +453,48 @@ active <- State(
 ```
 
 
+
+```{r, fig.dim = c(9, 4), cache = TRUE}
+## generate random samples
+set.seed(1991)
+
+# gather cost function argument values 
+i_mn <- active@energy_cost@args_spec$int_mean@value
+i_sd <- active@energy_cost@args_spec$int_sd@value
+sst_range <- range(sst_map[[1]], na.rm = TRUE)
+sst <- seq(sst_range[1], sst_range[2], by = 1)
+
+n <- 1000
+
+active_cost_draws <- tibble(
+  sst,
+  draw = list(1:n),
+  `Active cost` = map(
+    drop_units(sst), 
+    \(x) replicate(n, active_water_cost_fn(x, i_mn, i_sd), simplify = FALSE) |> list_c()
+  )
+) |> 
+  unnest(c(`Active cost`, draw))
+
+p1 <- tibble(`Active speed` = roamR::generate(active@speed, 2000)) |> 
+  ggplot() +
+  geom_density(aes(`Active speed`), fill = "#EFEBE9", col = "gray20") +
+  labs(subtitle = "Per agent at initialization")
+
+
+p2 <- active_cost_draws |>
+  ggplot(aes(x = sst, y = `Active cost`)) +
+  stat_lineribbon() +
+  scale_fill_manual(values = c( "#EFEBE9", "#D7CCC8", "#A1887F")) +
+  labs(subtitle = "Per agent at each simulation step")
+  #scale_fill_brewer(palette = "Greys")
+   
+(p1 + p2) + plot_annotation(title = "'active on water' state: sampling distributions")
+```
+
+
+#### Inactive on Water
+
 State for *inactive on water* [@Buckingham2023], follows the same linear function in SST, but where $a$ has a mean of 72.2 and SD of 22. $b$ is similarly constant at 2.75.
 
 
@@ -396,7 +504,6 @@ inactive_water_cost_fn <- function(sst, int_mean, int_sd){
   (max(int-(2.75*sst), 1)) |>
     units::set_units("kJ/h")
 }
-
 
 inactive <- State(
   id = "inactive_on_water", 
@@ -412,16 +519,46 @@ inactive <- State(
 ```
 
 
-These are combined to give a list covering all states: `guill_states`:
 
-```{r state-obj}
-guill_states <- list(
-  flight = flight,
-  dive = dive,
-  active = active,
-  inactive = inactive
-)
+```{r, fig.dim = c(9, 4), echo = FALSE, cache = TRUE}
+## generate random samples
+set.seed(1991)
+
+# gather cost function argument values 
+i_mn <- inactive@energy_cost@args_spec$int_mean@value
+i_sd <- inactive@energy_cost@args_spec$int_sd@value
+sst_range <- range(sst_map[[1]], na.rm = TRUE)
+sst <- seq(floor(sst_range[1]), ceiling(sst_range[2]), by = 1)
+
+n <- 1000
+
+inactive_cost_draws <- tibble(
+    sst,
+    draw = list(1:n),
+    `Inactive cost` = map(
+      drop_units(sst), 
+      \(x) replicate(n, inactive_water_cost_fn(x, i_mn, i_sd), simplify = FALSE) |> list_c()
+    )
+  ) |> 
+    unnest(c(`Inactive cost`, draw))
+  
+
+p1 <- tibble(`Inactive speed` = roamR::generate(active@speed, 2000)) |> 
+  ggplot() +
+  geom_density(aes(`Inactive speed`), fill = "#EFEBE9", col = "gray20") +
+  labs(subtitle = "Per agent at initialization")
+
+
+p2 <- inactive_cost_draws |>
+  ggplot(aes(x = sst, y = `Inactive cost`)) +
+  stat_lineribbon() +
+  scale_fill_manual(values = c( "#EFEBE9", "#D7CCC8", "#A1887F")) +
+  labs(subtitle = "Per agent at each simulation step")
+  #scale_fill_brewer(palette = "Greys")
+   
+(p1 + p2) + plot_annotation(title = "'inactive on water' state: sampling distributions")
 ```
+
 
 
 
@@ -429,7 +566,7 @@ guill_states <- list(
 
 In this section, we define species-level, agent-specific responses to the environmental drivers introduced and defined earlier. For the guillemot model, we assign the density drivers - identified as `"dens"` (baseline) and `"dens_imp"` (impacted) - as the primary determinants of agent movement (density maps as per @Buckingham2022). 
 
-For each scenario, we also specify the probability that an agent is influenced by the respective driver. In the baseline case, all agents "respond" to the density map for their movement^[Under the density‑informed movement model, the `prob` argument in `MoveInfluence()` under the chosen density driver is forced to 1 at the initialization phase]. In contrast, for the `"dens_imp"` driver, the probability reflects how likely an individual is to respond to the presence of an OWF installation (see @Peschko2024). Agents that respond to the impacted density map therefore experience altered movement preferences, representing displacement or avoidance of OWF footprints.
+For each scenario, we also specify the probability that an agent is influenced by the respective driver via the the `prob` argument in `MoveInfluence()`. In the baseline case, all agents "respond" to the density map for their movement^[Under the density‑informed movement model, `prob` is forced to 1 at the initialization phase for the chosen baseline density driver]. In contrast, for the `"dens_imp"` driver, the probability reflects how likely an individual is to respond to the presence of an OWF installation (see @Peschko2024). Agents that respond to the impacted density map therefore experience altered movement preferences, representing displacement or avoidance of OWF footprints.
 
 
 ```{r driver-response}
@@ -437,8 +574,7 @@ resp_dens <- DriverResponse(
   driver_id = "dens",
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_degenerate(1)),
-    type = "attraction",
-    mode = "cell-value",
+    type = "attraction", 
     sim_stage = "bsln"
   )
 )
@@ -447,8 +583,7 @@ resp_imp_dens <- DriverResponse(
   driver_id = "dens_imp",
   movement = MoveInfluence(
     prob = VarDist(distributional::dist_normal(0.67, sd = 0.061)),
-    type = "attraction",
-    mode = "cell-value",
+    type = "attraction", 
     sim_stage = "imp"
   )
 )
@@ -457,7 +592,12 @@ resp_imp_dens <- DriverResponse(
 
 ### Create the `<Species>` object
 
-In addition to the parameters defined above, we set the remaining species-level properties, including the body mass distribution (used to initialise each agent’s body mass) and the energy-to-mass conversion rate [@Dunn2022], which is assumed constant across agents and simulated time steps. The distribution of body mass at start of breeding season was drawn/inferred from @Harris1988 (with additional advice from F. Daunt, _pers. comm._, 2025) .
+In addition to the parameters defined above, we set the remaining species-level properties using the `Species()` helper function. The body mass distribution (`body_mass_distr`), used to initialise each agent’s body mass, is assumed to be Normally distributed with parameters derived from @Harris1988 (with additional advice from F. Daunt, _pers. comm._, 2025).
+
+The energy-to-mass conversion rate is supplied via `energy_to_mass_distr` and is treated as constant across agents and time steps, using an estimate reported in @Dunn2022.
+
+The previously defined states and driver responses are then assembled into lists and passed to `Species()` via the `states_profile` and `driver_responses` arguments.
+
 
 ```{r species-obj}
 guill <- Species(
@@ -466,8 +606,16 @@ guill <- Species(
   scientific_name = "Uria Aalge",
   body_mass_distr = VarDist(dist_normal(mean = 929, sd = 56), "g"),
   energy_to_mass_distr = VarDist(0.072, "g/kJ"),
-  states_profile = guill_states,
-  driver_responses = list(resp_dens, resp_imp_dens)
+  states_profile = list(
+    flight,
+    dive,
+    active,
+    inactive
+  ),
+  driver_responses = list(
+    resp_dens, 
+    resp_imp_dens
+  )
 )
 
 ```
@@ -483,7 +631,7 @@ Now the key components of the IBM have been specified, roamR can be used for the
 
 The initialisation stage performs two main tasks prior to running:
 
-* The checking of inputs for conformity, some adjustments (e.g. clipping to the AoC) and derivation of vector fields where needed.
+* The checking of inputs for spatial and temporal conformity, performing adjustments where needed (e.g. clipping to the AoC, required CRS transformations for consistency).
 * The generation the `n_agents` as indicated in the model config object.
 
 
@@ -545,7 +693,7 @@ plan(sequential)
 
 roamR records an extensive amount of information from its running and monitoring of the agents. The primary output is a list, with one element for each agent. The stored agents consist of three main components (each their own class, as per the package schema):
 
-* `properties` - were drawn/set at the initialisation of the simulation from the species definition, remain constant throughout
+* `properties` - were drawn/set at the initialisation of the simulation from the species definition, remaining constant throughout the simulation.
 * `condition` - the specific condition of the agent at any point in the simulation. This will be the final condition at when the simulation completes.
 * `history` - a detailed record of elements of the agent's condition throughout the simulation. Spatiotemporally stamped, and includes post-processed energy-to-mass conversions.
 
@@ -569,7 +717,7 @@ str(guill_results$agents_bsln[[1]]@history)
 
 ##  Comparing scenarios
 
-Here we extract the history from agents under the two scenarios for comparison. All agents over both scenarios are combined into one dataset.
+Here we extract the history from agents under the two scenarios for comparison. All agents over both scenarios are combined into one dataset - `guill_history`.
 
 ```{r, echo=F}
 # gather history from all agents, under the 2 scenarios, into one data frame
@@ -578,7 +726,7 @@ guill_history <- map(guill_results, function(scn){
   setNames(1:guill_ibm_config@n_agents) |> 
   list_rbind(names_to = "agent") 
 }) |> 
-  setNames(c("status-quo", "impact")) |> 
+  setNames(c("baseline", "impact")) |> 
   list_rbind(names_to = "scenario") |> 
   mutate(
     Date = as.Date(timestamp), 
@@ -612,8 +760,11 @@ p_bdm <- guill_history |>
   
 p_bdm
 
+```
+
+```{r, include = FALSE}
+# export to use outside vignette
 ggsave("images/body mass.png", p_bdm, width = 12, height = 12)
-  
 ```
 
 
@@ -628,18 +779,35 @@ p_tracks <- guill_history |>
   filter(agent == last(agent)) |> 
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
-  geom_sf(aes(col = scenario)) +
-  scale_color_brewer(palette = "Set1") +
-  scale_fill_distiller(palette = "Greys", direction = 1) +
+  geom_sf(aes(col = scenario), size = 2) +
+    #scale_color_brewer(palette = "Set1") +
+  #scale_fill_distiller(palette = "Greys", direction = 1) +
+  scale_colour_manual(values = c("#424242", "#E53935"), name = "Scenario") +
+  scale_fill_fermenter(
+    guide = "colourbar",
+    palette = "GnBu", 
+    na.value = "white",
+    direction = 1,
+    n.breaks = 8,
+    name = "Density\n[counts/10km^2]"
+  ) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthly movement tracks for a non-sensitive agent", subtitle = "Status-quo Vs Impacted scenarios") +
+  labs(
+    title = "Monthly movement tracks for a non-sensitive agent", 
+    subtitle = "Baseline Vs Impacted scenarios"
+  ) +
   theme(legend.position = "bottom")
   
 p_tracks
 
-ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 15)
-
 ```
+
+
+```{r, include = FALSE}
+# export to use outside vignette
+ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 15)
+```
+
 
 
 ```{r, fig.dim=c(9,9)}
@@ -649,18 +817,121 @@ p_tracks <- guill_history |>
   filter(agent == last(agent)) |> 
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
-  geom_sf(aes(col = scenario)) +
-  scale_color_brewer(palette = "Set1") +
-  scale_fill_distiller(palette = "Greys", direction = 1) +
+  geom_sf(aes(col = scenario), size = 2) +
+  #scale_color_brewer(palette = "Set1") +
+  #scale_fill_distiller(palette = "Greys", direction = 1) +
+  scale_colour_manual(values = c("#424242", "#E53935"), name = "Scenario") +
+  scale_fill_fermenter(
+    guide = "colourbar",
+    palette = "GnBu", 
+    na.value = "white",
+    direction = 1,
+    n.breaks = 8,
+    name = "Density\n[counts/10km^2]"
+  ) +
   facet_wrap(~month, ncol = 3) +
-  labs(title = "Monthly movement tracks for a sensitive agent", subtitle = "Status-quo Vs Impacted scenarios") +
+  labs(
+    title = "Monthly movement tracks for a sensitive agent",
+    subtitle = "Baseline Vs Impacted scenarios"
+  ) +
   theme(legend.position = "bottom")
 
 p_tracks
+```
 
+```{r, include = FALSE}
+# export to use outside vignette
 ggsave("images/tracks_susceptile_agent.png", p_tracks, width = 15, height = 15)
+```
+
+
+The following figure shows the movement of 250 agents during the period of time
+covered throughout the simulation, for a longer run. The animation depicts how
+agents movement patterns are informed by the underlying monthly density surfaces
+under the impacted scenario, while also highlighting how individuals respond to
+the OWF footprints as tolerated passage zones according to their assigned
+susceptibility.
+
+
+```{r, include = FALSE}
+guill_history_long <- readRDS("data/case-study-guillemot_longrun_history.rds")
+```
+
+```{r sim-animation, cache = TRUE}
+# Creating animation of movements for a sample of the simulation agents, under
+# the impact scenario
+
+# create copy of impacted density map, with March layer replicated as additional
+# April layer for animation rendering purposes
+dens_imp <- spec_imp_map
+dens_imp_apr <- filter(dens_imp, month == 3) |>
+  st_set_dimensions("month", values = 4)
+dens_imp <- c(dens_imp, dens_imp_apr, along = "month")
+
+# convert numeric months to Date, for consistency with history outputs
+month_num <- st_get_dimension_values(dens_imp, "month")
+dens_imp <- st_set_dimensions(
+  dens_imp,
+  which = "month",
+  values = as.Date(sprintf("202%i-%i-01", ifelse(month_num <= 4, 6, 5), month_num)),
+  names =  "Date"
+)
+
+# generate animation
+anim <- guill_history_long |>
+  drop_na(timestamp) |>
+  filter(
+    scenario == "impact",
+    agent %in% unique(agent)[1:250]
+  ) |>
+  mutate(
+    owf_sensitive = fct_rev(
+      ifelse(owf_sensitive, "OWF Sensitive", "OWF Non-sensitive")
+    )
+  ) |>
+  ggplot() +
+  stars::geom_stars(data = dens_imp) +
+  geom_sf(aes(col = owf_sensitive), size = 3, alpha = 0.3) +
+  coord_sf(expand = FALSE) +
+  scale_fill_fermenter(
+    guide = "colourbar",
+    palette = "GnBu", 
+    na.value = "white",
+    direction = 1,
+    n.breaks = 8,
+    name = "Density\n[counts/10km^2]"
+  ) +
+  scale_colour_manual(
+    #values = c("#E53935", "#424242"),
+    values = c("#EF6C00", "#6A1B9A"), 
+    guide = guide_legend(position = "bottom", title = NULL)
+  ) +
+  transition_time(Date) +
+  labs(
+    title = "Impact Scenario", 
+    subtitle = "Date: {frame_time}", 
+    x = NULL, y = NULL
+  )
 
 ```
+
+```{r generate-anim-file, eval = FALSE, include = FALSE}
+anim_save(
+  "images/animation_moving_agents_simulated.gif", 
+  animation = anim, 
+  height = 10, 
+  width = 10,
+  units = "in",
+  res = 100
+)
+```
+
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("images/animation_moving_agents_simulated.gif")
+```
+
+
 
 ## Use of counterfactals
 
@@ -672,12 +943,82 @@ Quantification of the impact of the perturbation can be done on any of the defin
 - Minimum body mass over the season
 - Mortality
 
-These are not single values, but distributions representing the variability in the simulated populations. While being directly informative at a population level (e.g. the mean %-age of the population lost), the distributions are tangible for down-stream calculations. The most obvious application being in  Population Viability Analyses (PVAs) that are frequently required in EIAs for consenting. There the counterfactuals may use:
+These are not single values, but distributions representing the variability in
+the simulated populations. For example, the plots in the next figure compare
+end‑of‑simulation body masses between paired baseline and impact runs. Most
+agents show reduced final body masses under the impacted scenario, with the
+magnitude of this reduction generally greater in OWF‑susceptible individuals.
+
+
+```{r end-bw-diff, fig.dim=c(10,9), out.width="100%", echo = FALSE}
+# final biomass
+final_bw <- guill_history_long |>
+  filter(timestep == max(timestep)) |>
+  mutate(owf_sensitive = ifelse(owf_sensitive, "Sensitive", "Non-sensitive"))
+
+bw_scen_diff <- final_bw |>
+  st_drop_geometry() |>
+  group_by(agent, owf_sensitive) |>
+  pivot_wider(
+    id_cols = c(agent,owf_sensitive),
+    names_from = scenario,
+    values_from = body_mass_smooth
+  ) |>
+  mutate(
+    abs_diff = impact - baseline,
+    sign_diff = ifelse(drop_units(abs_diff) < 0, "Negative", "Positive")
+  )
+
+
+p1 <- final_bw |>
+  mutate(
+    scenario = fct_rev(scenario)
+    ) |>
+  ggplot(aes(x = scenario, body_mass_smooth)) +
+  geom_point(col = "gray25", size = 1) +
+  geom_segment(
+    data = bw_scen_diff,
+    aes(x = "impact", xend = "baseline", y = impact, yend = `baseline`, col = sign_diff),
+    alpha = 0.3,
+    linewidth = 1
+  ) +
+  facet_grid(~owf_sensitive) +
+  labs(y = "End body weight", x = "Scenario") +
+  scale_color_manual(values = c( "#F44336", "#2E7D32"), name = "[Impact - Baseline]") +
+  theme(
+    strip.text = element_text(colour = "gray10"),
+   # legend.position = "bottom"
+  )
+
+
+p2 <- bw_scen_diff |>
+  mutate(owf_sensitive = fct_rev(owf_sensitive)) |>
+  ggplot(aes(x = abs_diff, col = owf_sensitive, fill = owf_sensitive)) +
+  stat_slab(density = "histogram", alpha = 0.3) +
+  stat_pointinterval(position = position_dodgejust(width = .1), justification = 0.35) +
+  labs(x = "Difference 'in' end body mass between scenarios (impact - baseline)") +
+  scale_fill_brewer(palette = "Set1", name = "OWF Influence") +
+  scale_colour_brewer(palette = "Set1", name = "OWF Influence") +
+  theme(
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+
+p1/p2
+
+```
+
+While being directly informative at a population level (e.g. the mean %-age of the population lost), the distributions are tangible for down-stream calculations. The most obvious application being in Population Viability Analyses (PVAs) that are frequently required in EIAs for consenting. There the counterfactuals may use:
 
   - Increases in mortality/proportional reductions in population size
   - Relationships between body mass and reproductive success, to alter PVA demographic parameters
   
 For example, Natural England provide an R PVA toolset here [nepva](https://github.com/naturalengland/Seabird_PVA_Tool), frequently used in consenting, where the distributions of productivity can be specified under differing scenarios. The PVAs provide monte-carlo simulations of projected population sizes, which are matched (impact-to-baseline) to give population-level counterfactuals of impacts. The DisNBS simulations can be used to estimate these productivities.    
+
+
+
+
 
 
 # References
