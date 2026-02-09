@@ -891,7 +891,7 @@ anim <- guill_history_long |>
   ) |>
   ggplot() +
   stars::geom_stars(data = dens_imp) +
-  geom_sf(aes(col = owf_sensitive), size = 3, alpha = 0.3) +
+  geom_sf(aes(col = owf_sensitive), size = 2, alpha = 0.3) +
   coord_sf(expand = FALSE) +
   scale_fill_fermenter(
     guide = "colourbar",
@@ -944,10 +944,10 @@ Quantification of the impact of the perturbation can be done on any of the defin
 - Mortality
 
 These are not single values, but distributions representing the variability in
-the simulated populations. For example, the plots in the next figure compare
+the simulated populations. For example, the plots in the next figure compare the distribution of
 end‑of‑simulation body masses between paired baseline and impact runs. Most
-agents show reduced final body masses under the impacted scenario, with the
-magnitude of this reduction generally greater in OWF‑susceptible individuals.
+agents show reduced final body weights under the impacted scenario, with the
+magnitude of this reduction slightly greater in OWF‑susceptible individuals.
 
 
 ```{r end-bw-diff, fig.dim=c(10,9), out.width="100%", echo = FALSE}
@@ -1009,7 +1009,7 @@ p1/p2
 
 ```
 
-While being directly informative at a population level (e.g. the mean %-age of the population lost), the distributions are tangible for down-stream calculations. The most obvious application being in Population Viability Analyses (PVAs) that are frequently required in EIAs for consenting. There the counterfactuals may use:
+While being directly informative at a population level (e.g. the mean %-age of the population lost), the output distributions are tangible for down-stream calculations. The most obvious application being in Population Viability Analyses (PVAs) that are frequently required in EIAs for consenting. There the counterfactuals may use:
 
   - Increases in mortality/proportional reductions in population size
   - Relationships between body mass and reproductive success, to alter PVA demographic parameters
