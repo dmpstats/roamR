@@ -804,7 +804,7 @@ config object.</li>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Ensuring spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Ensuring spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[76ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Ensuring spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[74ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    <span style="color: #00BBBB;">ℹ</span> Driver <span style="color: #0000BB;">"sst"</span> (<span style="color: #00BB00;">WGS 84 (CRS84)</span>) transformed to match CRS specified by `model_config` (<span style="color: #00BB00;">WGS 84 / UTM zone 30N</span>).</span></span>
 <span><span class="co">#&gt;    <span style="color: #00BBBB;">ℹ</span> Raster of Driver <span style="color: #0000BB;">"sst"</span> warped from curvilinear to regular grid</span></span>
@@ -815,10 +815,10 @@ config object.</li>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States: <span style="color: #0000BB;">"flight"</span>, <span style="color: #0000BB;">"diving"</span>, <span style="color: #0000BB;">"active_on_water"</span>, and <span style="color: #0000BB;">"inact</span>…</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initializing 4 Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initializing 4 Agents <span style="color: #B2B2B2;">[215ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initializing 4 Agents <span style="color: #B2B2B2;">[229ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[16ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[17ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model initialization done! 🚀</span></span></code></pre></div>
 </div>
@@ -886,13 +886,13 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[21ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[166ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[171ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[16.9s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[15.1s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
@@ -1047,7 +1047,8 @@ grams of body mass.</p>
 <code class="sourceCode R"><span><span class="va">p_bdm</span> <span class="op">&lt;-</span> <span class="va">guill_history</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Date</span>, y <span class="op">=</span> <span class="va">body_mass_smooth</span>, col <span class="op">=</span> <span class="va">scenario</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="co">#scale_color_brewer(palette = "Set1", direction = -1) +</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#191970"</span>, <span class="st">"#E53935"</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"Scenario"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">agent</span>, ncol <span class="op">=</span> <span class="fl">2</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span>
 <span>  </span>
@@ -1070,9 +1071,8 @@ specification at the species level.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">stars</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/stars/reference/geom_stars.html" class="external-link">geom_stars</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">spec_imp_map</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>col <span class="op">=</span> <span class="va">scenario</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="co">#scale_color_brewer(palette = "Set1") +</span></span>
-<span>  <span class="co">#scale_fill_distiller(palette = "Greys", direction = 1) +</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#424242"</span>, <span class="st">"#E53935"</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"Scenario"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="co">#scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#191970"</span>, <span class="st">"#E53935"</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"Scenario"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_fermenter</a></span><span class="op">(</span></span>
 <span>    guide <span class="op">=</span> <span class="st">"colourbar"</span>,</span>
 <span>    palette <span class="op">=</span> <span class="st">"GnBu"</span>, </span>
@@ -1098,9 +1098,8 @@ specification at the species level.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">stars</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/stars/reference/geom_stars.html" class="external-link">geom_stars</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">spec_imp_map</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>col <span class="op">=</span> <span class="va">scenario</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="co">#scale_color_brewer(palette = "Set1") +</span></span>
-<span>  <span class="co">#scale_fill_distiller(palette = "Greys", direction = 1) +</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#424242"</span>, <span class="st">"#E53935"</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"Scenario"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="co">#scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#191970"</span>, <span class="st">"#E53935"</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"Scenario"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_fermenter</a></span><span class="op">(</span></span>
 <span>    guide <span class="op">=</span> <span class="st">"colourbar"</span>,</span>
 <span>    palette <span class="op">=</span> <span class="st">"GnBu"</span>, </span>
@@ -1118,12 +1117,13 @@ specification at the species level.</p>
 <span></span>
 <span><span class="va">p_tracks</span></span></code></pre></div>
 <p><img src="case-study-guillemot_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="864"></p>
-<p>The following figure shows the movement of 250 agents during the
-period of time covered throughout the simulation, for a longer run. The
-animation depicts how agents movement patterns are informed by the
-underlying monthly density surfaces under the impacted scenario, while
-also highlighting how individuals respond to the OWF footprints as
-tolerated passage zones according to their assigned susceptibility.</p>
+<p>The figure below shows the movement of 250 agents over the full
+duration of a simulation, for the same model configuration but with a
+larger number of simulated agents. The animation depicts how agents’
+movement patterns are informed by the monthly density surfaces under the
+impacted scenario, while also highlighting how individuals respond to
+the OWF footprints as tolerated passage zones according to their
+assigned susceptibility.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Creating animation of movements for a sample of the simulation agents, under</span></span>
 <span><span class="co"># the impact scenario</span></span>

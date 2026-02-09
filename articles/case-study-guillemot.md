@@ -757,7 +757,7 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Ensuring spatio-temporal consistency of inputs
-#> ✔ Ensuring spatio-temporal consistency of inputs [76ms]
+#> ✔ Ensuring spatio-temporal consistency of inputs [74ms]
 #> 
 #>    ℹ Driver "sst" (WGS 84 (CRS84)) transformed to match CRS specified by `model_config` (WGS 84 / UTM zone 30N).
 #>    ℹ Raster of Driver "sst" warped from curvilinear to regular grid
@@ -768,10 +768,10 @@ guill_ibm <- xfun::cache_rds({
 #> ✔ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> 
 #> ℹ Initializing 4 Agents
-#> ✔ Initializing 4 Agents [215ms]
+#> ✔ Initializing 4 Agents [229ms]
 #> 
 #> ℹ Set up <IBM> object
-#> ✔ Set up <IBM> object [16ms]
+#> ✔ Set up <IBM> object [17ms]
 #> 
 #> Model initialization done! 🚀
 ```
@@ -835,13 +835,13 @@ guill_results <- xfun::cache_rds({
 #> ✔ Performing validation checks on inputs and underlying data. [21ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [166ms]
+#> ✔ Preparing and configuring data for simulation. [171ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [16.9s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [15.1s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.2s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -996,7 +996,8 @@ Dunn et al. (2022), relating energy to grams of body mass.
 p_bdm <- guill_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
-  scale_color_brewer(palette = "Set1") +
+  #scale_color_brewer(palette = "Set1", direction = -1) +
+  scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   theme(legend.position = "bottom") +
   facet_wrap(~agent, ncol = 2, scales = "free")
   
@@ -1021,9 +1022,8 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-    #scale_color_brewer(palette = "Set1") +
-  #scale_fill_distiller(palette = "Greys", direction = 1) +
-  scale_colour_manual(values = c("#424242", "#E53935"), name = "Scenario") +
+  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
+  scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
     palette = "GnBu", 
@@ -1052,9 +1052,8 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-  #scale_color_brewer(palette = "Set1") +
-  #scale_fill_distiller(palette = "Greys", direction = 1) +
-  scale_colour_manual(values = c("#424242", "#E53935"), name = "Scenario") +
+  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
+  scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
     palette = "GnBu", 
@@ -1075,12 +1074,13 @@ p_tracks
 
 ![](case-study-guillemot_files/figure-html/unnamed-chunk-12-1.png)
 
-The following figure shows the movement of 250 agents during the period
-of time covered throughout the simulation, for a longer run. The
-animation depicts how agents movement patterns are informed by the
-underlying monthly density surfaces under the impacted scenario, while
-also highlighting how individuals respond to the OWF footprints as
-tolerated passage zones according to their assigned susceptibility.
+The figure below shows the movement of 250 agents over the full duration
+of a simulation, for the same model configuration but with a larger
+number of simulated agents. The animation depicts how agents’ movement
+patterns are informed by the monthly density surfaces under the impacted
+scenario, while also highlighting how individuals respond to the OWF
+footprints as tolerated passage zones according to their assigned
+susceptibility.
 
 ``` r
 # Creating animation of movements for a sample of the simulation agents, under
