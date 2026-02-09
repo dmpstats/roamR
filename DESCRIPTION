@@ -73,6 +73,9 @@ LazyData: true
 Config/Needs/website: 
   rmarkdown,
   tidyverse,
-  FNN
+  FNN,
+  patchwork,
+  gganimate,
+  ggdist
 URL: https://dmpstats.github.io/roamR/, https://github.com/dmpstats/roamR
 BugReports: https://github.com/dmpstats/roamR/issues
