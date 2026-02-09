@@ -76,6 +76,7 @@ Config/Needs/website:
   FNN,
   patchwork,
   gganimate,
-  ggdist
+  ggdist,
+  cubelyr
 URL: https://dmpstats.github.io/roamR/, https://github.com/dmpstats/roamR
 BugReports: https://github.com/dmpstats/roamR/issues
