@@ -78,7 +78,7 @@ In brief - roamR:
   functionally affects its movement or behaviour
 
 - defines how agents move, with consideration of the environment,
-  behavoural state, or body condition
+  behavioural state, or body condition
 
 - defines the behaviours animals may engage in and how these change
 
@@ -236,8 +236,8 @@ simulation, such as the spatial and temporal boundaries, the
 spatiotemporal resolution, the number of agents to simulate, the
 projection of the spatial data, and other general parameters that define
 the simulation environment. This also includes start and finish points
-for simulated animals, if that some return-to-colony behaviour is
-required. Consideration in the setting of these follows.
+for simulated animals, if some return-to-colony behaviour is required.
+Consideration in the setting of these follows.
 
 **Bounding Box** (`aoc_bbx`) this is a spatial extent over which the
 agents are constrained to be within. In many cases this will simply
