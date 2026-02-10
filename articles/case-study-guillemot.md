@@ -1,6 +1,6 @@
 # Case Study: Isle of May's Guillemot
 
-> **Note**: *This vignette uses data that is not bundled with the
+> **Note**: *This article uses data that is not bundled with the
 > package, so the analysis is not immediately reproducible. To access
 > the necessary data, please reach out to the package maintainers.*
 
@@ -21,17 +21,16 @@ July to March) under two broad scenarios:
   status quo
 - An environment with many synthetic OWF developments
 
-![Figure 2: Synthetic windfarms within North Sea, against a predicted
-guillemot density surface (average counts/10km^2 in October). Density is
-clipped to the area oo calculation (AOC), windfarms are the light yellow
-boxes. Anything beyond the AOC boundaries are excluded from
+![Synthetic windfarms within North Sea, against a predicted guillemot
+density surface (average counts/10km^2 in October). Density is clipped
+to the area oo calculation (AOC), windfarms are the light yellow boxes.
+Anything beyond the AOC boundaries are excluded from
 calculations](images/case-study-guillemot_map.png)
 
-**Figure 2: Synthetic windfarms within North Sea, against a predicted
-guillemot density surface (average counts/10km^2 in October). Density is
-clipped to the area oo calculation (AOC), windfarms are the light yellow
-boxes. Anything beyond the AOC boundaries are excluded from
-calculations**
+*Synthetic windfarms within North Sea, against a predicted guillemot
+density surface (average counts/10km^2 in October). Density is clipped
+to the area oo calculation (AOC), windfarms are the light yellow boxes.
+Anything beyond the AOC boundaries are excluded from calculations*
 
  
 
@@ -757,7 +756,7 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Ensuring spatio-temporal consistency of inputs
-#> ✔ Ensuring spatio-temporal consistency of inputs [74ms]
+#> ✔ Ensuring spatio-temporal consistency of inputs [76ms]
 #> 
 #>    ℹ Driver "sst" (WGS 84 (CRS84)) transformed to match CRS specified by `model_config` (WGS 84 / UTM zone 30N).
 #>    ℹ Raster of Driver "sst" warped from curvilinear to regular grid
@@ -768,7 +767,7 @@ guill_ibm <- xfun::cache_rds({
 #> ✔ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> 
 #> ℹ Initializing 4 Agents
-#> ✔ Initializing 4 Agents [229ms]
+#> ✔ Initializing 4 Agents [231ms]
 #> 
 #> ℹ Set up <IBM> object
 #> ✔ Set up <IBM> object [17ms]
@@ -835,13 +834,13 @@ guill_results <- xfun::cache_rds({
 #> ✔ Performing validation checks on inputs and underlying data. [21ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [171ms]
+#> ✔ Preparing and configuring data for simulation. [169ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.4s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [16.2s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.5s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -996,7 +995,6 @@ Dunn et al. (2022), relating energy to grams of body mass.
 p_bdm <- guill_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
-  #scale_color_brewer(palette = "Set1", direction = -1) +
   scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   theme(legend.position = "bottom") +
   facet_wrap(~agent, ncol = 2, scales = "free")
@@ -1022,7 +1020,6 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
   scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
@@ -1052,7 +1049,6 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
   scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
@@ -1116,7 +1112,7 @@ anim <- guill_history_long |>
   ) |>
   ggplot() +
   stars::geom_stars(data = dens_imp) +
-  geom_sf(aes(col = owf_sensitive), size = 2, alpha = 0.3) +
+  geom_sf(aes(col = owf_sensitive), size = 1.6, alpha = 0.3) +
   coord_sf(expand = FALSE) +
   scale_fill_fermenter(
     guide = "colourbar",
@@ -1156,9 +1152,10 @@ utility is through EIAs that likely use:
 These are not single values, but distributions representing the
 variability in the simulated populations. For example, the plots in the
 next figure compare the distribution of end‑of‑simulation body masses
-between paired baseline and impact runs. Most agents show reduced final
-body weights under the impacted scenario, with the magnitude of this
-reduction slightly greater in OWF‑susceptible individuals.
+between paired baseline and impact runs, from an model re-run with 1000
+agents. Most agents show reduced final body weights under the impacted
+scenario, with the magnitude of this reduction slightly greater in
+OWF‑susceptible individuals.
 
 ![](case-study-guillemot_files/figure-html/end-bw-diff-1.png)
 
