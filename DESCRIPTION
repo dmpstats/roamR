@@ -70,13 +70,6 @@ VignetteBuilder: knitr, quarto
 Depends: 
     R (>= 4.2.0)
 LazyData: true
-Config/Needs/website: 
-  rmarkdown,
-  tidyverse,
-  FNN,
-  patchwork,
-  gganimate,
-  ggdist,
-  cubelyr
+Config/Needs/website: rmarkdown, tidyverse, FNN, patchwork, gganimate, ggdist, cubelyr, quarto
 URL: https://dmpstats.github.io/roamR/, https://github.com/dmpstats/roamR
 BugReports: https://github.com/dmpstats/roamR/issues
