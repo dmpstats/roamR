@@ -7,3 +7,7 @@
 ^\.github$
 ^vignettes/\.quarto$
 ^vignettes/*_files$
+^doc$
+^Meta$
+^vignettes/articles/\.quarto$
+^vignettes/articles/*_files$
