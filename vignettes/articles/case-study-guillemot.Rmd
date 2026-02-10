@@ -40,7 +40,7 @@ library(ggdist)
 theme_set(theme_light())
 ```
 
-> **Note**: *This vignette uses data that is not bundled with the package, so the analysis is not immediately reproducible. To access the necessary data, please reach out to the package maintainers.*
+> **Note**: *This article uses data that is not bundled with the package, so the analysis is not immediately reproducible. To access the necessary data, please reach out to the package maintainers.*
 
 # Overview
 Here we use roamR to simulate the movement and energetics for a population of common guillemot (_Uria aalge_) on the Isle of May. For broad-scale details on the roamR package, refer to the general guide, with the general architecture repeated here:
@@ -55,7 +55,7 @@ The simulations here cover the non-breeding season (some 9 months, from July to 
 * An environment with many synthetic OWF developments 
 
 
-![__Figure 2: Synthetic windfarms within North Sea, against a predicted guillemot density surface (average counts/10km^2 in October). Density is clipped to the area oo calculation (AOC), windfarms are the light yellow boxes. Anything beyond the AOC boundaries are excluded from calculations__](images/case-study-guillemot_map.png)
+![*Synthetic windfarms within North Sea, against a predicted guillemot density surface (average counts/10km^2 in October). Density is clipped to the area oo calculation (AOC), windfarms are the light yellow boxes. Anything beyond the AOC boundaries are excluded from calculations*](images/case-study-guillemot_map.png)
 
 
 &nbsp;
@@ -754,7 +754,6 @@ We can examine a small number of agents graphically - here their body mass histo
 p_bdm <- guill_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
-  #scale_color_brewer(palette = "Set1", direction = -1) +
   scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   theme(legend.position = "bottom") +
   facet_wrap(~agent, ncol = 2, scales = "free")
@@ -781,7 +780,6 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
   scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
@@ -818,7 +816,6 @@ p_tracks <- guill_history |>
   ggplot() +
   stars::geom_stars(data = spec_imp_map) +
   geom_sf(aes(col = scenario), size = 2) +
-  #scale_color_brewer(palette = "Set1", direction = -1,  name = "Scenario") +
   scale_colour_manual(values = c("#191970", "#E53935"), name = "Scenario") +
   scale_fill_fermenter(
     guide = "colourbar",
@@ -889,7 +886,7 @@ anim <- guill_history_long |>
   ) |>
   ggplot() +
   stars::geom_stars(data = dens_imp) +
-  geom_sf(aes(col = owf_sensitive), size = 2, alpha = 0.3) +
+  geom_sf(aes(col = owf_sensitive), size = 1.6, alpha = 0.3) +
   coord_sf(expand = FALSE) +
   scale_fill_fermenter(
     guide = "colourbar",
@@ -917,8 +914,8 @@ anim <- guill_history_long |>
 anim_save(
   "images/animation_moving_agents_simulated.gif", 
   animation = anim, 
-  height = 10, 
-  width = 10,
+  height = 8, 
+  width = 8,
   units = "in",
   res = 100
 )
@@ -942,10 +939,11 @@ Quantification of the impact of the perturbation can be done on any of the defin
 - Mortality
 
 These are not single values, but distributions representing the variability in
-the simulated populations. For example, the plots in the next figure compare the distribution of
-end‑of‑simulation body masses between paired baseline and impact runs. Most
-agents show reduced final body weights under the impacted scenario, with the
-magnitude of this reduction slightly greater in OWF‑susceptible individuals.
+the simulated populations. For example, the plots in the next figure compare the
+distribution of end‑of‑simulation body masses between paired baseline and impact
+runs, from an model re-run with 1000 agents. Most agents show reduced final body
+weights under the impacted scenario, with the magnitude of this reduction
+slightly greater in OWF‑susceptible individuals.
 
 
 ```{r end-bw-diff, fig.dim=c(10,9), out.width="100%", echo = FALSE}
