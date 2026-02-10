@@ -7,3 +7,6 @@
 inst/doc
 docs
 **/.quarto/
+/doc/
+/Meta/
+/vignettes/articles/case-study-guillemot_cache/html
