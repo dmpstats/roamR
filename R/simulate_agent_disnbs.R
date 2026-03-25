@@ -559,12 +559,24 @@ rebalance_states <- function(states_budget,
 
     out_states[[roost_state_id]] <- night_prop
 
-    drop_states <- c(feed_state_id, roost_state_id)
-    keep_states <- setdiff(names(states_budget), drop_states)
+    # Identify type of states: fixed Vs adjustable
+    anchor_states <- c(feed_state_id, roost_state_id)
+    adjust_states <- setdiff(names(states_budget), anchor_states)
 
-    remainder_states_mult <- (1 - Reduce(`+`, out_states[drop_states])) / Reduce(`+`, states_budget[keep_states])
+    anchor_states_prop <- Reduce(`+`, out_states[anchor_states])
 
-    out_states[keep_states] <- lapply(states_budget[keep_states], \(x) x * remainder_states_mult)
+    if (anchor_states_prop < 1){
+      adjmnt <- (1 - anchor_states_prop) / Reduce(`+`, states_budget[adjust_states])
+    } else if (anchor_states_prop == 1){
+      adjmnt <- 0
+    } else {
+      cli::cli_warn(
+        "`anchor_states_prop` > 1, unexpectedly. Launching `browser()` for debugging..."
+        )
+      browser()
+    }
+
+    out_states[adjust_states] <- lapply(states_budget[adjust_states], \(x) x * adjmnt)
   }
 
   out_states
