@@ -71,7 +71,7 @@
       <ModelConfig> instance with attributes:
       * Movement Model:      Density-informed
       * No. Agents:          100
-      * Simulation period:   2026-01-10 -- 2026-01-15 (5 days)
+      * Simulation period:   2026-01-01 -- 2026-01-05 (4 days)
       * Temporal resolution: 1 day
       * Bounding box:        xmin: 0  ymin: 0  xmax: 10  ymax: 10 [°]
       * Geodetic CRS:        WGS 84
@@ -86,7 +86,7 @@
       <ModelConfig> instance with attributes:
       * Movement Model:      Correlated Random Walk
       * No. Agents:          100
-      * Simulation period:   2026-01-10 -- 2026-01-15 (5 days)
+      * Simulation period:   2026-01-01 -- 2026-01-05 (4 days)
       * Temporal resolution: 1 day
       * Bounding box:        xmin: 0  ymin: 0  xmax: 10  ymax: 10 [°]
       * Spatial resolution:  0.25 x 0.25 [°]
@@ -102,7 +102,7 @@
       <ModelConfig> instance with attributes:
       * Movement Model:      Density-informed
       * No. Agents:          100
-      * Simulation period:   2026-01-10 -- 2026-01-15 (5 days)
+      * Simulation period:   2026-01-01 -- 2026-01-05 (4 days)
       * Temporal resolution: 1 day
       * Bounding box:        xmin: 0  ymin: 0  xmax: 10  ymax: 10 [°]
       * Geodetic CRS:        WGS 84
@@ -121,7 +121,7 @@
       <ModelConfig> instance with attributes:
       * Movement Model:      Density-informed
       * No. Agents:          100
-      * Simulation period:   2026-01-10 -- 2026-01-15 (5 days)
+      * Simulation period:   2026-01-01 -- 2026-01-05 (4 days)
       * Temporal resolution: 1 day
       * Bounding box:        xmin: 0  ymin: 0  xmax: 10  ymax: 10 [°]
       * Geodetic CRS:        WGS 84
@@ -147,7 +147,7 @@
       <ModelConfig> instance with attributes:
       * Movement Model:      Correlated Random Walk
       * No. Agents:          100
-      * Simulation period:   2026-01-10 -- 2026-01-15 (5 days)
+      * Simulation period:   2026-01-01 -- 2026-01-05 (4 days)
       * Temporal resolution: 1 day
       * Bounding box:        xmin: 0  ymin: 0  xmax: 10  ymax: 10 [m]
       * Spatial resolution:  0.25 x 0.25 [m]

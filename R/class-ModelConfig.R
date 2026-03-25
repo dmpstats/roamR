@@ -261,8 +261,8 @@ ModelConfig <- function(movement_type = c("di", "crw"),
                         delta_x = 0.25,
                         delta_y = 0.25,
                         delta_time = "1 day",
-                        start_date = Sys.Date() - 5,
-                        end_date = Sys.Date(),
+                        start_date = as.Date("2026-01-01"),
+                        end_date = as.Date("2026-01-05"),
                         start_sites = NULL,
                         end_sites = NULL){
 
