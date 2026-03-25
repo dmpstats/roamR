@@ -166,6 +166,9 @@ VarFn <- function(fn = NULL,
     ))
   }
 
+  # set self-contained environment to fn ---------------------------
+  fn <- set_fn_env(fn)
+
   # construct a new instance of <VarFn> ---------------------------
   new(
     "VarFn",

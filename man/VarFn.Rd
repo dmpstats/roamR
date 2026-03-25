@@ -30,7 +30,7 @@ simulation.
 A \verb{<VarFn>} object declares the relationship between a response variable and
 its explanatory variables, allowing to define model variables that are
 dependent on the
-\subsection{Shortcuts for \code{args_spec}#'}{
+\subsection{Shortcuts for \code{args_spec}}{
 }
 }
 \seealso{
