@@ -290,3 +290,53 @@ create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
 
 
 
+
+
+#' Set function environment, binding locally defined functions
+#'
+#' @description
+#'
+#' Creates a self-contained environment for a function by capturing its
+#' non-package dependencies (globals) and binding them locally. This is
+#' specifically designed for `<VarFn>` objects to ensure they are portable and
+#' functional when dispatched to parallel workers.
+#'
+#' @details
+#' The function uses a Depth-First Search (`dfs`) to recursively find all
+#' global objects called by `fn`. It specifically extracts functions defined
+#' in the `.GlobalEnv` and injects them into a new self-contained environment.
+#'
+#' This minimizes "object not found" errors when the function is executed on a
+#' remote cluster node.
+#'
+#' @param fn A function to be isolated.
+#'
+#' @returns A copy of `fn` with a new environment containing identified local
+#'   function dependencies, with the caller environment as its parent.
+set_fn_env <- function(fn){
+
+  #' Find, recursively, global objects called in function and return dependency
+  #' functions that are defined in Global environment, which are treated as
+  #' locally defined functions.
+  local_dep_fns <- globals::globalsOf(fn, method = "dfs", mustExist = FALSE, recursive = TRUE) |>
+      purrr::map(function(glb){
+        out <- NULL
+        if(is.function(glb)){
+          if(grepl("GlobalEnv", environmentName(environment(glb)))){
+            out <- glb
+          }
+        }
+        out
+      }) |>
+      purrr::compact()
+
+
+  # Set the new env for function, and bind dependencies
+  environment(fn) <- rlang::new_environment(
+      data = local_dep_fns,
+      #parent = rlang::global_env()
+      parent = rlang::caller_env()
+    )
+
+  fn
+}
