@@ -439,6 +439,9 @@ Complete list of user-facing functions
 - [`sample_cell()`](https://dmpstats.github.io/roamR/reference/sample_cell.md)
   : Sampling a density map as PDF
 
+- [`set_fn_env()`](https://dmpstats.github.io/roamR/reference/set_fn_env.md)
+  : Set function environment, binding locally defined functions
+
 - [`simulate_agent_disnbs()`](https://dmpstats.github.io/roamR/reference/simulate_agent_disnbs.md)
   : Run Agent-level simulation under the DisNBS model
 

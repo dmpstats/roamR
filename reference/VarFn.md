@@ -47,7 +47,7 @@ A `<VarFn>` object declares the relationship between a response variable
 and its explanatory variables, allowing to define model variables that
 are dependent on the
 
-### Shortcuts for `args_spec`\#'
+### Shortcuts for `args_spec`
 
 ## See also
 

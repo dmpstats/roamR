@@ -234,7 +234,7 @@ sst <- array(rlnorm(5*5*3*10), dim = c(5, 5, 3, 10)) |>
 #> stars object with 4 dimensions and 1 attribute
 #> attribute(s):
 #>                Min.   1st Qu.    Median     Mean  3rd Qu.     Max.
-#> sst [°C] 0.05291981 0.4974186 0.9718587 1.641678 1.923237 15.72761
+#> sst [°C] 0.05291981 0.4974186 0.9718587 1.641775 1.923237 15.72761
 #> dimension(s):
 #>       from to offset delta point        values x/y
 #> X1       1  5      0     1 FALSE          NULL [x]

@@ -449,6 +449,7 @@ flight
 #>     e <- rnorm(1, mean, sd)
 #>     units::set_units((max(e, 1)), "kJ/h")
 #> }
+#> <environment: 0x55abcd7e5fc0>
 #> 
 #> Args:
 #> • `mean`: 507.6
@@ -756,21 +757,21 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Ensuring spatio-temporal consistency of inputs
-#> ✔ Ensuring spatio-temporal consistency of inputs [76ms]
+#> ✔ Ensuring spatio-temporal consistency of inputs [68ms]
 #> 
 #>    ℹ Driver "sst" (WGS 84 (CRS84)) transformed to match CRS specified by `model_config` (WGS 84 / UTM zone 30N).
 #>    ℹ Raster of Driver "sst" warped from curvilinear to regular grid
 #> ℹ Cropping spatial Drivers to AoC
-#> ✔ Cropping spatial Drivers to AoC [43ms]
+#> ✔ Cropping spatial Drivers to AoC [45ms]
 #> 
 #> ℹ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> ✔ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> 
 #> ℹ Initializing 4 Agents
-#> ✔ Initializing 4 Agents [231ms]
+#> ✔ Initializing 4 Agents [246ms]
 #> 
 #> ℹ Set up <IBM> object
-#> ✔ Set up <IBM> object [17ms]
+#> ✔ Set up <IBM> object [19ms]
 #> 
 #> Model initialization done! 🚀
 ```
@@ -831,16 +832,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [21ms]
+#> ✔ Performing validation checks on inputs and underlying data. [22ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [169ms]
+#> ✔ Preparing and configuring data for simulation. [177ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18.4s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.6s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [16.5s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [17.1s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
