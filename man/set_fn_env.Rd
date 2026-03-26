@@ -13,20 +13,25 @@ set_fn_env(fn)
 A copy of \code{fn} with a new environment containing identified local
 function dependencies, with the caller environment as its parent.
 Find, recursively, global objects called in function and return dependency
-functions that are defined in Global environment, which are treated as
-locally defined functions.
+functions that are NOT:
+\itemize{
+\item primitives
+\item part of a package namespace
+}
 }
 \description{
-#' Creates a self-contained environment for a function by capturing its
+Creates a self-contained environment for a function by capturing its
 non-package dependencies (globals) and binding them locally. This is
 specifically designed for \verb{<VarFn>} objects to ensure they are portable and
 functional when dispatched to parallel workers.
 }
 \details{
-The function uses a Depth-First Search (\code{dfs}) to recursively find all
-global objects called by \code{fn}. It specifically extracts functions defined
-in the \code{.GlobalEnv} and injects them into a new self-contained environment.
+The function uses a Depth-First Search (\code{dfs}) to recursively find all global
+objects called by \code{fn}. It specifically extracts functions that are not
+either primitives nor part of a package namespace. Ideitified functions are
+treated as user-defined functions, which are injected into a new
+self-contained environment of the \code{fn}.
 
-This minimizes "object not found" errors when the function is executed in a
-fresh R session or on a remote cluster node.
+This minimizes "object not found" errors when the function is executed on a
+remote cluster node.
 }

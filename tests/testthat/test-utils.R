@@ -24,10 +24,6 @@ test_that("`is_stars_empty()` behaves as expected", {
 
 test_that("set_fn_env captures a single local dependency", {
 
-  # for some unknown reason, these tests fail on devtools::test() :/. So,
-  # only interactive testing possible
-  skip_if(!interactive())
-
   # Define a dependency in the Global Environment
   local_helper <- function(x) x + 1
   # Define a function that uses it
@@ -46,20 +42,17 @@ test_that("set_fn_env captures a single local dependency", {
 
 
 
-test_that("set_fn_env handles nested local dependencies", {
 
-  # for some unknown reason, these tests failed via devtools::test() :/ . So,
-  # only interactive testing possible
-  skip_if(!interactive())
+test_that("set_fn_env handles nested local dependencies", {
 
   inner_inner_fn <- function(a) a * 2
   inner_fn <- function(b) inner_inner_fn(b) / 10
-  outer_fn <- function(c) inner_fn(c)
+  outer_fn <- function(c) inner_fn(c) + mean(1:20)
 
   portable_outer <- set_fn_env(outer_fn)
 
   # Check if the recursive search found `inner_inner_fn`
-  env_objs <- ls(environment(portable_outer))
+  env_objs <- names(environment(portable_outer))
   expect_in("inner_inner_fn", env_objs)
 
   # check if upper level `inner_fn` was also found and injected it into
@@ -74,14 +67,14 @@ test_that("set_fn_env handles nested local dependencies", {
 
 
 test_that("set_fn_env ignores package-loaded functions", {
-  # purrr::map is in a package environment, not .GlobalEnv
+  # purrr::map is in a package environment and namespace
   fn_with_pkg <- function(x) purrr::map(x, ~ .x + 1)
 
   portable_pkg_fn <- set_fn_env(fn_with_pkg)
 
   # Assertions: 'map' should NOT be identified as local dependency and
   # therefore not bound to portable function
-  expect_false("map" %in% ls(environment(portable_pkg_fn)))
+  expect_false("map" %in% names(environment(portable_pkg_fn)))
   # But it should still work because caller_env() is the parent
   expect_equal(unlist(portable_pkg_fn(1:2)), c(2, 3))
 })

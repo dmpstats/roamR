@@ -302,9 +302,11 @@ create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
 #' functional when dispatched to parallel workers.
 #'
 #' @details
-#' The function uses a Depth-First Search (`dfs`) to recursively find all
-#' global objects called by `fn`. It specifically extracts functions defined
-#' in the `.GlobalEnv` and injects them into a new self-contained environment.
+#' The function uses a Depth-First Search (`dfs`) to recursively find all global
+#' objects called by `fn`. It specifically extracts functions that are not
+#' either primitives nor part of a package namespace. Ideitified functions are
+#' treated as user-defined functions, which are injected into a new
+#' self-contained environment of the `fn`.
 #'
 #' This minimizes "object not found" errors when the function is executed on a
 #' remote cluster node.
@@ -316,27 +318,36 @@ create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
 set_fn_env <- function(fn){
 
   #' Find, recursively, global objects called in function and return dependency
-  #' functions that are defined in Global environment, which are treated as
-  #' locally defined functions.
-  local_dep_fns <- globals::globalsOf(fn, method = "dfs", mustExist = FALSE, recursive = TRUE) |>
-      purrr::map(function(glb){
-        out <- NULL
-        if(is.function(glb)){
-          if(grepl("GlobalEnv", environmentName(environment(glb)))){
-            out <- glb
-          }
-        }
-        out
-      }) |>
-      purrr::compact()
-
+  #' functions that are NOT:
+  #' - primitives
+  #' - part of a package namespace
+  local_dep_fns <- globals::globalsOf(
+    expr = fn,
+    env = rlang::caller_env(),
+    method = "dfs",
+    mustExist = FALSE,
+    recursive = TRUE
+  ) |>
+    purrr::map(function(glb) {
+      if (is.function(glb) &&
+          !rlang::is_primitive(glb) &&
+          !rlang::is_namespace(environment(glb))) {
+        glb
+      } else {
+        NULL
+      }
+    }) |>
+    purrr::compact()
 
   # Set the new env for function, and bind dependencies
   environment(fn) <- rlang::new_environment(
       data = local_dep_fns,
       #parent = rlang::global_env()
+      #parent = environment(fn)
       parent = rlang::caller_env()
     )
 
   fn
 }
+
+
