@@ -317,7 +317,7 @@ create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
 #'   function dependencies, with the caller environment as its parent.
 set_fn_env <- function(fn){
 
-  #' Find, recursively, global objects called in function and return dependency
+  #' List, recursively, global objects called in `fn` and return dependency
   #' functions that are NOT:
   #' - primitives
   #' - part of a package namespace
