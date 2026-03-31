@@ -12,7 +12,7 @@ set_fn_env(fn)
 \value{
 A copy of \code{fn} with a new environment containing identified local
 function dependencies, with the caller environment as its parent.
-Find, recursively, global objects called in function and return dependency
+List, recursively, global objects called in \code{fn} and return dependency
 functions that are NOT:
 \itemize{
 \item primitives
