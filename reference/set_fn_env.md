@@ -20,8 +20,8 @@ set_fn_env(fn)
 ## Value
 
 A copy of `fn` with a new environment containing identified local
-function dependencies, with the caller environment as its parent. Find,
-recursively, global objects called in function and return dependency
+function dependencies, with the caller environment as its parent. List,
+recursively, global objects called in `fn` and return dependency
 functions that are NOT:
 
 - primitives

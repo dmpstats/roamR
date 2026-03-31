@@ -449,7 +449,7 @@ flight
 #>     e <- rnorm(1, mean, sd)
 #>     units::set_units((max(e, 1)), "kJ/h")
 #> }
-#> <environment: 0x562daf291ee0>
+#> <environment: 0x55bf86b700e8>
 #> 
 #> Args:
 #> • `mean`: 507.6
@@ -757,21 +757,21 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Ensuring spatio-temporal consistency of inputs
-#> ✔ Ensuring spatio-temporal consistency of inputs [67ms]
+#> ✔ Ensuring spatio-temporal consistency of inputs [69ms]
 #> 
 #>    ℹ Driver "sst" (WGS 84 (CRS84)) transformed to match CRS specified by `model_config` (WGS 84 / UTM zone 30N).
 #>    ℹ Raster of Driver "sst" warped from curvilinear to regular grid
 #> ℹ Cropping spatial Drivers to AoC
-#> ✔ Cropping spatial Drivers to AoC [45ms]
+#> ✔ Cropping spatial Drivers to AoC [52ms]
 #> 
 #> ℹ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> ✔ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> 
 #> ℹ Initializing 4 Agents
-#> ✔ Initializing 4 Agents [247ms]
+#> ✔ Initializing 4 Agents [237ms]
 #> 
 #> ℹ Set up <IBM> object
-#> ✔ Set up <IBM> object [20ms]
+#> ✔ Set up <IBM> object [18ms]
 #> 
 #> Model initialization done! 🚀
 ```
@@ -835,13 +835,13 @@ guill_results <- xfun::cache_rds({
 #> ✔ Performing validation checks on inputs and underlying data. [22ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [179ms]
+#> ✔ Preparing and configuring data for simulation. [174ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [19.2s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.3s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [17.2s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.6s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
