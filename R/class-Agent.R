@@ -156,7 +156,8 @@ Agent <- function(species = NULL, model_config = NULL){
 
 ## Accessors ----
 
-### @AgentCondition@body_mass
+### Note: Generic "body_mass" already defined in <AgentCondition>
+### Here defining getter and setter from upper-level <Agent>
 setMethod("body_mass", "Agent", function(x) x@condition@body_mass)
 setMethod("body_mass<-", "Agent", function(x, value) {
   x@condition@body_mass <- value
@@ -165,7 +166,8 @@ setMethod("body_mass<-", "Agent", function(x, value) {
 })
 
 
-### @AgentCondition@location
+### Note: Generic "location" already defined in <AgentCondition>
+### Here defining getter and setter for upper-level <Agent>
 setMethod("location", "Agent", function(x) x@condition@location)
 setMethod("location<-", "Agent", function(x, value) {
   x@condition@location <- value
