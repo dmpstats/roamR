@@ -351,3 +351,33 @@ set_fn_env <- function(fn){
 }
 
 
+
+
+
+#' Store and Restore RNGs
+#'
+#' Helpers for debugging errors during simulation, specifically:
+#' - `save_rng()`: stores the RNG vector in current environment into an external
+#'   file
+#' - `restore_rng()`: restores the RNG saved in a file into the current global
+#'   environment
+#'
+#' @param savefile the path of the file storing the RNG returned by `.Random.seed`
+#'
+save_rng <- function(savefile=tempfile()) {
+  if (exists(".Random.seed"))  {
+    oldseed <- get(".Random.seed", .GlobalEnv)
+  } else stop("don't know how to save before set.seed() or r*** call")
+  oldRNGkind <- RNGkind()
+  save("oldseed","oldRNGkind",file=savefile)
+  invisible(savefile)
+}
+
+restore_rng <- function(savefile) {
+  load(savefile)
+  do.call("RNGkind",as.list(oldRNGkind))  ## must be first!
+  assign(".Random.seed", oldseed, .GlobalEnv)
+}
+
+
+
