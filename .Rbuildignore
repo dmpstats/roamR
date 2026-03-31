@@ -11,3 +11,5 @@
 ^Meta$
 ^vignettes/articles/\.quarto$
 ^vignettes/articles/*_files$
+^\.positai$
+^\.claude$
