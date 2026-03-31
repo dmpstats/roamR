@@ -606,7 +606,7 @@ setMethod("show", "ModelConfig", function(object) {
     } else if(object@movement_type == "crw"){
       "Correlated Random Walk"
     } else{
-      object@movement_type
+      cli::col_magenta(cli::style_italic("invalid value"))
     }
   )
 
