@@ -402,6 +402,15 @@ methods::setValidity("ModelConfig", function(object) {
     )
   }
 
+
+  if (is.na(object@movement_type)) {
+    err <- c(
+      err,
+      cli::format_inline("\n- slot @movement_type: Missing value. Provide the
+                         movement model intended for the simulation.")
+    )
+  }
+
   # validate temporal resolution
   # check done via lubridate::period
   if(!is.na(object@delta_time)){
@@ -426,9 +435,22 @@ methods::setValidity("ModelConfig", function(object) {
   }
 
 
-  # validate sites
+  # start/end sites
   err <- c(err, val_sites(object@start_sites, object@aoc_bbx))
   err <- c(err, val_sites(object@end_sites, object@aoc_bbx))
+
+
+  # @movement_type
+  valid_movement_types <- c("di", "crw")
+  if (object@movement_type %notin% valid_movement_types) {
+    err <- c(
+      err,
+      cli::format_inline(
+        "\n- slot @movement_type: Invalid value {.val {object@movement_type}}. ",
+        "Must be one of {.or {.val {valid_movement_types}}}."
+      )
+    )
+  }
 
   if (length(err) > 0) {
     # need to collapse into single string for desired formatting
@@ -486,6 +508,18 @@ val_sites <- function(sites, aoc_bbx){
 # Methods  ---------------------------------------------------------------
 
 ## Accessors ------------------------------------
+
+### @movement_type
+#### setter
+#' @export
+setGeneric("movement_type<-", function(x, value) standardGeneric("movement_type<-"))
+setMethod("movement_type<-", "ModelConfig", function(x, value) {
+  x@movement_type <- value
+  validObject(x)
+  x
+})
+
+
 ### @start_sites
 #### getter
 #' @export
@@ -514,7 +548,7 @@ setMethod("aoc_bbx", "ModelConfig", function(x) x@aoc_bbx)
 setGeneric("n_agents", function(x) standardGeneric("n_agents"))
 setMethod("n_agents", "ModelConfig", function(x) x@n_agents)
 
-#' #### setter
+#### setter
 #' @export
 setGeneric("n_agents<-", function(x, value) standardGeneric("n_agents<-"))
 setMethod("n_agents<-", "ModelConfig", function(x, value){
@@ -557,7 +591,13 @@ setMethod("show", "ModelConfig", function(object) {
   # @movement_type
   mv_mod_txt <- paste0(
     format("Movement Model:", width = align_width),
-    ifelse(object@movement_type == "di", "Density-informed", "Correlated Random Walk")
+    if(object@movement_type == "di"){
+      "Density-informed"
+    } else if(object@movement_type == "crw"){
+      "Correlated Random Walk"
+    } else{
+      object@movement_type
+    }
   )
 
   # @n_agents

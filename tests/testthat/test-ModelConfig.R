@@ -45,6 +45,9 @@ test_that("Validation of site slots work as expected", {
   x@start_sites <-  sites |> sf::st_transform(3441)
   expect_error(validObject(x), "must have the same CRS as @aoc_bbx")
 
+  x <- ModelConfig()
+  x@movement_type <- "INVALID-MOVEMENT"
+  expect_error(validObject(x), 'slot @movement_type: Invalid value')
 
 })
 
