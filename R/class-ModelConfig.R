@@ -368,14 +368,19 @@ methods::setValidity("ModelConfig", function(object) {
     if (is.na(object@delta_x)) {
       err <- c(
         err,
-        cli::format_inline("\n- slot @delta_x: Missing value. Provide cell size for x dimension.")
+        cli::format_inline(
+          "\n- slot @delta_y: Missing value. Cell size in x dimension must be provided",
+          " when {.code @movement_type = {.val crw}}."
+        )
       )
     }
 
     if (is.na(object@delta_y)) {
       err <- c(
         err,
-        cli::format_inline("\n- slot @delta_y: Missing value. Provide cell size for y dimension.")
+        cli::format_inline(
+        "\n- slot @delta_y: Missing value. Cell size in y dimension must be provided",
+        " when {.code @movement_type = {.val crw}}.")
       )
     }
 
@@ -510,6 +515,11 @@ val_sites <- function(sites, aoc_bbx){
 ## Accessors ------------------------------------
 
 ### @movement_type
+#### getter
+#' @export
+setGeneric("movement_type", function(x) standardGeneric("movement_type"))
+setMethod("movement_type", "ModelConfig", function(x) x@movement_type)
+
 #### setter
 #' @export
 setGeneric("movement_type<-", function(x, value) standardGeneric("movement_type<-"))

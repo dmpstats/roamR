@@ -1,8 +1,26 @@
+test_that("Validation of @movement_type works as expected", {
+  x <- ModelConfig()
+  expect_equal(movement_type(x), "di")
+
+  x <- ModelConfig(movement_type = "crw")
+  expect_equal(movement_type(x), "crw")
+
+  expect_snapshot(movement_type(x) <- "xxx", error = TRUE)
+
+})
+
+
+
 test_that("Validation of site slots work as expected", {
 
   pts = matrix(1:8, ncol = 2)
   npts <- nrow(pts)
-  sites <- sf::st_sf(id = letters[1:npts], prop = 1/npts, geom = apply(pts, 1, sf::st_point, simplify = FALSE), crs = 4326)
+  sites <- sf::st_sf(
+    id = letters[1:npts],
+    prop = 1/npts,
+    geom = apply(pts, 1, sf::st_point, simplify = FALSE),
+    crs = 4326
+  )
 
   expect_error(
     ModelConfig(

@@ -1,3 +1,12 @@
+# Validation of @movement_type works as expected
+
+    Code
+      movement_type(x) <- "xxx"
+    Condition
+      Error in `validObject()`:
+      ! invalid class "ModelConfig" object: 
+      - slot @movement_type: Invalid value "xxx". Must be one of "di" or "crw".
+
 # Missing values for required slots raises errors
 
     Code
@@ -32,8 +41,8 @@
     Condition
       Error in `validObject()`:
       ! invalid class "ModelConfig" object: 
-      - slot @delta_x: Missing value. Provide cell size for x dimension. 
-      - slot @delta_y: Missing value. Provide cell size for y dimension.
+      - slot @delta_y: Missing value. Cell size in x dimension must be provided when `@movement_type = "crw"`. 
+      - slot @delta_y: Missing value. Cell size in y dimension must be provided when `@movement_type = "crw"`.
 
 ---
 
