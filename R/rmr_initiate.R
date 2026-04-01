@@ -167,7 +167,7 @@ rmr_initiate <- function(model_config, species, drivers, quiet = FALSE){
 
   ## Handle drivers for for CRW Movement Model ----------------------------------
 
-  if(model_config@movement_type == "crw"){
+  if(model_config@movement_model == "crw"){
 
     ### Generate Driver for AOC-based vector-field  ----------
     # A raster of distances from regular grid within AOC to its bounding box
