@@ -8,7 +8,7 @@ simulation start and end date.
 
 ## Slots
 
-- `movement_type`:
+- `movement_model`:
 
   Character string, specifying the movement model to simulate agent
   trajectories. Currently supported options:
@@ -39,7 +39,7 @@ simulation start and end date.
 
   Numeric, specifying the cell (pixel) size in the x and y dimensions,
   respectively. These define the spatial resolution of the AOC. Required
-  only when `movement_type = "crw"`; otherwise values are automatically
+  only when `movement_model = "crw"`; otherwise values are automatically
   derived from the resolution of provided density maps. Units are
   assumed to match those of `ref_sys`.
 

@@ -104,10 +104,10 @@ status quo</li>
 <li>An environment with many synthetic OWF developments</li>
 </ul>
 <div class="float">
-<img src="images/case-study-guillemot_map.png" alt="Synthetic windfarms within North Sea, against a predicted guillemot density surface (average counts/10km^2 in October). Density is clipped to the area oo calculation (AOC), windfarms are the light yellow boxes. Anything beyond the AOC boundaries are excluded from calculations"><div class="figcaption"><em>Synthetic windfarms within North Sea,
+<img src="images/case-study-guillemot_map.png" style="width:75.0%" fig-align="center" alt="Synthetic windfarms within North Sea, against a predicted guillemot density surface (average counts/10km^2 in October). Density is clipped to the area oo calculation (AOC), windfarms are the light blue boxes. Anything beyond the AOC boundaries are excluded from calculations"><div class="figcaption"><em>Synthetic windfarms within North Sea,
 against a predicted guillemot density surface (average counts/10km^2 in
 October). Density is clipped to the area oo calculation (AOC), windfarms
-are the light yellow boxes. Anything beyond the AOC boundaries are
+are the light blue boxes. Anything beyond the AOC boundaries are
 excluded from calculations</em></div>
 </div>
 <p> </p>
@@ -119,7 +119,7 @@ the following main components:</p>
 <ul>
 <li>
 <p><strong>IBM configuration</strong>
-(<code>&lt;ModelConfig&gt;</code>)</p>
+(<code>[&lt;ModelConfig&gt;]</code>)</p>
 <p>Sundry high-level simulation controls, including the number of
 agents, spatial extent and geographic projection, temporal resolution,
 start and end dates of the model run.</p>
@@ -237,7 +237,7 @@ influence.</p>
 <code class="sourceCode R"><span><span class="co"># define the Area of Calculation</span></span>
 <span><span class="va">AoC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="fl">178831</span>, ymin <span class="op">=</span> <span class="fl">5906535</span>,  xmax <span class="op">=</span> <span class="fl">1174762</span>, ymax <span class="op">=</span> <span class="fl">6783609</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="va">utm30</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>In this case study, we adopt the <strong>density-informed</strong>
-movement model (<code>movement_type</code>, refer guidance document),
+movement model (<code>movement_model</code>, refer guidance document),
 under which species-level density maps influence agent movement by
 providing a spatio-temporal varying preference surface.</p>
 <p>Passing the above configuration inputs to <code><a href="../reference/ModelConfig.html">ModelConfig()</a></code>
@@ -246,7 +246,7 @@ creates a <code>&lt;ModelConfig&gt;</code> object, which we assigned to
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># IBM Settings - assume fixed for these simulations</span></span>
 <span><span class="va">guill_ibm_config</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ModelConfig.html">ModelConfig</a></span><span class="op">(</span></span>
-<span>  movement_type <span class="op">=</span> <span class="st">"di"</span>,</span>
+<span>  movement_model <span class="op">=</span> <span class="st">"di"</span>,</span>
 <span>  n_agents <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  ref_sys <span class="op">=</span> <span class="va">utm30</span>,</span>
 <span>  aoc_bbx <span class="op">=</span> <span class="va">AoC</span>,</span>
@@ -499,7 +499,7 @@ h/day for all simulated agents.</p>
 <span><span class="co">#&gt;     e &lt;- rnorm(1, mean, sd)</span></span>
 <span><span class="co">#&gt;     units::set_units((max(e, 1)), "kJ/h")</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x55bf86b700e8&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x563fd872d3c0&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Args:</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">•</span> `mean`: 507.6</span></span>
@@ -803,21 +803,21 @@ config object.</li>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Ensuring spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Ensuring spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[69ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Ensuring spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[77ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    <span style="color: #00BBBB;">ℹ</span> Driver <span style="color: #0000BB;">"sst"</span> (<span style="color: #00BB00;">WGS 84 (CRS84)</span>) transformed to match CRS specified by `model_config` (<span style="color: #00BB00;">WGS 84 / UTM zone 30N</span>).</span></span>
 <span><span class="co">#&gt;    <span style="color: #00BBBB;">ℹ</span> Raster of Driver <span style="color: #0000BB;">"sst"</span> warped from curvilinear to regular grid</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Cropping spatial Drivers to AoC</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping spatial Drivers to AoC <span style="color: #B2B2B2;">[52ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping spatial Drivers to AoC <span style="color: #B2B2B2;">[62ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States: <span style="color: #0000BB;">"flight"</span>, <span style="color: #0000BB;">"diving"</span>, <span style="color: #0000BB;">"active_on_water"</span>, and <span style="color: #0000BB;">"inact</span>…</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States: <span style="color: #0000BB;">"flight"</span>, <span style="color: #0000BB;">"diving"</span>, <span style="color: #0000BB;">"active_on_water"</span>, and <span style="color: #0000BB;">"inact</span>…</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initializing 4 Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initializing 4 Agents <span style="color: #B2B2B2;">[237ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initializing 4 Agents <span style="color: #B2B2B2;">[273ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[18ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[20ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model initialization done! 🚀</span></span></code></pre></div>
 </div>
@@ -882,16 +882,16 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Running the DisNBS Individual-Based Model</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Performing validation checks on inputs and underlying data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[22ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[24ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[174ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[189ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[19.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16.6s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[17.6s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
@@ -1034,7 +1034,7 @@ comparison. All agents over both scenarios are combined into one dataset
 <span><span class="co">#&gt; 9   FALSE POINT (543716.2 6248777)</span></span>
 <span><span class="co">#&gt; 10  FALSE POINT (543716.2 6248777)</span></span></code></pre>
 <div class="section level4">
-<h4 id="body-mass-traces">body mass traces<a class="anchor" aria-label="anchor" href="#body-mass-traces"></a>
+<h4 id="body-mass-traces">Body mass traces<a class="anchor" aria-label="anchor" href="#body-mass-traces"></a>
 </h4>
 <p>We can examine a small number of agents graphically - here their body
 mass histories as implied by the simulated energetics. Note roamR at its

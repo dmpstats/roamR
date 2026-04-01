@@ -23,13 +23,13 @@ July to March) under two broad scenarios:
 
 ![Synthetic windfarms within North Sea, against a predicted guillemot
 density surface (average counts/10km^2 in October). Density is clipped
-to the area oo calculation (AOC), windfarms are the light yellow boxes.
+to the area oo calculation (AOC), windfarms are the light blue boxes.
 Anything beyond the AOC boundaries are excluded from
 calculations](images/case-study-guillemot_map.png)
 
 *Synthetic windfarms within North Sea, against a predicted guillemot
 density surface (average counts/10km^2 in October). Density is clipped
-to the area oo calculation (AOC), windfarms are the light yellow boxes.
+to the area oo calculation (AOC), windfarms are the light blue boxes.
 Anything beyond the AOC boundaries are excluded from calculations*
 
  
@@ -40,7 +40,7 @@ animal’s condition under the two scenarios. In line with the
 architecture of the roamR package, the simulation requires specifying
 the following main components:
 
-- **IBM configuration** (`<ModelConfig>`)
+- **IBM configuration** (`[<ModelConfig>]`)
 
   Sundry high-level simulation controls, including the number of agents,
   spatial extent and geographic projection, temporal resolution, start
@@ -164,7 +164,7 @@ AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609)
 ```
 
 In this case study, we adopt the **density-informed** movement model
-(`movement_type`, refer guidance document), under which species-level
+(`movement_model`, refer guidance document), under which species-level
 density maps influence agent movement by providing a spatio-temporal
 varying preference surface.
 
@@ -176,7 +176,7 @@ creates a `<ModelConfig>` object, which we assigned to
 ``` r
 # IBM Settings - assume fixed for these simulations
 guill_ibm_config <- ModelConfig(
-  movement_type = "di",
+  movement_model = "di",
   n_agents = 4,
   ref_sys = utm30,
   aoc_bbx = AoC,
@@ -449,7 +449,7 @@ flight
 #>     e <- rnorm(1, mean, sd)
 #>     units::set_units((max(e, 1)), "kJ/h")
 #> }
-#> <environment: 0x55bf86b700e8>
+#> <environment: 0x563fd872d3c0>
 #> 
 #> Args:
 #> • `mean`: 507.6
@@ -757,21 +757,21 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Ensuring spatio-temporal consistency of inputs
-#> ✔ Ensuring spatio-temporal consistency of inputs [69ms]
+#> ✔ Ensuring spatio-temporal consistency of inputs [77ms]
 #> 
 #>    ℹ Driver "sst" (WGS 84 (CRS84)) transformed to match CRS specified by `model_config` (WGS 84 / UTM zone 30N).
 #>    ℹ Raster of Driver "sst" warped from curvilinear to regular grid
 #> ℹ Cropping spatial Drivers to AoC
-#> ✔ Cropping spatial Drivers to AoC [52ms]
+#> ✔ Cropping spatial Drivers to AoC [62ms]
 #> 
 #> ℹ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> ✔ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> 
 #> ℹ Initializing 4 Agents
-#> ✔ Initializing 4 Agents [237ms]
+#> ✔ Initializing 4 Agents [273ms]
 #> 
 #> ℹ Set up <IBM> object
-#> ✔ Set up <IBM> object [18ms]
+#> ✔ Set up <IBM> object [20ms]
 #> 
 #> Model initialization done! 🚀
 ```
@@ -832,16 +832,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [22ms]
+#> ✔ Performing validation checks on inputs and underlying data. [24ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [174ms]
+#> ✔ Preparing and configuring data for simulation. [189ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [18.3s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [19.8s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [16.6s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [17.6s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -984,7 +984,7 @@ dataset - `guill_history`.
     #> 9   FALSE POINT (543716.2 6248777)
     #> 10  FALSE POINT (543716.2 6248777)
 
-#### body mass traces
+#### Body mass traces
 
 We can examine a small number of agents graphically - here their body
 mass histories as implied by the simulated energetics. Note roamR at its

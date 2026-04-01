@@ -104,7 +104,7 @@
 <li><p><strong>Define the environment</strong> - Include relevant spatio-temporal layers within the simulated area such as species distributions, coastlines, man-made structures, environmental attributes, etc.</p></li>
 <li><p><strong>Combine components into an IBM object</strong> - Integrate the species and environment definitions into a single simulation-ready object.</p></li>
 <li><p><strong>Run the simulation</strong> - Create agents, parallelise computations, move agents through the environment, and record their properties over time - optionally including defined perturbation scenarios.</p></li>
-<li><p><strong>Query simulated animals</strong> - Investigate results, e.g. by comparing individual responses across baseline and impact scenarios.</p></li>
+<li><p><strong>Query simulated animals</strong> - Investigate results, e.g. by comparing yyry yryyr ooro individual responses across baseline and impact scenarios.</p></li>
 </ol>
 <p>In the following sections, we’ll go over each of these steps and build our own IBM from scratch. Buckle up!</p>
 </section><section class="level2"><h2 id="the-turtwick-ibm-the-baseline-scenario">The <em>Turtwick</em> IBM: the baseline scenario<a class="anchor" aria-label="anchor" href="#the-turtwick-ibm-the-baseline-scenario"></a>
@@ -117,7 +117,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">turtwick_ibm_cfg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ModelConfig.html">ModelConfig</a></span><span class="op">(</span></span>
-<span>  movement_type <span class="op">=</span> <span class="st">"di"</span>,</span>
+<span>  movement_model <span class="op">=</span> <span class="st">"di"</span>,</span>
 <span>  n_agents <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  ref_sys <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="fl">32630</span><span class="op">)</span>, </span>
 <span>  aoc_bbx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">10000</span>, <span class="fl">10000</span><span class="op">)</span>, </span>
@@ -127,15 +127,15 @@
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">turtwick_ibm_cfg</span></span>
-<span><span class="co">#&gt; &lt;ModelConfig&gt; instance with attributes:</span></span>
-<span><span class="co">#&gt; • Movement Model:      Density-informed</span></span>
-<span><span class="co">#&gt; • No. Agents:          100</span></span>
-<span><span class="co">#&gt; • Simulation period:   2025-01-01 -- 2025-02-01 (31 days)</span></span>
-<span><span class="co">#&gt; • Temporal resolution: 1 day</span></span>
-<span><span class="co">#&gt; • Bounding box:        xmin: 0  ymin: 0  xmax: 10000  ymax: 10000 [m]</span></span>
-<span><span class="co">#&gt; • Projected CRS:       WGS 84 / UTM zone 30N</span></span>
-<span><span class="co">#&gt; • Start site:          NA</span></span>
-<span><span class="co">#&gt; • End site:            NA</span></span></code></pre></div>
+<span><span class="co">## &lt;ModelConfig&gt; instance with attributes:</span></span>
+<span><span class="co">## • Movement Model:      Density-informed</span></span>
+<span><span class="co">## • No. Agents:          100</span></span>
+<span><span class="co">## • Simulation period:   2025-01-01 -- 2025-02-01 (31 days)</span></span>
+<span><span class="co">## • Temporal resolution: 1 day</span></span>
+<span><span class="co">## • Bounding box:        xmin: 0  ymin: 0  xmax: 10000  ymax: 10000 [m]</span></span>
+<span><span class="co">## • Projected CRS:       WGS 84 / UTM zone 30N</span></span>
+<span><span class="co">## • Start site:          NA</span></span>
+<span><span class="co">## • End site:            NA</span></span></code></pre></div>
 </div>
 <p>In plain terms, this configuration sets up a model where we:</p>
 <ul>
@@ -145,12 +145,17 @@
 <li><p>Initialise agents at random locations within the AOC, allowing them to end up anywhere inside this area by the end of the simulation.</p></li>
 </ul></section><section class="level3"><h3 id="species-definition">2. Species Definition<a class="anchor" aria-label="anchor" href="#species-definition"></a>
 </h3>
-<p>babababa bbababa maldodsdf sjaf kfodhf OHDFOH FOhf ofh ohfdhf odhfo godhgo goshg [ojf j] pdsgj pgjpjgpdojg pjg</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis posuere ligula sit amet lacinia. Duis dignissim pellentesque magna, rhoncus congue sapien finibus mollis. Ut eu sem laoreet, vehicula ipsum in, convallis erat. Vestibulum magna sem, blandit pulvinar augue sit amet, auctor malesuada sapien. Nullam faucibus leo eget eros hendrerit, non laoreet ipsum lacinia. Curabitur cursus diam elit, non tempus ante volutpat a. Quisque hendrerit blandit purus non fringilla. Integer sit amet elit viverra ante dapibus semper. Vestibulum viverra rutrum enim, at luctus enim posuere eu. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+<p>Nunc ac dignissim magna. Vestibulum vitae egestas elit. Proin feugiat leo quis ante condimentum, eu ornare mauris feugiat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris cursus laoreet ex, dignissim bibendum est posuere iaculis. Suspendisse et maximus elit. In fringilla gravida ornare. Aenean id lectus pulvinar, sagittis felis nec, rutrum risus. Nam vel neque eu arcu blandit fringilla et in quam. Aliquam luctus est sit amet vestibulum eleifend. Phasellus elementum sagittis molestie. Proin tempor lorem arcu, at condimentum purus volutpat eu. Fusce et pellentesque ligula. Pellentesque id tellus at erat luctus fringilla. Suspendisse potenti.</p>
+<p>Etiam maximus accumsan gravida. Maecenas at nunc dignissim, euismod enim ac, bibendum ipsum. Maecenas vehicula velit in nisl aliquet ultricies. Nam eget massa interdum, maximus arcu vel, pretium erat. Maecenas sit amet tempor purus, vitae aliquet nunc. Vivamus cursus urna velit, eleifend dictum magna laoreet ut. Duis eu erat mollis, blandit magna id, tincidunt ipsum. Integer massa nibh, commodo eu ex vel, venenatis efficitur ligula. Integer convallis lacus elit, maximus eleifend lacus ornare ac. Vestibulum scelerisque viverra urna id lacinia. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean eget enim at diam bibendum tincidunt eu non purus. Nullam id magna ultrices, sodales metus viverra, tempus turpis.</p>
 </section><section class="level3"><h3 id="environment-specification">2. Environment Specification<a class="anchor" aria-label="anchor" href="#environment-specification"></a>
 </h3>
-<p>babababa bbababa maldodsdf sjaf kfodhf OHDFOH FOhf ofh ohfdhf odhfo godhgo goshg [ojf j] pdsgj pgjpjgpdojg pjg</p>
-</section></section><section class="level2"><h2 id="disturbing-turtwegs-baseline-vs-impact-scenarios">Disturbing <em>Turtwegs</em>: baseline Vs impact scenarios<a class="anchor" aria-label="anchor" href="#disturbing-turtwegs-baseline-vs-impact-scenarios"></a>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis posuere ligula sit amet lacinia. Duis dignissim pellentesque magna, rhoncus congue sapien finibus mollis. Ut eu sem laoreet, vehicula ipsum in, convallis erat. Vestibulum magna sem, blandit pulvinar augue sit amet, auctor malesuada sapien. Nullam faucibus leo eget eros hendrerit, non laoreet ipsum lacinia. Curabitur cursus diam elit, non tempus ante volutpat a. Quisque hendrerit blandit purus non fringilla. Integer sit amet elit viverra ante dapibus semper. Vestibulum viverra rutrum enim, at luctus enim posuere eu. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+<p>Nunc ac dignissim magna. Vestibulum vitae egestas elit. Proin feugiat leo quis ante condimentum, eu ornare mauris feugiat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris cursus laoreet ex, dignissim bibendum est posuere iaculis. Suspendisse et maximus elit. In fringilla gravida ornare. Aenean id lectus pulvinar, sagittis felis nec, rutrum risus. Nam vel neque eu arcu blandit fringilla et in quam. Aliquam luctus est sit amet vestibulum eleifend. Phasellus elementum sagittis molestie. Proin tempor lorem arcu, at condimentum purus volutpat eu. Fusce et pellentesque ligula. Pellentesque id tellus at erat luctus fringilla. Suspendisse potenti.</p>
+</section></section><section class="level2"><h2 id="disturbing-the-turtwegs-baseline-vs-impact-scenarios">Disturbing the <em>Turtwegs</em>: baseline Vs impact scenarios<a class="anchor" aria-label="anchor" href="#disturbing-the-turtwegs-baseline-vs-impact-scenarios"></a>
 </h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis posuere ligula sit amet lacinia. Duis dignissim pellentesque magna, rhoncus congue sapien finibus mollis. Ut eu sem laoreet, vehicula ipsum in, convallis erat. Vestibulum magna sem, blandit pulvinar augue sit amet, auctor malesuada sapien. Nullam faucibus leo eget eros hendrerit, non laoreet ipsum lacinia. Curabitur cursus diam elit, non tempus ante volutpat a. Quisque hendrerit blandit purus non fringilla. Integer sit amet elit viverra ante dapibus semper. Vestibulum viverra rutrum enim, at luctus enim posuere eu. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+<p>Nunc ac dignissim magna. Vestibulum vitae egestas elit. Proin feugiat leo quis ante condimentum, eu ornare mauris feugiat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris cursus laoreet ex, dignissim bibendum est posuere iaculis. Suspendisse et maximus elit. In fringilla gravida ornare. Aenean id lectus pulvinar, sagittis felis nec, rutrum risus. Nam vel neque eu arcu blandit fringilla et in quam. Aliquam luctus est sit amet vestibulum eleifend. Phasellus elementum sagittis molestie. Proin tempor lorem arcu, at condimentum purus volutpat eu. Fusce et pellentesque ligula. Pellentesque id tellus at erat luctus fringilla. Suspendisse potenti.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);

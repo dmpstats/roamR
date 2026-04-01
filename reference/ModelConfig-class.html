@@ -68,7 +68,7 @@ date.</p>
     <h2 id="slots">Slots<a class="anchor" aria-label="anchor" href="#slots"></a></h2>
 
 
-<dl><dt><code>movement_type</code></dt>
+<dl><dt><code>movement_model</code></dt>
 <dd><p>Character string, specifying the movement model to simulate
 agent trajectories. Currently supported options:</p><ul><li><p><code>"di"</code>: Density-informed movement, where agent destinations stochastically
 generated based on population-level density maps.</p></li>
@@ -95,7 +95,7 @@ i.e. the spatial bounding box within which simulation occurs.</p></dd>
 <dt><code>delta_x,delta_y</code></dt>
 <dd><p>Numeric, specifying the cell (pixel) size in the x and
 y dimensions, respectively. These define the spatial resolution of the
-AOC. Required only when <code>movement_type = "crw"</code>; otherwise values
+AOC. Required only when <code>movement_model = "crw"</code>; otherwise values
 are automatically derived from the resolution of provided
 density maps. Units are assumed to match those of <code>ref_sys</code>.</p></dd>
 

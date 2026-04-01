@@ -9,15 +9,15 @@ objects.
 
 ``` r
 ModelConfig(
-  movement_type = c("di", "crw"),
+  movement_model = c("di", "crw"),
   n_agents = 100L,
   ref_sys = sf::st_crs(4326),
   aoc_bbx = c(0, 0, 10, 10),
   delta_x = 0.25,
   delta_y = 0.25,
   delta_time = "1 day",
-  start_date = Sys.Date() - 5,
-  end_date = Sys.Date(),
+  start_date = as.Date("2026-01-01"),
+  end_date = as.Date("2026-01-05"),
   start_sites = NULL,
   end_sites = NULL
 )
@@ -25,7 +25,7 @@ ModelConfig(
 
 ## Arguments
 
-- movement_type:
+- movement_model:
 
   Character string, specifying the movement model to simulate agent
   trajectories. Currently supported options:
@@ -58,7 +58,7 @@ ModelConfig(
 
   Numeric values, specifying the cell (pixel) size in the x and y
   dimensions, respectively. These define the spatial resolution of the
-  AOC. Required only when `movement_type = "crw"`; otherwise values are
+  AOC. Required only when `movement_model = "crw"`; otherwise values are
   automatically derived from the resolution of provided density maps.
   Units are assumed to match those of `ref_sys`.
 
@@ -109,7 +109,7 @@ outlined below. For additional guidance, see `vignette("roamR-guide")`.
 ### Movement Model
 
 At this stage, users only need to specify the movement methodology for
-the simulation via `movement_type`. Detailed descriptions of each
+the simulation via `movement_model`. Detailed descriptions of each
 movement model are available in
 [`vignette("movement")`](https://dmpstats.github.io/roamR/articles/movement.md).
 Required input data underpinning the chosen model should be provided
@@ -189,7 +189,7 @@ colonies <- st_sf(
 
 # initialize model configuration object
 config <- ModelConfig(
-  movement_type = "crw",
+  movement_model = "crw",
   n_agents = 1000,
   ref_sys = st_crs(4326),
   aoc_bbx = c(0, 0, 5, 5),
