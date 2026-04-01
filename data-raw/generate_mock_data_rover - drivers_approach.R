@@ -713,7 +713,7 @@ ggplot() +
 
 
 ibm_config_rover <- ModelConfig(
-  movement_type = "crw",
+  movement_model = "crw",
   n_agents = 100,
   ref_sys = st_crs(4326),
   aoc_bbx = mock_bbox,

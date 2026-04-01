@@ -14,7 +14,7 @@ date.
 \section{Slots}{
 
 \describe{
-\item{\code{movement_type}}{Character string, specifying the movement model to simulate
+\item{\code{movement_model}}{Character string, specifying the movement model to simulate
 agent trajectories. Currently supported options:
 \itemize{
 \item \code{"di"}: Density-informed movement, where agent destinations stochastically
@@ -34,7 +34,7 @@ i.e. the spatial bounding box within which simulation occurs.}
 
 \item{\code{delta_x,delta_y}}{Numeric, specifying the cell (pixel) size in the x and
 y dimensions, respectively. These define the spatial resolution of the
-AOC. Required only when \code{movement_type = "crw"}; otherwise values
+AOC. Required only when \code{movement_model = "crw"}; otherwise values
 are automatically derived from the resolution of provided
 density maps. Units are assumed to match those of \code{ref_sys}.}
 

@@ -55,7 +55,7 @@ The simulations here cover the non-breeding season (some 9 months, from July to 
 * An environment with many synthetic OWF developments 
 
 
-![*Synthetic windfarms within North Sea, against a predicted guillemot density surface (average counts/10km^2 in October). Density is clipped to the area oo calculation (AOC), windfarms are the light yellow boxes. Anything beyond the AOC boundaries are excluded from calculations*](images/case-study-guillemot_map.png)
+![*Synthetic windfarms within North Sea, against a predicted guillemot density surface (average counts/10km^2 in October). Density is clipped to the area oo calculation (AOC), windfarms are the light blue boxes. Anything beyond the AOC boundaries are excluded from calculations*](images/case-study-guillemot_map.png){fig-align="center" width="75%"}
 
 
 &nbsp;
@@ -63,7 +63,7 @@ The simulations here cover the non-breeding season (some 9 months, from July to 
 
 The overall aim is to quantify the effects of potential displacement from these OWF developments, based on counterfactual comparisons of animal's condition under the two scenarios. In line with the architecture of the roamR package, the simulation requires specifying the following main components:
 
-* __IBM configuration__ (`<ModelConfig>`)
+* __IBM configuration__ (`[<ModelConfig>]`)
 
     Sundry high-level simulation controls, including the number of agents, spatial extent and geographic projection, temporal resolution, start and end dates of the model run.
 
@@ -144,14 +144,14 @@ In terms of bounding the simulation spatially, we've opted for a semi-arbitrary 
 AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 ```
 
-In this case study, we adopt the **density-informed** movement model (`movement_type`, refer guidance document), under which species-level density maps influence agent movement by providing a spatio-temporal varying preference surface. 
+In this case study, we adopt the **density-informed** movement model (`movement_model`, refer guidance document), under which species-level density maps influence agent movement by providing a spatio-temporal varying preference surface. 
 
 Passing the above configuration inputs to `ModelConfig()` creates a `<ModelConfig>` object, which we assigned to `guill_ibm_config`:
 
 ```{r ibm-config}
 # IBM Settings - assume fixed for these simulations
 guill_ibm_config <- ModelConfig(
-  movement_type = "di",
+  movement_model = "di",
   n_agents = 4,
   ref_sys = utm30,
   aoc_bbx = AoC,
@@ -746,7 +746,7 @@ guill_history
 ```
 
 
-### body mass traces
+### Body mass traces
 
 We can examine a small number of agents graphically - here their body mass histories as implied by the simulated energetics. Note roamR at its heart simulates energetics, so conversion functions from energy to mass are specified by the user. Here the primary conversion figure is from @Dunn2022, relating energy to grams of body mass.
 
@@ -1011,9 +1011,6 @@ While being directly informative at a population level (e.g. the mean %-age of t
   - Relationships between body mass and reproductive success, to alter PVA demographic parameters
   
 For example, Natural England provide an R PVA toolset here [nepva](https://github.com/naturalengland/Seabird_PVA_Tool), frequently used in consenting, where the distributions of productivity can be specified under differing scenarios. The PVAs provide monte-carlo simulations of projected population sizes, which are matched (impact-to-baseline) to give population-level counterfactuals of impacts. The DisNBS simulations can be used to estimate these productivities.    
-
-
-
 
 
 

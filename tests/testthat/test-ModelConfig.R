@@ -1,11 +1,11 @@
-test_that("Validation of @movement_type works as expected", {
+test_that("Validation of @movement_model works as expected", {
   x <- ModelConfig()
-  expect_equal(movement_type(x), "di")
+  expect_equal(movement_model(x), "di")
 
-  x <- ModelConfig(movement_type = "crw")
-  expect_equal(movement_type(x), "crw")
+  x <- ModelConfig(movement_model = "crw")
+  expect_equal(movement_model(x), "crw")
 
-  expect_snapshot(movement_type(x) <- "xxx", error = TRUE)
+  expect_snapshot(movement_model(x) <- "xxx", error = TRUE)
 
 })
 
@@ -64,8 +64,8 @@ test_that("Validation of site slots work as expected", {
   expect_error(validObject(x), "must have the same CRS as @aoc_bbx")
 
   x <- ModelConfig()
-  x@movement_type <- "INVALID-MOVEMENT"
-  expect_error(validObject(x), 'slot @movement_type: Invalid value')
+  x@movement_model <- "INVALID-MOVEMENT"
+  expect_error(validObject(x), 'slot @movement_model: Invalid value')
 
 })
 
@@ -95,7 +95,7 @@ test_that("Missing values for required slots raises errors", {
   # Spatial resolution for CRW movement models
   expect_snapshot(
     ModelConfig(
-      movement_type = "crw",
+      movement_model = "crw",
       delta_x = NA_real_, delta_y = NA_real_
     ),
     error = TRUE
@@ -144,7 +144,7 @@ test_that("'show' method prints out configuration as expected", {
   expect_snapshot(ModelConfig())
 
   # CRW movement model - i.e. spatial resolution should be printed
-  expect_snapshot(ModelConfig(movement_type = "crw"))
+  expect_snapshot(ModelConfig(movement_model = "crw"))
 
   # With starting-sites
   s <- sf::st_sf(
@@ -169,7 +169,7 @@ test_that("'show' method prints out configuration as expected", {
   expect_snapshot(ModelConfig(start_sites = s, end_sites = e))
 
   # UTM units
-  expect_snapshot(ModelConfig(movement_type = "crw", ref_sys = sf::st_crs(32630)))
+  expect_snapshot(ModelConfig(movement_model = "crw", ref_sys = sf::st_crs(32630)))
 
 })
 

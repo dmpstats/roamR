@@ -278,7 +278,7 @@ rvr_states$dive@id
 
 # IBM object -----------------------------------------------------------------
 cfg <- ibm_config_rover
-cfg@movement_type <- "di"
+cfg@movement_model <- "di"
 cfg@delta_x <- NA_real_
 cfg@delta_y <- NA_real_
 cfg@start_date <- as.Date("2022-10-01")

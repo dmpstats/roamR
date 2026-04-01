@@ -144,7 +144,7 @@ test_that("Progress messages rendered as expected", {
 
   # density-informed movement
   m_di <- m_crw
-  m_di@movement_type <- "di"
+  m_di@movement_model <- "di"
 
   msg <- capture_cli_messages(
     rmr_initiate(m_di, rover, rover_drivers)

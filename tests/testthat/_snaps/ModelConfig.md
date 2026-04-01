@@ -1,11 +1,11 @@
-# Validation of @movement_type works as expected
+# Validation of @movement_model works as expected
 
     Code
-      movement_type(x) <- "xxx"
+      movement_model(x) <- "xxx"
     Condition
       Error in `validObject()`:
       ! invalid class "ModelConfig" object: 
-      - slot @movement_type: Invalid value "xxx". Must be one of "di" or "crw".
+      - slot @movement_model: Invalid value "xxx". Must be one of "di" or "crw".
 
 # Missing values for required slots raises errors
 
@@ -37,12 +37,12 @@
 ---
 
     Code
-      ModelConfig(movement_type = "crw", delta_x = NA_real_, delta_y = NA_real_)
+      ModelConfig(movement_model = "crw", delta_x = NA_real_, delta_y = NA_real_)
     Condition
       Error in `validObject()`:
       ! invalid class "ModelConfig" object: 
-      - slot @delta_y: Missing value. Cell size in x dimension must be provided when `@movement_type = "crw"`. 
-      - slot @delta_y: Missing value. Cell size in y dimension must be provided when `@movement_type = "crw"`.
+      - slot @delta_y: Missing value. Cell size in x dimension must be provided when `@movement_model = "crw"`. 
+      - slot @delta_y: Missing value. Cell size in y dimension must be provided when `@movement_model = "crw"`.
 
 ---
 
@@ -90,7 +90,7 @@
 ---
 
     Code
-      ModelConfig(movement_type = "crw")
+      ModelConfig(movement_model = "crw")
     Output
       <ModelConfig> instance with attributes:
       * Movement Model:      Correlated Random Walk
@@ -151,7 +151,7 @@
 ---
 
     Code
-      ModelConfig(movement_type = "crw", ref_sys = sf::st_crs(32630))
+      ModelConfig(movement_model = "crw", ref_sys = sf::st_crs(32630))
     Output
       <ModelConfig> instance with attributes:
       * Movement Model:      Correlated Random Walk

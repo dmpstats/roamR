@@ -7,7 +7,7 @@
 #' date.
 #'
 #'
-#' @slot movement_type Character string, specifying the movement model to simulate
+#' @slot movement_model Character string, specifying the movement model to simulate
 #'   agent trajectories. Currently supported options:
 #'    * `"di"`: Density-informed movement, where agent destinations stochastically
 #'    generated based on population-level density maps.
@@ -21,7 +21,7 @@
 #' i.e. the spatial bounding box within which simulation occurs.
 #' @slot delta_x,delta_y Numeric, specifying the cell (pixel) size in the x and
 #'   y dimensions, respectively. These define the spatial resolution of the
-#'   AOC. Required only when `movement_type = "crw"`; otherwise values
+#'   AOC. Required only when `movement_model = "crw"`; otherwise values
 #'   are automatically derived from the resolution of provided
 #'   density maps. Units are assumed to match those of `ref_sys`.
 #' @slot delta_time Character string, defines the temporal resolution of the
@@ -55,7 +55,7 @@
 methods::setClass(
   Class = "ModelConfig",
   slots = list(
-    movement_type = "character",
+    movement_model = "character",
     n_agents = "integer",
     ref_sys = "crs",
     aoc_bbx = "bbox",
@@ -69,7 +69,7 @@ methods::setClass(
     end_sites = "sf"
   ),
   prototype = list(
-    movement_type = NA_character_,
+    movement_model = NA_character_,
     n_agents = NA_integer_,
     ref_sys = sf::NA_crs_,
     aoc_bbx = sf::NA_bbox_,
@@ -91,7 +91,7 @@ methods::setClass(
 #' Helper function to define the model configuration of the IMB. It constructs
 #' instances of <[`ModelConfig-class`]> objects.
 #'
-#' @param movement_type Character string, specifying the movement model to simulate
+#' @param movement_model Character string, specifying the movement model to simulate
 #'   agent trajectories. Currently supported options:
 #'    * `"di"`: Density-informed movement, where agent destinations stochastically
 #'    generated based on population-level density maps.
@@ -107,7 +107,7 @@ methods::setClass(
 #'   `xmax` and `ymax` values.
 #' @param delta_x,delta_y Numeric values, specifying the cell (pixel) size in the x and
 #'   y dimensions, respectively. These define the spatial resolution of the
-#'   AOC. Required only when `movement_type = "crw"`; otherwise values
+#'   AOC. Required only when `movement_model = "crw"`; otherwise values
 #'   are automatically derived from the resolution of provided
 #'   density maps. Units are assumed to match those of `ref_sys`.
 #' @param delta_time Character string, defines the temporal resolution of the
@@ -143,7 +143,7 @@ methods::setClass(
 #' ## Movement Model
 #'
 #' At this stage, users only need to specify the movement methodology for the
-#' simulation via `movement_type`. Detailed descriptions of each movement model
+#' simulation via `movement_model`. Detailed descriptions of each movement model
 #' are available in `vignette("movement")`. Required input data underpinning the
 #' chosen model should be provided through other components, such as `<Driver>`
 #' and `<Species>` classes.
@@ -225,7 +225,7 @@ methods::setClass(
 #'
 #' # initialize model configuration object
 #' config <- ModelConfig(
-#'   movement_type = "crw",
+#'   movement_model = "crw",
 #'   n_agents = 1000,
 #'   ref_sys = st_crs(4326),
 #'   aoc_bbx = c(0, 0, 5, 5),
@@ -254,7 +254,7 @@ methods::setClass(
 #' @return An object of class <[ModelConfig-class]>
 #'
 #' @export
-ModelConfig <- function(movement_type = c("di", "crw"),
+ModelConfig <- function(movement_model = c("di", "crw"),
                         n_agents = 100L,
                         ref_sys = sf::st_crs(4326),
                         aoc_bbx = c(0, 0, 10, 10),
@@ -275,7 +275,7 @@ ModelConfig <- function(movement_type = c("di", "crw"),
 
   # Input validation -----------------------------------------------------------
 
-  movement_type <- rlang::arg_match(movement_type)
+  movement_model <- rlang::arg_match(movement_model)
 
   if(!inherits(ref_sys, "crs")){
     cli::cli_abort(c(
@@ -310,12 +310,12 @@ ModelConfig <- function(movement_type = c("di", "crw"),
 
   # Under density-informed movement models, Spatial resolution is defined by the
   # density surface driver. So, overwrite delta_x and delta_y as NAs.
-  if(movement_type == "di") delta_x <- delta_y <- NA_real_
+  if(movement_model == "di") delta_x <- delta_y <- NA_real_
 
   # Construct a new instance of <ModelConfig> -----
   methods::new(
     "ModelConfig",
-    movement_type = movement_type,
+    movement_model = movement_model,
     n_agents = n_agents,
     ref_sys = ref_sys,
     aoc_bbx = aoc_bbx,
@@ -363,14 +363,14 @@ methods::setValidity("ModelConfig", function(object) {
     )
   }
 
-  if(object@movement_type == "crw"){
+  if(object@movement_model == "crw"){
 
     if (is.na(object@delta_x)) {
       err <- c(
         err,
         cli::format_inline(
           "\n- slot @delta_y: Missing value. Cell size in x dimension must be provided",
-          " when {.code @movement_type = {.val crw}}."
+          " when {.code @movement_model = {.val crw}}."
         )
       )
     }
@@ -380,7 +380,7 @@ methods::setValidity("ModelConfig", function(object) {
         err,
         cli::format_inline(
         "\n- slot @delta_y: Missing value. Cell size in y dimension must be provided",
-        " when {.code @movement_type = {.val crw}}.")
+        " when {.code @movement_model = {.val crw}}.")
       )
     }
 
@@ -408,10 +408,10 @@ methods::setValidity("ModelConfig", function(object) {
   }
 
 
-  if (is.na(object@movement_type)) {
+  if (is.na(object@movement_model)) {
     err <- c(
       err,
-      cli::format_inline("\n- slot @movement_type: Missing value. Provide the
+      cli::format_inline("\n- slot @movement_model: Missing value. Provide the
                          movement model intended for the simulation.")
     )
   }
@@ -445,14 +445,14 @@ methods::setValidity("ModelConfig", function(object) {
   err <- c(err, val_sites(object@end_sites, object@aoc_bbx))
 
 
-  # @movement_type
-  valid_movement_types <- c("di", "crw")
-  if (object@movement_type %notin% valid_movement_types) {
+  # @movement_model
+  valid_movement_models <- c("di", "crw")
+  if (object@movement_model %notin% valid_movement_models) {
     err <- c(
       err,
       cli::format_inline(
-        "\n- slot @movement_type: Invalid value {.val {object@movement_type}}. ",
-        "Must be one of {.or {.val {valid_movement_types}}}."
+        "\n- slot @movement_model: Invalid value {.val {object@movement_model}}. ",
+        "Must be one of {.or {.val {valid_movement_models}}}."
       )
     )
   }
@@ -514,17 +514,17 @@ val_sites <- function(sites, aoc_bbx){
 
 ## Accessors ------------------------------------
 
-### @movement_type
+### @movement_model
 #### getter
 #' @export
-setGeneric("movement_type", function(x) standardGeneric("movement_type"))
-setMethod("movement_type", "ModelConfig", function(x) x@movement_type)
+setGeneric("movement_model", function(x) standardGeneric("movement_model"))
+setMethod("movement_model", "ModelConfig", function(x) x@movement_model)
 
 #### setter
 #' @export
-setGeneric("movement_type<-", function(x, value) standardGeneric("movement_type<-"))
-setMethod("movement_type<-", "ModelConfig", function(x, value) {
-  x@movement_type <- value
+setGeneric("movement_model<-", function(x, value) standardGeneric("movement_model<-"))
+setMethod("movement_model<-", "ModelConfig", function(x, value) {
+  x@movement_model <- value
   validObject(x)
   x
 })
@@ -598,12 +598,12 @@ setMethod("show", "ModelConfig", function(object) {
       cli::col_grey()
   }
 
-  # @movement_type
+  # @movement_model
   mv_mod_txt <- paste0(
     format("Movement Model:", width = align_width),
-    if(object@movement_type == "di"){
+    if(object@movement_model == "di"){
       "Density-informed"
-    } else if(object@movement_type == "crw"){
+    } else if(object@movement_model == "crw"){
       "Correlated Random Walk"
     } else{
       cli::col_magenta(cli::style_italic("invalid value"))
@@ -631,7 +631,7 @@ setMethod("show", "ModelConfig", function(object) {
 
 
   # @delta_x and @delta_y
-  sp_res_txt <- if(object@movement_type == "crw") {
+  sp_res_txt <- if(object@movement_model == "crw") {
     paste0(
       format("Spatial resolution:", width = align_width),
       object@delta_x, " x ", object@delta_y, " ", crs_units_txt
