@@ -43,7 +43,10 @@ Notes to expand:
 \itemize{
 \item Assumes movement is exclusively one-directional, towards the end of each track
 \item once agent gets to a track's endpoint, it stays there until the following
-rerouting step, regardless of of the travelling distance returned from the
+re-routing step, regardless of of the travelling distance returned from the
 states.
+\item handling cases where track generation is invalid due to unavailable path
+between start and end points caused by NAs in density surface. Current
+solution: agent remains in same cell.
 }
 }

@@ -25,23 +25,27 @@
 #' @returns A modified `<Agent>` object containing the complete simulated
 #'   trajectory and condition history of the agent over the simulation period,
 #'   based on the provided inputs.
-simulate_agent_disnbs <- function(agent,
-                                  drivers,
-                                  states_profile,
-                                  scen = c("baseline", "impact"),
-                                  night_proportion,
-                                  dnbs_cfg,
-                                  feed_avg_net_energy,
-                                  target_energy = units::set_units(1, "kJ")){
-
+simulate_agent_disnbs <- function(
+  agent,
+  drivers,
+  states_profile,
+  scen = c("baseline", "impact"),
+  night_proportion,
+  dnbs_cfg,
+  feed_avg_net_energy,
+  target_energy = units::set_units(1, "kJ")
+) {
   # TODO
   # - Improve calculation of step travelled distance based on a correlated random
   #   walk
   # - nudging final positions once end of track is reached
   # - further factorisation?
 
+  # NOTES:
+  #  - derivation of agent locations on tracks: sf::st_line_interpolate() ended up being favoured over previous waypoints logic, for it improves accuracy and code cleanliness, without no impact on computational efficiency.
+
   # check ------------------------------------------------------
-  if (!inherits(dnbs_cfg, "disnbs_config")){
+  if (!inherits(dnbs_cfg, "disnbs_config")) {
     cli::cli_abort(c(
       "{.arg dnbs_cfg} must be an object of class {.cls disnbs_config}.",
       i = "Build required object via {.fun create_dnbs_config}."
@@ -56,10 +60,10 @@ simulate_agent_disnbs <- function(agent,
   names(states_profile) <- sapply(states_profile, \(s) s@id)
 
   # set up agent's impacted status and ID of intake driver
-  if(scen == "baseline"){
+  if (scen == "baseline") {
     impacted <- FALSE
     intake_id <- dnbs_cfg$intake_id
-  }else{
+  } else {
     stopifnot(not_null(dnbs_cfg$imp_dens_id))
     stopifnot(not_null(dnbs_cfg$imp_intake_id))
 
@@ -73,12 +77,18 @@ simulate_agent_disnbs <- function(agent,
 
   states_budget(agent@condition) <- lapply(
     states_budget(agent@condition),
-    \(s){ units(s) <- NULL; s}
+    \(s) {
+      units(s) <- NULL
+      s
+    }
   )
 
   feed_avg_net_energy <- assert_units_to_numeric(feed_avg_net_energy, "kJ/h")
   target_energy <- assert_units_to_numeric(target_energy, "kJ")
-  energy_to_mass <- assert_units_to_numeric(agent@properties@energy_to_mass, "g/kJ")
+  energy_to_mass <- assert_units_to_numeric(
+    agent@properties@energy_to_mass,
+    "g/kJ"
+  )
 
   # convert speeds to meters/hr for calculations below
   # NOTE: speeds currently fixed for each agent -
@@ -95,6 +105,8 @@ simulate_agent_disnbs <- function(agent,
   hist <- list()
 
   track_id <- 0L
+  track_travelled <- 0
+  track_length <- 0
 
   # initiate agent's history
   # NOTE: currently overwrites object from Agent's initialization step in
@@ -107,8 +119,6 @@ simulate_agent_disnbs <- function(agent,
     states_budget = agent@condition@states_budget,
     states_unit_cost = agent@condition@states_cost,
     energy_expenditure = agent@condition@energy_expenditure,
-    #dist_travelled = units::set_units(0, "m"),
-    #prop_track = units::set_units(0, ""),
     geometry = sf::st_sfc(location(agent))
   )
 
@@ -119,18 +129,20 @@ simulate_agent_disnbs <- function(agent,
   )
 
   # run -----------------------------------------------------
-
-  # run for-loop over simulations timepoints
-  for(step in seq_along(dnbs_cfg$time_grid)){ # t = 1
-
+  # for-loop over simulations timepoints
+  for (step in seq_along(dnbs_cfg$time_grid)) {
     ## Generate track ---------------------------------------------------------
+    # done at "start of the day", i.e. before moving the agent on current delta_time
 
-    # re-routing done at "start of the day", i.e. before moving the agent on
-    # current delta_time
-    if(step %in% dnbs_cfg$routing_timesteps){
+    # Evaluate re-routing needs.
+    reroute <- if (step == 1L || dnbs_cfg$dns_routing[step]) {
+      TRUE
+    } else {
+      # check if agent has reached the end of the current track, when the total distance travelled on track exceeds the track's total length.
+      track_travelled >= track_length
+    }
 
-      #if(track_id == 3) browser()
-
+    if (reroute) {
       dens <- extract_dns_layer(
         pluck_s4(drivers, dnbs_cfg$dens_id) |> stars_obj(),
         dnbs_cfg,
@@ -138,7 +150,7 @@ simulate_agent_disnbs <- function(agent,
       )
 
       # generate new track
-      actv_track <- if(!impacted){
+      actv_track <- if (!impacted) {
         calculate_track(
           agent,
           dens = dens,
@@ -146,47 +158,52 @@ simulate_agent_disnbs <- function(agent,
           crs = dnbs_cfg$crs,
           aoc_bbx = dnbs_cfg$aoc_bbx
         )
-      }else{
+      } else {
+        # impacted agent
+        imp_dens <- extract_dns_layer(
+          pluck_s4(drivers, dnbs_cfg$imp_dens_id) |> stars_obj(),
+          dnbs_cfg,
+          step
+        )
+
+        # guard against agents with starting locations on "empty" cells of
+        # the impacted surface
+        if (step == 1L) {
+          location(agent) <- snap_to_nearest_pop_cell(
+            sf::st_sfc(location(agent), crs = dnbs_cfg$crs),
+            imp_dens
+          )[[1]]
+        }
+
         calculate_track(
           agent,
           dens = dens,
           impacted = TRUE,
-          imp_dens = extract_dns_layer(
-            pluck_s4(drivers, dnbs_cfg$imp_dens_id) |> stars_obj(),
-            dnbs_cfg,
-            step
-          ),
+          imp_dens = imp_dens,
           crs = dnbs_cfg$crs,
           aoc_bbx = dnbs_cfg$aoc_bbx
         )
       }
 
-      # generate current track's waypoints
-      if(!sf::st_is_empty(actv_track)){
-        # segmentize track to specified point resolution
-        actv_waypnts <- actv_track |>
-          sf::st_segmentize(dfMaxLength = dnbs_cfg$waypnts_res) |>
-          sf::st_cast("POINT")
-      } else {
-        # if `actv_track` contains an empty linestring, due to endpoint landing
-        # in a region without a connection to startpoint (e.g. endpoint
-        # falling in a region of the density surface surrounded by NAs), then we
-        # assume the agent remains in the current location/cell
-        actv_waypnts <- sf::st_sfc(agent@condition@location, crs = dnbs_cfg$crs)
+      # safeguard on `actv_track` being an empty linestring - set it to agent's current location (POINT)
+      if (sf::st_is_empty(actv_track)) {
+        actv_track <- sf::st_sfc(
+          sf::st_point(location(agent)),
+          crs = dnbs_cfg$crs
+        )
       }
 
-
-      # cumulative length of new track's waypoints (meters)
-      cum_dist <- sf::st_distance(actv_waypnts, actv_waypnts[1]) |>
-        assert_units_to_numeric("m")
+      # track length in meters, as numeric
+      track_length <- sf::st_length(actv_track) |>
+        assert_units_to_numeric("meters")
 
       # reset track's total distance travelled by the agent (meters)
-      total_dist <- 0
+      track_travelled <- 0
       #plot(actv_track, axes = TRUE)
       track_id <- track_id + 1L
     }
 
-    ## Derive energetics ---------------------------------------------------
+    ## * Derive energetics ---------------------------------------------------
     # (at start of current step, given condition at previous)
 
     # energy-intake per unit-time (kJ/h) given current location. Based on user-provided
@@ -212,8 +229,7 @@ simulate_agent_disnbs <- function(agent,
 
     # energy-costs per unit-time (kJ/h) given current location
     state_unit_costs <- estimate_costs(agent, states_profile, drivers) |>
-      lapply(function(s) assert_units_to_numeric(s, "kJ/h") )
-
+      lapply(function(s) assert_units_to_numeric(s, "kJ/h"))
 
     # Current total energy cost (kJ), given state budgets from previous step
     #
@@ -235,9 +251,23 @@ simulate_agent_disnbs <- function(agent,
     # at start of the step, based on current energetic demands
 
     # get night-time fraction at current step
-    night_prop <- stars::st_extract(night_proportion, step_loc, time_column = "tm")[[1]]
+    night_prop <- stars::st_extract(
+      night_proportion,
+      step_loc,
+      time_column = "tm"
+    )[[1]]
 
-    #if(is.na(net_energy)) browser()
+    # if (is.na(net_energy)) {
+    #   browser()
+    # }
+    # if (step >= 6) {
+    #   browser()
+    # }
+    # if (
+    #   (dnbs_cfg$time_grid[step] >= as.Date("2023-02-01")) && reroute == TRUE
+    # ) {
+    #   browser()
+    # }
 
     # rebalance states budgets based on energetics
     states_budget(agent@condition) <- rebalance_states(
@@ -251,30 +281,37 @@ simulate_agent_disnbs <- function(agent,
       step_drtn_hrs
     )
 
-
     ## Move agent  -----------------------------------------------------
 
     # calculate distance (meters) travelled on current track by the end of step,
     # based on states budgets an their speeds
-    step_dist <-  purrr::map2(
+    step_dist <- purrr::map2(
       agent_speeds,
       states_budget(agent@condition),
-      \(speed, budget) speed * budget * step_drtn_hrs) |>
+      \(speed, budget) speed * budget * step_drtn_hrs
+    ) |>
       purrr::discard(is.na) |>
       purrr::reduce(sum)
 
     # track's total distance covered by the end of step (meters)
-    total_dist <- total_dist + step_dist
+    track_travelled <- track_travelled + step_dist
 
-    # agent's location at the end of the step
-    step_loc <- actv_waypnts[which.min(abs(total_dist - cum_dist))] |>
-      st_sf(tm = dnbs_cfg$time_grid[step], geometry = _)
+    # proportion of track covered. This needs to be in same units as the active track's CRS for the next interpolation step to work correctly.
+    track_coverage <- units::set_units(
+      track_travelled / track_length,
+      dnbs_cfg$crs$units_gdal,
+      mode = "standard"
+    )
 
-    # step_travel <- runif(1, 0.1, 1) * step_dist
-    # total_dist <- total_dist + step_travel
-    # step_loc <- actv_waypnts[which.min(abs(total_dist - cum_dist))] |>
-    #   st_sf(tm = dnbs_cfg$time_grid[step], geometry = _)
-
+    # interpolate agent's location on track at the end of the step.
+    suppressMessages(
+      step_loc <- sf::st_line_interpolate(
+        actv_track,
+        track_coverage,
+        normalized = TRUE
+      ) |>
+        st_sf(tm = dnbs_cfg$time_grid[step], geometry = _)
+    )
 
     ## Update Agent slots ------------------------------------------
     # (at the end of the step)
@@ -283,13 +320,17 @@ simulate_agent_disnbs <- function(agent,
     agent@condition@timestep <- step
     agent@condition@timestamp <- as.POSIXct(dnbs_cfg$time_grid[step], "UTC")
     agent@condition@energy_expenditure <- units::set_units(net_energy, "kJ")
-    agent@condition@states_cost <- lapply(state_unit_costs, units::set_units, "kJ/h")
+    agent@condition@states_cost <- lapply(
+      state_unit_costs,
+      units::set_units,
+      "kJ/h"
+    )
 
     step_mass_delta <- units::set_units(step_mass_delta, "g")
     agent@condition@mass_change_value <- step_mass_delta
     body_mass(agent) <- agent@properties@initial_mass + step_mass_delta
 
-    hist[[ step ]] <- sf::st_sf(
+    hist[[step]] <- sf::st_sf(
       timestep = agent@condition@timestep,
       timestamp = agent@condition@timestamp,
       track_id = track_id,
@@ -302,12 +343,17 @@ simulate_agent_disnbs <- function(agent,
     #plot(history(agent)["timestep"])
   }
 
+  # handle history ----------------------------------------
   hist <- do.call(rbind, hist)
 
-  if(isTRUE(dnbs_cfg$bm_smooth$apply)){
+  if (isTRUE(dnbs_cfg$bm_smooth$apply)) {
     hist <- hist |>
       dplyr::mutate(
-        body_mass_smooth = smooth_body_mass(timestep, body_mass, dnbs_cfg$bm_smooth$ks_bw),
+        body_mass_smooth = smooth_body_mass(
+          timestep,
+          body_mass,
+          dnbs_cfg$bm_smooth$ks_bw
+        ),
         .after = body_mass
       )
   }
@@ -319,34 +365,26 @@ simulate_agent_disnbs <- function(agent,
 }
 
 
-
-
-
 #' wrapper on slice_strs() to slice density surface with appropriate indices.
 #' Slice construction relies on `cfg` to define the available non-raster
 #' dimensions to evaluate
 #'
 #' @param dns_strs <stars> object containing the density datacube
-extract_dns_layer <- function(dns_strs, cfg, timestep){
-
-  if(!inherits(cfg, "disnbs_config")){
+#'
+extract_dns_layer <- function(dns_strs, cfg, timestep) {
+  if (!inherits(cfg, "disnbs_config")) {
     stop("`cfg` must be object created via {.fun create_dnbs_config}.")
   }
-
-  # get the index of the track corresponding to the input timestep
-  route_idx <- which(cfg$routing_timesteps == timestep)
 
   dns_nrst_dims <- c(cfg$dns_tm_dim, cfg$dns_itr_dim)
 
   dns_slcs <- list(
-    tm = cfg$dns_tm_slices[route_idx],
-    itr = if(!is.na(cfg$dns_itr_dim)) cfg$dns_itr_slices[route_idx] else NULL
+    tm = cfg$dns_tm_slices[timestep],
+    itr = if (!is.na(cfg$dns_itr_dim)) cfg$dns_itr_slices[timestep] else NULL
   )
 
   slice_strs(dns_strs, dns_nrst_dims, !!!dns_slcs, .drop = TRUE)
 }
-
-
 
 
 #' Shortest path calc
@@ -361,8 +399,14 @@ extract_dns_layer <- function(dns_strs, cfg, timestep){
 #'
 #' @examples TBD
 
-calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_dens = NULL) {
-
+calculate_track <- function(
+  agent,
+  dens,
+  impacted = FALSE,
+  crs,
+  aoc_bbx,
+  imp_dens = NULL
+) {
   # current location of the agent
   start <- sf::st_sfc(agent@condition@location, crs = crs)
 
@@ -375,37 +419,25 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
   # may happen due to the AOC cropping applied in initiation leaving a buffer
   # outside the AOC border, at which endpoints can end up. This nudging ensures
   # all endpoint are inside the AOC,
-  if(!pnt_inside_bbox(end, aoc_bbx)){
+  if (!pnt_inside_bbox(end, aoc_bbx)) {
     #browser()
     end <- nudge_pnt_into_bbox(end, aoc_bbx)
   }
 
-  # logic for impacted scenario
-  # NOTE: This approach attempts to avoid large deviations in tracks between baseline
-  # and impacted scenarios, by forcing endpoints to be closer
-  if(impacted){
-
-    if(is.null(imp_dens)) cli::cli_abort("imp_dens must be non-null if `impacted`== TRUE")
-
-    # extract endpoint cell value in impacted surface
-    # NOTE: experimented with `st_cell()` but, for unclear reasons, the returned
-    # cell index appeared to be one pixel short, leading to unexpected outcomes.
-    # `stars::st_extract()` is less efficient, but behaves as expected
-    imp_end_cell_val <- stars::st_extract(imp_dens, end)[[1]]
-
-    # if cell value is NA, relocate endpoint to the closest populated cell in the impacted density surface
-    if(is.na(imp_end_cell_val)){
-      imp_dens_sf <- sf::st_as_sf(imp_dens, as_points = TRUE)
-      new_end_imp_dens_idx <- sf::st_nearest_feature(end, imp_dens_sf)
-      end <- imp_dens_sf$geometry[new_end_imp_dens_idx]
-      rm(imp_dens_sf) # garbage collection
+  # logic for impacted scenario - Snap endpoint to nearest non-NA raster cell.
+  # This approach attempts to avoid large deviations in tracks between
+  # baseline and impacted scenarios, by forcing endpoints to be closer
+  if (impacted) {
+    if (is.null(imp_dens)) {
+      cli::cli_abort("imp_dens must be non-null if `impacted`== TRUE")
     }
+    end <- snap_to_nearest_pop_cell(end, imp_dens)
   }
 
   # set spatial raster for shortest_paths()
-  dens_rst <- if(impacted){
+  dens_rst <- if (impacted) {
     terra::rast(imp_dens)
-  }else {
+  } else {
     terra::rast(dens)
   }
 
@@ -414,6 +446,10 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
   # different decisions regarding endpoint linkage, resulting in different
   # linestring outputs. The <terra> approach was chosen, as it is recommended in
   # the documentation for Earth-related applications.
+
+  #if(sf::st_is_empty(start)) browser()
+  #browser()
+
   track <- spaths::shortest_paths(
     dens_rst,
     origins = end,
@@ -425,11 +461,6 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
 
   track
 }
-
-
-
-
-
 
 
 #' Sampling a density map as PDF
@@ -447,17 +478,18 @@ calculate_track <- function(agent, dens, impacted = FALSE, crs, aoc_bbx, imp_den
 #'
 #' sample_cell(x, 10)
 #'
-sample_cell <- function(strs, n = 1){
-
+sample_cell <- function(strs, n = 1) {
   rast_vect <- as.vector(strs[[1]])
 
-  if(any(rast_vect < 0, na.rm = TRUE)){
-    cli::cli_abort("All values in the first attribute of {.arg x} must be non-negative.")
+  if (any(rast_vect < 0, na.rm = TRUE)) {
+    cli::cli_abort(
+      "All values in the first attribute of {.arg x} must be non-negative."
+    )
   }
 
   rast_vect[is.na(rast_vect)] <- 0
 
-  p_vect <- rast_vect/sum(rast_vect)
+  p_vect <- rast_vect / sum(rast_vect)
 
   samp_ind <- sample(1:length(p_vect), size = n, prob = p_vect, replace = TRUE)
 
@@ -468,9 +500,6 @@ sample_cell <- function(strs, n = 1){
 }
 
 
-
-
-
 #' Estimate energy costs for each state in the profile, given agents condition
 #' (e.g. location, bodymass, etc)
 
@@ -478,9 +507,8 @@ sample_cell <- function(strs, n = 1){
 #'
 #' @examples TBD
 estimate_costs <- function(agent, states_profile, drivers) {
-
-  lapply(states_profile, function(state){
-    cost <- if(is(state@energy_cost, "VarFn")){
+  lapply(states_profile, function(state) {
+    cost <- if (is(state@energy_cost, "VarFn")) {
       state@energy_cost@fn_cmp(agent, drivers) |>
         units::set_units(state@energy_cost@units, mode = "standard")
     } else {
@@ -489,9 +517,7 @@ estimate_costs <- function(agent, states_profile, drivers) {
 
     -(cost)
   })
-
 }
-
 
 
 #' Rebalance activity states
@@ -511,15 +537,16 @@ estimate_costs <- function(agent, states_profile, drivers) {
 #'  - Only applicable to diurnal species
 #'
 #' @examples TBD
-rebalance_states <- function(states_budget,
-                             night_prop,
-                             feed_state_id,
-                             roost_state_id,
-                             curr_energy,
-                             feed_avg_net_energy,
-                             target_energy,
-                             step_duration){
-
+rebalance_states <- function(
+  states_budget,
+  night_prop,
+  feed_state_id,
+  roost_state_id,
+  curr_energy,
+  feed_avg_net_energy,
+  target_energy,
+  step_duration
+) {
   out_states <- states_budget
 
   # lower and upper bounds of feed budget, as proportion of step duration
@@ -532,11 +559,10 @@ rebalance_states <- function(states_budget,
   # feeding duration required to meet energy demand
   feed_hrs <- net_target_energy / feed_avg_net_energy
 
-
   # Stage 1 adjustment: meet intake demands -----
 
   # proportion of time-step required to be spent feeding to meet energy intake demand
-  feed_prop <- feed_hrs/step_duration
+  feed_prop <- feed_hrs / step_duration
   feed_prop <- min(feed_prop, feed_upper)
   feed_prop <- max(feed_prop, feed_lower)
 
@@ -544,9 +570,11 @@ rebalance_states <- function(states_budget,
 
   non_feed_ids <- setdiff(names(states_budget), feed_state_id)
 
-  non_feed_mult <- (1 - out_states[[feed_state_id]]) / Reduce(`+`, states_budget[non_feed_ids])
-  out_states[non_feed_ids] <- lapply(states_budget[non_feed_ids], \(x) x * non_feed_mult)
-
+  non_feed_mult <- (1 - out_states[[feed_state_id]]) /
+    Reduce(`+`, states_budget[non_feed_ids])
+  out_states[non_feed_ids] <- lapply(states_budget[non_feed_ids], \(x) {
+    x * non_feed_mult
+  })
 
   # Stage 2 adjustment: add roosting restriction (i.e. daily night-length) -----
 
@@ -555,8 +583,7 @@ rebalance_states <- function(states_budget,
   # if(is.na(out_states[[roost_state_id]])) browser()
   # if(is.null(out_states[[roost_state_id]])) browser()
 
-  if(out_states[[roost_state_id]] < night_prop){
-
+  if (out_states[[roost_state_id]] < night_prop) {
     out_states[[roost_state_id]] <- night_prop
 
     # Identify type of states: fixed Vs adjustable
@@ -565,25 +592,25 @@ rebalance_states <- function(states_budget,
 
     anchor_states_prop <- Reduce(`+`, out_states[anchor_states])
 
-    if (anchor_states_prop < 1){
-      adjmnt <- (1 - anchor_states_prop) / Reduce(`+`, states_budget[adjust_states])
-    } else if (anchor_states_prop == 1){
+    if (anchor_states_prop < 1) {
+      adjmnt <- (1 - anchor_states_prop) /
+        Reduce(`+`, states_budget[adjust_states])
+    } else if (anchor_states_prop == 1) {
       adjmnt <- 0
     } else {
       cli::cli_warn(
         "`anchor_states_prop` > 1, unexpectedly. Launching `browser()` for debugging..."
-        )
+      )
       browser()
     }
 
-    out_states[adjust_states] <- lapply(states_budget[adjust_states], \(x) x * adjmnt)
+    out_states[adjust_states] <- lapply(states_budget[adjust_states], \(x) {
+      x * adjmnt
+    })
   }
 
   out_states
-
 }
-
-
 
 
 #' Title Energy to mass conversion
@@ -596,21 +623,16 @@ rebalance_states <- function(states_budget,
 #'
 #' @examples TBD
 #'
-smooth_body_mass <- function(steps, bmass, bw){
-
+smooth_body_mass <- function(steps, bmass, bw) {
   ksm <- stats::ksmooth(x = steps, y = bmass, kernel = "normal", bandwidth = bw)
 
   units::set_units(ksm$y, "g")
 }
 
 
-
-
-
 # is point literally inside the bounding box? Returns FALSE if it's on the box's
 # border or outside it
-pnt_inside_bbox <- function(pnt, bbx){
-
+pnt_inside_bbox <- function(pnt, bbx) {
   x_geom <- sf::st_geometry(pnt)
 
   stopifnot(length(x_geom) == 1)
@@ -628,9 +650,7 @@ pnt_inside_bbox <- function(pnt, bbx){
 }
 
 
-
-nudge_pnt_into_bbox <- function(x, bbx, eps = 0.01){
-
+nudge_pnt_into_bbox <- function(x, bbx, eps = 0.01) {
   x_geom <- sf::st_geometry(x)
 
   stopifnot(length(x_geom) == 1)
@@ -645,20 +665,20 @@ nudge_pnt_into_bbox <- function(x, bbx, eps = 0.01){
       max = c("xmax", "ymax"),
       val = c(pnt[[1]], pnt[[2]])
     ),
-    function(min, max, val){
+    function(min, max, val) {
       #browser()
-      if( (val <= bbx[[min]]) | (val >= bbx[[max]]) ){
+      if ((val <= bbx[[min]]) | (val >= bbx[[max]])) {
         lims <- bbx[c(min, max)]
         lim_nm <- names(lims[which.min(abs(lims - val))])
         nudge <- abs(bbx[[lim_nm]]) * eps
-        if(lim_nm %in% c("xmin", "ymin")){
+        if (lim_nm %in% c("xmin", "ymin")) {
           #nudge <- abs(bbx[[lim_nm]]) * eps
           bbx[[lim_nm]] + nudge
-        }else{
+        } else {
           #nudge <- abs(bbx[[lim_nm]]) * eps
           bbx[[lim_nm]] - nudge
         }
-      }else{
+      } else {
         val
       }
     }
@@ -667,9 +687,9 @@ nudge_pnt_into_bbox <- function(x, bbx, eps = 0.01){
   new_pnt <- sf::st_point(new_xy, dim = "XY")
 
   # overwrite point coords in original object
-  if(inherits(x, "sf")){
+  if (inherits(x, "sf")) {
     sf::st_geometry(x)[[1]] <- new_pnt
-  }else{
+  } else {
     x[[1]] <- new_pnt
   }
 
@@ -677,20 +697,40 @@ nudge_pnt_into_bbox <- function(x, bbx, eps = 0.01){
 }
 
 
+#' Relocate point to the nearest non-NA cell of the density surface
+#' NOTE: should return original coordinates of `pnt` if it lies non-NA cell
+#'
+#' @returns an `<sfc>` object with a POINT geometry, lying on the nearest non-NA
+#'   cell of `rst`
+snap_to_nearest_pop_cell <- function(pnt, rst) {
+  # input checks
+  stopifnot(length(dim(rst)) == 2) # must have raster dims only
+  stopifnot(length(rst) == 1) # can't have more than one attribute
+  stopifnot(sf::st_crs(pnt) == sf::st_crs(rst))
+
+  # Extract non-NA cell centres directly from dimension values - avoids the
+  # overhead of a full conversion via st_as_sf()
+  x_vals <- stars::st_get_dimension_values(rst, which = 1L)
+  y_vals <- stars::st_get_dimension_values(rst, which = 2L)
+  valid <- which(!is.na(rst[[1L]]), arr.ind = TRUE)
+  cx <- x_vals[valid[, 1L]]
+  cy <- y_vals[valid[, 2L]]
+
+  # calculate euclidean distances between `pnt` and cell-centres and get the
+  # nearest cell-centre
+  pnt_xy <- sf::st_coordinates(pnt)
+  nearest <- which.min((cx - pnt_xy[1L])^2 + (cy - pnt_xy[2L])^2)
+
+  sf::st_sfc(sf::st_point(c(cx[nearest], cy[nearest])), crs = sf::st_crs(pnt))
+}
 
 
-
-
-assert_units_to_numeric <- function(x, units){
-
+assert_units_to_numeric <- function(x, units) {
   stopifnot(inherits(x, "units"))
 
   units::set_units(x, units, mode = "standard") |>
     units::drop_units()
 }
-
-
-
 
 # # option 2 for finding current location on path via line interpolation.
 # Requirement: path should be in UTM, which implies all spatial objects to be
@@ -737,5 +777,3 @@ assert_units_to_numeric <- function(x, units){
 # }
 
 # bbx |> sf::st_as_sfc() |> sf::st_nearest_points(x_geom)
-
-
