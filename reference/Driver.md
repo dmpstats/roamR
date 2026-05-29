@@ -123,6 +123,7 @@ following structural requirements:
 ## Examples
 
 ``` r
+
 library(sf)
 #> Linking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE
 library(stars)
@@ -168,7 +169,7 @@ library(stars)
 #> attribute(s):
 #>    A1          
 #>  Mode:logical  
-#>  NA's:1        
+#>  NAs :1        
 #> dimension(s):
 #>    from to offset point x/y
 #> X1    1  1      0 FALSE [x]

@@ -409,7 +409,7 @@ query them for any time and location. The actual information contained
 within the driver can be of varying detail (e.g. low spatial resolution,
 fixed over time, or highly detailed spatial information that varies with
 time) but the interface to this is consistent: the agent queries all
-relevant drivers at location $x$, $y$ at time $t$.
+relevant drivers at location $`x`$, $`y`$ at time $`t`$.
 
 ### Vector fields
 
@@ -622,8 +622,8 @@ location, but storing or calculating multiple properties:
   functions
 
 Additionally, state transitions for the next step may be calculated - as
-described in the state balancing section previously, where $t + 1$
-activity states are related to energy intakes at time $t$.
+described in the state balancing section previously, where $`t+1`$
+activity states are related to energy intakes at time $`t`$.
 
 ## Outputs
 

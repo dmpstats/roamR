@@ -93,6 +93,7 @@ ArgSpec(
 ## Examples
 
 ``` r
+
 # driver ID set to `name` by default
 ArgSpec("sst", "driver")
 #> <ArgSpec>

@@ -119,6 +119,7 @@ used for dealing with spatial data , and the interlinked
 information.
 
 ``` r
+
 # define UTM zone 30N
 utm30 <- st_crs(32630)
 ```
@@ -140,6 +141,7 @@ expects spatial inputs to match the CRS defined by `ref_sys`, the site
 must be projected to UTM Zone 30N.
 
 ``` r
+
 # location of colony in long/lat degrees - start/finish locations
 isle_may <- st_sf(
   id = "Isle of May",
@@ -159,6 +161,7 @@ boundary in terms of simulations - data outside this will have no
 influence.
 
 ``` r
+
 # define the Area of Calculation
 AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 ```
@@ -174,6 +177,7 @@ creates a `<ModelConfig>` object, which we assigned to
 `guill_ibm_config`:
 
 ``` r
+
 # IBM Settings - assume fixed for these simulations
 guill_ibm_config <- ModelConfig(
   movement_model = "di",
@@ -216,8 +220,8 @@ definition of the environment via the drivers.
 
 In this application to the common guillemot, the following drivers are
 required - all provided as spatio-temporal datacubes (2D rasters giving
-values for $x,y$ locations over time $t$) so the agents can query their
-environment at any $x,y,t$:
+values for $`x, y`$ locations over time $`t`$) so the agents can query
+their environment at any $`x, y, t`$:
 
 - Monthly species density surfaces, for both baseline and impacted
   scenarios (Buckingham et al. 2023). These give monthly density
@@ -241,6 +245,7 @@ We begin by uploading these datacubes, assigning measurement units where
 they are missing.
 
 ``` r
+
 # upload available spatial surfaces
 
 ## population density maps: baseline and impacted scenarios
@@ -257,12 +262,14 @@ plot(spec_map, col = dpal, breaks = "equal")
 ![](case-study-guillemot_files/figure-html/read-drivers-1.png)
 
 ``` r
+
 plot(spec_imp_map, col = dpal, breaks = "equal")
 ```
 
 ![](case-study-guillemot_files/figure-html/read-drivers-2.png)
 
 ``` r
+
 
 ## Energy intake maps: basline and ipacted scenarios
 intake_map <- readRDS("data/guill_energy_intake_map.rds")
@@ -275,12 +282,14 @@ plot(intake_map, col = ipal[length(ipal)], breaks = "equal")
 ![](case-study-guillemot_files/figure-html/read-drivers-3.png)
 
 ``` r
+
 plot(imp_intake_map, col = ipal, breaks = "equal")
 ```
 
 ![](case-study-guillemot_files/figure-html/read-drivers-4.png)
 
 ``` r
+
 
 ## Sea surface temperature rasters
 sst_map <- readRDS("data/sst_stars.rds") 
@@ -323,6 +332,7 @@ In our specific case:
   below).
 
 ``` r
+
 # Set up IBM drivers 
 
 # guillemot baseline density maps
@@ -418,6 +428,7 @@ The proportion of time allocated to flight at the initial time step
 (`time_budget`) is set to 0.056 h/day for all simulated agents.
 
 ``` r
+
 # user-defined function returning a non-negative energy cost of flying
 flight_cost_fn <- function(mean, sd){
   e <- rnorm(1, mean, sd)
@@ -449,7 +460,7 @@ flight
 #>     e <- rnorm(1, mean, sd)
 #>     units::set_units((max(e, 1)), "kJ/h")
 #> }
-#> <environment: 0x563fd872d3c0>
+#> <environment: 0x5606b477b318>
 #> 
 #> Args:
 #> • `mean`: 507.6
@@ -474,6 +485,7 @@ stochastic elements of the `"flight"` state — specifically, per‑step
 energy costs and per‑agent flight speeds.
 
 ``` r
+
 ## generate random samples of energy cost and flight speed
 set.seed(1991)
 flight_draws <- tibble(
@@ -499,9 +511,11 @@ p2 <- ggplot(flight_draws) +
 For the state representing the *diving* activity, the energy output is
 contingent on the amount of diving (Elliott et al. 2013).
 
-$$e = 3.71\frac{\sum\limits_{i}\left( 1 - e^{- T_{i}/1.23} \right)}{\sum\limits_{i}T_{i}}$$
+``` math
+e = 3.71\frac{\sum_i(1-e^{-T_i/1.23})}{\sum_iT_i}
+```
 
-Where $T_{i}$ is the length of dive $i$ in minutes. Here we are
+Where $`T_i`$ is the length of dive $`i`$ in minutes. Here we are
 performing day-level calculations, meaning we are far from simulating at
 the dive level, and can use a mean dive-length without loss of
 generality. This is specified as parameter `t_dive` in the defined
@@ -519,6 +533,7 @@ Diving speeds are drawn from a Uniform distribution, and initial time
 allocated to diving is set to 3.11 h/day.
 
 ``` r
+
 # define costing function, with non-negative cost constraint
 dive_cost_fn <- function(t_dive, alpha_mean, alpha_sd){
   alpha <- rnorm(1, alpha_mean, alpha_sd)
@@ -550,9 +565,11 @@ with *diving*.
 State representing *active on water* (Buckingham et al. 2023) is a
 linear function in sea surface temperature (SST):
 
-$$e = a - (b*SST)$$
+``` math
+e = a-(b*SST)
+```
 
-where the intercept $a$ has a mean of 113 and SD of 22. $b$ is a
+where the intercept $`a`$ has a mean of 113 and SD of 22. $`b`$ is a
 constant of 2.75.
 
 Because this state explicitly depends on SST, we must ensure that the
@@ -567,6 +584,7 @@ The specification of the remaining attributes for this state follows the
 same principles used for the previous states.
 
 ``` r
+
 # define water-active cost function, with non-negative cost constraint
 active_water_cost_fn <- function(sst, int_mean, int_sd){
   int <- rnorm(1, int_mean, int_sd)
@@ -588,6 +606,7 @@ active <- State(
 ```
 
 ``` r
+
 ## generate random samples
 set.seed(1991)
 
@@ -630,10 +649,11 @@ p2 <- active_cost_draws |>
 ##### Inactive on Water
 
 State for *inactive on water* (Buckingham et al. 2023), follows the same
-linear function in SST, but where $a$ has a mean of 72.2 and SD of 22.
-$b$ is similarly constant at 2.75.
+linear function in SST, but where $`a`$ has a mean of 72.2 and SD of 22.
+$`b`$ is similarly constant at 2.75.
 
 ``` r
+
 inactive_water_cost_fn <- function(sst, int_mean, int_sd){
   int <- rnorm(1, int_mean, int_sd)
   (max(int-(2.75*sst), 1)) |>
@@ -666,14 +686,14 @@ For each scenario, we also specify the probability that an agent is
 influenced by the respective driver via the the `prob` argument in
 [`MoveInfluence()`](https://dmpstats.github.io/roamR/reference/MoveInfluence.md).
 In the baseline case, all agents “respond” to the density map for their
-movement[¹](#fn1). In contrast, for the `"dens_imp"` driver, the
-probability reflects how likely an individual is to respond to the
-presence of an OWF installation (see Peschko et al. (2024)). Agents that
-respond to the impacted density map therefore experience altered
-movement preferences, representing displacement or avoidance of OWF
-footprints.
+movement[^1]. In contrast, for the `"dens_imp"` driver, the probability
+reflects how likely an individual is to respond to the presence of an
+OWF installation (see Peschko et al. (2024)). Agents that respond to the
+impacted density map therefore experience altered movement preferences,
+representing displacement or avoidance of OWF footprints.
 
 ``` r
+
 resp_dens <- DriverResponse(
   driver_id = "dens",
   movement = MoveInfluence(
@@ -713,6 +733,7 @@ into lists and passed to
 the `states_profile` and `driver_responses` arguments.
 
 ``` r
+
 guill <- Species(
   id = "guill",
   common_name = "guillemot",
@@ -747,6 +768,7 @@ The initialisation stage performs two main tasks prior to running:
 - The generation the `n_agents` as indicated in the model config object.
 
 ``` r
+
 set.seed(1009)
 
 guill_ibm <- xfun::cache_rds({
@@ -757,21 +779,21 @@ guill_ibm <- xfun::cache_rds({
   )
 })
 #> ℹ Ensuring spatio-temporal consistency of inputs
-#> ✔ Ensuring spatio-temporal consistency of inputs [77ms]
+#> ✔ Ensuring spatio-temporal consistency of inputs [66ms]
 #> 
 #>    ℹ Driver "sst" (WGS 84 (CRS84)) transformed to match CRS specified by `model_config` (WGS 84 / UTM zone 30N).
 #>    ℹ Raster of Driver "sst" warped from curvilinear to regular grid
 #> ℹ Cropping spatial Drivers to AoC
-#> ✔ Cropping spatial Drivers to AoC [62ms]
+#> ✔ Cropping spatial Drivers to AoC [45ms]
 #> 
 #> ℹ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> ✔ Processing Activity States: "flight", "diving", "active_on_water", and "inact…
 #> 
 #> ℹ Initializing 4 Agents
-#> ✔ Initializing 4 Agents [273ms]
+#> ✔ Initializing 4 Agents [229ms]
 #> 
 #> ℹ Set up <IBM> object
-#> ✔ Set up <IBM> object [20ms]
+#> ✔ Set up <IBM> object [26ms]
 #> 
 #> Model initialization done! 🚀
 ```
@@ -784,7 +806,7 @@ condition through time and determining their responses to these.
 Parallelisation is dealt with (and assumed to be generally used) such
 that individual agents are piped out to independent threads of
 calculation - hence the speed of a simulation is a function of the
-number of cores available[²](#fn2).
+number of cores available[^2].
 
 Much of the parameterisiation and data from previous sections are
 encapsulated within the `ibm` object (`guill_ibm`) passed to the
@@ -809,6 +831,7 @@ entered here as needed. Here we specify:
   preceding 7 days energy intake (*pers. comm.* J. Green, 2025).
 
 ``` r
+
 plan(multisession, workers = 2)
 
 guill_results <- xfun::cache_rds({
@@ -832,16 +855,16 @@ guill_results <- xfun::cache_rds({
 #> 
 #> ── Running the DisNBS Individual-Based Model ───────────────────────────────────
 #> ℹ Performing validation checks on inputs and underlying data.
-#> ✔ Performing validation checks on inputs and underlying data. [24ms]
+#> ✔ Performing validation checks on inputs and underlying data. [23ms]
 #> 
 #> ℹ Preparing and configuring data for simulation.
-#> ✔ Preparing and configuring data for simulation. [189ms]
+#> ✔ Preparing and configuring data for simulation. [91ms]
 #> 
 #> ℹ Simulating agents' journeys under the baseline-case scenario
-#> ✔ Simulating agents' journeys under the baseline-case scenario [19.8s]
+#> ✔ Simulating agents' journeys under the baseline-case scenario [18.7s]
 #> 
 #> ℹ Simulating agents' journeys under the impact-case scenario
-#> ✔ Simulating agents' journeys under the impact-case scenario [17.6s]
+#> ✔ Simulating agents' journeys under the impact-case scenario [16.9s]
 #> 
 #> ✔ Model simulation finished! 🛬
 
@@ -874,6 +897,7 @@ We can examine the agent’s simulation histories directly - here we have
 two scenarios, each containing a number of agents:
 
 ``` r
+
 # two scenarios
 names(guill_results)
 #> [1] "agents_bsln" "agents_imp"
@@ -993,6 +1017,7 @@ are specified by the user. Here the primary conversion figure is from
 Dunn et al. (2022), relating energy to grams of body mass.
 
 ``` r
+
 p_bdm <- guill_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
@@ -1014,6 +1039,7 @@ initialisation - recalling this was a stochastic specification at the
 species level.
 
 ``` r
+
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
   filter(suscep == FALSE) |> 
@@ -1043,6 +1069,7 @@ p_tracks
 ![](case-study-guillemot_files/figure-html/unnamed-chunk-10-1.png)
 
 ``` r
+
 p_tracks <- guill_history |> 
   drop_na(timestamp) |> 
   filter(suscep == TRUE) |> 
@@ -1080,6 +1107,7 @@ footprints as tolerated passage zones according to their assigned
 susceptibility.
 
 ``` r
+
 # Creating animation of movements for a sample of the simulation agents, under
 # the impact scenario
 
@@ -1181,23 +1209,20 @@ productivities.
 
 ## References
 
-Buckingham, Lila, Maria I. Bogdanova, Jonathan A. Green, Ruth E. Dunn,
-Sarah Wanless, Sophie Bennett, Richard M. Bevan, et al. 2022.
+Buckingham, Lila, Maria I. Bogdanova, Jonathan A. Green, et al. 2022.
 “Interspecific Variation in Non-Breeding Aggregation: A Multi-Colony
 Tracking Study of Two Sympatric Seabirds.” *Marine Ecology Progress
 Series* 684: 181–97. <https://doi.org/10.3354/meps13960>.
 
-Buckingham, Lila, Francis Daunt, Maria I. Bogdanova, Robert W. Furness,
-Sophie Bennett, James Duckworth, Ruth E. Dunn, et al. 2023. “Energetic
-Synchrony Throughout the Non-Breeding Season in Common Guillemots from
-Four Colonies.” *Journal of Avian Biology* 2023 (January).
-<https://doi.org/10.1111/jav.03018>.
+Buckingham, Lila, Francis Daunt, Maria I. Bogdanova, et al. 2023.
+“Energetic Synchrony Throughout the Non-Breeding Season in Common
+Guillemots from Four Colonies.” *Journal of Avian Biology* 2023
+(January). <https://doi.org/10.1111/jav.03018>.
 
-Dunn, Ruth E., Jonathan A. Green, Sarah Wanless, Mike P. Harris, Mark A
-Newell, Maria I. Bogdanova, Catharine Horswill, Francis Daunt, and Jason
-Matthiopoulos. 2022. “Modelling and Mapping How Common Guillemots
-Balance Their Energy Budgets over a Full Annual Cycle.” *Functional
-Ecology* 36 (July): 1612–26. <https://doi.org/10.1111/1365-2435.14059>.
+Dunn, Ruth E., Jonathan A. Green, Sarah Wanless, et al. 2022. “Modelling
+and Mapping How Common Guillemots Balance Their Energy Budgets over a
+Full Annual Cycle.” *Functional Ecology* 36 (July): 1612–26.
+<https://doi.org/10.1111/1365-2435.14059>.
 
 Elliott, Kyle H., Robert E. Ricklefs, Anthony J. Gaston, Scott A. Hatch,
 John R. Speakman, and Gail K. Davoren. 2013. “High Flight Costs, but Low
@@ -1216,9 +1241,7 @@ Wind Farms on Common Guillemots (Uria Aalge) in the Southern North Sea -
 Climate Versus Biodiversity?” *Biodiversity and Conservation* 33
 (March): 949–70. <https://doi.org/10.1007/s10531-023-02759-9>.
 
-------------------------------------------------------------------------
+[^1]: Under the density‑informed movement model, `prob` is forced to 1
+    at the initialization phase for the chosen baseline density driver
 
-1.  Under the density‑informed movement model, `prob` is forced to 1 at
-    the initialization phase for the chosen baseline density driver
-
-2.  The `furrr` package handles the parallelisation
+[^2]: The `furrr` package handles the parallelisation

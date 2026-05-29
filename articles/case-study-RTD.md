@@ -83,13 +83,13 @@ resolution (`x_delta`, `y_delta`) and have everything operate on the UTM
 30N coordinate system (`ref_sys`). This will be the basis of ingesting
 and aligning the general spatial inputs. Note: the package currently
 requires all spatial inputs (e.g. density maps) to be provided in a
-common CRS projection [¹](#fn1). The
-[sf](https://r-spatial.github.io/sf/) package is generally used for
-dealing with spatial data (and the interlinked
-[stars](https://r-spatial.github.io/stars/) package for
+common CRS projection [^1]. The [sf](https://r-spatial.github.io/sf/)
+package is generally used for dealing with spatial data (and the
+interlinked [stars](https://r-spatial.github.io/stars/) package for
 spatio-temporal).
 
 ``` r
+
 # Set UTM zone 30N
 utm30 <- st_crs(32630)
 ```
@@ -107,6 +107,7 @@ ends. As noted earlier, the site must be re-projected to the common UTM
 Zone 30N coordinate reference system.
 
 ``` r
+
 # location of colony in long/lat degrees - start/finish locations
 isle_may <- st_sf(
   id = "Isle of May",
@@ -126,6 +127,7 @@ terms of simulations - data outside this will have no influence.
 
 ``` r
 
+
 AoC <- st_bbox(c(xmin = 178831, ymin = 5906535,  xmax = 1174762, ymax = 6783609), crs = st_crs(utm30))
 ```
 
@@ -134,6 +136,7 @@ Passing the above configuration inputs to
 creates a `<ModelConfig>` object, which we assigned to `rtd_ibm_config`:
 
 ``` r
+
 
 # IBM Settings - assume fixed for these simulations
 
@@ -165,8 +168,8 @@ environment via the drivers.
 
 In this application to the common RTD, the following drivers are
 required - all provided as spatio-temporal datacubes (2D rasters giving
-values for $x,y$ locations over $t$ times) so the agents can query their
-environment at any $x,y,t$:
+values for $`x, y`$ locations over $`t`$ times) so the agents can query
+their environment at any $`x, y, t`$:
 
 - Monthly species density surfaces, for both baseline and impacted
   scenarios.
@@ -183,6 +186,7 @@ We begin by uploading these datacubes, assigning measurement units where
 they are missing.
 
 ``` r
+
 # driver spatial surfaces
 
 spec_map <- readRDS("data/bioss_spec_map.rds") |> 
@@ -208,6 +212,7 @@ locations are defined by the density surfaces (so coast is implicit),
 and OWF are implicit in the “impact” density surfaces.
 
 ``` r
+
 # Set up IBM drivers 
 
 dens_drv <- Driver(
@@ -299,9 +304,12 @@ speed of each agent to be fixed over the simulation (e.g. we’re implying
 relatively fast/slow animals), with agents speeds drawn from a uniform
 distribution, as specified below.
 
-$$\left( \left( \left( \left( 3.201 \ast bm*exp(0.71924) \right) + \left( 4.05 \ast bm*exp(0.791000) \ast 18.8 \right) \right)/2 \right)*12.5 \right)/bm$$
+``` math
+((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*12.5)/bm
+```
 
 ``` r
+
 # user-defined function returning the energy cost of flying
 # ((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*12.5)/bm
 
@@ -331,11 +339,14 @@ day-level calculations, meaning we are far from simulating at the dive
 level, and can use a mean dive-length without loss of generality. This
 is `t_dive` and populated later from tag information.
 
-$$\left( \left( \left( \left( 3.201 \ast bm*exp(0.71924) \right) + \left( 4.05 \ast bm*exp(0.791000) \ast 18.8 \right) \right)/2 \right)*5.1 \right)/bm/60 + IFseatemperature < 47.2*bm*exp( - 0.18)THENadd:\left( 3.47*bm*exp( - 0.573)*\left( differencebetweenSeaTemperatureand47.2*bm*exp( - 0.18) \right) \right)/1000$$
+``` math
+((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*5.1)/bm/60 + IF sea temperature < 47.2 * bm*exp(-0.18) THEN add: (3.47*bm*exp(-0.573)*(difference between Sea Temperature and 47.2 * bm*exp(-0.18)))/1000
+```
 
-Where $T_{i}$ is the dive length of dive $i$ in minutes.
+Where $`T_i`$ is the dive length of dive $`i`$ in minutes.
 
 ``` r
+
 # define costing function
 # ((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*5.1)/bm/60 + IF sea temperature < 47.2 * bm*exp(-0.18) THEN add: (3.47*bm*exp(-0.573)*(difference between Sea Temperature and 47.2 * bm*exp(-0.18)))/1000
 
@@ -362,11 +373,14 @@ dive <- State(
 State representing ‘active on water’ (Buckingham et al. 2023) is a
 linear function in SST:
 
-$$\left( \left( \left( \left( 3.201 \ast bm*exp(0.71924) \right) + \left( 4.05 \ast bm*exp(0.791000) \ast 18.8 \right) \right)/2 \right)*3.5 \right)/bm + IFseatemperature < 47.2*bm*exp( - 0.18)THENadd:\left( 1.532*bm*exp( - 0.546)*\left( differencebetweenSeaTemperatureand47.2*bm*exp( - 0.18) \right) \right)/1000$$
+``` math
+((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*3.5)/bm + IF sea temperature < 47.2 * bm*exp(-0.18) THEN add: (1.532*bm*exp(-0.546)*(difference between Sea Temperature and 47.2 * bm*exp(-0.18)))/1000
+```
 
-where $a$ has a mean of 113 and SD of 22. $b$ is a constant of 2.75.
+where $`a`$ has a mean of 113 and SD of 22. $`b`$ is a constant of 2.75.
 
 ``` r
+
 # ((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*3.5)/bm + IF sea temperature < 47.2 * bm*exp(-0.18) THEN add: (1.532*bm*exp(-0.546)*(difference between Sea Temperature and 47.2 * bm*exp(-0.18)))/1000
 
 active_water_cost_fn <- function(sst, int_mean, int_sd){
@@ -390,12 +404,15 @@ active <- State(
 ```
 
 State for ‘inactive on water’ (Buckingham et al. 2023), follows the same
-linear function in SST, but where $a$ has a mean of 72.2 and SD of 22.
-$b$ is similarly constant at 2.75.
+linear function in SST, but where $`a`$ has a mean of 72.2 and SD of 22.
+$`b`$ is similarly constant at 2.75.
 
-$$\left( \left( \left( \left( 3.201 \ast bm*exp(0.71924) \right) + \left( 4.05 \ast bm*exp(0.791000) \ast 18.8 \right) \right)/2 \right)*1.9 \right)/bm + IFseatemperature < 47.2*bm*exp( - 0.18)THENadd:\left( 1.532*bm*exp( - 0.546)*\left( differencebetweenSeaTemperatureand47.2*bm*exp( - 0.18) \right) \right)/1000$$
+``` math
+((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*1.9)/bm + IF sea temperature < 47.2 * bm*exp(-0.18) THEN add: (1.532*bm*exp(-0.546)*(difference between Sea Temperature and 47.2 * bm*exp(-0.18)))/1000
+```
 
 ``` r
+
 # ((((3.201∗𝑏𝑚*exp(0.71924))+(4.05∗𝑏𝑚*exp(0.791000)∗18.8))/2)*1.9)/bm + IF sea temperature < 47.2 * bm*exp(-0.18) THEN add: (1.532*bm*exp(-0.546)*(difference between Sea Temperature and 47.2 * bm*exp(-0.18)))/1000
 
 inactive_water_cost_fn <- function(sst, int_mean, int_sd){
@@ -420,6 +437,7 @@ inactive <- State(
 These are combined to give a list covering all states: `rtd_states`:
 
 ``` r
+
 rtd_states <- list(
   flight = flight,
   dive = dive,
@@ -442,6 +460,7 @@ probability reflects how likely an agent is to respond to a OWF
 installation (Peschko et al. 2024) - hence their influence map differs.
 
 ``` r
+
 
 resp_dens <- DriverResponse(
   driver_id = "dens",
@@ -474,6 +493,7 @@ simulated time steps. The distribution of bodymass at start of breeding
 season was drawn/inferred from Duckworth (2023).
 
 ``` r
+
 rtd <- Species(
   id = "rtd",
   common_name = "red throated diver",
@@ -499,6 +519,7 @@ The intialisation stage performs two main tasks prior to running:
 - The generation the `n_agents` as indicated in the model config object.
 
 ``` r
+
 
 set.seed(1009)
 
@@ -542,6 +563,7 @@ entered here as needed. Here we specify:
   preceding 7 days energy intake.
 
 ``` r
+
 
 
 plan(multisession, workers = 2)
@@ -593,6 +615,7 @@ We can examine the agent’s simulation histories directly - here we have
 two scenarios, each containing a number of agents:
 
 ``` r
+
 # two scenarios
   names(rtd_results)
 
@@ -611,6 +634,7 @@ comparison. All agents over both scenarios are combined into one
 dataset.
 
 ``` r
+
 
 # gather history from all agents, under the 2 scenarios, into one data frame
 rtd_history <- map(rtd_results, function(scn){
@@ -646,6 +670,7 @@ are specified by the user.
 
 ``` r
 
+
 p_bdm <- rtd_history |> 
   ggplot() +
   geom_line(aes(x = Date, y = body_mass_smooth, col = scenario), linewidth = 1) +
@@ -669,6 +694,7 @@ species level.
 
 ``` r
 
+
 p_tracks <- rtd_history |> 
   drop_na(timestamp) |> 
   filter(suscep == FALSE) |> 
@@ -687,6 +713,7 @@ ggsave("images/tracks_non_susceptile_agent.png", p_tracks, width = 15, height = 
 ```
 
 ``` r
+
 
 p_tracks <- rtd_history |> 
   drop_na(timestamp) |> 
@@ -740,23 +767,20 @@ productivities.
 
 ## References
 
-Buckingham, Lila, Maria I. Bogdanova, Jonathan A. Green, Ruth E. Dunn,
-Sarah Wanless, Sophie Bennett, Richard M. Bevan, et al. 2022.
+Buckingham, Lila, Maria I. Bogdanova, Jonathan A. Green, et al. 2022.
 “Interspecific Variation in Non-Breeding Aggregation: A Multi-Colony
 Tracking Study of Two Sympatric Seabirds.” *Marine Ecology Progress
 Series* 684: 181–97. <https://doi.org/10.3354/meps13960>.
 
-Buckingham, Lila, Francis Daunt, Maria I. Bogdanova, Robert W. Furness,
-Sophie Bennett, James Duckworth, Ruth E. Dunn, et al. 2023. “Energetic
-Synchrony Throughout the Non-Breeding Season in Common Guillemots from
-Four Colonies.” *Journal of Avian Biology* 2023 (January).
-<https://doi.org/10.1111/jav.03018>.
+Buckingham, Lila, Francis Daunt, Maria I. Bogdanova, et al. 2023.
+“Energetic Synchrony Throughout the Non-Breeding Season in Common
+Guillemots from Four Colonies.” *Journal of Avian Biology* 2023
+(January). <https://doi.org/10.1111/jav.03018>.
 
-Dunn, Ruth E., Jonathan A. Green, Sarah Wanless, Mike P. Harris, Mark A
-Newell, Maria I. Bogdanova, Catharine Horswill, Francis Daunt, and Jason
-Matthiopoulos. 2022. “Modelling and Mapping How Common Guillemots
-Balance Their Energy Budgets over a Full Annual Cycle.” *Functional
-Ecology* 36 (July): 1612–26. <https://doi.org/10.1111/1365-2435.14059>.
+Dunn, Ruth E., Jonathan A. Green, Sarah Wanless, et al. 2022. “Modelling
+and Mapping How Common Guillemots Balance Their Energy Budgets over a
+Full Annual Cycle.” *Functional Ecology* 36 (July): 1612–26.
+<https://doi.org/10.1111/1365-2435.14059>.
 
 Elliott, Kyle H., Robert E. Ricklefs, Anthony J. Gaston, Scott A. Hatch,
 John R. Speakman, and Gail K. Davoren. 2013. “High Flight Costs, but Low
@@ -771,8 +795,6 @@ Wind Farms on Common Guillemots (Uria Aalge) in the Southern North Sea -
 Climate Versus Biodiversity?” *Biodiversity and Conservation* 33
 (March): 949–70. <https://doi.org/10.1007/s10531-023-02759-9>.
 
-------------------------------------------------------------------------
-
-1.  functionality to homogenise CRSs across spatial inputs during model
-    initialization is expected to be implemented in roamR in the near
-    future
+[^1]: functionality to homogenise CRSs across spatial inputs during
+    model initialization is expected to be implemented in roamR in the
+    near future

@@ -48,6 +48,7 @@ parameters(x)
 ## Examples
 
 ``` r
+
 # create a VarDist object
 speed <- VarDist(dist_normal(10, 0.5), "m/s")
 

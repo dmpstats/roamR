@@ -106,6 +106,7 @@ and [`State()`](https://dmpstats.github.io/roamR/reference/State.md)
 ## Examples
 
 ``` r
+
 library(distributional)
 #> 
 #> Attaching package: ‘distributional’

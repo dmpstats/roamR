@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Case Study: Isle of May's Guillemot">
 </head>
@@ -499,7 +499,7 @@ h/day for all simulated agents.</p>
 <span><span class="co">#&gt;     e &lt;- rnorm(1, mean, sd)</span></span>
 <span><span class="co">#&gt;     units::set_units((max(e, 1)), "kJ/h")</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x563fd872d3c0&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x5606b477b318&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Args:</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">•</span> `mean`: 507.6</span></span>
@@ -545,7 +545,7 @@ speeds.</p>
 </h5>
 <p>For the state representing the <em>diving</em> activity, the energy
 output is contingent on the amount of diving <span class="citation">(Elliott et al. 2013)</span>.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mn>3.71</mn><mfrac><mrow><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><msub><mi>T</mi><mi>i</mi></msub><mi>/</mi><mn>1.23</mn></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>T</mi><mi>i</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mn>3.71</mn><mfrac><mrow><munder><mo>∑</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><msub><mi>T</mi><mi>i</mi></msub><mi>/</mi><mn>1.23</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><mrow><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>T</mi><mi>i</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">
 e = 3.71\frac{\sum_i(1-e^{-T_i/1.23})}{\sum_iT_i}
 </annotation></semantics></math></p>
 <p>Where
@@ -595,7 +595,7 @@ associated with <em>diving</em>.</p>
 </h5>
 <p>State representing <em>active on water</em> <span class="citation">(Buckingham et al. 2023)</span> is a linear function in
 sea surface temperature (SST):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mi>a</mi><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>b</mi><mo>*</mo><mi>S</mi><mi>S</mi><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mi>a</mi><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>*</mo><mi>S</mi><mi>S</mi><mi>T</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
 e = a-(b*SST)
 </annotation></semantics></math></p>
 <p>where the intercept
@@ -803,21 +803,21 @@ config object.</li>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Ensuring spatio-temporal consistency of inputs</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Ensuring spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[77ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Ensuring spatio-temporal consistency of inputs <span style="color: #B2B2B2;">[66ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    <span style="color: #00BBBB;">ℹ</span> Driver <span style="color: #0000BB;">"sst"</span> (<span style="color: #00BB00;">WGS 84 (CRS84)</span>) transformed to match CRS specified by `model_config` (<span style="color: #00BB00;">WGS 84 / UTM zone 30N</span>).</span></span>
 <span><span class="co">#&gt;    <span style="color: #00BBBB;">ℹ</span> Raster of Driver <span style="color: #0000BB;">"sst"</span> warped from curvilinear to regular grid</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Cropping spatial Drivers to AoC</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping spatial Drivers to AoC <span style="color: #B2B2B2;">[62ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Cropping spatial Drivers to AoC <span style="color: #B2B2B2;">[45ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Processing Activity States: <span style="color: #0000BB;">"flight"</span>, <span style="color: #0000BB;">"diving"</span>, <span style="color: #0000BB;">"active_on_water"</span>, and <span style="color: #0000BB;">"inact</span>…</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Processing Activity States: <span style="color: #0000BB;">"flight"</span>, <span style="color: #0000BB;">"diving"</span>, <span style="color: #0000BB;">"active_on_water"</span>, and <span style="color: #0000BB;">"inact</span>…</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Initializing 4 Agents</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initializing 4 Agents <span style="color: #B2B2B2;">[273ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Initializing 4 Agents <span style="color: #B2B2B2;">[229ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[20ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Set up <span style="color: #0000BB;">&lt;IBM&gt;</span> object <span style="color: #B2B2B2;">[26ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model initialization done! 🚀</span></span></code></pre></div>
 </div>
@@ -882,16 +882,16 @@ the preceding 7 days energy intake (<em>pers. comm.</em> J. Green,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Running the DisNBS Individual-Based Model</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Performing validation checks on inputs and underlying data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[24ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Performing validation checks on inputs and underlying data. <span style="color: #B2B2B2;">[23ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Preparing and configuring data for simulation.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[189ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Preparing and configuring data for simulation. <span style="color: #B2B2B2;">[91ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the baseline-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[19.8s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the baseline-case scenario <span style="color: #B2B2B2;">[18.7s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Simulating agents' journeys under the impact-case scenario</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[17.6s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating agents' journeys under the impact-case scenario <span style="color: #B2B2B2;">[16.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Model simulation finished! 🛬</span></span>
 <span></span>
@@ -1222,27 +1222,24 @@ productivities.</p>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Buckingham2022" class="csl-entry">
-Buckingham, Lila, Maria I. Bogdanova, Jonathan A. Green, Ruth E. Dunn,
-Sarah Wanless, Sophie Bennett, Richard M. Bevan, et al. 2022.
+Buckingham, Lila, Maria I. Bogdanova, Jonathan A. Green, et al. 2022.
 <span>“Interspecific Variation in Non-Breeding Aggregation: A
 Multi-Colony Tracking Study of Two Sympatric Seabirds.”</span>
 <em>Marine Ecology Progress Series</em> 684: 181–97. <a href="https://doi.org/10.3354/meps13960" class="external-link">https://doi.org/10.3354/meps13960</a>.
 </div>
 <div id="ref-Buckingham2023" class="csl-entry">
-Buckingham, Lila, Francis Daunt, Maria I. Bogdanova, Robert W. Furness,
-Sophie Bennett, James Duckworth, Ruth E. Dunn, et al. 2023.
+Buckingham, Lila, Francis Daunt, Maria I. Bogdanova, et al. 2023.
 <span>“Energetic Synchrony Throughout the Non-Breeding Season in Common
 Guillemots from Four Colonies.”</span> <em>Journal of Avian Biology</em>
 2023 (January). <a href="https://doi.org/10.1111/jav.03018" class="external-link">https://doi.org/10.1111/jav.03018</a>.
 </div>
 <div id="ref-Dunn2022" class="csl-entry">
-Dunn, Ruth E., Jonathan A. Green, Sarah Wanless, Mike P. Harris, Mark A
-Newell, Maria I. Bogdanova, Catharine Horswill, Francis Daunt, and Jason
-Matthiopoulos. 2022. <span>“Modelling and Mapping How Common Guillemots
-Balance Their Energy Budgets over a Full Annual Cycle.”</span>
-<em>Functional Ecology</em> 36 (July): 1612–26. <a href="https://doi.org/10.1111/1365-2435.14059" class="external-link">https://doi.org/10.1111/1365-2435.14059</a>.
+Dunn, Ruth E., Jonathan A. Green, Sarah Wanless, et al. 2022.
+<span>“Modelling and Mapping How Common Guillemots Balance Their Energy
+Budgets over a Full Annual Cycle.”</span> <em>Functional Ecology</em> 36
+(July): 1612–26. <a href="https://doi.org/10.1111/1365-2435.14059" class="external-link">https://doi.org/10.1111/1365-2435.14059</a>.
 </div>
 <div id="ref-Elliott2013" class="csl-entry">
 Elliott, Kyle H., Robert E. Ricklefs, Anthony J. Gaston, Scott A. Hatch,

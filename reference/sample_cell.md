@@ -27,6 +27,7 @@ cells
 ## Examples
 
 ``` r
+
 x <- data.frame(expand.grid(x=1:5, y = 1:5), z = rlnorm(25)) |>
      stars::st_as_stars()
 

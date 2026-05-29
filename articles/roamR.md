@@ -3,6 +3,7 @@
 *Page Under Construction*
 
 ``` r
+
 library(roamR)
 ```
 
@@ -73,6 +74,7 @@ We start by defining the high-level configurations of the IBM for our
 function:
 
 ``` r
+
 turtwick_ibm_cfg <- ModelConfig(
   movement_model = "di",
   n_agents = 100,
