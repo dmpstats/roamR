@@ -2,24 +2,40 @@
 % Please edit documentation in R/run_disnbs.R
 \name{create_dnbs_config}
 \alias{create_dnbs_config}
-\title{Helper to extract data and info required for configuring DisNBS's agent
-simulation model}
+\title{Extract data and parameters required to configure the DisNBS's
+model}
 \usage{
 create_dnbs_config(
   dens_drv,
   ibm_cfg,
   ids,
-  waypnts_res = units::set_units(100, "m"),
   bmsm_opts = bm_smooth_opts(),
   call = rlang::caller_env()
 )
 }
+\arguments{
+\item{dens_drv}{\verb{<Driver>} object; for the baseline density surface.}
+
+\item{ibm_cfg}{\verb{<ModelConfig>} object; the current model configuration.}
+
+\item{ids}{a \verb{<list>} of driver ID names used by \code{\link[=simulate_agent_disnbs]{simulate_agent_disnbs()}} to
+select the relevant driver.}
+
+\item{call}{the environment from which the function is called. Default is the caller's environment.}
+
+\item{bmsm_option}{\verb{<bm_smooth>} object; providing options for the smoother to apply
+to agents simulated biomass}
+}
 \value{
-an object of class <disnbs_config> with listed parameters required
-for input argument \code{config} of \code{simulate_agent_disnbs()}
+an object of class \verb{<disnbs_config>} with listed parameters required
+for argument \code{config} in \code{\link[=simulate_agent_disnbs]{simulate_agent_disnbs()}}.
 }
 \description{
-Quick notes, some of them worthy of a reference in details of parent function
+This is a internal function to be used within \code{run_disnbs()}. Extracts and
+processes information relevant to the simulation.
+}
+\details{
+Some notes, to echo in details of parent function
 \code{run_disnbs()}:
 \itemize{
 \item If density driver has no temporal dimension, then the density raster is the
@@ -28,6 +44,6 @@ same across all model time-steps
 temporal dimension of the density driver. This means any miss-match between
 the models expected time-steps and the available data will result in an
 error. Might make sense to relax this approach in future dev iterations,
-e.g. to take the nearest preceding density slice
+e.g. to take the nearest preceding density slice#
 }
 }
