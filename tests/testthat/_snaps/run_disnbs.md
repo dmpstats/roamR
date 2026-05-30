@@ -1,3 +1,77 @@
+# run_disnbs() fails when inputs are not of expected class/type
+
+    Code
+      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
+        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "water_resting",
+        feed_avg_net_energy = 2, quiet = TRUE)
+    Condition
+      Error in `run_disnbs()`:
+      ! Argument `feed_avg_net_energy` must be an object of class <units>
+      x You've provided an object of class <numeric>
+
+---
+
+    Code
+      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
+        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "water_resting",
+        feed_avg_net_energy = "high", quiet = TRUE)
+    Condition
+      Error in `run_disnbs()`:
+      ! Argument `feed_avg_net_energy` must be an object of class <units>
+      x You've provided an object of class <character>
+
+---
+
+    Code
+      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
+        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "water_resting",
+        feed_avg_net_energy = units::set_units(c(422, 331), "kJ/h"), quiet = TRUE)
+    Condition
+      Error in `run_disnbs()`:
+      ! `feed_avg_net_energy` must have length of 1.
+
+---
+
+    Code
+      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
+        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "water_resting",
+        target_energy = FALSE, quiet = TRUE)
+    Condition
+      Error in `run_disnbs()`:
+      ! Argument `target_energy` must be an object of class <units>
+      x You've provided an object of class <logical>
+
+---
+
+    Code
+      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
+        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "water_resting",
+        feed_avg_net_energy = units::set_units(c(422, 331), "kJ"), quiet = TRUE)
+    Condition
+      Error in `run_disnbs()`:
+      ! `feed_avg_net_energy` must have length of 1.
+
+---
+
+    Code
+      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
+        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "water_resting",
+        smooth_body_mass = "yes", quiet = TRUE)
+    Condition
+      Error in `run_disnbs()`:
+      ! `smooth_body_mass` must be an object of class <bm_smooth_opts>.
+      i Create required object via `bm_smooth_opts()` (`?roamR::bm_smooth_opts()`).
+
+---
+
+    Code
+      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
+        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "water_resting",
+        quiet = "yes")
+    Condition
+      Error in `run_disnbs()`:
+      ! `quiet` must be `TRUE` or `FALSE`, not the string "yes".
+
 # run_disnbs() fails when driver IDs required under specified `scen` are not specified
 
     Code
@@ -70,17 +144,6 @@
       i Note: make sure to run `rmr_initiate()` after adjustments made to data contained in drivers.
 
 # run_disnbs() fails when inputs are not specified in expected contextual units
-
-    Code
-      run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake", feed_state_id = "f",
-        roost_state_id = "ro", waypnts_res = units::set_units(2, "g"), quiet = TRUE)
-    Condition
-      Error in `run_disnbs()`:
-      ! Input values in `waypnts_res` are expected to carry a valid unit of length.
-      x "g" is not a recognized length unit.
-      i Use e.g., "meters" instead.
-
----
 
     Code
       run_disnbs(ibm = x, dens_id = "dens", intake_id = "intake", feed_state_id = "f",
@@ -167,8 +230,8 @@
         roost_state_id = "water_resting", quiet = TRUE)
     Condition
       Error in `run_disnbs()`:
-      ! Temporal dimension in datacube of driver "d" does not fully cover all time steps under modeling.
-      i Ensure the driver provides data for the entirety of the simulation period.
+      ! Values in temporal dimension in datacube of driver "d" do not fully match all time steps under modeling.
+      i Ensure the driver provides data for the entirety of the simulation period and its steps.
 
 ---
 
@@ -192,18 +255,6 @@
     Condition
       Error in `run_disnbs()`:
       ! States IDs "f" and "ro" are not defined in the <IBM> object provided to `ibm`.
-      i Please ensure the inputs to are listed in `ibm@species@states_profile`.
-      i Available state IDs are "flying", "foraging", "swimming", and "water_resting".
-
----
-
-    Code
-      run_disnbs(rover_ibm_disnbs, run_scen = "baseline", dens_id = "dens",
-        intake_id = "intake", feed_state_id = "foraging", roost_state_id = "ro",
-        quiet = TRUE)
-    Condition
-      Error in `run_disnbs()`:
-      ! State ID "ro" is not defined in the <IBM> object provided to `ibm`.
       i Please ensure the inputs to are listed in `ibm@species@states_profile`.
       i Available state IDs are "flying", "foraging", "swimming", and "water_resting".
 
