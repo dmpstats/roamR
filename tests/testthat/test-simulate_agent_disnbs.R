@@ -13,7 +13,6 @@ test_that("dev testing", {
       feed_state_id = "foraging",
       roost_state_id = "water_resting"
     ),
-    waypnts_res = 2000,
     bmsm_opts = bm_smooth_opts("7 days")
   )
 
@@ -113,8 +112,7 @@ test_that("simulate_agent_disnbs(): matched-pairs work as expected movement-wise
       feed_state_id = "foraging",
       roost_state_id = "water_resting"
     ),
-    bmsm_opts = bm_smooth_opts("7 days"),
-    waypnts_res = 2000
+    bmsm_opts = bm_smooth_opts("7 days")
   )
 
   npr <- derive_night_cube(
@@ -329,8 +327,7 @@ test_that("simulate_agent_disnbs(): matched-runs work as expected condition-wise
       feed_state_id = "foraging",
       roost_state_id = "water_resting"
     ),
-    bmsm_opts = bm_smooth_opts("7 days"),
-    waypnts_res = 2000
+    bmsm_opts = bm_smooth_opts("7 days")
   )
 
   npr <- derive_night_cube(
@@ -495,8 +492,7 @@ test_that("simulate_agent_disnbs() handles starting loc on empty cell of impacte
       feed_state_id = "foraging",
       roost_state_id = "water_resting"
     ),
-    bmsm_opts = bm_smooth_opts("7 days"),
-    waypnts_res = 2000
+    bmsm_opts = bm_smooth_opts("7 days")
   )
 
   npr <- derive_night_cube(
@@ -558,8 +554,7 @@ test_that("simulate_agent_disnbs() fails when inputs are invalid", {
       feed_state_id = "foraging",
       roost_state_id = "water_resting"
     ),
-    bmsm_opts = bm_smooth_opts("7 days"),
-    waypnts_res = 2000
+    bmsm_opts = bm_smooth_opts("7 days")
   )
 
   npr <- derive_night_cube(
@@ -623,8 +618,7 @@ test_that("simulate_agent_disnbs(): routing works as expected", {
       feed_state_id = "foraging",
       roost_state_id = "water_resting"
     ),
-    bmsm_opts = bm_smooth_opts("7 days"),
-    waypnts_res = 2000
+    bmsm_opts = bm_smooth_opts("7 days")
   )
 
   impacted_idx <- which(
