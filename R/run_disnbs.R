@@ -462,34 +462,57 @@ derive_night_cube <- function(strs, start_date, end_date, delta_time = "1 week")
 }
 
 
-
-#' Helper to extract data and info required for configuring DisNBS's agent
-#' simulation model
+#' Extract data and parameters required to configure the DisNBS's
+#' model
 #'
-#' Quick notes, some of them worthy of a reference in details of parent function
+#' This is a internal function to be used within `run_disnbs()`. Extracts and
+#' processes information relevant to the simulation.
+#'
+#' @param dens_drv `<Driver>` object; for the baseline density surface.
+#' @param ibm_cfg `<ModelConfig>` object; the current model configuration.
+#' @param ids a `<list>` of driver ID names used by [simulate_agent_disnbs()] to
+#'   select the relevant driver.
+#' @param bmsm_option `<bm_smooth>` object; providing options for the smoother to apply
+#'   to agents simulated biomass
+#' @param call the environment from which the function is called. Default is the caller's environment.
+#'
+#'
+#' @details
+#'
+#' Some notes, to echo in details of parent function
 #' `run_disnbs()`:
+#'
 #'   - If density driver has no temporal dimension, then the density raster is the
 #'   same across all model time-steps
+#'
 #'   - currently looks for exact correspondence between time-grid and the values of
 #'   temporal dimension of the density driver. This means any miss-match between
 #'   the models expected time-steps and the available data will result in an
 #'   error. Might make sense to relax this approach in future dev iterations,
-#'   e.g. to take the nearest preceding density slice
+#'   e.g. to take the nearest preceding density slice#
 #'
-#' @returns an object of class <disnbs_config> with listed parameters required
-#'   for input argument `config` of `simulate_agent_disnbs()`
+#' @returns an object of class `<disnbs_config>` with listed parameters required
+#'   for argument `config` in [simulate_agent_disnbs()].
 #'
-create_dnbs_config <- function(dens_drv,
+#
+#'
+create_dnbs_config <- function(
+  dens_drv,
                                ibm_cfg,
                                ids,
-                               waypnts_res = units::set_units(100, "m"),
                                bmsm_opts = bm_smooth_opts(),
-                               call = rlang::caller_env()){
+  call = rlang::caller_env()
+) {
+  # TODO: update help file
 
-  # COMEBAK: will need revisiting if/when implementing
-  # asynchronous agent starting dates. Ideally via further processing inside
-  # agents' simulation function
-  time_grid <- seq(ibm_cfg@start_date, ibm_cfg@end_date, by = ibm_cfg@delta_time)
+  # NOTE: runs_disnbs() imposes a constraint of 1-day minimum time-step (on `ibm_cfg@delta_time`), so time_grid is always daily.
+  #
+  # COMEBACK: will need revisiting if/when implementing asynchronous agent starting dates. Ideally via further processing inside agents' simulation function
+  time_grid <- seq(
+    ibm_cfg@start_date,
+    ibm_cfg@end_date,
+    by = ibm_cfg@delta_time
+  )
 
   # extract non-raster metadata density datacube from its parent driver's object
   dns_nrst_meta <- dens_drv@stars_meta$non_raster
@@ -499,27 +522,35 @@ create_dnbs_config <- function(dens_drv,
   dns_tm_dim <- NA_integer_ # NAs for dimensions needed for slice_stars() to work
   dns_itr_dim <- NA_integer_
   dns_itr_slices <- NULL
-  routing_timesteps <- 1
+  dns_routing <- rep(FALSE, length(time_grid))
 
-  if(not_null(dns_nrst_meta)){
-
+  # get temporal and iterative information on density surface relevant to the agent simulation model, if any.
+  if (not_null(dns_nrst_meta)) {
     nrst_tm_idx <- which(dns_nrst_meta$types == "temporal")
     nrst_itr_idx <- which(dns_nrst_meta$types == "iteration")
 
     # process temporal dimension
-    if(length(nrst_tm_idx) > 0){
-
+    if (length(nrst_tm_idx) > 0) {
       dns_tm_dim <- dns_nrst_meta$dims[nrst_tm_idx]
       tm_proc <- dns_nrst_meta$procs[nrst_tm_idx]
       tm_cl <- dns_nrst_meta$cls[nrst_tm_idx]
       tm_vals <- stars::st_get_dimension_values(dens_drv@stars_obj, dns_tm_dim)
 
-      # map model time-grid to temporal dimension of density cube
-      time_mapping <- if(tm_cl %in% c("Date", "POSIXct", "POSIXlt")){
+      # map model time-grid to temporal dimension of density cube, to be used in `slice_stars()` in simulate_agent_disnbs() for extracting the relevant density slice at each time-step.
+      # ! effectively performing a hard coherence check in temporal resolution between model's timesteps and the reference density datacube, as any miss-match will result in NAs in `dns_tm_slices` and subsequent error. This is an intended requirement to ensure density-based movement is accurate to available data in time and space.
+      dns_tm_slices <- if (tm_cl %in% c("POSIXct", "POSIXlt")) {
+        # datetimes rounded to day to match time-grid (minimum daily, as per the constraint on `ibm_cfg@delta_time`)
+        tm_vals <- as.Date(round(tm_vals, units = "day"))
+        match(time_grid, tm_vals)
+      } else if (tm_cl == "Date") {
         match(time_grid, tm_vals)
       } else {
-        if(tm_proc == "month_chr"){
-          pmatch(lubridate::month(time_grid, label = TRUE), tm_vals, duplicates.ok = TRUE)
+        if (tm_proc == "month_chr") {
+          pmatch(
+            lubridate::month(time_grid, label = TRUE),
+            tm_vals,
+            duplicates.ok = TRUE
+          )
         } else {
           # get components of time grid to match those expected under the temporal
           # dimension of the density surface
@@ -535,35 +566,41 @@ create_dnbs_config <- function(dens_drv,
         }
       }
 
-      if(any(is.na(time_mapping))){
-        cli::cli_abort(c(
-          "Temporal dimension in datacube of driver {.val {dens_drv@id}} does not fully cover all time steps under modeling.",
-          i = "Ensure the driver provides data for the entirety of the simulation period."
+      if (any(is.na(dns_tm_slices))) {
+        cli::cli_abort(
+          c(
+            "Values in temporal dimension in datacube of driver {.val {dens_drv@id}} do not fully match all time steps under modeling.",
+            i = "Ensure the driver provides data for the entirety of the simulation period and its steps."
         ),
-        call = call)
+          call = call
+        )
       }
 
-      routing_timesteps <- c(1, which(diff(na.exclude(time_mapping)) != 0) + 1)
-      dns_tm_slices <- unique(na.exclude(time_mapping))
+      # flag time-steps at which re-routing must be performed due to a shift in the temporal dimension of the density datacube. Routing should always be performed at the first time-step,
+      dns_routing <- c(TRUE, diff(na.exclude(dns_tm_slices)) != 0)
     }
 
     # process iteration dimension
-    if(length(nrst_itr_idx) > 0){
+    if (length(nrst_itr_idx) > 0) {
       dns_itr_dim <- dns_nrst_meta$dims[nrst_itr_idx]
-      dns_itr_slices <- sample(dim(dens_drv@stars_obj)[dns_itr_dim], length(routing_timesteps), replace = TRUE)
+      dns_itr_slices <- sample(
+        dim(dens_drv@stars_obj)[dns_itr_dim],
+        length(time_grid),
+        replace = TRUE
+      )
     }
   }
 
-
   # bodymass smoother
-  bm_smooth <- if(is.null(bmsm_opts)){
+  bm_smooth <- if (is.null(bmsm_opts)) {
     list(
       apply = FALSE,
       ks_bw = NA_real_
     )
-  }else{
+  } else {
     # translate bandwidth from literal time to model's time-steps
-    steps_bw <- lubridate::period(bmsm_opts$time_bw)/lubridate::period(ibm_cfg@delta_time)
+    steps_bw <- lubridate::period(bmsm_opts$time_bw) /
+      lubridate::period(ibm_cfg@delta_time)
     list(
       apply = TRUE,
       ks_bw = steps_bw * 2
@@ -575,24 +612,21 @@ create_dnbs_config <- function(dens_drv,
     append(
       list(
         time_grid = time_grid, # simulation's timepoints
-        routing_timesteps = routing_timesteps, # timesteps (i.e. indices of simulation's timepoints) at which routing paths must be established
         dns_tm_dim = dns_tm_dim, # density datacube: temporal dimension
-        dns_tm_slices = dns_tm_slices, # density datacube: slices of temporal dimension mapping each routing timestep
+        dns_tm_slices = dns_tm_slices, # density datacube: slices of temporal dimension mapping simulation timesteps
+        dns_routing = dns_routing, # logical vector flagging timesteps at which rerouting must be performed due to change in density's temporal dimension
         dns_itr_dim = dns_itr_dim, # density datacube: iterative dimension
-        dns_itr_slices = dns_itr_slices,
+        dns_itr_slices = dns_itr_slices, # density datacube: slices of iterative dimension sampled for each simulation timestep
         step_drtn = units::as_units(ibm_cfg@delta_time),
         crs = ibm_cfg@ref_sys,
         aoc_bbx = ibm_cfg@aoc_bbx,
-        waypnts_res = waypnts_res,
         bm_smooth = bm_smooth
       ),
       ids
     ),
     class = "disnbs_config"
   )
-
 }
-
 
 
 #' Set options for body mass smoother
