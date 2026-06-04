@@ -12,15 +12,16 @@
 #' and movement speed. However, the class design allows for future expansions to
 #' accommodate additional state attributes.
 #
-#' @slot id character string, a unique identifier for the state, representing a
+#' @slot id  <[`string`][character]> the unique identifier for the state, representing a
 #'   specific behaviour or activity.
-#' @slot energy_cost a <[`VarDist-class`]> object, defining the energy
-#'   expenditure associated with the state (e.g. kJ/hour/grams).
-#' @slot time_budget a <[`VarDist-class`]> object, defining the agent's typical
-#'   time allocation to this state. It should be expressed as a relative length
-#'   of time (e.g. hours/day).
-#' @slot speed a <[`VarDist-class`]> object, specifying the movement speed
-#'   associated with this state (e.g. m/s).
+#' @slot type <[`string`][character]> specifies the functional category of the activity. This classifies states based on their role in the agent's life. Current accepted values are:
+#'   - "foraging": encompasses both food searching and consumption.
+#'   - "resting": covers sleep and other inactive behaviours.
+#'   - "travelling": includes locomotion for non-foraging purposes (e.g., flying, running, swimming, or migrating).
+#'   - "other": for any state not covered by the above categories.
+#' @slot energy_cost <[`VarDist-class`]> the energy expenditure associated with the state (e.g. kJ/hour/grams).
+#' @slot time_budget <[`VarDist-class`]> the agent's typical time allocation to this state, expressed as a relative duration (e.g. hours/day).
+#' @slot speed <[`VarDist-class`]> the movement speed associated with this state (e.g. m/s).
 #'
 #' @seealso
 #'  * [VarDist()] for defining `<VarDist>` objects
@@ -34,19 +35,19 @@ methods::setClass(
   Class = "State",
   slots = list(
     id = "character",
+    type = "character",
     energy_cost = "VarDist",
     time_budget = "VarDist",
     speed = "VarDist"
   ),
   prototype = list(
     id = NA_character_,
+    type = NA_character_,
     energy_cost = VarDist(),
     time_budget = VarDist(),
     speed = VarDist()
   )
 )
-
-
 
 
 #' Create a `<State>` object
@@ -57,33 +58,49 @@ methods::setClass(
 #' expenditure, time allocation, and movement speed at the individual level.
 #'
 #'
-#' @param id character string, a unique identifier for the state, representing a
+#' @param id  <[`string`][character]> the unique identifier for the state, representing a
 #'   specific behaviour or activity.
-#' @param energy_cost a <[`VarDist-class`]> or a <[`VarFn-class`]> object,
-#'   defining the energy expenditure associated with the state (e.g.
-#'   kJ/hour/grams).
-#' @param time_budget a <[`VarDist-class`]> object, defining the agent's typical
-#'   time allocation to this state. It should be expressed as a relative length
-#'   of time (e.g. hours/day).
-#' @param speed a <[`VarDist-class`]> object, specifying the movement speed
-#'   associated with this state (e.g. m/s).
+#' @param type <[`string`][character]> specifies the functional category of the activity. This classifies states based on their role in the agent's life. Current accepted values are:
+#'   - "foraging": encompasses both food searching and consumption.
+#'   - "resting": covers sleep and other inactive behaviours.
+#'   - "travelling": includes locomotion for non-foraging purposes (e.g., flying, running, swimming, or migrating).
+#'   - "other": for any state not covered by the above categories.
+#' @param energy_cost <[`VarDist-class`]> the energy expenditure associated with the state (e.g. kJ/hour/grams).
+#' @param time_budget <[`VarDist-class`]> the agent's typical time allocation to this state, expressed as a relative duration (e.g. hours/day).
+#' @param speed <[`VarDist-class`]> the movement speed associated with this state (e.g. m/s).
 #'
 #' @seealso [VarDist()] for defining `<VarDist>` objects
 #'
 #' @return a <[`State-class`]> S4 object
 #'
+#' @examples
+#'
+#'  # Create a <State> object representing a foraging state
+#'  State(
+#'   id = "foraging",
+#'   type = "foraging",
+#'   energy_cost = VarDist(distributional::dist_normal(4, 0.5), "kJ/hour/grams"),
+#'   time_budget = VarDist(10, "hour/day"),
+#'   speed = VarDist(distributional::dist_uniform(0.5, 1.5), "m/s")
+#' )
+#'
 #' @export
-State <- function(id = NA_character_,
-                  energy_cost = VarDist(),
-                  time_budget = VarDist(),
-                  speed = VarDist()){
-
+State <- function(
+  id = NA_character_,
+  type = c("foraging", "resting", "travelling", "other"),
+  energy_cost = VarDist(),
+  time_budget = VarDist(),
+  speed = VarDist()
+) {
   # TODO: include alternative input formats on function's documentation
+  type <- match.arg(type)
+
   speed <- as_vardist(speed, "m/s")
   energy_cost <- as_vardist(energy_cost, "kJ/hour/grams")
   time_budget <- as_vardist(time_budget, "hour/day")
 
   # Input validation
+  check_class(id, "character")
   check_class(energy_cost, "VarDist")
   check_class(time_budget, "VarDist")
   check_class(speed, "VarDist")
@@ -92,20 +109,16 @@ State <- function(id = NA_character_,
   new(
     "State",
     id = id,
+    type = type,
     energy_cost = energy_cost,
     time_budget = time_budget,
     speed = speed
   )
-
 }
-
-
-
 
 
 # Validator -----------------------------------------------------
 methods::setValidity("State", function(object) {
-
   err <- character()
 
   # if(!is_empty(object@time_budget)){
@@ -115,10 +128,10 @@ methods::setValidity("State", function(object) {
   #   }
   # }
 
-  if(length(err) > 0){
+  if (length(err) > 0) {
     # need to collapse into single string for desired formatting
     do.call(paste, list(err, collapse = " "))
-  } else{
+  } else {
     TRUE
   }
 })

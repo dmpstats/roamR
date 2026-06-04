@@ -10,7 +10,7 @@ state. Each \verb{<State>} object defines characteristics such as energy
 expenditure, time allocation, and movement speed at the individual level.
 }
 \details{
-\verb{<State>} is designed as a sub-class of \linkS4class{Species}, allowing a species'
+\verb{<State>} is designed as a sub-class of \link[=Species-class]{Species}, allowing a species'
 state profile to be structured as a list of \verb{<State>} objects. This flexible
 design enables customized state specifications for different species.
 
@@ -21,18 +21,22 @@ accommodate additional state attributes.
 \section{Slots}{
 
 \describe{
-\item{\code{id}}{character string, a unique identifier for the state, representing a
+\item{\code{id}}{<\code{\link[=character]{string}}> the unique identifier for the state, representing a
 specific behaviour or activity.}
 
-\item{\code{energy_cost}}{a <\code{\linkS4class{VarDist}}> object, defining the energy
-expenditure associated with the state (e.g. kJ/hour/grams).}
+\item{\code{type}}{<\code{\link[=character]{string}}> specifies the functional category of the activity. This classifies states based on their role in the agent's life. Current accepted values are:
+\itemize{
+\item "foraging": encompasses both food searching and consumption.
+\item "resting": covers sleep and other inactive behaviours.
+\item "travelling": includes locomotion for non-foraging purposes (e.g., flying, running, swimming, or migrating).
+\item "other": for any state not covered by the above categories.
+}}
 
-\item{\code{time_budget}}{a <\code{\linkS4class{VarDist}}> object, defining the agent's typical
-time allocation to this state. It should be expressed as a relative length
-of time (e.g. hours/day).}
+\item{\code{energy_cost}}{<\code{\link[=VarDist-class]{VarDist}}> the energy expenditure associated with the state (e.g. kJ/hour/grams).}
 
-\item{\code{speed}}{a <\code{\linkS4class{VarDist}}> object, specifying the movement speed
-associated with this state (e.g. m/s).}
+\item{\code{time_budget}}{<\code{\link[=VarDist-class]{VarDist}}> the agent's typical time allocation to this state, expressed as a relative duration (e.g. hours/day).}
+
+\item{\code{speed}}{<\code{\link[=VarDist-class]{VarDist}}> the movement speed associated with this state (e.g. m/s).}
 }}
 
 \seealso{

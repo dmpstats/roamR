@@ -12,25 +12,28 @@ State(
 )
 }
 \arguments{
-\item{id}{character string, a unique identifier for the state, representing a
+\item{id}{<\code{\link[=character]{string}}> the unique identifier for the state, representing a
 specific behaviour or activity.}
 
-\item{energy_cost}{a <\code{\linkS4class{VarDist}}> or a <\code{\linkS4class{VarFn}}> object,
-defining the energy expenditure associated with the state (e.g.
-kJ/hour/grams).}
+\item{energy_cost}{<\code{\link[=VarDist-class]{VarDist}}> the energy expenditure associated with the state (e.g. kJ/hour/grams).}
 
-\item{time_budget}{a <\code{\linkS4class{VarDist}}> object, defining the agent's typical
-time allocation to this state. It should be expressed as a relative length
-of time (e.g. hours/day).}
+\item{time_budget}{<\code{\link[=VarDist-class]{VarDist}}> the agent's typical time allocation to this state, expressed as a relative duration (e.g. hours/day).}
 
-\item{speed}{a <\code{\linkS4class{VarDist}}> object, specifying the movement speed
-associated with this state (e.g. m/s).}
+\item{speed}{<\code{\link[=VarDist-class]{VarDist}}> the movement speed associated with this state (e.g. m/s).}
+
+\item{type}{<\code{\link[=character]{string}}> specifies the functional category of the activity. This classifies states based on their role in the agent's life. Current accepted values are:
+\itemize{
+\item "foraging": encompasses both food searching and consumption.
+\item "resting": covers sleep and other inactive behaviours.
+\item "travelling": includes locomotion for non-foraging purposes (e.g., flying, running, swimming, or migrating).
+\item "other": for any state not covered by the above categories.
+}}
 }
 \value{
-a <\code{\linkS4class{State}}> S4 object
+a <\code{\link[=State-class]{State}}> S4 object
 }
 \description{
-Helper function to construct instances of <\code{\linkS4class{State}}> objects, enabling
+Helper function to construct instances of <\code{\link[=State-class]{State}}> objects, enabling
 the specification of attributes specific to an agent's behavioural or
 activity state. Each \verb{<State>} object defines characteristics such as energy
 expenditure, time allocation, and movement speed at the individual level.
