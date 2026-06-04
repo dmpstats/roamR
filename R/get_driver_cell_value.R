@@ -13,8 +13,7 @@
 #' @importFrom rlang !!!
 #'
 #' @noRd
-get_driver_cell_value <- function(driver, agent, vf = NULL){
-
+get_driver_cell_value <- function(driver, agent, vf = NULL) {
   # TODO
   # - extract value of correct attribute (currently the complement of
   # c(aspect, slope), but maybe make it specific to driver_id instead, once that
@@ -22,15 +21,18 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
 
   driver_stars <- stars_obj(driver)
 
-  if(is_stars_empty(driver_stars)){
+  if (is_stars_empty(driver_stars)) {
     cli::cli_abort(c(
       "No raster-type data available for driver {.val {driver_id}}",
       x = "Unable to extract values of {.val {driver_id}} to pass on to the base function"
     ))
   }
 
-  if(length(driver_stars) > 1){
-    stars_obj(driver) <- dplyr::select(driver_stars, !dplyr::any_of(c("slope", "aspect")))
+  if (length(driver_stars) > 1) {
+    stars_obj(driver) <- dplyr::select(
+      driver_stars,
+      !dplyr::any_of(c("slope", "aspect"))
+    )
   }
 
   # get agent's current time and location
@@ -40,11 +42,12 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
   # get non-raster metadata of driver's <stars> data
   nnrst_meta <- driver@stars_meta$non_raster
 
-  if(is.null(nnrst_meta)){ # extract from a raster-only <stars>
+  if (is.null(nnrst_meta)) {
+    # extract from a raster-only <stars>
 
     val <- stars::st_extract(driver@stars_obj, at = loc)
-
-  } else { # extract from a <stars> with additional non-raster dimensions
+  } else {
+    # extract from a <stars> with additional non-raster dimensions
 
     # ensure slicing done for the first dimension of each type
     nnrst_idxs <- which(!duplicated(nnrst_meta$types))
@@ -53,15 +56,17 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
     nnrst_dims <- nnrst_meta$dims[nnrst_idxs]
 
     # slice number for each non-raster dimension
-    slice_num <- lapply(nnrst_idxs, function(idx){
+    slice_num <- lapply(nnrst_idxs, function(idx) {
       proc <- nnrst_meta$procs[idx]
       dim <- nnrst_meta$dims[idx]
       dimvals <- stars::st_get_dimension_values(driver@stars_obj, dim)
 
       # convert agent's timestamp to Date if dimension is of type Date
-      if(nnrst_meta$cls[idx] == "Date")  tm <- as.Date(tm)
+      if (nnrst_meta$cls[idx] == "Date") {
+        tm <- as.Date(tm)
+      }
 
-      switch (
+      switch(
         proc,
         nearest = nearest_preceding(dimvals, tm),
         draw = sample(dimvals, 1),
@@ -75,9 +80,9 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
     })
 
     # return NA if there is a no match between the agent's data and the driver data
-    if(any(is.na(slice_num))){
+    if (any(is.na(slice_num))) {
       val <- NA_real_
-    }else{
+    } else {
       val <- driver@stars_obj |>
         slice_strs(nnrst_dims, !!!slice_num, .drop = TRUE) |> # bang-bang-bang required for appropriate one-to-many replacement to slice_strs
         stars::st_extract(at = loc)
@@ -86,7 +91,7 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
 
   # HACK - NA handling: if extracted value is NA, return the median of the
   # attribute across all the dimensions
-  if(is.na(val)){
+  if (is.na(val)) {
     val <- median(driver@stars_obj[[1]], na.rm = TRUE)
   }
 
@@ -98,17 +103,13 @@ get_driver_cell_value <- function(driver, agent, vf = NULL){
 }
 
 
-
-
-
 # find index of nearest preceding element of vector - single query
-nearest_preceding <- function(x, val){
+nearest_preceding <- function(x, val) {
   # if val is outside the range of x, return NA - i.e. avoid extrapolation
-  if(val < min(x) || val > max(x)) return(NA_integer_)
+  if (val < min(x) || val > max(x)) {
+    return(NA_integer_)
+  }
   # among those <= val, pick the one with the largest x[i]
   idxs <- which(x <= val)
   idxs[which.max(x[idxs])]
 }
-
-
-

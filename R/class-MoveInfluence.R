@@ -81,7 +81,7 @@ methods::setClass(
 MoveInfluence <- function(prob = VarDist(),
                           fn = function(x) 0,
                           type = c("null", "attraction", "repulsion"),
-                          mode = c("vector-field", "cell-value"),
+                          mode = c("vector-field", "cell-value"), #mode = c("vector-field", "density-informed"),
                           sim_stage = c("bsln", "imp", "bsln-imp")
                           ){
   # input validation
