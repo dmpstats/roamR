@@ -1,8 +1,5 @@
-
-
 # helper to clip <stars> datacubes based on polys
-clip_holes <- function(x, y){
-
+clip_holes <- function(x, y) {
   holes <- sf::st_crop(x, y, as_points = FALSE)
 
   holes_pts <- holes |>
@@ -13,19 +10,19 @@ clip_holes <- function(x, y){
 
   ndims <- length(dim(x))
 
-  x_holed <- if(ndims > 2){
-    stars::st_apply(x, 3:ndims, function(.x){
+  x_holed <- if (ndims > 2) {
+    stars::st_apply(x, 3:ndims, function(.x) {
       .x[holes_cells_idx] <- NA
       .x
     })
-    }else{
-      x[holes_cells_idx] <- NA
-    }
+  } else {
+    x[holes_cells_idx] <- NA
+  }
 
-#   x_holed <- stars::st_apply(x, 3, function(.x){
-#     .x[holes_cells_idx] <- NA
-#     .x
-#   })
+  #   x_holed <- stars::st_apply(x, 3, function(.x){
+  #     .x[holes_cells_idx] <- NA
+  #     .x
+  #   })
 
   x_holed
 }
@@ -44,7 +41,8 @@ srf_grd <- tidyr::expand_grid(
   #y = seq(55, 60, by = 0.1)
   x = seq(mock_extent$xmin - 0.1, mock_extent$xmax + 0.1, by = 0.1),
   y = seq(mock_extent$ymin - 0.1, mock_extent$ymax + 0.1, by = 0.1)
-) |> as.matrix()
+) |>
+  as.matrix()
 
 plot(srf_grd)
 
@@ -65,10 +63,13 @@ dns_hot <- tidyr::tibble(
   dplyr::mutate(
     mu_x = month_mu_x + runif(dplyr::n(), -3, 3),
     mu_y = month_mu_y + runif(dplyr::n(), -3, 3),
-    dns_sigma = list(matrix(c(1,0.5,0.5,1), ncol=2))
+    dns_sigma = list(matrix(c(1, 0.5, 0.5, 1), ncol = 2))
   ) |>
   dplyr::mutate(
-    dns_pbdst = distributional::dist_multivariate_normal(list(c(mu_x, mu_y)), dns_sigma),
+    dns_pbdst = distributional::dist_multivariate_normal(
+      list(c(mu_x, mu_y)),
+      dns_sigma
+    ),
     .by = dplyr::everything()
   ) |>
   dplyr::mutate(
@@ -87,9 +88,9 @@ dns <- dns_hot |>
   ) |>
   # generate randomness, normalize and apply scale factor (i.e. total 10k animals)
   dplyr::mutate(
-    dns = purrr::map(dns, \(x){
+    dns = purrr::map(dns, \(x) {
       x <- x * runif(length(x), 0.95, 1.05)
-      dplyr::tibble(counts = x/sum(x) * 10000) |>
+      dplyr::tibble(counts = x / sum(x) * 10000) |>
         dplyr::bind_cols(srf_grd)
     })
   ) |>
@@ -100,7 +101,11 @@ dns <- dns_hot |>
 
 dns |>
   dplyr::filter(iter == 4) |>
-  plot(axes = TRUE, col = MetBrewer::met.brewer("Johnson", 30, direction = -1), breaks = "equal")
+  plot(
+    axes = TRUE,
+    col = MetBrewer::met.brewer("Johnson", 30, direction = -1),
+    breaks = "equal"
+  )
 
 drv_dens <- Driver(
   id = "dens",
@@ -112,16 +117,14 @@ drv_dens <- Driver(
 )
 
 
-
-
 ## impacted density surfaces ------
 # For testing purposes, apply truncation-type impact, i.e. densities in clipped
 # areas are not redistributed
-imp_dens <- clip_holes(dns, owf_foots |> sf::st_buffer(20000) ) |>
+imp_dens <- clip_holes(dns, owf_foots |> sf::st_buffer(20000)) |>
   dplyr::mutate(counts = units::set_units(counts, "counts"))
 
 plot(imp_dens)
-plot(imp_dens[, , , 1, , drop = TRUE])
+plot(imp_dens[,,, 1, , drop = TRUE])
 
 
 drv_imp_dens <- Driver(
@@ -156,10 +159,11 @@ drv_intake <- Driver(
 )
 
 
-
 ## Monthly impacted energy intake surfaces ------
 # impact applied randomly, i.e. not spatially explicit nor relative to location of impacts
-imp_energy_intake <- stars::st_apply(energy_intake, c(1, 2, 3), \(x) x * runif(1, 0.4, 0.8)) |>
+imp_energy_intake <- stars::st_apply(energy_intake, c(1, 2, 3), \(x) {
+  x * runif(1, 0.4, 0.8)
+}) |>
   dplyr::mutate(intake = units::set_units(intake, "kJ/hr"))
 
 plot(imp_energy_intake)
@@ -180,13 +184,13 @@ drv_sst
 
 # Species -----------------------------------------------------------------
 
-swim_cost_fn <- function(sst, int){
+swim_cost_fn <- function(sst, int) {
   x <- int - (2.75 * sst)
   max(x, 1, na.rm = TRUE) # na.rm also ensures minimum cost if agent lands in cell without SST surface coverage
 }
 
 
-water_rest_cost_fn <- function(b){
+water_rest_cost_fn <- function(b) {
   sqrt(b)
 }
 
@@ -194,14 +198,15 @@ water_rest_cost_fn <- function(b){
 mu_f <- 141
 sigma_f <- 66
 flight_cost_dist <- dist_lognormal(
-  mu = log(mu_f/sqrt(mu_f^2 + sigma_f^2)),
-  sigma = sqrt(log(1 + sigma_f^2/mu_f^2))
+  mu = log(mu_f / sqrt(mu_f^2 + sigma_f^2)),
+  sigma = sqrt(log(1 + sigma_f^2 / mu_f^2))
 )
 
 
-
-rvr_states_dsnbs <- list(flight = State(
+rvr_states_dsnbs <- list(
+  flight = State(
     id = "flying",
+    type = "travelling",
     energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     # speed = VarFn(
@@ -213,11 +218,13 @@ rvr_states_dsnbs <- list(flight = State(
   ),
   dive = State(
     id = "foraging",
+    type = "foraging",
     energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour"),
     time_budget = VarDist(dist_uniform(5, 6), "hours/day")
   ),
   swimming = State(
     id = "swimming",
+    type = "travelling",
     energy_cost = VarFn(
       swim_cost_fn,
       list(sst = "driver", int = VarDist(dist_normal(113, 22))),
@@ -228,12 +235,11 @@ rvr_states_dsnbs <- list(flight = State(
   ),
   water_rest = State(
     id = "water_resting",
+    type = "resting",
     energy_cost = VarFn(water_rest_cost_fn, list("body_mass"), "kJ/hour"),
     time_budget = VarDist(dist_uniform(10, 12), "hours/day")
   )
 )
-
-
 
 
 resp_dens <- DriverResponse(
@@ -261,9 +267,15 @@ spp <- Species(
   id = "rover",
   common_name = "Rover",
   scientific_name = "Rover Vulgaris",
-  body_mass_distr = VarDist(distributional::dist_normal(1000, 0.2 * 1000), units = "grams"),
+  body_mass_distr = VarDist(
+    distributional::dist_normal(1000, 0.2 * 1000),
+    units = "grams"
+  ),
   energy_to_mass_distr = VarDist(0.072, "g/kJ"),
-  mortality_thresh_distr = VarDist(distributional::dist_uniform(300, 350), units = "grams"),
+  mortality_thresh_distr = VarDist(
+    distributional::dist_uniform(300, 350),
+    units = "grams"
+  ),
   states_profile = rvr_states_dsnbs,
   driver_responses = list(
     resp_dens,
@@ -275,7 +287,6 @@ spp <- Species(
 rvr_states$dive@id
 
 
-
 # IBM object -----------------------------------------------------------------
 cfg <- ibm_config_rover
 cfg@movement_model <- "di"
@@ -283,7 +294,6 @@ cfg@delta_x <- NA_real_
 cfg@delta_y <- NA_real_
 cfg@start_date <- as.Date("2022-10-01")
 cfg@end_date <- as.Date("2023-03-30")
-
 
 
 #set.seed(1991)
@@ -300,7 +310,6 @@ rover_ibm_disnbs <- rmr_initiate(
 )
 
 usethis::use_data(rover_ibm_disnbs, overwrite = TRUE, compress = "xz")
-
 
 
 lapply(rover_ibm_disnbs@agents, \(x) x@properties@speeds$flying)

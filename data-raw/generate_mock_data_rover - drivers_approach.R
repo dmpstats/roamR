@@ -20,12 +20,12 @@ mock_bbox <- structure(unlist(mock_extent), class = "bbox") |> st_set_crs(4326)
 ## "Land" driver  ----------------------------------------
 
 uk_land <- ggplot2::map_data("world", region = "UK") |>
-  st_as_sf(coords = c("long", "lat"),  crs = 4326) |>
+  st_as_sf(coords = c("long", "lat"), crs = 4326) |>
   group_split(group) |>
-  purrr::map(\(x){
+  purrr::map(\(x) {
     st_combine(x) |>
       st_cast("POLYGON")
-  } ) |>
+  }) |>
   purrr::list_c() |>
   st_combine()
 
@@ -55,7 +55,8 @@ dns_srf_grd <- expand_grid(
   #y = seq(55, 60, by = 0.1)
   x = seq(mock_extent$xmin - 0.1, mock_extent$xmax + 0.1, by = 0.1),
   y = seq(mock_extent$ymin - 0.1, mock_extent$ymax + 0.1, by = 0.1)
-) |> as.matrix()
+) |>
+  as.matrix()
 
 plot(dns_srf_grd)
 
@@ -70,13 +71,13 @@ set.seed(1979)
 rvr_dns_hot <- tibble(
   month,
   month_mu_x = c(-2, 0, -1, 1.5), #, 1, 3),
-  month_mu_y = c(54, 60, 53.3, 56)#, 50, 61)
+  month_mu_y = c(54, 60, 53.3, 56) #, 50, 61)
 ) |>
   expand_grid(hotspot_id = 1:3) |>
   mutate(
     mu_x = month_mu_x + runif(n(), -3, 3),
     mu_y = month_mu_y + runif(n(), -3, 3),
-    dns_sigma = list(matrix(c(1,0.5,0.5,1), ncol=2))
+    dns_sigma = list(matrix(c(1, 0.5, 0.5, 1), ncol = 2))
   ) |>
   mutate(
     dns_pbdst = dist_multivariate_normal(list(c(mu_x, mu_y)), dns_sigma),
@@ -98,9 +99,9 @@ rvr_dns <- rvr_dns_hot |>
   ) |>
   # generate randomness, normalize and apply scale factor (i.e. total 10k animals)
   mutate(
-    dns = purrr::map(dns, \(x){
+    dns = purrr::map(dns, \(x) {
       x <- x * runif(length(x), 0.95, 1.05)
-      tibble(counts = x/sum(x) * 10000) |>
+      tibble(counts = x / sum(x) * 10000) |>
         bind_cols(dns_srf_grd)
     })
   ) |>
@@ -111,7 +112,11 @@ rvr_dns <- rvr_dns_hot |>
 
 rvr_dns |>
   filter(iter == 4) |>
-  plot(axes = TRUE, col = met.brewer("Johnson", 30, direction = -1), breaks = "equal")
+  plot(
+    axes = TRUE,
+    col = met.brewer("Johnson", 30, direction = -1),
+    breaks = "equal"
+  )
 
 
 # construct driver
@@ -129,13 +134,14 @@ drv_sp_distr <- Driver(
 usethis::use_data(drv_sp_distr, overwrite = TRUE, compress = "xz")
 
 
-
-
 ## "SST" driver  -------------------------------------------------
 
 # sst monthly averages from 1981-2023
 # source: https://psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html
-sst_month <- stars::read_stars("C:/Users/Bruno/Dropbox/ORJIP/DisNBS/data/env rasters/sst.mon.mean.nc", proxy = TRUE) |>
+sst_month <- stars::read_stars(
+  "C:/Users/Bruno/Dropbox/ORJIP/DisNBS/data/env rasters/sst.mon.mean.nc",
+  proxy = TRUE
+) |>
   #st_set_crs(4326) |>
   st_set_crs('OGC:CRS84') |>
   st_warp(st_as_stars(st_bbox(), dx = 0.25)) |>
@@ -149,7 +155,10 @@ sst_month
 # compute the mean for each "month-of-year"
 sst <- sst_month |>
   aggregate(
-    by = \(x){ month <- months(x) |> factor(levels = month.name); month},
+    by = \(x) {
+      month <- months(x) |> factor(levels = month.name)
+      month
+    },
     FUN = mean
   ) |>
   setNames("sst_mean_moy") |>
@@ -196,7 +205,6 @@ drv_sst <- Driver(
 usethis::use_data(drv_sst, overwrite = TRUE, compress = "xz")
 
 
-
 ## "Prey" driver -----------------------------------------
 
 # Generate mock prey monthly density surfaces
@@ -226,11 +234,12 @@ y_grid <- seq(mock_extent$ymin - 0.1, mock_extent$ymax + 0.1, by = sp_res)
 mesh <- expand_grid(
   x = x_grid,
   y = y_grid
-) |> as.matrix()
+) |>
+  as.matrix()
 
-prey_cov <- matrix(c(0.5,0.1,0.1,0.5), ncol=2)
+prey_cov <- matrix(c(0.5, 0.1, 0.1, 0.5), ncol = 2)
 
-prey_dens_raw <- apply(prey_peaks,1, function(x){
+prey_dens_raw <- apply(prey_peaks, 1, function(x) {
   dist_multivariate_normal(list(x), list(prey_cov))
 }) |>
   sapply(density, at = mesh, simplify = TRUE)
@@ -246,10 +255,20 @@ prey_dens <- array(
 prey_dens <- apply(prey_dens, c(1, 2, 3), sum)
 
 # normalize
-prey_dens <- sweep(prey_dens, MARGIN = 3, STATS = apply(prey_dens, 3, sum), FUN = "/")
+prey_dens <- sweep(
+  prey_dens,
+  MARGIN = 3,
+  STATS = apply(prey_dens, 3, sum),
+  FUN = "/"
+)
 
 # monthly scaling
-prey_dens <- sweep(prey_dens, MARGIN = 3, STATS = runif(n_months, 1E4, 4E4), FUN = "*")
+prey_dens <- sweep(
+  prey_dens,
+  MARGIN = 3,
+  STATS = runif(n_months, 1E4, 4E4),
+  FUN = "*"
+)
 
 
 yumyum_dens <- st_as_stars(prey_dens) |>
@@ -278,15 +297,16 @@ drv_prey <- Driver(
 usethis::use_data(drv_prey, overwrite = TRUE, compress = "xz")
 
 
-
-
 ## "SSS" driver -----------------------------------------
 
 ## Upload Sea Surface Salinity maps
 # SOURCE:  https://data.ceda.ac.uk/download?path=/neodc/esacci/sea_surface_salinity/data/v04.41/GLOBALv4.41/30days/2021
 # only year 2021
 
-sss <- fs::dir_map("C:/Users/Bruno/Dropbox/ORJIP/DisNBS/data/env rasters/sss_esa_neodc//esacci/sea_surface_salinity/data/v04.41/GLOBALv4.41/30days/2021/", \(x) read_ncdf(x, var = "sss"))
+sss <- fs::dir_map(
+  "C:/Users/Bruno/Dropbox/ORJIP/DisNBS/data/env rasters/sss_esa_neodc//esacci/sea_surface_salinity/data/v04.41/GLOBALv4.41/30days/2021/",
+  \(x) read_ncdf(x, var = "sss")
+)
 sss <- do.call("c", sss)
 
 plot(sss[mock_bbox])
@@ -295,7 +315,10 @@ sss_moy <- sss |>
   select(sss) |>
   st_crop(mock_bbox + c(-0.1, -0.1, 0.1, 0.1)) |>
   aggregate(
-    by = \(x){ month <- months(x) |> factor(levels = month.name); month},
+    by = \(x) {
+      month <- months(x) |> factor(levels = month.name)
+      month
+    },
     FUN = mean
   ) |>
   setNames("sss_mean_moy") |>
@@ -329,9 +352,6 @@ drv_sss <- Driver(
 # # Set as {raomR} data
 # usethis::use_data(drv_sss, overwrite = TRUE, compress = "xz")
 
-
-
-
 ## "OWFs" driver -----------------------------------------
 
 # Generate random mock Offshore Wind Farms' footprints
@@ -347,7 +367,7 @@ owf_foots <- st_as_sfc(mock_bbox) |>
   st_sample(n_owfs) |>
   st_buffer(20000) |>
   # generate footprints - i.e. polygons inside each position
-  sapply(\(x){
+  sapply(\(x) {
     x |>
       st_sample(5) |>
       st_combine() |>
@@ -361,7 +381,6 @@ ggplot() +
   geom_sf(data = drv_land@sf_obj) +
   geom_sf(data = st_as_sfc(mock_bbox), col = "orange", fill = NA) +
   geom_sf(data = owf_foots, fill = "red", col = "firebrick", alpha = 0.2)
-
 
 
 # # Generate mock Offshore Wind Farm footprint
@@ -387,8 +406,6 @@ ggplot() +
 #   geom_sf(data = drv_land@sf_obj) +
 #   geom_sf(data = owf_foot, fill = "red", col = "firebrick", alpha = 0.2)
 
-
-
 # construct driver
 drv_owfs <- Driver(
   id = "owf_foot",
@@ -402,21 +419,25 @@ usethis::use_data(owf_foots, overwrite = TRUE, compress = "xz")
 usethis::use_data(drv_owfs, overwrite = TRUE, compress = "xz")
 
 
-
-
-
-
-
 ## "Fishing Ground" driver -----------------------------------------
 
 fra_foot <- st_multipoint(
-  matrix(c(
-    -1.1, 56.7,
-    -1.2, 56.6,
-    -1, 56.7,
-    -0.99, 56.6,
-    -1.1, 56.55
-  ), ncol = 2, byrow = TRUE)
+  matrix(
+    c(
+      -1.1,
+      56.7,
+      -1.2,
+      56.6,
+      -1,
+      56.7,
+      -0.99,
+      56.6,
+      -1.1,
+      56.55
+    ),
+    ncol = 2,
+    byrow = TRUE
+  )
 ) |>
   st_buffer(0.1) |>
   st_sfc(crs = 4326)
@@ -424,11 +445,12 @@ fra_foot <- st_multipoint(
 plot(fra_foot)
 
 ggplot() +
-  geom_stars(data = drv_sp_distr@stars_obj |> filter(month == "Feb", iter == 2)) +
+  geom_stars(
+    data = drv_sp_distr@stars_obj |> filter(month == "Feb", iter == 2)
+  ) +
   geom_sf(data = drv_land@sf_obj) +
   geom_sf(data = owf_foots, fill = "red", col = "firebrick", alpha = 0.2) +
   geom_sf(data = fra_foot, fill = "green", col = "darkgreen", alpha = 0.2)
-
 
 
 # construct driver
@@ -439,7 +461,6 @@ drv_trawling <- Driver(
   sf_obj = fra_foot,
   obj_active = "sf"
 )
-
 
 
 ## Combine drivers into a list and write out to as package data -----------------------------------------
@@ -457,8 +478,6 @@ rover_drivers <- list(
 usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
 
 
-
-
 # -------------------------------------------------------------------------- #
 #
 #  Create a <Species> object for a mock species ('Rover') to act as an agent ----
@@ -467,7 +486,7 @@ usethis::use_data(rover_drivers, overwrite = TRUE, compress = "xz")
 
 ## Species state profile  ----------------------------------
 
-swim_cost_fn <- function(sst, int){
+swim_cost_fn <- function(sst, int) {
   x <- int - (2.75 * sst)
   max(x, 1, na.rm = TRUE) # na.rm also ensures minimum cost if agent lands in cell without SST surface coverage
 }
@@ -479,24 +498,27 @@ water_rest_cost_fn <- function(b) sqrt(b)
 mu_f <- 141
 sigma_f <- 66
 flight_cost_dist <- dist_lognormal(
-  mu = log(mu_f/sqrt(mu_f^2 + sigma_f^2)),
-  sigma = sqrt(log(1 + sigma_f^2/mu_f^2))
+  mu = log(mu_f / sqrt(mu_f^2 + sigma_f^2)),
+  sigma = sqrt(log(1 + sigma_f^2 / mu_f^2))
 )
 
 rvr_states <- list(
   flight = State(
     id = "flying",
+    type = "travelling",
     energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
     speed = VarDist(dist_uniform(10, 20), "m/s")
   ),
   dive = State(
     id = "foraging",
+    type = "foraging",
     energy_cost = VarDist(dist_uniform(3, 5), "kJ/hour"),
     time_budget = VarDist(dist_uniform(1, 3), "hours/day")
   ),
   swimming = State(
     id = "swimming",
+    type = "travelling",
     energy_cost = VarFn(
       swim_cost_fn,
       list(sst = "driver", int = VarDist(dist_normal(113, 22))),
@@ -507,6 +529,7 @@ rvr_states <- list(
   ),
   water_rest = State(
     id = "water_resting",
+    type = "resting",
     energy_cost = VarFn(
       water_rest_cost_fn,
       list("body_mass"),
@@ -519,6 +542,7 @@ rvr_states <- list(
 
 State(
   id = "flying",
+  type = "travelling",
   energy_cost = VarDist(flight_cost_dist, "kJ/hour"),
   time_budget = VarDist(dist_uniform(1, 3), "hours/day"),
   speed = VarFn(
@@ -529,14 +553,13 @@ State(
 )
 
 
-
 usethis::use_data(rvr_states, overwrite = TRUE, compress = "xz")
 
 
 ## Species driver responses  ----------------------------------
 
 # exponential decay
-exp_decay <- function(x, slope = 1/2){
+exp_decay <- function(x, slope = 1 / 2) {
   exp(-slope * x)
 }
 
@@ -596,7 +619,6 @@ resp_sst <- new(
 )
 
 
-
 ### OWF response
 resp_owf <- new(
   "DriverResponse",
@@ -616,7 +638,6 @@ resp_owf <- new(
     )
   )
 )
-
 
 
 ### fishing ground response
@@ -645,7 +666,6 @@ resp_trawling <- new(
 )
 
 
-
 ## Build <Species> object ----------------------------------------------
 rover <- Species(
   id = "rover",
@@ -668,9 +688,6 @@ rover <- Species(
 usethis::use_data(rover, overwrite = TRUE, compress = "xz")
 
 
-
-
-
 # -------------------------------------------------- #
 #
 #             Create a <IBM> object               ----
@@ -691,7 +708,7 @@ plot(coast_pts)
 
 set.seed(1015)
 set.seed(1019)
-sites3 <- coast_pts[sample(length(coast_pts), 3),]
+sites3 <- coast_pts[sample(length(coast_pts), 3), ]
 
 st_crs(sites3) <- st_crs(coast_pts)
 
@@ -706,7 +723,9 @@ plot(coast_pts)
 plot(sites3["id"], add = TRUE, col = "red", pch = 19)
 
 ggplot() +
-  geom_stars(data = drv_sp_distr@stars_obj |> filter(month == "Feb", iter == 2)) +
+  geom_stars(
+    data = drv_sp_distr@stars_obj |> filter(month == "Feb", iter == 2)
+  ) +
   geom_sf(data = drv_land@sf_obj) +
   geom_sf(data = sites3, col = "red") +
   geom_sf(data = st_as_sfc(mock_bbox), col = "orange", fill = NA)
@@ -735,12 +754,3 @@ rover_ibm <- rmr_initiate(ibm_config_rover, rover, rover_drivers)
 
 ## Set as {raomR} data
 usethis::use_data(rover_ibm, overwrite = TRUE, compress = "xz")
-
-
-
-
-
-
-
-
-
