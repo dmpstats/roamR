@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{is_empty_function}
 \alias{is_empty_function}
-\title{Assertion for empty \verb{<function>} objects}
+\title{Predicate for empty \verb{<function>} objects}
 \usage{
 is_empty_function(f)
 }
@@ -14,5 +14,5 @@ is_empty_function(f)
 raised if \code{f} is not a function.
 }
 \description{
-Assertion for empty \verb{<function>} objects
+Predicate for empty \verb{<function>} objects
 }

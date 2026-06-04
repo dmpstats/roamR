@@ -8,48 +8,54 @@ not_null <- Negate(is.null)
 
 #'
 #' helper to check validity of probability distribution names
-check_dist <- function(dist){
-
+check_dist <- function(dist) {
   dist <- match.arg(
     dist,
-    choices = c("normal", "Normal",
-                "poisson", "Poisson",
-                "gamma", "Gamma",
-                "binomial", "Binomial")
+    choices = c(
+      "normal",
+      "Normal",
+      "poisson",
+      "Poisson",
+      "gamma",
+      "Gamma",
+      "binomial",
+      "Binomial"
+    )
   )
 
   tolower(dist)
 }
 
 
-
-
 # units checker for character specification
-check_units <- function(units_chr,
-                        call = rlang::caller_env(),
-                        arg = rlang::caller_arg(units_chr)){
-
+check_units <- function(
+  units_chr,
+  call = rlang::caller_env(),
+  arg = rlang::caller_arg(units_chr)
+) {
   rlang::try_fetch(
     units::as_units(units_chr),
     error = function(cnd) {
       msg <- conditionMessage(cnd)
-      if(grepl("not recognized by udunits.", msg)){
+      if (grepl("not recognized by udunits.", msg)) {
         cli::cli_abort(
-          c("{.str {units_chr}} is not a valid name or symbol for unit measurements",
-            "x" = "{.arg {arg}} specification must comply with the udunits database (see {.fn units::valid_udunits})"),
+          c(
+            "{.str {units_chr}} is not a valid name or symbol for unit measurements",
+            "x" = "{.arg {arg}} specification must comply with the udunits database (see {.fn units::valid_udunits})"
+          ),
           call = call,
           arg = arg,
           parent = NA,
           error = cnd,
           class = "err_units_string_misspec"
         )
-      }}
+      }
+    }
   )
 
   # return nothing if check is passed
   invisible()
 }
-
 
 
 #' Check if units of an object are those expected under a specific context
@@ -57,41 +63,42 @@ check_units <- function(units_chr,
 #' @param x, an object that inherits the class <units>
 #' @param context character, the expected unit context of the object
 #'
-check_units_contextual <- function(x,
-                                   context = c("length", "weight", "energy", "energy-time", "speed"),
-                                   arg = rlang::caller_arg(x),
-                                   call = rlang::caller_env()){
-
+check_units_contextual <- function(
+  x,
+  context = c("length", "weight", "energy", "energy-time", "speed"),
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
   stopifnot(inherits(x, "units"))
 
   context <- rlang::arg_match(context)
 
-  if(context == "length"){
+  if (context == "length") {
     ctx_units <- "meters"
     ctx_text <- "length"
-  } else if(context == "weight"){
+  } else if (context == "weight") {
     ctx_units <- "g"
     ctx_text <- "weight"
-  } else if(context == "energy"){
+  } else if (context == "energy") {
     ctx_units <- "kJ"
     ctx_text <- "energy"
-  } else if(context == "energy-time"){
+  } else if (context == "energy-time") {
     ctx_units <- "kJ/hr"
     ctx_text <- "energy per unit-of-time"
-  } else if(context == "speed"){
+  } else if (context == "speed") {
     ctx_units <- "km/hr"
     ctx_text <- "speed"
   }
 
-
-  if(!units::ud_are_convertible(units(x), ctx_units)){
-
-    cli::cli_abort(c(
-      "Input values in {.arg {arg}} are expected to carry a valid unit of {ctx_text}.",
-      x = "{.val {units::deparse_unit(x)}} is not a recognized {ctx_text} unit.",
-      i = "Use e.g., {.val {ctx_units}} instead."
-    ),
-    call = call)
+  if (!units::ud_are_convertible(units(x), ctx_units)) {
+    cli::cli_abort(
+      c(
+        "Input values in {.arg {arg}} are expected to carry a valid unit of {ctx_text}.",
+        x = "{.val {units::deparse_unit(x)}} is not a recognized {ctx_text} unit.",
+        i = "Use e.g., {.val {ctx_units}} instead."
+      ),
+      call = call
+    )
   }
 
   # return nothing if check is passed
@@ -99,12 +106,7 @@ check_units_contextual <- function(x,
 }
 
 
-
-
-
-
-
-#' Assertion for empty `<stars>` objects
+#' Predicate for empty `<stars>` objects
 #'
 #' Currently `{stars}` doesn't appear to have a formalised way to define and
 #' test empty objects. So, we re using `stars::st_as_stars(matrix(NA))` to
@@ -117,11 +119,12 @@ check_units_contextual <- function(x,
 #'
 #' @returns logical, whether x is a `<stars>` object or not
 #'
-is_stars_empty <- function(x){
-
-  if(!inherits(x, "stars")){
+is_stars_empty <- function(x) {
+  if (!inherits(x, "stars")) {
     cli::cli_abort(
-      c("Argument {.arg x} must be of class {.cls stars}, not {.cls {class(x)}}"),
+      c(
+        "Argument {.arg x} must be of class {.cls stars}, not {.cls {class(x)}}"
+      ),
       class = "err-arg-wrong-class"
     )
   }
@@ -132,8 +135,7 @@ is_stars_empty <- function(x){
 }
 
 
-
-#' Assertion for empty `<function>` objects
+#' Predicate for empty `<function>` objects
 #'
 #' @param f A function.
 #'
@@ -141,35 +143,65 @@ is_stars_empty <- function(x){
 #' `TRUE` if the function body is empty (`{}`), `FALSE` otherwise. An error is
 #' raised if `f` is not a function.
 #'
-is_empty_function <- function(f){
+is_empty_function <- function(f) {
   check_class(f, "function")
   all.equal(body(f), quote({}))
-
 }
 
 
+#' Assertion for positive finite `<numeric>` scalar
+#'
+#' @param x Object to be tested
+#' @param arg Argument name to be used in error messages
+#' @param call Calling environment for error messages
+#'
+#' @returns Invisibly returns `NULL` if the check passes; otherwise, raises an error with
+#' an appropriate message
+check_finite_positive <- function(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+) {
+  if (!is.numeric(x) || length(x) != 1 || is.na(x) || !is.finite(x) || x <= 0) {
+    cli::cli_abort(
+      "Argument {.arg {arg}} must be a single positive finite numeric value.",
+      call = call
+    )
+  }
+  invisible()
+}
+
+
+#' Predicate for positive finite `<numeric>` scalar
+#'
+#' @param x Object to be tested
+#'
+#' @returns Logical, `TRUE` if `x` is a single positive finite numeric value, `FALSE` otherwise.
+is_finite_positive <- function(x) {
+  if (!is.numeric(x) || length(x) != 1 || is.na(x) || !is.finite(x) || x <= 0) {
+    return(FALSE)
+  }
+  return(TRUE)
+}
 
 
 # Helper to define a cli style for a vector. A wrapper of `cli::cli_vec()` to
 # simplify calls, allowing the choice of separator and the last word when
 # collapsing a vector into a single string. Must be called inside a `cli` definition
-vec_style <- function(x, sep = ", ", last = " or "){
+vec_style <- function(x, sep = ", ", last = " or ") {
   cli::cli_vec(x, style = list("vec-sep" = sep, "vec-last" = last))
 }
 
 
-
 #' Cast numeric, distributional and unit objects as VarDist
-as_vardist <- function(x, units){
-  if(inherits(x, "numeric") || distributional::is_distribution(x)){
+as_vardist <- function(x, units) {
+  if (inherits(x, "numeric") || distributional::is_distribution(x)) {
     x <- VarDist(x, units)
-  }else if(is(x, "units")){
+  } else if (is(x, "units")) {
     x <- VarDist(units::drop_units(x), units::deparse_unit(x))
   }
   x
 }
-
-
 
 
 #' <stars> Slicer
@@ -177,7 +209,7 @@ as_vardist <- function(x, units){
 #' A more flexible approach to the dplyr-based `stars.slice()` method, allowing
 #' for dynamic slicing over multiple dimensions of a `<stars>` object.
 #'
-#' This function enables users to extract specific slices along one or more
+#' This function enables the extraction of specific slices along one or more
 #' dimensions while optionally dropping singleton dimensions.
 #'
 #'
@@ -193,11 +225,9 @@ as_vardist <- function(x, units){
 #' @return A `<stars>` object containing the sliced subset of the original
 #'   multi-dimensional array.
 #'
-slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
-
+slice_strs <- function(strs, dim_along, ..., .drop = FALSE) {
   # TODO: check issue with slicing dimensions of type <Date> and <Posixt>
   # TODO: unit-testing
-
 
   # Note: as noted in the package documentation, `<stars>` subsetting using the
   # "[" operator need to take into account that the first argument selects
@@ -205,16 +235,20 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
   # dim.stars() only returns the dimensions. Thus, indexing needs to be done
   # over ndim + 1
 
-  if(is.character(dim_along)){
-    if(is.null(dimnames(strs))) cli::cli_abort("`strs` must have named dimensions.")
+  if (is.character(dim_along)) {
+    if (is.null(dimnames(strs))) {
+      cli::cli_abort("`strs` must have named dimensions.")
+    }
     dm <- match(dim_along, dimnames(strs))
     missnames <- dim_along[is.na(dm)]
-    if(length(missnames) > 0){
-      cli::cli_abort("{.val {missnames}} {?is/are} not dimension name{?s} of the provided {.arg strs} object")
+    if (length(missnames) > 0) {
+      cli::cli_abort(
+        "{.val {missnames}} {?is/are} not dimension name{?s} of the provided {.arg strs} object"
+      )
     }
-  }else if(!is.numeric(dim_along)){
+  } else if (!is.numeric(dim_along)) {
     cli::cli_abort("{.str dim_along} must be a {.cls numeric} vector.")
-  }else{
+  } else {
     dm <- dim_along
   }
 
@@ -222,14 +256,16 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
   dm_idx <- rlang::list2(...)
 
   if (length(dm) != length(dm_idx)) {
-    cli::cli_abort("Too many indices provided ({length(dm_idx)}) given `length(dim_along) == {length(dm)}`.")
+    cli::cli_abort(
+      "Too many indices provided ({length(dm_idx)}) given `length(dim_along) == {length(dm)}`."
+    )
   }
 
   n_dm <- length(dim(strs))
   indices <- rep(list(rlang::missing_arg()), n_dm + 1)
 
   # assign specified indices for each dimension
-  for(i in seq_along(dm)){
+  for (i in seq_along(dm)) {
     indices[[dm[i] + 1]] <- dm_idx[[i]]
   }
 
@@ -239,8 +275,6 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
   eval(rlang::expr(strs[!!!indices]))
   #do.call("[", c(list(strs), indices))
 }
-
-
 
 
 #' Get element of list of S4 objects
@@ -260,23 +294,18 @@ slice_strs <- function(strs, dim_along, ..., .drop = FALSE){
 #' # returns NULL if there is no element with specified ID
 #' pluck_s4(rover_ibm_disnbs@drivers, "water_resting")
 #'
-pluck_s4 <- function(l, id){
-
+pluck_s4 <- function(l, id) {
   idx <- which(purrr::map_lgl(l, \(x) x@id == id))
 
-  if(length(idx) != 0){
+  if (length(idx) != 0) {
     purrr::pluck(l, idx)
-  } else{
+  } else {
     NULL
   }
 }
 
 
-
-
-
-create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
-
+create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL) {
   stopifnot(xmin < xmax)
   stopifnot(ymin < ymax)
 
@@ -284,12 +313,9 @@ create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
     c(xmin, ymin, xmax, ymax),
     names = c("xmin", "ymin", "xmax", "ymax"),
     class = "bbox",
-    crs = crs)
-
+    crs = crs
+  )
 }
-
-
-
 
 
 #' Set function environment, binding locally defined functions
@@ -315,8 +341,7 @@ create_bbox <- function(xmin, ymin, xmax, ymax, crs = NULL){
 #'
 #' @returns A copy of `fn` with a new environment containing identified local
 #'   function dependencies, with the caller environment as its parent.
-set_fn_env <- function(fn){
-
+set_fn_env <- function(fn) {
   #' List, recursively, global objects called in `fn` and return dependency
   #' functions that are NOT:
   #' - primitives
@@ -329,9 +354,11 @@ set_fn_env <- function(fn){
     recursive = TRUE
   ) |>
     purrr::map(function(glb) {
-      if (is.function(glb) &&
+      if (
+        is.function(glb) &&
           !rlang::is_primitive(glb) &&
-          !rlang::is_namespace(environment(glb))) {
+          !rlang::is_namespace(environment(glb))
+      ) {
         glb
       } else {
         NULL
@@ -341,17 +368,14 @@ set_fn_env <- function(fn){
 
   # Set the new env for function, and bind dependencies
   environment(fn) <- rlang::new_environment(
-      data = local_dep_fns,
-      #parent = rlang::global_env()
-      #parent = environment(fn)
-      parent = rlang::caller_env()
-    )
+    data = local_dep_fns,
+    #parent = rlang::global_env()
+    #parent = environment(fn)
+    parent = rlang::caller_env()
+  )
 
   fn
 }
-
-
-
 
 
 #' Store and Restore RNGs
@@ -364,20 +388,19 @@ set_fn_env <- function(fn){
 #'
 #' @param savefile the path of the file storing the RNG returned by `.Random.seed`
 #'
-save_rng <- function(savefile=tempfile()) {
-  if (exists(".Random.seed"))  {
+save_rng <- function(savefile = tempfile()) {
+  if (exists(".Random.seed")) {
     oldseed <- get(".Random.seed", .GlobalEnv)
-  } else stop("don't know how to save before set.seed() or r*** call")
+  } else {
+    stop("don't know how to save before set.seed() or r*** call")
+  }
   oldRNGkind <- RNGkind()
-  save("oldseed","oldRNGkind",file=savefile)
+  save("oldseed", "oldRNGkind", file = savefile)
   invisible(savefile)
 }
 
 restore_rng <- function(savefile) {
   load(savefile)
-  do.call("RNGkind",as.list(oldRNGkind))  ## must be first!
+  do.call("RNGkind", as.list(oldRNGkind)) ## must be first!
   assign(".Random.seed", oldseed, .GlobalEnv)
 }
-
-
-

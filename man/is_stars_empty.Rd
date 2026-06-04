@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{is_stars_empty}
 \alias{is_stars_empty}
-\title{Assertion for empty \verb{<stars>} objects}
+\title{Predicate for empty \verb{<stars>} objects}
 \usage{
 is_stars_empty(x)
 }

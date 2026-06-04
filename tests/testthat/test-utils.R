@@ -1,5 +1,4 @@
 test_that("`is_stars_empty()` behaves as expected", {
-
   expect_true(is_stars_empty(stars::st_as_stars(matrix(NA))))
 
   expect_false(is_stars_empty(stars::st_as_stars(matrix(0))))
@@ -7,23 +6,21 @@ test_that("`is_stars_empty()` behaves as expected", {
 
   expect_false(
     rover_drivers$drv_sss@stars_obj |>
-    split("months") |>
+      split("months") |>
       is_stars_empty()
-    )
+  )
 
   expect_error(
     is_stars_empty(1),
     regexp = "Argument `x` must be of class",
     class = "err-arg-wrong-class"
   )
-
 })
 
 
 # `set_fn_env()` -----------------------------------------------------------------
 
 test_that("set_fn_env captures a single local dependency", {
-
   # Define a dependency in the Global Environment
   local_helper <- function(x) x + 1
   # Define a function that uses it
@@ -37,14 +34,10 @@ test_that("set_fn_env captures a single local dependency", {
   # Assertions
   expect_equal(portable_fn(10), 11)
   expect_identical("local_helper", names(environment(portable_fn)))
-
 })
 
 
-
-
 test_that("set_fn_env handles nested local dependencies", {
-
   inner_inner_fn <- function(a) a * 2
   inner_fn <- function(b) inner_inner_fn(b) / 10
   outer_fn <- function(c) inner_fn(c) + mean(1:20)
@@ -61,9 +54,7 @@ test_that("set_fn_env handles nested local dependencies", {
 
   # check if original and portable function prodeuce identical outputs
   expect_identical(portable_outer(2), outer_fn(2))
-
 })
-
 
 
 test_that("set_fn_env ignores package-loaded functions", {
@@ -80,5 +71,14 @@ test_that("set_fn_env ignores package-loaded functions", {
 })
 
 
+test_that("is_finite_positive() behaves as expected", {
+  expect_true(is_finite_positive(1))
+  expect_true(is_finite_positive(0.001))
 
-
+  expect_false(is_finite_positive(0))
+  expect_false(is_finite_positive(-1))
+  expect_false(is_finite_positive(NaN))
+  expect_false(is_finite_positive(Inf))
+  expect_false(is_finite_positive("string"))
+  expect_false(is_finite_positive(FALSE))
+})
