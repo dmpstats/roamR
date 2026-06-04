@@ -7,31 +7,27 @@
 #' date.
 #'
 #'
-#' @slot movement_model Character string, specifying the movement model to simulate
+#' @slot movement_model <[`string`][character]> the movement model to simulate
 #'   agent trajectories. Currently supported options:
 #'    * `"di"`: Density-informed movement, where agent destinations stochastically
 #'    generated based on population-level density maps.
 #'    * `"crw"`: Correlated Random Walk model, where movement directions
 #'    follow probability distributions that can be conditioned by habitat,
 #'    environmental and/or physiological factors.
-#' @slot n_agents Integer, the number of agents to track within the simulation.
-#' @slot ref_sys Object of class <`crs`>, defining the Coordinate Reference System to
+#' @slot n_agents <[`integer`]> the number of agents to track within the simulation.
+#' @slot ref_sys <`crs`> the Coordinate Reference System to
 #'   be applied to the IBM. Must be specified via [sf::st_crs()].
-#' @slot aoc_bbx Object of class <`bbox`>, specifying the area of calculation (AOC),
-#' i.e. the spatial bounding box within which simulation occurs.
-#' @slot delta_x,delta_y Numeric, specifying the cell (pixel) size in the x and
+#' @slot aoc_bbx <`bbox`> the area of calculation (AOC), i.e. the spatial bounding box within which simulation occurs.
+#' @slot delta_x,delta_y <[`numeric`]> the cell (pixel) size in the x and
 #'   y dimensions, respectively. These define the spatial resolution of the
 #'   AOC. Required only when `movement_model = "crw"`; otherwise values
 #'   are automatically derived from the resolution of provided
 #'   density maps. Units are assumed to match those of `ref_sys`.
-#' @slot delta_time Character string, defines the temporal resolution of the
-#'   model. Valid options include "hours", "day", "week", "month" or "year", and can
-#'   be preceded by a positive integer and a space, and followed by "s".
-#' @slot start_date;end_date Date, respectively, defines the start and end
+#' @slot delta_time <[`string`][character]> the temporal resolution of the
+#'   model. Valid options include `"hours"`, `"day"`, `"week"`, `"month"` or `"year"`, and can be preceded by a positive integer and a space, and followed by "s".
+#' @slot start_date;end_date <[`Date`][base::Date]> respectively, the start and end
 #'   dates for the simulation period.
-#' @slot start_sites An `<sf>` object, defining the sites where agents start the
-#'   simulation. Apart from the sites' geometry, this object must contain the
-#'   following columns:
+#' @slot start_sites <[`sf`]> the sites where agents start the simulation. Apart from the sites' geometry, this object must contain the following columns:
 #'    * `id`: a unique identifier for each site.
 #'    * `prop`: the proportion of `n_agents` allocated at each site. The values
 #'     in this column must sum to 1.
@@ -39,7 +35,7 @@
 #'    If `start_sites` are not provided, agents start at random locations
 #'    within the AOC.
 #'
-#' @slot end_sites An `<sf>` object, analogous to `start_sites`, but specifying
+#' @slot end_sites An <[`sf`]> analogous to `start_sites`, but specifying
 #'   the sites to which agents must return to at the end of the simulation. If
 #'   `NULL` (the default), end locations are not forced upon agent. **Note:**
 #'   This parameter is currently inactive and will be ignored.
@@ -90,32 +86,26 @@ methods::setClass(
 #' Helper function to define the model configuration of the IMB. It constructs
 #' instances of <[`ModelConfig-class`]> objects.
 #'
-#' @param movement_model Character string, specifying the movement model to simulate
+#' @param movement_model <[`string`][character]> the movement model to simulate
 #'   agent trajectories. Currently supported options:
 #'    * `"di"`: Density-informed movement, where agent destinations stochastically
 #'    generated based on population-level density maps.
 #'    * `"crw"`: Correlated Random Walk model, where movement directions
 #'    follow probability distributions that can be conditioned by habitat,
 #'    environmental and/or physiological factors.
-#' @param n_agents Integer, the number of agents to track within the simulation.
-#' @param ref_sys Object of class <`crs`>, defining the Coordinate Reference
+#' @param n_agents <[`integer`]> the number of agents to track within the simulation.
+#' @param ref_sys  <`crs`> the Coordinate Reference
 #'   System to be applied to the IBM. Must be specified via [sf::st_crs()].
-#' @param aoc_bbx Numeric vector or object of class <`bbox`>, specifying the
-#'   area of calculation (AOC), i.e. the spatial bounding box within which simulation
-#'   occurs. If numeric, expects a 4-length vector specifying `xmin`, `ymin`,
-#'   `xmax` and `ymax` values.
-#' @param delta_x,delta_y Numeric values, specifying the cell (pixel) size in the x and
+#' @param aoc_bbx <`bbox` | [`numeric`]> the area of calculation (AOC), i.e. the spatial bounding box within which simulation occurs. If <`numeric`>, expects a 4-length vector specifying `xmin`, `ymin`, `xmax` and `ymax` values.
+#' @param delta_x,delta_y <[`numeric`]> the cell (pixel) size in the x and
 #'   y dimensions, respectively. These define the spatial resolution of the
 #'   AOC. Required only when `movement_model = "crw"`; otherwise values
 #'   are automatically derived from the resolution of provided
 #'   density maps. Units are assumed to match those of `ref_sys`.
-#' @param delta_time character string defining the temporal resolution of the
-#'   model. Valid options include "hours", "day", "week", "month" or
-#'   "year", and can be preceded by a positive integer and a space, and followed
-#'   by "s".
-#' @param start_date;end_date Date, respectively, defines the start and end
-#'   dates for the simulation period.
-#' @param start_sites An `<sf>` object, defining the sites where agents start the
+#' @param delta_time <[`string`][character]> the temporal resolution of the
+#'   model. Valid options include `"hours"`, `"day"`, `"week"`, `"month"` or `"year"`, and can be preceded by a positive integer and a space, and followed by "s".
+#' @param start_date;end_date <[`Date`][base::Date]> respectively, defines the start and end dates for the simulation period.
+#' @param start_sites <[`sf`]> the sites where agents start the
 #'   simulation. Apart from the sites' geometry, this object must contain the
 #'   following columns:
 #'    * `id`: a unique identifier for each site.
@@ -124,7 +114,7 @@ methods::setClass(
 #'
 #'    If `NULL` (the default), agents start at random locations within the AOC.
 #'
-#' @param end_sites An `<sf>` object, analogous to `start_sites`, specifying the
+#' @param end_sites <[`sf`]> analogous to `start_sites`, specifying the
 #'   sites to which agents must return to at the end of the simulation. If
 #'   `NULL` (the default), end locations are not forced upon agent. **Note:**
 #'   This parameter is currently inactive and will be ignored.

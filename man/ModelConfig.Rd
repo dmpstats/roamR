@@ -19,7 +19,7 @@ ModelConfig(
 )
 }
 \arguments{
-\item{movement_model}{Character string, specifying the movement model to simulate
+\item{movement_model}{<\code{\link[=character]{string}}> the movement model to simulate
 agent trajectories. Currently supported options:
 \itemize{
 \item \code{"di"}: Density-informed movement, where agent destinations stochastically
@@ -29,28 +29,23 @@ follow probability distributions that can be conditioned by habitat,
 environmental and/or physiological factors.
 }}
 
-\item{n_agents}{Integer, the number of agents to track within the simulation.}
+\item{n_agents}{<\code{\link{integer}}> the number of agents to track within the simulation.}
 
-\item{ref_sys}{Object of class <\code{crs}>, defining the Coordinate Reference
+\item{ref_sys}{<\code{crs}> the Coordinate Reference
 System to be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
 
-\item{aoc_bbx}{Numeric vector or object of class <\code{bbox}>, specifying the
-area of calculation (AOC), i.e. the spatial bounding box within which simulation
-occurs. If numeric, expects a 4-length vector specifying \code{xmin}, \code{ymin},
-\code{xmax} and \code{ymax} values.}
+\item{aoc_bbx}{<\code{bbox} | \code{\link{numeric}}> the area of calculation (AOC), i.e. the spatial bounding box within which simulation occurs. If <\code{numeric}>, expects a 4-length vector specifying \code{xmin}, \code{ymin}, \code{xmax} and \code{ymax} values.}
 
-\item{delta_x, delta_y}{Numeric values, specifying the cell (pixel) size in the x and
+\item{delta_x, delta_y}{<\code{\link{numeric}}> the cell (pixel) size in the x and
 y dimensions, respectively. These define the spatial resolution of the
 AOC. Required only when \code{movement_model = "crw"}; otherwise values
 are automatically derived from the resolution of provided
 density maps. Units are assumed to match those of \code{ref_sys}.}
 
-\item{delta_time}{Character string, defines the temporal resolution of the
-model. Valid options include "hours", "day", "week", "month" or
-"year", and can be preceded by a positive integer and a space, and followed
-by "s".}
+\item{delta_time}{<\code{\link[=character]{string}}> the temporal resolution of the
+model. Valid options include \code{"hours"}, \code{"day"}, \code{"week"}, \code{"month"} or \code{"year"}, and can be preceded by a positive integer and a space, and followed by "s".}
 
-\item{start_sites}{An \verb{<sf>} object, defining the sites where agents start the
+\item{start_sites}{<\code{\link[sf:sf]{sf}}> the sites where agents start the
 simulation. Apart from the sites' geometry, this object must contain the
 following columns:
 \itemize{
@@ -61,20 +56,19 @@ in this column must sum to 1.
 
 If \code{NULL} (the default), agents start at random locations within the AOC.}
 
-\item{end_sites}{An \verb{<sf>} object, analogous to \code{start_sites}, specifying the
+\item{end_sites}{<\code{\link[sf:sf]{sf}}> analogous to \code{start_sites}, specifying the
 sites to which agents must return to at the end of the simulation. If
 \code{NULL} (the default), end locations are not forced upon agent. \strong{Note:}
 This parameter is currently inactive and will be ignored.}
 
-\item{start_date;end_date}{Date, respectively, defines the start and end
-dates for the simulation period.}
+\item{start_date;end_date}{<\code{\link[base:Date]{Date}}> respectively, defines the start and end dates for the simulation period.}
 }
 \value{
-An object of class <\linkS4class{ModelConfig}>
+An object of class <\link[=ModelConfig-class]{ModelConfig}>
 }
 \description{
 Helper function to define the model configuration of the IMB. It constructs
-instances of <\code{\linkS4class{ModelConfig}}> objects.
+instances of <\code{\link[=ModelConfig-class]{ModelConfig}}> objects.
 }
 \details{
 In the recommended workflow for building and running IBMs in roamR, the first

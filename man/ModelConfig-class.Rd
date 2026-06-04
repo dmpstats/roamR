@@ -14,7 +14,7 @@ date.
 \section{Slots}{
 
 \describe{
-\item{\code{movement_model}}{Character string, specifying the movement model to simulate
+\item{\code{movement_model}}{<\code{\link[=character]{string}}> the movement model to simulate
 agent trajectories. Currently supported options:
 \itemize{
 \item \code{"di"}: Density-informed movement, where agent destinations stochastically
@@ -24,30 +24,26 @@ follow probability distributions that can be conditioned by habitat,
 environmental and/or physiological factors.
 }}
 
-\item{\code{n_agents}}{Integer, the number of agents to track within the simulation.}
+\item{\code{n_agents}}{<\code{\link{integer}}> the number of agents to track within the simulation.}
 
-\item{\code{ref_sys}}{Object of class <\code{crs}>, defining the Coordinate Reference System to
+\item{\code{ref_sys}}{<\code{crs}> the Coordinate Reference System to
 be applied to the IBM. Must be specified via \code{\link[sf:st_crs]{sf::st_crs()}}.}
 
-\item{\code{aoc_bbx}}{Object of class <\code{bbox}>, specifying the area of calculation (AOC),
-i.e. the spatial bounding box within which simulation occurs.}
+\item{\code{aoc_bbx}}{<\code{bbox}> the area of calculation (AOC), i.e. the spatial bounding box within which simulation occurs.}
 
-\item{\code{delta_x,delta_y}}{Numeric, specifying the cell (pixel) size in the x and
+\item{\code{delta_x,delta_y}}{<\code{\link{numeric}}> the cell (pixel) size in the x and
 y dimensions, respectively. These define the spatial resolution of the
 AOC. Required only when \code{movement_model = "crw"}; otherwise values
 are automatically derived from the resolution of provided
 density maps. Units are assumed to match those of \code{ref_sys}.}
 
-\item{\code{delta_time}}{Character string, defines the temporal resolution of the
-model. Valid options include "hours", "day", "week", "month" or "year", and can
-be preceded by a positive integer and a space, and followed by "s".}
+\item{\code{delta_time}}{<\code{\link[=character]{string}}> the temporal resolution of the
+model. Valid options include \code{"hours"}, \code{"day"}, \code{"week"}, \code{"month"} or \code{"year"}, and can be preceded by a positive integer and a space, and followed by "s".}
 
-\item{\code{start_date;end_date}}{Date, respectively, defines the start and end
+\item{\code{start_date;end_date}}{<\code{\link[base:Date]{Date}}> respectively, the start and end
 dates for the simulation period.}
 
-\item{\code{start_sites}}{An \verb{<sf>} object, defining the sites where agents start the
-simulation. Apart from the sites' geometry, this object must contain the
-following columns:
+\item{\code{start_sites}}{<\code{\link[sf:sf]{sf}}> the sites where agents start the simulation. Apart from the sites' geometry, this object must contain the following columns:
 \itemize{
 \item \code{id}: a unique identifier for each site.
 \item \code{prop}: the proportion of \code{n_agents} allocated at each site. The values
@@ -57,7 +53,7 @@ in this column must sum to 1.
 If \code{start_sites} are not provided, agents start at random locations
 within the AOC.}
 
-\item{\code{end_sites}}{An \verb{<sf>} object, analogous to \code{start_sites}, but specifying
+\item{\code{end_sites}}{An <\code{\link[sf:sf]{sf}}> analogous to \code{start_sites}, but specifying
 the sites to which agents must return to at the end of the simulation. If
 \code{NULL} (the default), end locations are not forced upon agent. \strong{Note:}
 This parameter is currently inactive and will be ignored.}
