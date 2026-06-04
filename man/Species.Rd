@@ -17,47 +17,42 @@ Species(
 )
 }
 \arguments{
-\item{id}{character string, a unique identifier for the species.}
+\item{id}{<\code{\link[=character]{string}}> the unique identifier for the species.}
 
-\item{common_name}{character string, the common name of the species.}
+\item{common_name}{<\code{\link[=character]{string}}> the common name of the species.}
 
-\item{scientific_name}{character string, the scientific name of the species.}
+\item{scientific_name}{<\code{\link[=character]{string}}> the scientific name of the species.}
 
-\item{body_mass_distr}{an object of class \linkS4class{VarDist}, defining the
-distribution of body mass for the species.}
+\item{body_mass_distr}{<\code{\link[=VarDist-class]{VarDist}}> the distribution of body mass for the species.}
 
-\item{energy_to_mass_distr}{a \linkS4class{VarDist} object, providing the
-energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determines
-how gained or lost energy translates into changes in body mass.}
+\item{energy_to_mass_distr}{<\code{\link[=VarDist-class]{VarDist}}> the energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determines how gained or lost energy translates into changes in body mass.}
 
-\item{mortality_thresh_distr}{an object of class \linkS4class{VarDist}, specifying
-the values of agent's condition (e.g. body mass), below which it is
-assumed to have died (\emph{Note: parameter may require further generalization})}
+\item{mortality_thresh_distr}{<\code{\link[=VarDist-class]{VarDist}}> the values of agent's condition (e.g. body mass), below which it is assumed to have died (\emph{Note: parameter may require further generalization})}
 
-\item{states_profile}{a list of \linkS4class{State} objects, defining the
+\item{states_profile}{<\code{\link{list}} of <\code{\link[=State-class]{State}}> objects, defining the
 behavioural/activity states for the species to consider in the model.}
 
-\item{driver_responses}{a list of \linkS4class{DriverResponse} objects, specifying
+\item{driver_responses}{<\code{\link{list}} of <\code{\link[=DriverResponse-class]{DriverResponse}}> objects, specifying
 the species’ responses to predefined model drivers, such as environmental
 pressures, biological influences, and human-induced impacts affecting
 movement and behaviour/activity states. See the Details section below and
-\linkS4class{DriverResponse} for further information.}
+<\code{\link[=DriverResponse-class]{DriverResponse}}> for further information.}
 
-\item{pop_size}{numeric, the population size (i.e., number of individuals)
+\item{pop_size}{<\code{\link{numeric}}> the population size (i.e., number of individuals)
 within the area of calculation (AOC).}
 }
 \description{
-Helper function to construct instances of \linkS4class{Species} objects, representing
+Helper function to construct instances of <\code{\link[=Species-class]{Species}}> objects, representing
 species-level properties of simulated agents. These include attributes
 related to taxonomy, physiology, behavioural/activity states, responses to
 environmental and non-environmental drivers, and population size.
 }
 \details{
 Each element in the \code{driver_responses} list must correspond to an existing
-object of class \linkS4class{Driver}. At the initialization phase of \code{{roamR}}s
+object of class <\code{\link[=Driver-class]{Driver}}> At the initialization phase of \code{{roamR}}s
 IBM, these \code{driver_responses} are matched with their respective
-\linkS4class{Driver} objects to ensure a consistent set of species-driver
-interactions. Failure to provide a corresponding \linkS4class{Driver} object for
+<\code{\link[=Driver-class]{Driver}}> objects to ensure a consistent set of species-driver
+interactions. Failure to provide a corresponding <\code{\link[=Driver-class]{Driver}}> object for
 each entry of \code{driver_responses} will result in missing or undefined driver
 effects during the simulation.
 }

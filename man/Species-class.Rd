@@ -13,41 +13,37 @@ drivers, and population size.
 \section{Slots}{
 
 \describe{
-\item{\code{id}}{character string, a unique identifier for the species.}
+\item{\code{id}}{<\code{\link[=character]{string}}> the unique identifier for the species.}
 
-\item{\code{common_name}}{character string, the common name of the species.}
+\item{\code{common_name}}{<\code{\link[=character]{string}}> the common name of the species.}
 
-\item{\code{scientific_name}}{character string, the scientific name of the species.}
+\item{\code{scientific_name}}{<\code{\link[=character]{string}}> the scientific name of the species.}
 
-\item{\code{body_mass_distr}}{an object of class \linkS4class{VarDist}, defining the
+\item{\code{body_mass_distr}}{an object of class \link[=VarDist-class]{VarDist}, defining the
 distribution of body mass for the species.}
 
-\item{\code{energy_to_mass_distr}}{a \linkS4class{VarDist} object, providing the
-energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determines
-how gained or lost energy translates into changes in body mass.}
+\item{\code{energy_to_mass_distr}}{<\code{\link[=VarDist-class]{VarDist}}> the energy-to-bodymass conversion rate for the species (e.g. g/kJ). Determineshow gained or lost energy translates into changes in body mass.}
 
-\item{\code{states_profile}}{a list of \linkS4class{State} objects, defining the
+\item{\code{states_profile}}{<\code{\link{list}}> of <\code{\link[=State-class]{State}}> objects, defining the
 behavioural/activity states for the species to consider in the model.}
 
-\item{\code{driver_responses}}{list of \linkS4class{DriverResponse} objects, specifying the
+\item{\code{driver_responses}}{<\code{\link{list}}> of <\code{\link[=DriverResponse-class]{DriverResponse}}> objects, specifying the
 species’ responses to predefined model drivers, such as environmental
 pressures, biological influences, and human-induced impacts affecting
-movement and behaviour/activity states. See \linkS4class{DriverResponse} for
+movement and behaviour/activity states. See <\code{\link[=DriverResponse-class]{DriverResponse}}> for
 details.
 
 Each element in the \code{driver_responses} list must correspond to an existing
-object of class \linkS4class{Driver}. At the initialization phase of the
+object of class \link[=Driver-class]{Driver}. At the initialization phase of the
 Individual-Based Model (IBM), these \code{driver_responses} are matched with
-their respective \linkS4class{Driver} objects to ensure a consistent and
+their respective \link[=Driver-class]{Driver} objects to ensure a consistent and
 well-defined set of species-driver interactions. Failure to provide a
-corresponding \linkS4class{Driver} object for each entry of \code{driver_responses}
+corresponding \link[=Driver-class]{Driver} object for each entry of \code{driver_responses}
 will result in missing or undefined driver effects during the simulation.}
 
-\item{\code{mortality_thresh_distr}}{an object of class \linkS4class{VarDist}, specifying
-the values of agent's condition (e.g. body mass), below which it is
-assumed to have died (\emph{Note: slot may require further generalization})}
+\item{\code{mortality_thresh_distr}}{<\code{\link[=VarDist-class]{VarDist}}> values of agent's condition (e.g. body mass), below which it is assumed to have died (\emph{Note: slot may require further generalization})}
 
-\item{\code{pop_size}}{numeric, the population size (i.e., number of individuals)
+\item{\code{pop_size}}{<\code{\link{numeric}}> the population size (i.e., number of individuals)
 within the area of calculation (AOC).}
 }}
 
