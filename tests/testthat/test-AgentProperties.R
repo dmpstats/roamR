@@ -6,9 +6,7 @@ test_that("AgentProperties() creates an S4 <AgentProperties> object", {
 })
 
 
-
 test_that("slot-based specification works as expected", {
-
   spp <- "roamer"
   b <- units::set_units(13, "kg")
   s <- units::set_units(13, "m/s")
@@ -24,7 +22,13 @@ test_that("slot-based specification works as expected", {
   )
 
   expect_identical(
-    list(out@species_id, out@initial_mass, out@speeds$swim, out@start_point, out@mortality_thresh),
+    list(
+      out@species_id,
+      out@initial_mass,
+      out@speeds$swim,
+      out@start_point,
+      out@mortality_thresh
+    ),
     list(spp, b, s, p, m)
   )
 
@@ -32,13 +36,10 @@ test_that("slot-based specification works as expected", {
   expect_true(length(out@move_influences) == 0)
   expect_true(is.na(out@age))
   expect_true(is.na(out@sex))
-
 })
 
 
-
 test_that("species-based specification works as expected", {
-
   library(units)
   library(distributional)
   library(purrr)
@@ -52,15 +53,30 @@ test_that("species-based specification works as expected", {
   ci_upp <- set_units(ci$upper, rover@body_mass_distr@units, mode = "standard")
   expect_true(out@initial_mass >= ci_lwr & out@initial_mass <= ci_upp)
 
-
   ci <- hilo(rover@states_profile$flight@speed@distr, 99)
-  ci_lwr <- set_units(ci$lower, rover@states_profile$flight@speed@units, mode = "standard")
-  ci_upp <- set_units(ci$upper, rover@states_profile$flight@speed@units, mode = "standard")
+  ci_lwr <- set_units(
+    ci$lower,
+    rover@states_profile$flight@speed@units,
+    mode = "standard"
+  )
+  ci_upp <- set_units(
+    ci$upper,
+    rover@states_profile$flight@speed@units,
+    mode = "standard"
+  )
   expect_true(out@speeds$flying >= ci_lwr & out@speeds$flying <= ci_upp)
 
   ci <- hilo(rover@states_profile$swimming@speed@distr, 99)
-  ci_lwr <- set_units(ci$lower, rover@states_profile$swimming@speed@units, mode = "standard")
-  ci_upp <- set_units(ci$upper, rover@states_profile$swimming@speed@units, mode = "standard")
+  ci_lwr <- set_units(
+    ci$lower,
+    rover@states_profile$swimming@speed@units,
+    mode = "standard"
+  )
+  ci_upp <- set_units(
+    ci$upper,
+    rover@states_profile$swimming@speed@units,
+    mode = "standard"
+  )
   expect_true(out@speeds$swimming >= ci_lwr & out@speeds$swimming <= ci_upp)
 
   # TODO
@@ -70,5 +86,4 @@ test_that("species-based specification works as expected", {
   # out@mortality_thresh
 
   out <- AgentProperties(species = rover, model_config = ibm_config_rover)
-
 })
