@@ -8,9 +8,7 @@
 #' state profile to be structured as a list of `<State>` objects. This flexible
 #' design enables customized state specifications for different species.
 #'
-#' Currently, three state attributes are supported: energy cost, time budget,
-#' and movement speed. However, the class design allows for future expansions to
-#' accommodate additional state attributes.
+#' Currently, four state attributes are supported: activity type, energy cost, time budget, and movement speed.
 #
 #' @slot id  <[`string`][character]> the unique identifier for the state, representing a
 #'   specific behaviour or activity.
@@ -55,7 +53,7 @@ methods::setClass(
 #' Helper function to construct instances of <[`State-class`]> objects, enabling
 #' the specification of attributes specific to an agent's behavioural or
 #' activity state. Each `<State>` object defines characteristics such as energy
-#' expenditure, time allocation, and movement speed at the individual level.
+#' expenditure, time allocation, and movement speed at the individual level. For a specific species, states are combined to form the specie's state profile.
 #'
 #'
 #' @param id  <[`string`][character]> the unique identifier for the state, representing a

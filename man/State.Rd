@@ -6,6 +6,7 @@
 \usage{
 State(
   id = NA_character_,
+  type = c("foraging", "resting", "travelling", "other"),
   energy_cost = VarDist(),
   time_budget = VarDist(),
   speed = VarDist()
@@ -15,12 +16,6 @@ State(
 \item{id}{<\code{\link[=character]{string}}> the unique identifier for the state, representing a
 specific behaviour or activity.}
 
-\item{energy_cost}{<\code{\link[=VarDist-class]{VarDist}}> the energy expenditure associated with the state (e.g. kJ/hour/grams).}
-
-\item{time_budget}{<\code{\link[=VarDist-class]{VarDist}}> the agent's typical time allocation to this state, expressed as a relative duration (e.g. hours/day).}
-
-\item{speed}{<\code{\link[=VarDist-class]{VarDist}}> the movement speed associated with this state (e.g. m/s).}
-
 \item{type}{<\code{\link[=character]{string}}> specifies the functional category of the activity. This classifies states based on their role in the agent's life. Current accepted values are:
 \itemize{
 \item "foraging": encompasses both food searching and consumption.
@@ -28,6 +23,12 @@ specific behaviour or activity.}
 \item "travelling": includes locomotion for non-foraging purposes (e.g., flying, running, swimming, or migrating).
 \item "other": for any state not covered by the above categories.
 }}
+
+\item{energy_cost}{<\code{\link[=VarDist-class]{VarDist}}> the energy expenditure associated with the state (e.g. kJ/hour/grams).}
+
+\item{time_budget}{<\code{\link[=VarDist-class]{VarDist}}> the agent's typical time allocation to this state, expressed as a relative duration (e.g. hours/day).}
+
+\item{speed}{<\code{\link[=VarDist-class]{VarDist}}> the movement speed associated with this state (e.g. m/s).}
 }
 \value{
 a <\code{\link[=State-class]{State}}> S4 object
@@ -36,7 +37,19 @@ a <\code{\link[=State-class]{State}}> S4 object
 Helper function to construct instances of <\code{\link[=State-class]{State}}> objects, enabling
 the specification of attributes specific to an agent's behavioural or
 activity state. Each \verb{<State>} object defines characteristics such as energy
-expenditure, time allocation, and movement speed at the individual level.
+expenditure, time allocation, and movement speed at the individual level. For a specific species, states are combined to form the specie's state profile.
+}
+\examples{
+
+ # Create a <State> object representing a foraging state
+ State(
+  id = "foraging",
+  type = "foraging",
+  energy_cost = VarDist(distributional::dist_normal(4, 0.5), "kJ/hour/grams"),
+  time_budget = VarDist(10, "hour/day"),
+  speed = VarDist(distributional::dist_uniform(0.5, 1.5), "m/s")
+)
+
 }
 \seealso{
 \code{\link[=VarDist]{VarDist()}} for defining \verb{<VarDist>} objects

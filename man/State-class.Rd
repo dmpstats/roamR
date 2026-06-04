@@ -14,9 +14,7 @@ expenditure, time allocation, and movement speed at the individual level.
 state profile to be structured as a list of \verb{<State>} objects. This flexible
 design enables customized state specifications for different species.
 
-Currently, three state attributes are supported: energy cost, time budget,
-and movement speed. However, the class design allows for future expansions to
-accommodate additional state attributes.
+Currently, four state attributes are supported: activity type, energy cost, time budget, and movement speed.
 }
 \section{Slots}{
 
