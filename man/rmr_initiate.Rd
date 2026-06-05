@@ -20,5 +20,5 @@ from being printed in R console?}
 }
 \description{
 Sets up the starting conditions and initial state for the IBM simulation,
-incorporating species, habitat, structures, and configuration settings.
+collating species, habitat, structures, and configuration definitions. Sense checks on input consistency are performed at this stage, and spatial inputs are processed to ensure conformity with the model configuration (e.g. CRS, spatial coverage). The function also processes species' states and driver responses to prepare for the simulation phase.
 }
